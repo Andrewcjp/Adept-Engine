@@ -28,7 +28,8 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	}
 	//DXMM: Todo Placed resource 
 	ID3D12Resource* DxResource = nullptr;
-	CreateResource(GetChunk(desc), desc, &DxResource);
+	AllocationChunk* UsedChunk = GetChunk(desc);
+	CreateResource(UsedChunk, desc, &DxResource);
 	if (desc.Name.length() > 0)
 	{
 		std::wstring Conv = StringUtils::ConvertStringToWide(desc.Name);
@@ -38,10 +39,11 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	(*Resource)->SetDebugName(desc.Name);
 	ContainedResources.push_back(*Resource);
 	(*Resource)->SetGPUPage(this);
+	(*Resource)->Chunk = UsedChunk;
 	if (LogPageAllocations.GetBoolValue())
 	{
 		//Log::LogMessage("Allocating " + std::to_string(desc.Size / 1e6) + "MB Called '" + desc.Name + "' in Segment " + EGPUMemorysegment::ToString(desc.Segment));
-		Log::LogMessage("Page '" + PageDesc.Name + "' Used " + StringUtils::ByteToMB(OffsetInPlacedHeap) + " / " + StringUtils::ByteToMB(PageDesc.Size));
+		Log::LogMessage("Page '" + PageDesc.Name + "' Used " + StringUtils::ByteToMB(GetSizeInUse()) + " / " + StringUtils::ByteToMB(PageDesc.Size));
 	}
 	return EAllocateResult::OK;
 }
@@ -181,20 +183,35 @@ void GPUMemoryPage::Deallocate(GPUResource * R)
 	{
 		return;//during the delete we destroy any present GPU resources, we don't need them telling us there gone again.
 	}
+	if (R->Chunk != nullptr)
+	{
+		VectorUtils::Remove(AllocatedChunks, R->Chunk);
+		FreeChunks.push_back(R->Chunk);
+	}
 	VectorUtils::Remove(ContainedResources, R);
 	if (ContainedResources.size() == 0)
 	{
-		OffsetInPlacedHeap = 0;
+		ResetPage();
 	}
 }
 
-UINT64 GPUMemoryPage::GetSize() const
+UINT64 GPUMemoryPage::GetSize(bool LocalOnly) const
 {
+	if (LocalOnly && PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
+	{
+		//not in GPU memory
+		return 0;
+	}
 	return PageDesc.Size;
 }
 
-UINT64 GPUMemoryPage::GetSizeInUse() const
+UINT64 GPUMemoryPage::GetSizeInUse(bool LocalOnly) const
 {
+	if (LocalOnly && PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
+	{
+		//not in GPU memory
+		return 0;
+	}
 	UINT64 Bytes = 0;
 	for (int i = 0; i < AllocatedChunks.size(); i++)
 	{
@@ -205,7 +222,7 @@ UINT64 GPUMemoryPage::GetSizeInUse() const
 
 void GPUMemoryPage::LogReport()
 {
-	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(GetSizeInUse()) + " / " 
+	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(GetSizeInUse()) + " / "
 		+ StringUtils::ByteToMB(PageDesc.Size) + " Free Chunks " + std::to_string(FreeChunks.size()));
 }
 

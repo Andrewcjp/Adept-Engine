@@ -6,6 +6,7 @@ class D3D12DeviceContext;
 class D3D12CommandList;
 class DXDescriptor;
 class GPUResource;
+class D3D12RHITexture;
 class D3D12Texture : public BaseTexture
 {
 public:
@@ -32,5 +33,6 @@ private:
 	ID3D12Resource* m_texture = nullptr;
 	GPUResource* TextureResource = nullptr;
 	int FrameCreated = -1;
+	D3D12RHITexture* Cover = nullptr;
 };
 

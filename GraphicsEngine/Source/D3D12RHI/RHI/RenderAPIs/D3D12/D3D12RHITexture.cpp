@@ -232,3 +232,52 @@ void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, R
 	//DidTransferLastFrame = true;
 	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 }
+
+void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext)
+{
+	UploadDesc = idesc;
+	GPUResource* textureUploadHeap;
+
+	RHITextureDesc2 ImageDesc;
+	ImageDesc.Width = UploadDesc.Width;
+	ImageDesc.Height = UploadDesc.Height;
+	ImageDesc.Format = UploadDesc.Format;
+	ImageDesc.Dimension = DIMENSION_TEXTURE2D;
+	ImageDesc.InitalState = EResourceState::CopyDst;
+	ImageDesc.Depth = idesc.Faces;
+	ImageDesc.MipCount = idesc.MipLevels;
+	Create(ImageDesc, DContext);
+
+	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(Resource->GetResource(), 0, idesc.MipLevels*idesc.Faces);
+
+	AllocDesc D = AllocDesc();
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	DContext->GetMemoryManager()->AllocUploadTemporary(D, &textureUploadHeap);
+	D3D12Helpers::NameRHIObject(textureUploadHeap, this, "(UPLOAD)");
+
+	std::vector<D3D12_SUBRESOURCE_DATA> SubResourceDesc;
+	uint64_t offset = 0;
+	for (int face = 0; face < UploadDesc.Faces; face++)
+	{
+		for (int mip = 0; mip < UploadDesc.MipLevels; mip++)
+		{
+			D3D12_SUBRESOURCE_DATA textureData = {};
+			textureData.pData = (void*)(offset + (UINT64)UploadDesc.PtrToData);
+			textureData.RowPitch = UploadDesc.MipExtents(mip).x*UploadDesc.BitDepth;
+			textureData.SlicePitch = textureData.RowPitch  * UploadDesc.MipExtents(mip).y;
+			SubResourceDesc.push_back(textureData);
+			offset += UploadDesc.Size(mip);
+		}
+	}
+	GPUUploadRequest Request;
+	Request.SubResourceDesc = SubResourceDesc;
+	Request.UploadBuffer = textureUploadHeap;
+	Request.Target = Resource;
+	Request.DataPtr = UploadDesc.PtrToData;
+	Request.DataPtrSize = uploadBufferSize;
+	DContext->EnqueueUploadRequest(Request);
+
+	Resource->SetName(L"Texture");
+	textureUploadHeap->SetName(L"Upload");
+}

@@ -1,9 +1,11 @@
 #pragma once
 #include "D3D12RHI.h"
 #include "D3D12Types.h"
+#include "GPUMemoryPage.h"
 
 class GPUMemoryPage;
 class D3D12CommandList;
+
 
 #define _KB(x) (x * 1024)
 #define _MB(x) (x * 1024 * 1024)
@@ -35,6 +37,8 @@ public:
 	bool IsTransitioning();
 	void SetGPUPage(GPUMemoryPage* page);
 	void UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate);
+	//store a ptr to the Chunk in the page for this resource.
+	GPUMemoryPage::AllocationChunk* Chunk = nullptr;
 private:
 	EResourcePageState::Type currentState = EResourcePageState::Resident;
 	ID3D12Resource* resource = nullptr;

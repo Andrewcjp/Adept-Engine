@@ -24,8 +24,8 @@ struct ERayTracingSupportType
 	enum Type
 	{
 		None,
-		DriverBased,
-		Hardware,
+		DriverBased,//Driver provides RT layer on GPU with no RT hardware.
+		Hardware,//Full hardware acceleration support
 		Limit
 	};
 	CORE_API static const char* ToString(ERayTracingSupportType::Type e);

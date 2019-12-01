@@ -30,6 +30,8 @@ public:
 	void EndTotalGPUTimer(RHICommandList * ComandList) override;
 
 	float GetTotalTime() override;
+	void StartPipelineStatCapture(RHICommandList * commandlist) override;
+	void EndPipelineStatCapture(RHICommandList * commandlist) override;
 	void StartTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
 	void EndTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
 private:
@@ -77,5 +79,6 @@ private:
 	std::vector<TimerQ> TimerQueries;
 	TimerQ* GetTimer(std::string name);
 	void ResolveAllTimers();
+	D3D12Query* PSQuery = nullptr;
 };
 

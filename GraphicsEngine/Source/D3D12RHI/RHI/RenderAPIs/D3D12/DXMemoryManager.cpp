@@ -3,7 +3,7 @@
 #include "D3D12DeviceContext.h"
 #include "GPUMemoryPage.h"
 #include "Core\Maths\Math.h"
-static ConsoleVariable LogAllocations("VMEM.LogPages", 1, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable LogAllocations("VMEM.LogPages", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable MemReport("VMEM.Report", ECVarType::ConsoleAndLaunch, std::bind(DXMemoryManager::StaticReport));
 DXMemoryManager::DXMemoryManager(D3D12DeviceContext * D)
 {
@@ -171,7 +171,7 @@ EAllocateResult::Type DXMemoryManager::AllocPage(AllocDesc & desc, GPUMemoryPage
 	*Page = new GPUMemoryPage(desc, Device);
 	if (LogAllocations.GetBoolValue())
 	{
-		//Log::LogMessage("Allocating Page of Size: " + StringUtils::ByteToMB(desc.Size) + " Of segment " + EGPUMemorysegment::ToString(desc.Segment));
+		Log::LogMessage("Allocating Page of Size: " + StringUtils::ByteToMB(desc.Size) + " Of segment " + EGPUMemorysegment::ToString(desc.Segment));
 	}
 	AllPages.push_back(*Page);
 	//#DXMM: checks!
@@ -184,8 +184,8 @@ void DXMemoryManager::UpdateTotalAlloc()
 	TotalPageUsed = 0;
 	for (GPUMemoryPage* P : AllPages)
 	{
-		TotalPageAllocated += P->GetSize();
-		TotalPageUsed += P->GetSizeInUse();
+		TotalPageAllocated += P->GetSize(true);
+		TotalPageUsed += P->GetSizeInUse(true);
 	}
 }
 

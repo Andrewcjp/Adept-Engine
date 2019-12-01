@@ -49,6 +49,8 @@ public:
 	static D3D12_RESOURCE_ALLOCATION_INFO GetResourceSizeData(int width, int height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION dim, bool depth = false, D3D12DeviceContext * c = nullptr);
 	static std::string SMToString(D3D_SHADER_MODEL SM);
 	static D3D12_INDIRECT_ARGUMENT_DESC ConvertArg(INDIRECT_ARGUMENT_DESC desc);
+	static D3D12_QUERY_HEAP_TYPE ConvertQuerryType(EGPUQueryType::Type type);
+	static bool IsValidForQueryHeap(D3D12_QUERY_HEAP_TYPE type, EGPUQueryType::Type QuerryType);
 };
 
 //Used to Copy Back resources for read

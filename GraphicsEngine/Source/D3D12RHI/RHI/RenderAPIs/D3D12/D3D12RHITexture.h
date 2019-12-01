@@ -19,6 +19,9 @@ public:
 	void WriteToDescriptor(DXDescriptor* Descriptor, const RHIViewDesc& desc);
 	virtual void CopyToStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List) override;
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List) override;
+
+	void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext) override;
+
 private:
 	GPUResource* Resource = nullptr;
 	D3D12DeviceContext* DContext = nullptr;

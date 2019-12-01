@@ -2,7 +2,7 @@
 #include "Asserts.h"
 #include "Core\Platform\PlatformCore.h"
 #include "Utils\VectorUtils.h"
-#define DEBUG_HOLDSTACKS 1
+#define DEBUG_HOLDSTACKS _DEBUG
 //macro That Removes ref and deletes the object if the count == 0; Also Nulls the pointer for safety
 #define SafeRefRelease(target) SafeRHIRefRelease(target);
 #define SafeRHIRefRelease(target) if(target != nullptr){if(target->ReleaseRef() == 0){EnqueueSafeRHIRelease(target); target = nullptr;}}

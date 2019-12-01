@@ -106,12 +106,13 @@ void D3D12CommandList::PushHeaps()
 	{
 		return;
 	}
-	std::vector<ID3D12DescriptorHeap*> ppHeaps;
-	for (int i = 0; i < heaps.size(); i++)
+	if (CurrentBoundHeap == heaps[0]->GetHeap())
 	{
-		ppHeaps.push_back(heaps[i]->GetHeap());
+		return;
 	}
-	CurrentCommandList->SetDescriptorHeaps((UINT)ppHeaps.size(), ppHeaps.data());
+	ID3D12DescriptorHeap* heap[] = { heaps[0]->GetHeap() };
+	CurrentCommandList->SetDescriptorHeaps((UINT)1, heap);
+	CurrentBoundHeap = heap[0];
 }
 
 void D3D12CommandList::ClearHeaps()
@@ -235,7 +236,6 @@ void D3D12CommandList::PrepareforDraw()
 			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
-				//TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
 			else
@@ -712,7 +712,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIVie
 	{
 		return;
 	}
-	ensure(Texture->GetResource()->IsValidStateForList(this));
+	//	ensure(Texture->GetResource()->IsValidStateForList(this));
 	RootSigniture.SetTexture(slot, texture, desc);
 }
 

@@ -13,6 +13,7 @@
 #include "DescriptorHeap.h"
 #include "DescriptorCache.h"
 #include "Core/Maths/Math.h"
+#include "GPUResource.h"
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -65,10 +66,13 @@ bool D3D12DeviceContext::DetectDriverDXR()
 {
 	//Not great but there isn't an API check.
 	std::wstring Data = Adaptordesc.Description;
-	std::wstring t = L"10";
-	if (StringUtils::Contains(Data, t))
+	std::wstring Strings[] = { L"10",L"Titan X",L"1660",L"Titan V" };
+	for (std::wstring s : Strings)
 	{
-		return true;
+		if (StringUtils::Contains(Data, s))
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -102,8 +106,8 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		GPUType = EGPUType::Software;
 	}
-#if 0
 	LogFeatureData("UMA", ARCHDAta.UMA);
+#if 0
 	LogFeatureData("TileBasedRenderer", ARCHDAta.TileBasedRenderer);
 	LogFeatureData("IsolatedMMU", ARCHDAta.IsolatedMMU);
 #endif
@@ -357,6 +361,7 @@ void D3D12DeviceContext::InitDevice(int index)
 	}
 	TimeStampHeap = new D3D12QueryHeap(this, 8192, D3D12_QUERY_HEAP_TYPE_TIMESTAMP);
 	CopyTimeStampHeap = new D3D12QueryHeap(this, 512, D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP);
+	PipelinePerfHeap = new D3D12QueryHeap(this, 512, D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS);
 	SampleVideoMemoryInfo();
 	MemoryManager = new DXMemoryManager(this);
 	InitCopyListPool();
@@ -386,6 +391,23 @@ DeviceMemoryData D3D12DeviceContext::GetMemoryData()
 D3D_SHADER_MODEL D3D12DeviceContext::GetShaderModel() const
 {
 	return HighestShaderModel;
+}
+
+void D3D12DeviceContext::EnqueueUploadRequest(const GPUUploadRequest & request)
+{
+	Requests.push_back(request);
+}
+
+void D3D12DeviceContext::FlushUploadQueue()
+{
+	for (int i = 0; i < Requests.size(); i++)
+	{
+		GPUUploadRequest* R = &Requests[i];
+		UpdateSubresources(GetCopyList(), R->Target->GetResource(), R->UploadBuffer->GetResource(), 0, 0, R->SubResourceDesc.size(), &R->SubResourceDesc[0]);
+		RHI::AddToDeferredDeleteQueue(R->UploadBuffer);
+		delete R->DataPtr;
+	}
+	Requests.clear();
 }
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
@@ -613,6 +635,7 @@ void D3D12DeviceContext::UpdateCopyEngine()
 {
 	if (true)
 	{
+		FlushUploadQueue();
 		//CopyEngineHasWork = false;
 		GPUCopyList->Execute();
 	}

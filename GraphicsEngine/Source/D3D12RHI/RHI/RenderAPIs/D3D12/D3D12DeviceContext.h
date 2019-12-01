@@ -81,6 +81,15 @@ struct DeviceMemoryData
 	UINT64 HostSegment_TotalBytes = 0;
 	UINT64 Local_Usage = 0;
 };
+
+struct GPUUploadRequest
+{
+	std::vector<D3D12_SUBRESOURCE_DATA> SubResourceDesc;
+	GPUResource* Target = nullptr;
+	GPUResource* UploadBuffer = nullptr;
+	void* DataPtr;
+	size_t DataPtrSize = 0;
+};
 class D3D12TimeManager;
 class DescriptorHeapManager;
 class D3D12QueryHeap;
@@ -148,12 +157,18 @@ public:
 	DXMemoryManager* GetMemoryManager();
 	DeviceMemoryData GetMemoryData();
 	D3D_SHADER_MODEL GetShaderModel()const;
+	D3D12QueryHeap* GetPipelinePerfHeap() const { return PipelinePerfHeap; }
+
+	void EnqueueUploadRequest(const GPUUploadRequest & request);
 private:
+	void FlushUploadQueue();
 	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
 	DXMemoryManager* MemoryManager = nullptr;
 	//Query heaps
 	D3D12QueryHeap* TimeStampHeap = nullptr;
 	D3D12QueryHeap* CopyTimeStampHeap = nullptr;
+
+	D3D12QueryHeap* PipelinePerfHeap = nullptr;
 
 	GPUFenceSync GraphicsSync;
 	GPUFenceSync CopySync;
@@ -202,6 +217,7 @@ private:
 	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
 	DescriptorHeapManager* HeapManager = nullptr;
 	DescriptorCache* DescriptorCacheManager = nullptr;
+	std::vector<GPUUploadRequest> Requests;
 };
 
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent

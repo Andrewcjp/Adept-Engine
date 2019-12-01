@@ -42,44 +42,6 @@ struct RSBind
 	RHITexture* Texture2 = nullptr;
 	RHIViewDesc View = RHIViewDesc();
 	/*};*/
-#if 0
-	RSBind(const RSBind &other)
-	{
-		BindType = other.BindType;
-		switch (BindType)
-		{
-			case ERSBindType::Texture:
-				Texture = other.Texture;
-				break;
-			case ERSBindType::FrameBuffer:
-				Framebuffer = other.Framebuffer;
-				break;
-			case ERSBindType::CBV:
-			case ERSBindType::BufferSRV:
-				BufferTarget = other.BufferTarget;
-				break;
-		}
-	}
-	RSBind &operator=(const RSBind &other)
-	{
-		BindType = other.BindType;
-		switch (BindType)
-		{
-			case ERSBindType::Texture:
-				Texture = other.Texture;
-				break;
-			case ERSBindType::FrameBuffer:
-				Framebuffer = other.Framebuffer;
-				break;
-			case ERSBindType::CBV:
-			case ERSBindType::BufferSRV:
-				BufferTarget = other.BufferTarget;
-				break;
-		}
-
-		return *this;
-	}
-#endif
 	RHI_API bool IsBound()const;
 	bool HasChanged = true;
 	static ERSBindType::Type ConvertBind(ShaderParamType::Type T);

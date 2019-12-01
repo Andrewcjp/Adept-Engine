@@ -4,6 +4,7 @@
 RHIQuery::RHIQuery(EGPUQueryType::Type Type, DeviceContext * device)
 {
 	Device = device;
+	QType = Type;
 }
 
 RHIQuery::~RHIQuery()

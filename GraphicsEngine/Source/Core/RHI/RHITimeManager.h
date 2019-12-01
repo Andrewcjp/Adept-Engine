@@ -10,14 +10,14 @@ class MovingAverage;
 struct GPUTimer
 {
 	std::vector<uint64_t> Stamps;
-	
+
 	std::string name;
 	DeviceContext* Context = nullptr;
 	ECommandListType::Type Type = ECommandListType::Limit;
 	RHI_API void Clear();
 	RHI_API void AddResults(uint64_t start);
 	std::vector<MovingAverage*> NormalisedStamps;
-	void Normalise(uint64_t StartStamp,uint64_t endstamp);
+	void Normalise(uint64_t StartStamp, uint64_t endstamp);
 };
 struct GPUTimerPair
 {
@@ -37,6 +37,8 @@ public:
 	RHI_API virtual void EndTimer(RHICommandList * ComandList, int index) = 0;
 	RHI_API virtual void EndTotalGPUTimer(RHICommandList * ComandList) = 0;
 	RHI_API virtual float GetTotalTime() = 0;
+	RHI_API virtual void StartPipelineStatCapture(RHICommandList * commandlist) {};
+	RHI_API virtual void EndPipelineStatCapture(RHICommandList * commandlist) {};
 	RHI_API int GetGPUTimerId(std::string name);
 	RHI_API GPUTimer* GetTimer(std::string name, DeviceContext* D);
 	RHI_API GPUTimer* GetOrCreateTimer(std::string name, DeviceContext* D, ECommandListType::Type type);

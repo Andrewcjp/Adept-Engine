@@ -10,6 +10,7 @@ struct DX12QueryBatch
 	void Reset();
 	void Alloc(D3D12Query* Q);
 	bool Open = false;
+	EGPUQueryType::Type BatchType = EGPUQueryType::Limit;
 };
 
 class D3D12QueryHeap
@@ -22,6 +23,7 @@ public:
 	void BeginQuerryBatch();
 	void ResolveAndEndQueryBatches(D3D12CommandList* list);
 	void ReadData();
+	UINT64 GetHeapTypeSize();
 private:
 	void CreateHeap();
 	void CreateResultsBuffer();
@@ -32,7 +34,7 @@ private:
 	D3D12_QUERY_HEAP_TYPE HeapType;
 	ID3D12QueryHeap* GetHeap(int index = -1);
 	ID3D12Resource* GetBuffer(int index = -1);
-	D3D12_QUERY_TYPE GetType();
+	D3D12_QUERY_TYPE GetType(EGPUQueryType::Type qtype);
 	struct QueryBuffers
 	{
 		ID3D12QueryHeap* QueryHeap = nullptr;

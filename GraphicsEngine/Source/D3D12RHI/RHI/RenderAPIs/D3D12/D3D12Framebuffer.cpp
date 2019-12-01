@@ -67,12 +67,12 @@ void D3D12FrameBuffer::HandleResize()
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		EnqueueSafeRHIRelease(RenderTarget[i]);
-		BufferDesc.RenderTargets[i] = nullptr;	
+		BufferDesc.RenderTargets[i] = nullptr;
 	}
 	if (DepthStencil != nullptr)
 	{
 		EnqueueSafeRHIRelease(DepthStencil);
-		BufferDesc.DepthStencil= nullptr;
+		BufferDesc.DepthStencil = nullptr;
 	}
 	Init();
 }
@@ -194,6 +194,10 @@ D3D12_RESOURCE_STATES D3D12FrameBuffer::ConvertState(EResourceState::Type State)
 			return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		case EResourceState::UAV:
 			return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		case EResourceState::CopyDst:
+			return D3D12_RESOURCE_STATE_COPY_DEST;
+		case EResourceState::CopySrc:
+			return D3D12_RESOURCE_STATE_COPY_SOURCE;
 		default:
 			break;
 

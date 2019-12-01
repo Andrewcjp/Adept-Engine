@@ -19,7 +19,10 @@ bool BaseTexture::CreateFromFile(AssetPathRef FileName)
 	Description.Height = tex.extent().y;
 	Description.MipLevels = tex.levels();
 	Description.BitDepth = 4;// texChannels;
-	Description.PtrToData = tex.data();
+
+	//todo: handle this better!
+	Description.PtrToData = malloc(tex.size());
+	memcpy(Description.PtrToData, tex.data(), tex.size());	
 	Description.Faces = tex.faces();
 	Description.ImageByteSize = tex.size();
 	for (int i = 0; i < tex.levels(); i++)

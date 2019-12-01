@@ -3,6 +3,7 @@
 
 class GPUResource;
 class D3D12DeviceContext;
+
 class GPUMemoryPage
 {
 public:
@@ -18,8 +19,8 @@ public:
 	void Compact();
 	//removes a resource from this page and frees its memory
 	void Deallocate(GPUResource* R);
-	UINT64 GetSize()const;
-	UINT64 GetSizeInUse()const;
+	UINT64 GetSize(bool LocalOnly = false) const;
+	UINT64 GetSizeInUse(bool LocalOnly = false)const;
 	void LogReport();
 	bool GetIsReserved() const { return IsReserved; }
 	void SetReserved(bool val) { IsReserved = val; }
@@ -28,7 +29,6 @@ public:
 	void EvictPage();
 	void MakeResident();
 	const AllocDesc & GetDesc()const;
-private:
 	struct AllocationChunk
 	{
 		GPUResource* Resource = nullptr;
@@ -36,6 +36,8 @@ private:
 		uint64 size = 0;
 		bool CanFitAllocation(const AllocDesc & desc)const;
 	};
+private:
+	
 	AllocationChunk* FindFreeChunk(AllocDesc & desc);
 	AllocationChunk* AllocateFromFreeChunk(AllocDesc& desc);
 	AllocationChunk* GetChunk(AllocDesc & desc);
@@ -46,7 +48,6 @@ private:
 	AllocDesc PageDesc;
 	std::vector<GPUResource*> ContainedResources;
 	D3D12DeviceContext* Device = nullptr;
-	UINT64 OffsetInPlacedHeap = 0;
 	bool IsReleaseing = false;
 	std::vector<AllocationChunk*> AllocatedChunks;
 	std::vector<AllocationChunk*> FreeChunks;

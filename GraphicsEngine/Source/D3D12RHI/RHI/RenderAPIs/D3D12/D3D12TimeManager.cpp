@@ -75,6 +75,7 @@ void D3D12TimeManager::UpdateTimers()
 #if ENABLE_GPUTIMERS
 	UpdateTimeStampFreq();
 	Device->GetTimeStampHeap()->ReadData();
+	Device->GetPipelinePerfHeap()->ReadData();
 	ResolveAllTimers();
 	if (!IsRunning())
 	{
@@ -210,6 +211,18 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 float D3D12TimeManager::GetTotalTime()
 {
 	return AVGgpuTimeMS;
+}
+
+void D3D12TimeManager::StartPipelineStatCapture(RHICommandList* commandlist)
+{
+	PSQuery = D3D12RHI::DXConv(RHI::CreateQuery(EGPUQueryType::Pipeline_Stats, Device));
+	Device->GetPipelinePerfHeap()->BeginQuery(D3D12RHI::DXConv(commandlist), PSQuery);
+}
+
+void D3D12TimeManager::EndPipelineStatCapture(RHICommandList* commandlist)
+{
+	Device->GetPipelinePerfHeap()->EndQuerry(D3D12RHI::DXConv(commandlist), PSQuery);
+	Device->GetPipelinePerfHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(commandlist));
 }
 
 void D3D12TimeManager::StartTimer(D3D12CommandList * ComandList, int index, bool IsCopy)

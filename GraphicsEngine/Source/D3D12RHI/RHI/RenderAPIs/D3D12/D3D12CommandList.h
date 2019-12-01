@@ -112,7 +112,7 @@ private:
 	class D3D12FrameBuffer* CurrentFrameBufferTargets[10] = { nullptr };
 	D3D12CommandSigniture* CommandSig = nullptr;
 	RHIRootSigniture RootSigniture;
-	;
+	ID3D12DescriptorHeap* CurrentBoundHeap = nullptr;
 };
 
 class D3D12RHITextureArray : public RHITextureArray

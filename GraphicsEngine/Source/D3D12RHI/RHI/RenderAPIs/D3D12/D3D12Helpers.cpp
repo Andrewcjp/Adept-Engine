@@ -780,3 +780,36 @@ D3D12_INDIRECT_ARGUMENT_DESC D3D12Helpers::ConvertArg(INDIRECT_ARGUMENT_DESC des
 	}
 	return dxarg;
 }
+
+D3D12_QUERY_HEAP_TYPE D3D12Helpers::ConvertQuerryType(EGPUQueryType::Type type)
+{
+	switch (type)
+	{
+		case EGPUQueryType::BinaryOcclusion:
+		case EGPUQueryType::Occlusion:
+			return D3D12_QUERY_HEAP_TYPE_OCCLUSION;
+		case EGPUQueryType::Timestamp:
+			return D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
+		case EGPUQueryType::Pipeline_Stats:
+			return D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS;
+	}
+	return D3D12_QUERY_HEAP_TYPE();
+}
+
+bool D3D12Helpers::IsValidForQueryHeap(D3D12_QUERY_HEAP_TYPE type, EGPUQueryType::Type QuerryType)
+{
+	switch (type)
+	{
+		case D3D12_QUERY_HEAP_TYPE_OCCLUSION:
+			return QuerryType == EGPUQueryType::Occlusion || QuerryType == EGPUQueryType::BinaryOcclusion;
+		case D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP:
+		case D3D12_QUERY_HEAP_TYPE_TIMESTAMP:
+			return QuerryType == EGPUQueryType::Timestamp;
+		case D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS:
+			return QuerryType == EGPUQueryType::Pipeline_Stats;
+		case D3D12_QUERY_HEAP_TYPE_SO_STATISTICS:
+		case D3D12_QUERY_HEAP_TYPE_VIDEO_DECODE_STATISTICS:
+			break;
+	}
+	return false;
+}

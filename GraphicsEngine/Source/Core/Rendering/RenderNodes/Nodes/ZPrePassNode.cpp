@@ -6,6 +6,8 @@
 #include "Flow/VRBranchNode.h"
 #include "Core/Performance/PerfManager.h"
 #include "../NodeLink.h"
+#include "RHI/RHITimeManager.h"
+#include "RHI/DeviceContext.h"
 
 ZPrePassNode::ZPrePassNode()
 {
@@ -25,6 +27,7 @@ void ZPrePassNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	Cmdlist->ResetList();
 	SetBeginStates(Cmdlist);
+	Cmdlist->GetDevice()->GetTimeManager()->StartPipelineStatCapture(Cmdlist);
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), Target);
@@ -37,6 +40,7 @@ void ZPrePassNode::OnExecute()
 	SceneRenderer::Get()->RenderScene(Cmdlist, true, Target, false, GetEye());
 	Cmdlist->EndRenderPass();
 	Cmdlist->EndTimer(EGPUTIMERS::PreZ);
+	Cmdlist->GetDevice()->GetTimeManager()->EndPipelineStatCapture(Cmdlist);
 	SetEndStates(Cmdlist);
 	Cmdlist->Execute();
 	
