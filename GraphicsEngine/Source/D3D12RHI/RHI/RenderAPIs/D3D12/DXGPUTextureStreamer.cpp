@@ -11,7 +11,7 @@ DXGPUTextureStreamer::~DXGPUTextureStreamer()
 
 void DXGPUTextureStreamer::Tick()
 {
-
+	//todo!
 }
 
 void DXGPUTextureStreamer::OnInit(DeviceContext* con)

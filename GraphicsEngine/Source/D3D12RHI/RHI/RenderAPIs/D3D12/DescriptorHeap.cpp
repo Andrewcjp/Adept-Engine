@@ -139,6 +139,7 @@ void DescriptorHeap::ClearHeap()
 DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)
 {
 	DXDescriptor* Copy = AllocateDescriptor(desc->GetType(), desc->GetSize());
+	Copy->InitFromDesc(desc);
 	Device->GetDevice()->CopyDescriptorsSimple(desc->GetSize(), Copy->GetCPUAddress(), desc->GetCPUAddress(), srvHeapDesc.Type);
 	return Copy;
 }

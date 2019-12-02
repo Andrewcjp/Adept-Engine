@@ -8,6 +8,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 	Label->SetOwner(GetOwningContext());
 	Colour = NormalColour;
 	Priority = 2;//buttons need to draw on top of panels
+	Label->Priority = Priority;
 	AddChild(Label);
 }
 UIButton::~UIButton()

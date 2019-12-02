@@ -231,7 +231,10 @@ DXDescriptor * D3D12FrameBuffer::GetDescriptor(const RHIViewDesc & desc, Descrip
 uint64 D3D12FrameBuffer::GetInstanceHash() const
 {
 	uint64 hash = 0;
-	HashUtils::hash_combine(hash, RenderTarget[0]);
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		HashUtils::hash_combine(hash, RenderTarget[i]->GetResource());
+	}
 	HashUtils::hash_combine(hash, DepthStencil);
 	return hash;
 }

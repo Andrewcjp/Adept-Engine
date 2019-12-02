@@ -26,7 +26,7 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	{
 		return EAllocateResult::NoSpace;
 	}
-	//DXMM: Todo Placed resource 
+	//DXMM: Todo reserved resources 
 	ID3D12Resource* DxResource = nullptr;
 	AllocationChunk* UsedChunk = GetChunk(desc);
 	CreateResource(UsedChunk, desc, &DxResource);
@@ -118,12 +118,9 @@ bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc & desc) co
 void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
 {
 	D3D12_CLEAR_VALUE* value = nullptr;
-	//if (desc.ResourceDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER && PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
+	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
 	{
-		if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
-		{
-			value = &desc.ClearValue;
-		}
+		value = &desc.ClearValue;
 	}
 	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, chunk->offset, &desc.ResourceDesc, desc.InitalState, value, IID_PPV_ARGS(Resource)));
 }
@@ -135,7 +132,7 @@ void GPUMemoryPage::InitHeap()
 		// To avoid wasting memory SizeInBytes should be 
 		// multiples of the effective alignment [Microsoft 2018a]
 		desc.SizeInBytes = PageDesc.Size;
-		desc.Alignment = PageDesc.Alignment;
+		desc.Alignment = 0;
 		if (PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
 		{
 			desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -173,8 +170,6 @@ D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
 void GPUMemoryPage::Compact()
 {
 	//#DXMM: Defragment the page 
-
-
 }
 
 void GPUMemoryPage::Deallocate(GPUResource * R)
@@ -199,7 +194,7 @@ UINT64 GPUMemoryPage::GetSize(bool LocalOnly) const
 {
 	if (LocalOnly && PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
 	{
-		//not in GPU memory
+		//not in GPU Local memory
 		return 0;
 	}
 	return PageDesc.Size;
@@ -209,7 +204,7 @@ UINT64 GPUMemoryPage::GetSizeInUse(bool LocalOnly) const
 {
 	if (LocalOnly && PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
 	{
-		//not in GPU memory
+		//not in GPU local memory
 		return 0;
 	}
 	UINT64 Bytes = 0;
@@ -220,10 +215,17 @@ UINT64 GPUMemoryPage::GetSizeInUse(bool LocalOnly) const
 	return Bytes;
 }
 
-void GPUMemoryPage::LogReport()
+void GPUMemoryPage::LogReport(bool ReportResources)
 {
 	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(GetSizeInUse()) + " / "
 		+ StringUtils::ByteToMB(PageDesc.Size) + " Free Chunks " + std::to_string(FreeChunks.size()));
+	if (ReportResources)
+	{
+		for (GPUResource* r : ContainedResources)
+		{
+			Log::LogMessage("	" + StringUtils::ByteToMB(r->Chunk->size) + std::string(" name: '") + std::string(r->GetDebugName()) + "'");
+		}
+	}
 }
 
 void GPUMemoryPage::ResetPage()

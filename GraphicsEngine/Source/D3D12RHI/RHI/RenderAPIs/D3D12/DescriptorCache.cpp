@@ -11,6 +11,7 @@
 #include "D3D12Buffer.h"
 #include "Core\Utils\TypeUtils.h"
 #include "D3D12RHITexture.h"
+
 #define ENABLE_CACHE 1
 
 DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
@@ -85,6 +86,10 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 	{
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->TextureArray)->GetHash());
 	}
+	if (bind->BindType == ERSBindType::Texture2)
+	{
+		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Texture2)->GetResource());
+	}
 	HashUtils::hash_combine(hash, bind->View.Mip);
 	HashUtils::hash_combine(hash, bind->View.ArraySlice);
 	HashUtils::hash_combine(hash, bind->View.MipLevels);
@@ -123,7 +128,7 @@ DXDescriptor* DescriptorCache::CopyToCurrentHeap(DXDescriptor * d, bool CouldbeR
 
 bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
-	return true;
+	return false;
 }
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
@@ -170,6 +175,7 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 
 DXDescriptor* DescriptorCache::GetOrCreate(const RSBind* bind)
 {
+	std::lock_guard<std::mutex> lock(CacheLock);
 	DXDescriptor* Desc = nullptr;
 	if (bind->BindType == ERSBindType::RootConstant)
 	{
@@ -190,5 +196,6 @@ DXDescriptor* DescriptorCache::GetOrCreate(const RSBind* bind)
 	ref.desc = Desc;
 	DescriptorMap[bind->BindType].emplace(hash, ref);
 	Desc = CopyToCurrentHeap(Desc, false);
+	ensure(Desc->IsValid());
 	return Desc;
 }

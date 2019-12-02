@@ -1,9 +1,4 @@
-
 #include "RayTracingCommandList.h"
-
-
-
-
 
 RayTracingCommandList::RayTracingCommandList(DeviceContext * device, ERayTracingSupportType::Type Mode)
 {

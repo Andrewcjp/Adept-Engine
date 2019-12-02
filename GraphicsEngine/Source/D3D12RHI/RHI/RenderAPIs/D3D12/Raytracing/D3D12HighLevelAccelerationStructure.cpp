@@ -80,7 +80,7 @@ void D3D12HighLevelAccelerationStructure::AllocateSpace(D3D12_RAYTRACING_ACCELER
 		EnqueueSafeRHIRelease(m_topLevelAccelerationStructure);
 		AllocDesc desc = AllocDesc(topLevelPrebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, "TopLevelAccelerationStructure");
 		desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(desc.Size, desc.Flags);
-		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocGeneral(desc, &m_topLevelAccelerationStructure);
+		D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocResource(desc, &m_topLevelAccelerationStructure);
 	}
 
 	topLevelBuildDesc.ScratchAccelerationStructureData = scratchSpace->GetResource()->GetGPUVirtualAddress();

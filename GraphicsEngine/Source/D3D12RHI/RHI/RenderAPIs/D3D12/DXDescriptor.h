@@ -41,9 +41,11 @@ public:
 	void SetOwner(DescriptorHeap* heap);
 	//create shader view
 	bool PendingRemoval = false;
-	bool NeedsUpdate();
+	bool GetNeedsUpdate();
 	DescriptorHeap* Owner = nullptr;
 	bool IsTargetValid() const;
+	bool IsValid()const;
+	void InitFromDesc(DXDescriptor* other);
 private:
 	
 	int DescriptorCount = 1;

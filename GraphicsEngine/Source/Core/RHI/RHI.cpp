@@ -291,9 +291,6 @@ void RHI::RunGPUTests()
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
-#if NOSHADOW
-	return;
-#endif
 	LogEnsure(!Resource->IsPendingKill());
 	ensure(Resource->GetRefCount() == 0);
 	if (Resource->IsPendingKill())
@@ -667,6 +664,7 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 	ensure(itor->second->GetDesc() == desc);
 	return itor->second;
 #else
+	std::lock_guard<std::mutex> lock(CacheLock);
 	for (int i = 0; i < PSOMap.size(); i++)
 	{
 		if (PSOMap[i]->GetDesc() == desc)

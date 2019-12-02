@@ -13,7 +13,7 @@ Shader_Skybox_Miss::~Shader_Skybox_Miss()
 
 void Shader_Skybox_Miss::SetSkybox(BaseTextureRef T)
 {
-	LocalRootSig.SetTexture(0, T);
+	LocalRootSig.SetTexture(0, T,RHIViewDesc::DefaultSRV());
 }
 
 std::vector<ShaderParameter> Shader_Skybox_Miss::GetShaderParameters()

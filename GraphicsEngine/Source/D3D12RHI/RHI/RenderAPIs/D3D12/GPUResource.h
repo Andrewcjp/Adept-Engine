@@ -2,16 +2,8 @@
 #include "D3D12RHI.h"
 #include "D3D12Types.h"
 #include "GPUMemoryPage.h"
-
 class GPUMemoryPage;
 class D3D12CommandList;
-
-
-#define _KB(x) (x * 1024)
-#define _MB(x) (x * 1024 * 1024)
-
-#define TILE_SIZE _KB(64)
-#define MAX_HEAP_SIZE _MB(16)
 
 class GPUResource : public IRHIResourse
 {

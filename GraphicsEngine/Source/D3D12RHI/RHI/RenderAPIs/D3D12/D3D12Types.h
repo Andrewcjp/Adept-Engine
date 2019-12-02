@@ -4,7 +4,6 @@ struct EGPUMemorysegment
 	enum Type
 	{
 		Local,
-		CPU_Local,//amd Only
 		Non_Local,
 		Limit
 	};
@@ -28,7 +27,6 @@ struct AllocDesc
 	AllocDesc(UINT64 size, D3D12_RESOURCE_STATES State = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE,
 		const std::string& name = std::string(), EGPUMemorysegment::Type seg = EGPUMemorysegment::Local);
 	UINT64 Size = 0;
-	UINT64 Alignment = 0;
 	D3D12_RESOURCE_STATES InitalState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 	EGPUMemorysegment::Type Segment = EGPUMemorysegment::Local;
 	std::string Name = std::string();

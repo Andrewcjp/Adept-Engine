@@ -15,8 +15,6 @@ std::string EGPUMemorysegment::ToString(EGPUMemorysegment::Type T)
 	{
 		case EGPUMemorysegment::Local:
 			return "Local";
-		case EGPUMemorysegment::CPU_Local:
-			return "CPU_Local";
 		case EGPUMemorysegment::Non_Local:
 			return "Host";
 	}

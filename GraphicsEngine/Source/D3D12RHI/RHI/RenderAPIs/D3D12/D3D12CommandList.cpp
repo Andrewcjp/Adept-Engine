@@ -106,10 +106,6 @@ void D3D12CommandList::PushHeaps()
 	{
 		return;
 	}
-	if (CurrentBoundHeap == heaps[0]->GetHeap())
-	{
-		return;
-	}
 	ID3D12DescriptorHeap* heap[] = { heaps[0]->GetHeap() };
 	CurrentCommandList->SetDescriptorHeaps((UINT)1, heap);
 	CurrentBoundHeap = heap[0];
@@ -223,7 +219,6 @@ void D3D12CommandList::PrepareforDraw()
 			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
-				//TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
 			else

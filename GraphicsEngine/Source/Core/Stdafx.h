@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <mutex>
 #pragma warning(pop)
 #if 0
 #pragma warning(push,4)

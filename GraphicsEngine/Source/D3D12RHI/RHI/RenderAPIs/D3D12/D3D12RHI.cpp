@@ -520,7 +520,7 @@ void D3D12RHI::CreateDepthStencil(int width, int height)
 	Desc.InitalState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 	Desc.ClearValue = depthOptimizedClearValue;
 	Desc.Name = "SwapChain depth stencil";
-	GetPrimaryDevice()->GetMemoryManager()->AllocFrameBuffer(Desc, &m_depthStencil);
+	GetPrimaryDevice()->GetMemoryManager()->AllocResource(Desc, &m_depthStencil);
 
 	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil->GetResource(), &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }

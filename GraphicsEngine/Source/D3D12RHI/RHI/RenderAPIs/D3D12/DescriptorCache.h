@@ -1,6 +1,7 @@
 #pragma once
 #include "RHI\RHIRootSigniture.h"
 
+
 class DXDescriptor;
 class DescriptorHeap;
 struct RSBind;
@@ -15,17 +16,14 @@ public:
 	~DescriptorCache();
 
 	uint64 GetHash(const RSBind * bind);
-
 	bool FindInCache(uint64 hash, DXDescriptor ** desc, ERSBindType::Type type);
-
 	DXDescriptor* CopyToCurrentHeap(DXDescriptor * d, bool CouldbeReused  = true);
-
 	bool ShouldCache(const RSBind * bind);
-
 	DXDescriptor * Create(const RSBind * bind, DescriptorHeap * heap);
-
 	DXDescriptor* GetOrCreate(const RSBind* bind);
+
 private:
+	std::mutex CacheLock;
 	struct DescriptorRef
 	{
 		int LastUsedFrame = 0;

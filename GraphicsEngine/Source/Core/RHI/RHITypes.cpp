@@ -1,5 +1,5 @@
 
-//#include "RHI/RHITypes.generated.h"
+#include "RHI/RHITypes.generated.h"
 #include "Core/Utils/StringUtil.h"
 #include "Shader.h"
 #include "Rendering/Core/FrameBuffer.h"
@@ -109,7 +109,7 @@ void RHIPipeLineStateDesc::InitOLD(bool Depth, bool shouldcull, bool Blend)
 {
 	DepthStencilState.DepthEnable = Depth;
 	Cull = shouldcull;
-	
+
 }
 
 bool RHIPipeLineStateDesc::Validate()
@@ -172,17 +172,15 @@ void RHIPipeLineStateDesc::CalulateHash()
 {
 	UniqueHash = 0;
 	HashUtils::hash_combine(UniqueHash, ShaderInUse->GetNameHash());
-
-	StringPreHash += std::to_string(Cull);
-	StringPreHash += std::to_string(DepthStencilState.DepthEnable);
-	StringPreHash += std::to_string(DepthStencilState.DepthWrite);
-	StringPreHash += std::to_string(DepthCompareFunction);
+	HashUtils::hash_combine(UniqueHash, Cull);
+	HashUtils::hash_combine(UniqueHash, DepthStencilState.DepthEnable);
+	HashUtils::hash_combine(UniqueHash, DepthStencilState.DepthWrite);
+	HashUtils::hash_combine(UniqueHash, DepthCompareFunction);
 	for (int i = 0; i < MRT_MAX; i++)
 	{
-		StringPreHash += std::to_string((int)RenderTargetDesc.RTVFormats[i]);
+		HashUtils::hash_combine(UniqueHash, (int)RenderTargetDesc.RTVFormats[i]);
 	}
-	StringPreHash += RenderPassDesc.GetHashString();
-	
+	HashUtils::hash_combine(UniqueHash, RenderPassDesc.GetHash());
 }
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
@@ -190,17 +188,10 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	//#RHI:way to get the complier to gen this?
 	if (ShaderInUse != nullptr && other.ShaderInUse != nullptr)
 	{
-#if 0
-		if (ShaderInUse->GetName() != other.ShaderInUse->GetName())
-		{
-			return false;
-		}
-#else
 		if (ShaderInUse->GetNameHash() != other.ShaderInUse->GetNameHash())
 		{
 			return false;
 		}
-#endif
 	}
 	else if (ShaderInUse != other.ShaderInUse)
 	{
@@ -452,8 +443,6 @@ void RHIRenderPassDesc::Build()
 	if (TargetBuffer != nullptr)
 	{
 		RenderDesc = TargetBuffer->GetPiplineRenderDesc();
-		//		InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
-				//FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	}
 }
 
@@ -462,15 +451,15 @@ bool RHIRenderPassDesc::operator==(const RHIRenderPassDesc other) const
 	return LoadOp == other.LoadOp && StoreOp == other.StoreOp && RenderDesc == other.RenderDesc && InitalState == other.InitalState && FinalState == other.FinalState && other.TargetBuffer == TargetBuffer;
 }
 
-std::string RHIRenderPassDesc::GetHashString()
+size_t RHIRenderPassDesc::GetHash()
 {
-	std::string out;
-	out += std::to_string(LoadOp);
-	out += std::to_string(StoreOp);
-	out += std::to_string(InitalState);
-	out += std::to_string(FinalState);
-	//out += std::to_string(TargetBuffer->);
-	return out;
+	size_t hash = 0;
+	HashUtils::hash_combine(hash, LoadOp);
+	HashUtils::hash_combine(hash, StoreOp);
+	HashUtils::hash_combine(hash, InitalState);
+	HashUtils::hash_combine(hash, FinalState);
+	HashUtils::hash_combine(hash, TargetBuffer);
+	return hash;
 }
 
 bool RHIViewDesc::operator==(const RHIViewDesc other) const

@@ -3,7 +3,7 @@
 #include "GPUMemoryPage.h"
 #include "Core\Performance\PerfManager.h"
 #include "D3D12CommandList.h"
-
+//todo: More Detailed Error checking!
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
 {}
@@ -81,6 +81,7 @@ bool GPUResource::IsValidStateForList(D3D12CommandList* List)
 	}
 	return false;
 }
+
 void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
@@ -93,13 +94,9 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 		CurrentResourceState = newstate;
 		TargetState = newstate;
 		PerfManager::Get()->AddToCountTimer("ResourceTransitons", 1);
-}
-	else
-	{
-		//		Log::LogMessage(GetDebugName() + std::string(" is already in state ") + D3D12Helpers::ResouceStateToString(newstate), Log::Warning);
 	}
 }
-//todo More Detailed Error checking!
+
 void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
@@ -158,22 +155,13 @@ ID3D12Resource * GPUResource::GetResource()
 void GPUResource::Release()
 {
 	IRHIResourse::Release();
-	if (resource != nullptr)
-	{
-#if 0
-		int iirefcount = resource->AddRef();
-		int niirefcount = resource->Release();
-#endif
-		//there is a resource contention issue here with gpu 0 and 1 
-		//where GPU will move forward and delete before GPU 1 has finished with resource.
-		resource->Release();
-		resource = nullptr;
-}
 	if (Page != nullptr)
 	{
 		Page->Deallocate(this);
 	}
-	//SafeRelease(resource);
+	//if the driver crashes here then (most likely) there is a resource contention issue with gpu 0 and 1 
+	//where GPU will move forward and delete resources before GPU 1 has finished with resource.
+	SafeRelease(resource);
 	RemoveCheckerRef(GPUResource, this);
 }
 

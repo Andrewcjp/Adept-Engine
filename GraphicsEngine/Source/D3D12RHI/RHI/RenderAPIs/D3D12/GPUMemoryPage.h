@@ -21,7 +21,7 @@ public:
 	void Deallocate(GPUResource* R);
 	UINT64 GetSize(bool LocalOnly = false) const;
 	UINT64 GetSizeInUse(bool LocalOnly = false)const;
-	void LogReport();
+	void LogReport(bool ReportResources);
 	bool GetIsReserved() const { return IsReserved; }
 	void SetReserved(bool val) { IsReserved = val; }
 	//!danger! This will deallocate all of this page.
@@ -31,7 +31,6 @@ public:
 	const AllocDesc & GetDesc()const;
 	struct AllocationChunk
 	{
-		GPUResource* Resource = nullptr;
 		uint64 offset = 0;
 		uint64 size = 0;
 		bool CanFitAllocation(const AllocDesc & desc)const;

@@ -103,7 +103,7 @@ void DXDescriptor::SetOwner(DescriptorHeap * heap)
 	Data[0].NeedsUpdate = true;
 }
 
-bool DXDescriptor::NeedsUpdate()
+bool DXDescriptor::GetNeedsUpdate()
 {
 	return Data[0].NeedsUpdate;
 }
@@ -111,5 +111,16 @@ bool DXDescriptor::NeedsUpdate()
 bool DXDescriptor::IsTargetValid() const
 {
 	return Data[0].TargetResource;
+}
+
+bool DXDescriptor::IsValid() const
+{
+	return DescriptorType != EDescriptorType::Limit;
+}
+
+void DXDescriptor::InitFromDesc(DXDescriptor * other)
+{
+	DescriptorType = other->DescriptorType;
+	Data = other->Data;
 }
 

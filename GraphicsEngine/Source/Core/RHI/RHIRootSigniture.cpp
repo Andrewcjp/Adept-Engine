@@ -133,7 +133,6 @@ void RHIRootSigniture::SetFrameBufferTexture(int slot, FrameBuffer* Buffer, RHIV
 
 void RHIRootSigniture::SetConstantBufferView(int slot, RHIBuffer * Target, int offset, RHIViewDesc View)
 {
-
 	ShaderParameter* RSSlot = GetParm(slot);
 	if (RSSlot == nullptr)
 	{

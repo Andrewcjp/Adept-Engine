@@ -56,7 +56,7 @@ void D3D12Buffer::InitCBV(int iStructSize, int Elementcount)
 	TotalByteSize = StructSize * Elementcount;
 	AllocDesc desc = {};
 	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
-	desc.PageAllocationType = EPageTypes::BufferUploadOnly;
+
 	desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
 	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_DataBuffer);
 
@@ -223,7 +223,7 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	AllocDesc D;
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	D.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
-	Device->GetMemoryManager()->AllocGeneral(D, &m_DataBuffer);
+	Device->GetMemoryManager()->AllocResource(D, &m_DataBuffer);
 
 	D = AllocDesc();
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
