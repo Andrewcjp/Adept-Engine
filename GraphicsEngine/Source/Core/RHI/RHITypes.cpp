@@ -1,5 +1,5 @@
 
-#include "RHI/RHITypes.generated.h"
+//#include "RHI/RHITypes.generated.h"
 #include "Core/Utils/StringUtil.h"
 #include "Shader.h"
 #include "Rendering/Core/FrameBuffer.h"
