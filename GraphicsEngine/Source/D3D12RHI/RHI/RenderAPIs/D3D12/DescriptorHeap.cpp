@@ -6,7 +6,7 @@
 #include "DXDescriptor.h"
 CreateChecker(DescriptorHeap);
 DescriptorHeap::DescriptorHeap(DescriptorHeap * other, int newsize) :
-	DescriptorHeap(other->Device, newsize, other->srvHeapDesc.Type, other->srvHeapDesc.Flags)
+	DescriptorHeap(other->Device, newsize, other->HeapDesc.Type, other->HeapDesc.Flags)
 {
 
 }
@@ -16,10 +16,10 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 {
 	ensure(Num > 0);
 	Device = D3D12RHI::DXConv(inDevice);
-	srvHeapDesc.NumDescriptors = std::max(Num, 1);
+	HeapDesc.NumDescriptors = std::max(Num, 1);
 	DescriptorCount = Num;
-	srvHeapDesc.Type = type;
-	srvHeapDesc.Flags = flags;
+	HeapDesc.Type = type;
+	HeapDesc.Flags = flags;
 	CreateHeap();
 
 	AddCheckerRef(DescriptorHeap, this);
@@ -27,9 +27,9 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 
 void DescriptorHeap::CreateHeap()
 {
-	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mHeap)));
-	DescriptorOffsetSize = Device->GetDevice()->GetDescriptorHandleIncrementSize(srvHeapDesc.Type);
-	const std::string name = "Desc Heap Descs: " + std::to_string(srvHeapDesc.NumDescriptors);
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&mHeap)));
+	DescriptorOffsetSize = Device->GetDevice()->GetDescriptorHandleIncrementSize(HeapDesc.Type);
+	const std::string name = "Desc Heap Descs: " + std::to_string(HeapDesc.NumDescriptors);
 	SetName(StringUtils::ConvertStringToWide(name).c_str());
 }
 
@@ -58,13 +58,6 @@ void DescriptorHeap::SetName(LPCWSTR name)
 	mHeap->SetName(name);
 }
 
-void DescriptorHeap::BindHeap_Old(ID3D12GraphicsCommandList * list)
-{
-	//return;
-	ID3D12DescriptorHeap* ppHeaps[] = { mHeap };
-	list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-}
-
 void DescriptorHeap::AddDescriptor(DXDescriptor* desc, bool Create /*= true*/)
 {
 	//validate type.
@@ -84,7 +77,7 @@ int DescriptorHeap::GetNumberOfDescriptors()
 
 int DescriptorHeap::GetMaxSize()
 {
-	return srvHeapDesc.NumDescriptors;
+	return HeapDesc.NumDescriptors;
 }
 
 int DescriptorHeap::GetNextFreeIndex()
@@ -103,10 +96,10 @@ void DescriptorHeap::MoveAllToHeap(DescriptorHeap * heap, int offset)
 	{
 		heap->AddDescriptor(ContainedDescriptors[i]);
 	}
-	bool IsCPUWriteOnly = srvHeapDesc.Flags |= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	bool IsCPUWriteOnly = HeapDesc.Flags |= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	if (!IsCPUWriteOnly)
 	{
-		Device->GetDevice()->CopyDescriptorsSimple(heap->GetNextFreeIndex(), heap->mHeap->GetCPUDescriptorHandleForHeapStart(), mHeap->GetCPUDescriptorHandleForHeapStart(), srvHeapDesc.Type);
+		Device->GetDevice()->CopyDescriptorsSimple(heap->GetNextFreeIndex(), heap->mHeap->GetCPUDescriptorHandleForHeapStart(), mHeap->GetCPUDescriptorHandleForHeapStart(), HeapDesc.Type);
 	}
 	else
 	{
@@ -140,7 +133,7 @@ DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)
 {
 	DXDescriptor* Copy = AllocateDescriptor(desc->GetType(), desc->GetSize());
 	Copy->InitFromDesc(desc);
-	Device->GetDevice()->CopyDescriptorsSimple(desc->GetSize(), Copy->GetCPUAddress(), desc->GetCPUAddress(), srvHeapDesc.Type);
+	Device->GetDevice()->CopyDescriptorsSimple(desc->GetSize(), Copy->GetCPUAddress(), desc->GetCPUAddress(), HeapDesc.Type);
 	return Copy;
 }
 
@@ -162,8 +155,8 @@ void DescriptorHeap::BindHeap(D3D12CommandList * list)
 	list->ClearHeaps();
 	list->AddHeap(this);
 	list->PushHeaps();
-
 }
+
 void DescriptorHeap::Release()
 {
 	IRHIResourse::Release();

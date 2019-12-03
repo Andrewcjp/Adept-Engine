@@ -26,9 +26,8 @@ public:
 	void BindHeap(D3D12CommandList * list);
 	void Release() override;
 	void SetPriority(EGPUMemoryPriority NewPriority);
-	ID3D12DescriptorHeap* GetHeap();;
+	ID3D12DescriptorHeap* GetHeap();
 	std::string GetDebugName();
-	void BindHeap_Old(ID3D12GraphicsCommandList* list);
 	void AddDescriptor(DXDescriptor* desc, bool Create = true);
 	int GetNumberOfDescriptors();
 	int GetMaxSize();
@@ -42,10 +41,10 @@ public:
 private:
 	std::vector<DXDescriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
-	class D3D12DeviceContext* Device = nullptr;
-	int DescriptorOffsetSize = 0;
+	D3D12DeviceContext* Device = nullptr;
+	uint32 DescriptorOffsetSize = 0;
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	int DescriptorCount = 0;
+	D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+	uint32 DescriptorCount = 0;
 };
 

@@ -131,7 +131,7 @@ void GPUMemoryPage::InitHeap()
 	{
 		// To avoid wasting memory SizeInBytes should be 
 		// multiples of the effective alignment [Microsoft 2018a]
-		desc.SizeInBytes = PageDesc.Size;
+		desc.SizeInBytes = D3D12Helpers::Align(PageDesc.Size);
 		desc.Alignment = 0;
 		if (PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
 		{
@@ -219,6 +219,7 @@ void GPUMemoryPage::LogReport(bool ReportResources)
 {
 	Log::LogMessage("Page '" + PageDesc.Name + "' Has " + std::to_string(ContainedResources.size()) + " resources using " + StringUtils::ByteToMB(GetSizeInUse()) + " / "
 		+ StringUtils::ByteToMB(PageDesc.Size) + " Free Chunks " + std::to_string(FreeChunks.size()));
+#if NAME_RHI_PRIMS
 	if (ReportResources)
 	{
 		for (GPUResource* r : ContainedResources)
@@ -226,6 +227,7 @@ void GPUMemoryPage::LogReport(bool ReportResources)
 			Log::LogMessage("	" + StringUtils::ByteToMB(r->Chunk->size) + std::string(" name: '") + std::string(r->GetDebugName()) + "'");
 		}
 	}
+#endif
 }
 
 void GPUMemoryPage::ResetPage()
