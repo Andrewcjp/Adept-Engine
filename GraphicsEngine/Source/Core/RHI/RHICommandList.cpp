@@ -184,7 +184,7 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//Native VRS does not require resolve
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
-		//VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
+		VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
 	}
 	else
 	{
@@ -215,13 +215,17 @@ void RHICommandList::SetVRRShadingRate(int RateIndex)
 void RHICommandList::SetVRXShadingRateImage(RHITexture * Target)
 {
 	ShadingRateImage = Target;
+	if (!IsGraphicsList())
+	{
+		return;
+	}
 	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
 	{
 		SetVRSShadingRateImageNative(Target);
 	}
 	else
 	{
-		//VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
+		VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
 	}
 }
 
@@ -338,6 +342,17 @@ void RHICommandList::SetRHIBufferReadOnly(RHIBuffer * buffer, std::string slot)
 		return;
 	}
 	SetRHIBufferReadOnly(buffer, index);
+}
+
+void RHICommandList::SetTexture2(RHITexture * buffer, std::string slot)
+{
+	ensure(CurrentPSO);
+	int index = CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot);
+	if (index == -1)
+	{
+		return;
+	}
+	SetTexture2(buffer, index,RHIViewDesc::DefaultSRV());
 }
 
 void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)

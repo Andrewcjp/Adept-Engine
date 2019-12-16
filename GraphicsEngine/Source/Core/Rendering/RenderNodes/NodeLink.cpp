@@ -45,7 +45,7 @@ bool NodeLink::SetStore(StorageNode* target)
 
 bool NodeLink::IsValid()
 {
-	return StoreTarget != nullptr;
+	return StoreTarget != nullptr || StoreLink != nullptr;
 }
 
 bool NodeLink::SetLink(NodeLink* link)

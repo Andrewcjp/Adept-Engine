@@ -81,6 +81,10 @@ void DeferredLightingNode::OnExecute()
 #endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 	SetEndStates(List);
+	if (VRXImage != nullptr && VRXImage->IsValid())
+	{
+		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::UAV);
+	}
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 	GetOutput(0)->SetStore(GetInput(1)->GetStoreTarget());

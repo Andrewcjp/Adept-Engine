@@ -28,11 +28,13 @@ float4 GetColourForRate(int r)
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-	int ShadingRate = RateImage[DTid.xy];
+
+	int2 ShadingRateImageXY = (DTid.xy/ 16);
+	int ShadingRate = RateImage[ShadingRateImageXY.xy];
 	//DstTexture[DTid.xy] = GetColourForRate(ShadingRate);
 	if (!IsPixelSource(DTid.xy, GetShadingRate(ShadingRate)))
 	{
-		//find the corse pixel for this pixel
+		//find the corse pixel for this pixel``
 		const int2 DeltaToMain = DTid.xy % GetShadingRate(ShadingRate).xy;
 		int2 SourcePixel = DTid.xy - DeltaToMain;
 		//if (DstTexture[DTid.xy].a < 0.5)

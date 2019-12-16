@@ -11,13 +11,13 @@ public:
 	~VRXEngine();
 	static VRXEngine* Get();
 	//resolve the Framebuffer to a single image.
-	static void ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, FrameBuffer* ShadingImage);
+	static void ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage);
 	//resolve the Framebuffer to a single image.
 	void ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target);
 
 	void SetVRSShadingRate(RHICommandList* List, VRS_SHADING_RATE::type Rate);
 	void SetVRRShadingRate(RHICommandList* List, int FactorIndex);
-	void SetVRXShadingRateImage(RHICommandList* List, FrameBuffer* Target);
+	void SetVRXShadingRateImage(RHICommandList* List, RHITexture* Target);
 	static void SetupVRRShader(Shader* S);
 	static void AddVRRToRS(std::vector<ShaderParameter>& S, int lastindex = 0);
 	static void SetupVRSShader(Shader* S);

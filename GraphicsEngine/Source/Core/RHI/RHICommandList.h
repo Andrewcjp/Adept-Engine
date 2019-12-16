@@ -113,6 +113,7 @@ public:
 	RHI_API void SetTexture(BaseTextureRef texture, std::string slot,int mip = 0);
 	RHI_API void SetFrameBufferTexture(FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
 	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
+	RHI_API void SetTexture2(RHITexture* buffer, std::string slot);
 
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;

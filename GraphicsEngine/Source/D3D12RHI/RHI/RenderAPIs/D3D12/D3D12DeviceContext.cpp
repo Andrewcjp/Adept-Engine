@@ -239,10 +239,12 @@ void D3D12DeviceContext::CheckFeatures()
 		{
 			Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
 		}
+		Caps_Data.VRSTileSize = FeatureData6.ShadingRateImageTileSize;
 	}
 	else
 	{
 		Caps_Data.VRSSupport = EVRSSupportType::None;
+		Caps_Data.VRSTileSize = 16;
 	}
 #endif
 	if (options.CrossNodeSharingTier != D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED)

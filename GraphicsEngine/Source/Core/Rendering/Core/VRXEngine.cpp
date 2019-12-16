@@ -18,7 +18,7 @@ VRXEngine * VRXEngine::Get()
 	return nullptr;
 }
 
-void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,FrameBuffer* ShadingImage)
+void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,RHITexture* ShadingImage)
 {
 	if (!RenderSettings::GetVRXSettings().EnableVRR)
 	{
@@ -35,7 +35,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	list->SetUAV(Target, "DstTexture");
 	if (ShadingImage != nullptr)
 	{
-		list->SetFrameBufferTexture(ShadingImage, "RateImage");
+		list->SetTexture2(ShadingImage, "RateImage");
 	}
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 	const int TileSize = 16;
@@ -75,7 +75,7 @@ void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)
 	List->SetSingleRootConstant(slot, FactorIndex);
 }
 
-void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, FrameBuffer * Target)
+void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Target)
 {
 	//#VRX: todo
 

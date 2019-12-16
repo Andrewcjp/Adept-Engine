@@ -27,6 +27,24 @@ enum eTextureDimension
 	DIMENSION_TEXTURECUBEARRAY = 10,
 	DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE = 11,
 };
+struct  EResourceState
+{
+	enum Type
+	{
+		RenderTarget,
+		PixelShader,
+		Non_PixelShader,
+		ComputeUse,
+		UAV,
+		CopySrc,
+		CopyDst,
+		Undefined,
+		Common,
+		ShadingRateImage,
+		Limit
+	};
+	static std::string ToString(EResourceState::Type state);
+};
 namespace GPU_RESOURCE_STATES
 {
 	enum Type
@@ -495,6 +513,7 @@ namespace EFrameBufferSizeMode
 		Fixed,//Resize is handled explicitly 
 		LinkedToRenderScale, //the Scale of the renderer
 		LinkedToScreenSize, //Linked to the screen size
+		LinkedToRenderScale_TileSize,
 		Limit
 	};
 };
@@ -595,6 +614,7 @@ public:
 	int DepthMipCount = 1;
 	bool CubeMapAddressAsOne = true;
 	GPU_RESOURCE_STATES::Type StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
+	EResourceState::Type SimpleStartingState = EResourceState::Common;
 	glm::vec4 ViewPort = glm::vec4();
 	glm::vec4 ScissorRect = glm::vec4();
 	bool IncludedInSFR = false;
@@ -828,23 +848,7 @@ struct AccelerationStructureDesc
 	int BuildFlags = AS_BUILD_FLAGS::Fast_Trace;
 };
 
-struct  EResourceState
-{
-	enum Type
-	{
-		RenderTarget,
-		PixelShader,
-		Non_PixelShader,
-		ComputeUse,
-		UAV,
-		CopySrc,
-		CopyDst,
-		Undefined,
-		Common,
-		Limit
-	};
-	static std::string ToString(EResourceState::Type state);
-};
+
 
 enum RAY_FLAGS
 {

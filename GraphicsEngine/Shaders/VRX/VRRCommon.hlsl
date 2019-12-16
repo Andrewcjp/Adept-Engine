@@ -5,7 +5,7 @@ int2 GetShadingRate(int ID)
 	if (ID == 2)
 	{
 		//return int2(1, 2);
-		return int2(4, 4);
+		return int2(1, 2);
 	}
 	else if (ID == 3)
 	{
@@ -53,9 +53,9 @@ int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 	}
 	if (IsWithinRect(ScreenUV, Res, 0.35))
 	{
-		return 3;
+		return 2;
 	}
-	return 2;
+	return 3;
 }
 bool ShouldShadePixel(float2 ScreenUV, int2 res)
 {

@@ -27,7 +27,7 @@ void VRXShadingRateNode::OnExecute()
 	List->SetRootConstant("Data", 1, &Resoloution.x);
 	List->SetRootConstant("Data2", 1, &Resoloution.y);
 	const int TileSize = 16;
-	List->Dispatch(UAV->GetWidth() / TileSize, UAV->GetHeight() / TileSize, 1);
+	List->Dispatch(UAV->GetWidth(), UAV->GetHeight(), 1);
 	List->UAVBarrier(UAV);
 	UAV->SetResourceState(List, EResourceState::Non_PixelShader);
 	List->Execute();

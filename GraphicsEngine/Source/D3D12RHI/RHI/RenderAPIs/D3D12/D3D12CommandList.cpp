@@ -150,6 +150,7 @@ void D3D12CommandList::SetVRSShadingRateImageNative(RHITexture* Target)
 	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
 	ensure(CmdList5 != nullptr);
 	GPUResource* Resource = D3D12RHI::DXConv(Target)->GetResource();
+	Resource->SetResourceState(GetCMDList4(), D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
 	ensure(Resource->GetCurrentState() == D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
 	CmdList5->RSSetShadingRateImage(Resource->GetResource());
 }

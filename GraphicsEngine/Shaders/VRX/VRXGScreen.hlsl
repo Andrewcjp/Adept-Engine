@@ -16,6 +16,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	const float2 Invres = Resolution * -1;
 	float2 ScreenUV = (float2)DTid.xy / (float2)Resolution;
 	int ShadingRate = GetShadingRateIDForPixel(ScreenUV, Resolution);
-	RateData[DTid.xy] = ShadingRate;
+	RateData[DTid.xy/16] = ShadingRate;
 }
 

@@ -148,9 +148,11 @@ void RenderGraph::AddVRXSupport()
 	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UINT;
-	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale_TileSize;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	Desc.SimpleStartingState = EResourceState::UAV;
 	Desc.AllowUnorderedAccess = true;
+	Desc.LinkToBackBufferScaleFactor = RHI::GetDefaultDevice()->GetCaps().VRSTileSize;
 	VRXShadingRateImage->SetFrameBufferDesc(Desc);
 	RenderNode* LightingNode = FindFirstOf(DeferredLightingNode::GetNodeName());
 	VRXShadingRateNode* RateNode = new VRXShadingRateNode();

@@ -186,6 +186,11 @@ void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
 		BufferDesc.Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
 		//Resize(Width, Height);
 	}
+	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale_TileSize)
+	{
+		BufferDesc.Height = glm::iround(glm::ceil(Screen::GetWindowHeight()/BufferDesc.LinkToBackBufferScaleFactor));
+		BufferDesc.Width = glm::iround(glm::ceil(Screen::GetWindowWidth()/BufferDesc.LinkToBackBufferScaleFactor));
+	}
 }
 
 void FrameBuffer::AutoResize()
@@ -205,6 +210,12 @@ void FrameBuffer::AutoResize()
 	{
 		const int Height = glm::iround(Screen::GetWindowHeight()*BufferDesc.LinkToBackBufferScaleFactor);
 		const int Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
+		Resize(Width, Height);
+	}
+	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale_TileSize)
+	{
+		const int Height = glm::iround(glm::ceil(Screen::GetWindowHeight() / BufferDesc.LinkToBackBufferScaleFactor));
+		const int Width = glm::iround(glm::ceil(Screen::GetWindowWidth() / BufferDesc.LinkToBackBufferScaleFactor));
 		Resize(Width, Height);
 	}
 }

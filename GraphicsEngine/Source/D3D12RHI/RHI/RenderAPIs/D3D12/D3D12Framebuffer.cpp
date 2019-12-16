@@ -198,6 +198,10 @@ D3D12_RESOURCE_STATES D3D12FrameBuffer::ConvertState(EResourceState::Type State)
 			return D3D12_RESOURCE_STATE_COPY_DEST;
 		case EResourceState::CopySrc:
 			return D3D12_RESOURCE_STATE_COPY_SOURCE;
+#if WIN10_1903
+		case EResourceState::ShadingRateImage:
+			return D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
+#endif
 		default:
 			break;
 
@@ -327,7 +331,7 @@ void D3D12FrameBuffer::Init()
 		Desc2.Height = BufferDesc.Height;
 		Desc2.Depth = BufferDesc.TextureDepth;
 		Desc2.MipCount = BufferDesc.MipCount;
-		Desc2.InitalState = EResourceState::RenderTarget;
+		Desc2.InitalState = BufferDesc.SimpleStartingState;
 		Desc2.AllowUnorderedAccess = BufferDesc.AllowUnorderedAccess;
 		if (Desc2.Depth > 1)
 		{
