@@ -41,11 +41,11 @@ void UpdateReflectionsNode::OnExecute()
 	//CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	SceneRenderer::Get()->GetReflectionEnviroment()->UpdateRelflectionProbes(CubemapCaptureList);
 	CubemapCaptureList->Execute();
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	ComputeList->ResetList();
 	SceneRenderer::Get()->GetReflectionEnviroment()->DownSampleAndBlurProbes(ComputeList);
 	ComputeList->Execute();
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	FLAT_COMPUTE_END(RHI::GetDeviceContext(0));
 
 }
 

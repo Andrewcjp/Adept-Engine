@@ -54,7 +54,7 @@ void ForwardRenderNode::OnExecute()
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
 
-	
+	//CommandList->SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_4X4);
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye(),TargetBuffer);
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
 	MeshPassRenderArgs Args;

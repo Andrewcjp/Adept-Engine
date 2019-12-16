@@ -70,11 +70,9 @@ void DeferredLightingNode::OnExecute()
 	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer());
+		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
 	}
-#if TEST_VRR
-	List->SetVRRShadingRate(2);
-#endif
+
 	DeferredShader->RenderScreenQuad(List);
 	List->EndRenderPass();
 #if !TEST_VRR

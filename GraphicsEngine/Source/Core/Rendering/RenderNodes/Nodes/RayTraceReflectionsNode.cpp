@@ -30,8 +30,7 @@ void RayTraceReflectionsNode::OnExecute()
 	
 	StateObject->RebuildShaderTable();
 
-
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	FLAT_COMPUTE_START(RTList->GetRHIList()->GetDevice());
 
 	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
 	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());
@@ -57,7 +56,7 @@ void RayTraceReflectionsNode::OnExecute()
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
 	RTList->Execute();
 
-	RTList->GetRHIList()->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	FLAT_COMPUTE_END(RTList->GetRHIList()->GetDevice());
 	PassNodeThough(0, StorageFormats::ScreenReflectionData);
 }
 

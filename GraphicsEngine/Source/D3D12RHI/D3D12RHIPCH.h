@@ -13,6 +13,11 @@
 #else
 #define WIN10_1809 0 
 #endif
+#ifdef NTDDI_WIN10_19H1
+#define WIN10_1903 1
+#else 
+#define WIN10_1903 0 
+#endif
 #if RHI_SUPPORTS_RT
 #define USE_DIXL 1
 #else

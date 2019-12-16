@@ -77,6 +77,9 @@ public:
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
 	virtual void SetStateObject(RHIStateObject* Object) override;
 #endif
+#if WIN10_1903
+	ID3D12GraphicsCommandList5* GetCMDList5();
+#endif
 	RHI_VIRTUAL void SetDepthBounds(float Min, float Max) override;
 	RHI_VIRTUAL void SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot) override;
 	RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) override;
@@ -100,6 +103,9 @@ private:
 #if WIN10_1809
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
 #endif
+#if WIN10_1903
+	ID3D12GraphicsCommandList5* CmdList5 = nullptr;
+#endif
 	ID3D12GraphicsCommandList1* CommandList1 = nullptr;
 	bool m_IsOpen = false;
 	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
@@ -113,6 +119,11 @@ private:
 	D3D12CommandSigniture* CommandSig = nullptr;
 	RHIRootSigniture RootSigniture;
 	ID3D12DescriptorHeap* CurrentBoundHeap = nullptr;
+protected:
+#if WIN10_1903
+	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) override;
+	virtual void SetVRSShadingRateImageNative(RHITexture* Target) override;
+#endif
 };
 
 class D3D12RHITextureArray : public RHITextureArray

@@ -292,6 +292,16 @@ uint64 FrameBuffer::GetInstanceHash() const
 	return uint64();
 }
 
+RHITexture * FrameBuffer::GetRenderTexture(int index)
+{
+	return BufferDesc.RenderTargets[index];
+}
+
+RHITexture * FrameBuffer::GetDepthStencil()
+{
+	return BufferDesc.DepthStencil;
+}
+
 void FrameBuffer::ResolveSFR(FrameBuffer* SumBuffer)
 {
 	if (!NeedsSFRResolve())

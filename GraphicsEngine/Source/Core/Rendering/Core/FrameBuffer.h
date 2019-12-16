@@ -49,6 +49,8 @@ public:
 	void MakeReadyForPixel(RHICommandList* List, bool Depth = false);
 	EResourceState::Type GetCurrentState()const;
 	virtual uint64 GetInstanceHash()const;
+	RHITexture* GetRenderTexture(int index = 0);
+	RHITexture* GetDepthStencil();
 protected:
 	RHI_API virtual void HandleResize();
 	void SetupFences();

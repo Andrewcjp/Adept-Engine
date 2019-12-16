@@ -176,7 +176,7 @@ private:
 	GPUFenceSync ComputeSync;
 	void CheckFeatures();
 	void LogDeviceData(const std::string& data);
-	void LogTierData(const std::string& data, int teir);
+	void LogTierData(const std::string& data, int teir, const std::string & extramsg = "");
 	void InitDevice(int index);
 	bool LogDeviceDebug = true;
 

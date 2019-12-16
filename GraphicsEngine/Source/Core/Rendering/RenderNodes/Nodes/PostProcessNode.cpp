@@ -22,17 +22,17 @@ PostProcessNode::~PostProcessNode()
 
 void PostProcessNode::OnExecute()
 {
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	CommandList->ResetList();
 	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		CommandList->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer());
+		CommandList->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
 	}
 	PostProcessing::Get()->ExecPPStack(GetFrameBufferFromInput(0), CommandList);
 	SetEndStates(CommandList);
 	CommandList->Execute();
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	FLAT_COMPUTE_END(RHI::GetDeviceContext(0));
 	PassNodeThough(0);
 }
 

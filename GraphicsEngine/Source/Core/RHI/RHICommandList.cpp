@@ -182,10 +182,9 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//ensure(Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::None);
 	//#VRX: Setting for VRS mode
 	//Native VRS does not require resolve
-	//SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_4X2);
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
-		VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
+		//VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
 	}
 	else
 	{
@@ -198,7 +197,7 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 
 void RHICommandList::SetVRSShadingRate(VRS_SHADING_RATE::type Rate)
 {
-	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware && RHI::GetRenderSettings()->AllowNativeVRS)
+	if (Device->GetCaps().VRSSupport != EVRSSupportType::None && RHI::GetRenderSettings()->AllowNativeVRS)
 	{
 		SetVRSShadingRateNative(Rate);
 	}
@@ -213,16 +212,16 @@ void RHICommandList::SetVRRShadingRate(int RateIndex)
 	VRXEngine::Get()->SetVRRShadingRate(this, RateIndex);
 }
 
-void RHICommandList::SetVRXShadingRateImage(FrameBuffer * Target)
+void RHICommandList::SetVRXShadingRateImage(RHITexture * Target)
 {
 	ShadingRateImage = Target;
-	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware && Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRS && RHI::GetRenderSettings()->AllowNativeVRS)
+	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
 	{
 		SetVRSShadingRateImageNative(Target);
 	}
 	else
 	{
-		VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
+		//VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
 	}
 }
 
@@ -241,7 +240,7 @@ void RHICommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
 	NOAPIIMP(SetVRSShadingRateNative);
 }
 
-void RHICommandList::SetVRSShadingRateImageNative(FrameBuffer * Target)
+void RHICommandList::SetVRSShadingRateImageNative(RHITexture * Target)
 {
 	NOAPIIMP(SetVRSShadingRateImageNative);
 }

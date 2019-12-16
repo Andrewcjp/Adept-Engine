@@ -145,6 +145,7 @@ void ParticleSystemManager::Sync(ParticleSystem* system)
 	CmdList->UAVBarrier(system->DispatchCommandBuffer);
 	CmdList->UAVBarrier(system->AliveParticleIndexs_PostSim);
 	CmdList->UAVBarrier(system->GPU_ParticleData);
+	CmdList->UAVBarrier(system->RenderCommandBuffer);
 }
 
 void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
@@ -191,15 +192,16 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	Sync(System);
 	//return;
 	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_EndSimulation>()));
-	CmdList->SetBuffer(System->GetPostSimList(), 0);
+	CmdList->SetBuffer(System->GetPostSimList(),0);
 	CmdList->SetUAV(System->RenderCommandBuffer, 1);
-	CmdList->SetUAV(System->CounterBuffer, 2);
+	//CmdList->SetUAV(System->CounterBuffer, "Counter");
 #if USE_INDIRECTCOMPUTE
 	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
 	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
 	Sync(System);
+	CmdList->UAVBarrier(System->DispatchCommandBuffer);
 	if (System->SortShader != nullptr)
 	{
 		//todo:
@@ -263,7 +265,9 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	RHIRenderPassDesc info(BufferTarget, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthBuffer;
 	RenderList->BeginRenderPass(info);
+#if USE_INDIRECTRENDER
 	RenderList->SetCommandSigniture(RenderSig);
+#endif
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, "ParticleData");
 	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);

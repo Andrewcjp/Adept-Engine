@@ -391,10 +391,8 @@ namespace COLOR_MASK
 	};
 };
 
-UCLASS()
 struct RHIRender_Target_Blend_Desc
 {
-	GENHASH();
 	bool BlendEnable = false;
 	bool LogicOpEnable = false;
 	RHIBlendMode::Type SrcBlend = RHIBlendMode::BLEND_ONE;
@@ -406,10 +404,10 @@ struct RHIRender_Target_Blend_Desc
 	//LOGIC_OP LogicOp;
 	uint8_t RenderTargetWriteMask = COLOR_MASK::COLOR_WRITE_ENABLE_ALL;
 };
-UCLASS()
+
 struct RHIBlendState
 {
-	GENHASH();
+
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
 	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX] = {};
@@ -803,13 +801,13 @@ namespace VRS_SHADING_RATE
 {
 	enum type
 	{
-		SHADING_RATE_1X1,
-		SHADING_RATE_1X2,
-		SHADING_RATE_2X1,
-		SHADING_RATE_2X2,
-		SHADING_RATE_2X4,
-		SHADING_RATE_4X2,
-		SHADING_RATE_4X4
+		SHADING_RATE_1X1 = 0,
+		SHADING_RATE_1X2 = 0x1,
+		SHADING_RATE_2X1 = 0x4,
+		SHADING_RATE_2X2 = 0x5,
+		SHADING_RATE_2X4 = 0x6,
+		SHADING_RATE_4X2 = 0x9,
+		SHADING_RATE_4X4 = 0xa
 	};
 }
 namespace AS_BUILD_FLAGS

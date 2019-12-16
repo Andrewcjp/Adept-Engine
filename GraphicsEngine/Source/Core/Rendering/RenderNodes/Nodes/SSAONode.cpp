@@ -21,8 +21,7 @@ void SSAONode::OnExecute()
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(1);
 	FrameBuffer* TempSSAOData = GetFrameBufferFromInput(2);
-
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	list->ResetList();
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "SSAO");
@@ -49,7 +48,7 @@ void SSAONode::OnExecute()
 		list->UAVBarrier(TargetBuffer);
 	}
 	list->Execute();
-	RHI::GetDeviceContext(0)->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	FLAT_COMPUTE_END(RHI::GetDeviceContext(0));
 }
 
 void SSAONode::OnNodeSettingChange()

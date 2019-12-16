@@ -208,7 +208,7 @@ void D3D12DeviceContext::CheckFeatures()
 		case D3D_SHADER_MODEL_6_2:
 		case D3D_SHADER_MODEL_6_3:
 		case D3D_SHADER_MODEL_6_4:
-#if NTDDI_WIN10_19H1
+#if WIN10_1903
 		case D3D_SHADER_MODEL_6_5:
 #endif
 			Caps_Data.HighestModel = EShaderSupportModel::SM6;
@@ -224,7 +224,7 @@ void D3D12DeviceContext::CheckFeatures()
 		LogDeviceData("Shader Model Support " + std::string(EShaderSupportModel::ToString(Caps_Data.HighestModel)));
 	}
 
-#ifdef NTDDI_WIN10_19H1
+#if WIN10_1903
 	D3D12_FEATURE_DATA_D3D12_OPTIONS6 FeatureData6;
 	ZeroMemory(&FeatureData6, sizeof(FeatureData6));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &FeatureData6, sizeof(FeatureData3));
@@ -232,7 +232,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier);
+			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier,"(Tile size "+std::to_string(FeatureData6.ShadingRateImageTileSize)+")");
 		}
 		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
 		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
@@ -278,9 +278,9 @@ void D3D12DeviceContext::LogDeviceData(const std::string& data)
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + ": " + data);
 }
 
-void D3D12DeviceContext::LogTierData(const std::string& data, int teir)
+void D3D12DeviceContext::LogTierData(const std::string& data, int teir,const std::string & extramsg)
 {
-	LogDeviceData(data + " tier " + std::to_string(teir));
+	LogDeviceData(data + " tier " + std::to_string(teir) +" "+ extramsg);
 }
 
 void D3D12DeviceContext::InitDevice(int index)

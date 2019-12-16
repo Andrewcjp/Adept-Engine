@@ -51,15 +51,6 @@ Shader_Depth::~Shader_Depth()
 
 std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 {
-	//std::vector<ShaderParameter> Output;
-	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 0, Shader_Depth_RSSlots::ModelBuffer));
-	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 1, Shader_Depth_RSSlots::GeometryProjections));
-	//Output.push_back(ShaderParameter(ShaderParamType::CBV, 2, Shader_Depth_RSSlots::VPBuffer));
-
-
-
-	//Output.push_back(ShaderParameter(ShaderParamType::RootConstant, 3, Shader_Depth_RSSlots::VI_Offset));
-
 	ChangeParamType("VIData", ShaderParamType::RootConstant);
 	return Shader::GetShaderParameters();
 }

@@ -12,6 +12,7 @@
 #include "Raytracing/D3D12StateObject.h"
 #include "D3D12Buffer.h"
 #include "DescriptorCache.h"
+#include "RHI/RHITexture.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -136,9 +137,23 @@ void D3D12CommandList::PushPrimitiveTopology()
 		}
 	}
 }
+#if WIN10_1903
+void D3D12CommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
+{
+	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
+	ensure(CmdList5 != nullptr);
+	CmdList5->RSSetShadingRate((D3D12_SHADING_RATE)Rate, nullptr);
+}
 
-
-
+void D3D12CommandList::SetVRSShadingRateImageNative(RHITexture* Target)
+{
+	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
+	ensure(CmdList5 != nullptr);
+	GPUResource* Resource = D3D12RHI::DXConv(Target)->GetResource();
+	ensure(Resource->GetCurrentState() == D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
+	CmdList5->RSSetShadingRateImage(Resource->GetResource());
+}
+#endif
 D3D12CommandList::~D3D12CommandList()
 {
 #if AFTERMATH
@@ -514,6 +529,9 @@ void D3D12CommandList::CreateCommandList()
 		CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CurrentADVCommandList));
 	}
 #endif
+#if WIN10_1903
+	CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CmdList5));
+#endif
 	CurrentCommandList->QueryInterface(IID_PPV_ARGS(&CommandList1));
 	PushState();
 	D3D12Helpers::NameRHIObject(CurrentCommandList, this);
@@ -665,11 +683,17 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	RootSigniture.SetFrameBufferTexture(slot, buffer, desc);
 }
-
+#if WIN10_1903
+ID3D12GraphicsCommandList5 * D3D12CommandList::GetCMDList5()
+{
+	return CmdList5;
+}
+#endif
 void D3D12CommandList::SetDepthBounds(float Min, float Max)
 {
 	if (!Device->GetCaps().SupportsDepthBoundsTest)
 	{
+		AD_WARN("SetDepthBounds Is not supported by the device");
 		return;
 	}
 	CommandList1->OMSetDepthBounds(Min, Max);
@@ -696,6 +720,7 @@ void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 	CurrentRTState->BindToList(this);
 }
 #endif
+
 void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc)
 {
 	ensure(texture != nullptr);

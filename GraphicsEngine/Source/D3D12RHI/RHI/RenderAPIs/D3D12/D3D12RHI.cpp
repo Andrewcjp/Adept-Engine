@@ -43,7 +43,7 @@ D3D12RHI::~D3D12RHI()
 void D3D12RHI::RunDred()
 {
 	//dred is in windows 19h1
-#if  NTDDI_WIN10_19H1
+#if  WIN10_1903
 	HRESULT R = DeviceContexts[0]->GetDevice()->QueryInterface(IID_PPV_ARGS(&pDred));
 	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT DredAutoBreadcrumbsOutput;
 	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
@@ -332,7 +332,7 @@ void D3D12RHI::LoadPipeLine()
 #endif
 	if (EnableDred.GetBoolValue() && !ForceNoDebug.GetBoolValue())
 	{
-#if NTDDI_WIN10_19H1
+#if WIN10_1903
 		ID3D12DeviceRemovedExtendedDataSettings* pDredSettings;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings))))
 		{

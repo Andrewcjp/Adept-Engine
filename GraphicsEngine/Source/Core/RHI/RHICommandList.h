@@ -161,19 +161,19 @@ public:
 
 	RHI_API void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
 	RHI_API void SetVRRShadingRate(int RateIndex);
-	RHI_API void SetVRXShadingRateImage(FrameBuffer* Target);
+	RHI_API void SetVRXShadingRateImage(RHITexture* Target);
 	RHI_API RHIPipeLineStateObject* GetCurrnetPSO();
 	RHI_API ECommandListType::Type GetListType() const;
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
-	RHI_API virtual void SetVRSShadingRateImageNative(FrameBuffer* Target);
+	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);
 
 	RHIPipeLineStateObject* CurrentPSO = nullptr;
 	bool IsInRenderPass = false;
 	DeviceContext * Device = nullptr;
 	FrameBuffer * CurrentRenderTarget = nullptr;//todo: multiple!
 	ECommandListType::Type ListType = ECommandListType::Graphics;
-	FrameBuffer* ShadingRateImage = nullptr;
+	RHITexture* ShadingRateImage = nullptr;
 };
 
 //Used to Bind Buffers or textures to a single Descriptor heap/set for shader arrays

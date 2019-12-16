@@ -3,6 +3,7 @@
 #include "Core\Platform\PlatformCore.h"
 #ifdef PLATFORM_WINDOWS
 #define DEBUGBREAK  __debugbreak();
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #else
 #define DEBUGBREAK
 #endif
@@ -40,6 +41,9 @@ Log::LogMessage(data,Log::Severity::Error);}
 Log::LogMessage(data,Log::Severity::Error);
 
 #define ENUMCONVERTFAIL() ensureMsgf(false,"Failed to convert Enum")
+#define AD_WARN(Message) std::string data = Message " " __FILE__ "@" LINE_STRING "\n";\
+Log::LogMessage(data,Log::Severity::Warning);
+
 #else
 #define check(condition);
 #define checkMsgf(condition,Message);
@@ -50,6 +54,7 @@ Log::LogMessage(data,Log::Severity::Error);
 #define LogEnsureMsgf(c,m);
 #define LogEnsure_Always(m)
 #define ENUMCONVERTFAIL()
+#define AD_WARN(msg)
 #endif
 
 #if DOCHECK

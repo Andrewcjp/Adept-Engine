@@ -171,7 +171,7 @@ private:
 	D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
-#if NTDDI_WIN10_19H1
+#if WIN10_1903
 	ID3D12DeviceRemovedExtendedData* pDred;
 #endif
 };

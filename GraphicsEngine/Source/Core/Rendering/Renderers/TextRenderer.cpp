@@ -55,6 +55,7 @@ void TextRenderer::RenderBatches(std::vector<TextBatch*>& batches, RHICommandLis
 	TextCommandList->SetVertexBuffer(VertexBuffer);
 	TextCommandList->SetTexture(TextAtlas->Texture, 0);
 	TextCommandList->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
+	m_TextShader->Update(TextCommandList);
 	TextCommandList->DrawPrimitive(Length, 1, Offset, 0);
 	TextCommandList->EndRenderPass();
 	Offset += Length;
@@ -67,6 +68,7 @@ void TextRenderer::RenderDirect(RHICommandList* list, std::string text, glm::vec
 	list->SetPipelineStateObject(PSO);
 	list->SetVertexBuffer(VertexBuffer);
 	list->SetTexture(TextAtlas->Texture, 0);
+	m_TextShader->Update(list);
 	list->BeginRenderPass(RHI::GetRenderPassDescForSwapChain());
 	list->DrawPrimitive(count, 1, Offset, 0);
 	list->EndRenderPass();
