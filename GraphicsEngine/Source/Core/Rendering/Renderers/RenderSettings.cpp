@@ -15,6 +15,7 @@ RenderSettings::RenderSettings()
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
+	CurrentAAMode = AAMode::FXAA;
 	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 

@@ -1,5 +1,3 @@
-
-#include "RHI/RHITypes.generated.h"
 #include "Core/Utils/StringUtil.h"
 #include "Shader.h"
 #include "Rendering/Core/FrameBuffer.h"
@@ -422,6 +420,7 @@ std::vector<RHISamplerDesc> RHISamplerDesc::GetDefault()
 	Out[0].MaxAnisotropy = 16;
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 1));
 	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 2));
+	Out.push_back(RHISamplerDesc(ESamplerFilterMode::FILTER_MIN_MAG_MIP_LINEAR, ESamplerWrapMode::TEXTURE_ADDRESS_MODE_CLAMP, 3));
 	return Out;
 }
 

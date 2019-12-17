@@ -42,8 +42,8 @@ void SSAONode::OnExecute()
 		desc.ShaderInUse = ShaderComplier::GetShader<Shader_SSAO_Merge>();
 		list->SetPipelineStateDesc(desc);
 		list->SetUAV(TargetBuffer, 1);
+		TempSSAOData->SetResourceState(list, EResourceState::Non_PixelShader);
 		list->SetFrameBufferTexture(TempSSAOData, 0);
-
 		list->Dispatch(TargetBuffer->GetWidth(), TargetBuffer->GetHeight(), 1);
 		list->UAVBarrier(TargetBuffer);
 	}

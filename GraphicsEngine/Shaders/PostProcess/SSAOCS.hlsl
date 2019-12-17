@@ -52,7 +52,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float3 pos = PosTex[DTid.xy].xyz;//world space
 	float3 Normal = normalize(NormalTex[DTid.xy].xyz);
 	float3 RandomDir = normalize(samples[DTid.x% 32]);
-#define VS 1
+#define VS 0
 #if VS
 	pos = ConvertPos(pos);
 	Normal = Convertzero(Normal);

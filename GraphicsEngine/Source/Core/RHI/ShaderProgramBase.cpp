@@ -50,3 +50,8 @@ void ShaderProgramBase::ResolveRS()
 	NumberRS();
 	HasResolved = true;
 }
+
+glm::ivec3 ShaderProgramBase::GetComputeThreadSize() const
+{
+	return glm::ivec3(1);
+}

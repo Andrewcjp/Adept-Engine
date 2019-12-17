@@ -7,12 +7,12 @@
   (uint32_t)(uint8_t)(ch0)        | (uint32_t)(uint8_t)(ch1) << 8  | \
   (uint32_t)(uint8_t)(ch2) << 16  | (uint32_t)(uint8_t)(ch3) << 24   \
   )
-void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute, ShaderSourceFile* Sourcefile)
+void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute, ShaderSourceFile* Sourcefile, D3D12Shader* shader)
 {
 	ID3D12ShaderReflection* REF = nullptr;
 #if !USE_DIXL
 	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF)));
-	RelfectShader(REF, iscompute, shaderbinds, Type);
+	RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 #else
 	IDxcContainerReflection* pReflection;
 	UINT32 shaderIdx;
@@ -39,10 +39,10 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 		RelfectShader(REF, iscompute, shaderbinds, Type);
 	}
 #endif
-	ApplyRootConstantPatch(shaderbinds, Sourcefile);
+	ApplyRootConstantPatch(REF, shaderbinds, Sourcefile);
 }
 
-void ShaderReflection::ApplyRootConstantPatch(std::vector<ShaderParameter> & shaderbinds, ShaderSourceFile* Sourcefile)
+void ShaderReflection::ApplyRootConstantPatch(ID3D12ShaderReflection* REF, std::vector<ShaderParameter> & shaderbinds, ShaderSourceFile* Sourcefile)
 {
 	if (Sourcefile == nullptr)
 	{
@@ -56,6 +56,16 @@ void ShaderReflection::ApplyRootConstantPatch(std::vector<ShaderParameter> & sha
 			{
 				ensure(shaderbinds[x].Type == ShaderParamType::CBV || shaderbinds[x].Type == ShaderParamType::RootConstant || shaderbinds[x].Type == ShaderParamType::Buffer);
 				shaderbinds[x].Type = ShaderParamType::RootConstant;
+				ID3D12ShaderReflectionVariable* vr = REF->GetVariableByName(shaderbinds[x].Name.c_str());
+				if (vr != nullptr)
+				{
+					D3D12_SHADER_VARIABLE_DESC VR_desc = {};
+					if (!FAILED(vr->GetDesc(&VR_desc)))
+					{
+						//a single root constant is 32 bit == 4 bytes so:
+						shaderbinds[x].NumVariablesContained = VR_desc.Size / 4;
+					}
+				}
 			}
 		}
 	}
@@ -78,14 +88,13 @@ void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::
 	}
 }
 
-void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscompute, std::vector<ShaderParameter> & shaderbinds, EShaderType::Type Type)
+void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscompute, std::vector<ShaderParameter> & shaderbinds, EShaderType::Type Type, D3D12Shader* shader)
 {
 	if (REF == nullptr)
 	{
 		return;
 	}
 	D3D12_SHADER_DESC desc;
-	//desc.InstructionCount;
 	REF->GetDesc(&desc);
 	int ProgramTYpe = (desc.Version & 0xFFFF0000) >> 16;
 	if (ProgramTYpe == D3D12_SHADER_VERSION_TYPE::D3D12_SHVER_COMPUTE_SHADER)
@@ -107,6 +116,21 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 			VectorUtils::AddUnique(shaderbinds, p);
 		}
 	}
+	if (iscompute)
+	{
+		uint x, y, z = 0;
+		uint ThreadCount = REF->GetThreadGroupSize(&x, &y, &z);
+		shader->ComputeThreadSize = glm::ivec3(x, y, z);
+		if (ThreadCount < 32)
+		{
+			AD_WARN("Low Thread count on Compute shader(" + std::to_string(ThreadCount) + ") this will cause under utilization on NVidia hardware(32)");
+		}
+		else if (ThreadCount < 64)
+		{
+			AD_WARN("Low Thread count on Compute shader(" + std::to_string(ThreadCount) + ") this will cause under utilization on AMD hardware(64)");
+		}
+	}
+	shader->InstructionCount = desc.InstructionCount;
 }
 
 ShaderParameter ShaderReflection::ConvertParm(D3D12_SHADER_INPUT_BIND_DESC& desc)
@@ -144,6 +168,5 @@ ShaderParameter ShaderReflection::ConvertParm(D3D12_SHADER_INPUT_BIND_DESC& desc
 			break;
 
 	}
-
 	return S;
 }

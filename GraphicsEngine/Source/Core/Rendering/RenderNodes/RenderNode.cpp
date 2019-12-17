@@ -372,3 +372,6 @@ void RenderNode::AddEndTransition(const ResourceTransition& transition)
 {
 	EndTransitions.push_back(transition);
 }
+
+void RenderNode::OnResourceResize()
+{}

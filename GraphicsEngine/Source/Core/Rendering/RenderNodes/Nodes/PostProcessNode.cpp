@@ -36,6 +36,12 @@ void PostProcessNode::OnExecute()
 	PassNodeThough(0);
 }
 
+
+void PostProcessNode::OnResourceResize()
+{
+	PostProcessing::Get()->Resize(nullptr);
+}
+
 void PostProcessNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene);

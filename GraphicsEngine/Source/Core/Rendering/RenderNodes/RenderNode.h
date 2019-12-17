@@ -91,6 +91,7 @@ public:
 	EEye::Type GetEye();
 	void AddBeginTransition(const ResourceTransition & transition);
 	void AddEndTransition(const ResourceTransition & transition);
+	virtual void OnResourceResize();
 protected:
 
 	//search forwards until we reach the end VR node 

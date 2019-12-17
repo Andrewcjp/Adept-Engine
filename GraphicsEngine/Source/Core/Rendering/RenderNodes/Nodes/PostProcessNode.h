@@ -9,6 +9,9 @@ public:
 	virtual void OnExecute() override;
 
 
+
+	void OnResourceResize() override;
+
 	NameNode("Post Process")
 
 protected:

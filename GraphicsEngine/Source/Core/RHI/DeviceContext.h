@@ -73,7 +73,7 @@ struct CapabilityData
 	bool SupportsDepthBoundsTest = true;
 	EShaderSupportModel::Type HighestModel = EShaderSupportModel::SM5;
 	bool SupportExecuteIndirect = false;
-	int VRSTileSize = 0;
+	int VRSTileSize = 16;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext

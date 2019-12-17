@@ -235,11 +235,14 @@ void D3D12DeviceContext::CheckFeatures()
 			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier,"(Tile size "+std::to_string(FeatureData6.ShadingRateImageTileSize)+")");
 		}
 		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
-		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
+		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_1)
 		{
-			Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
+			if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
+			{
+				Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
+			}
+			Caps_Data.VRSTileSize = FeatureData6.ShadingRateImageTileSize;
 		}
-		Caps_Data.VRSTileSize = FeatureData6.ShadingRateImageTileSize;
 	}
 	else
 	{

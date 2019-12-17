@@ -174,6 +174,7 @@ void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
 		Log::LogMessage("AutoResize Called on fixed size buffer this is invalid", Log::Error);
 		return;
 	}
+	ensure(BufferDesc.LinkToBackBufferScaleFactor > 0.0f);
 	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
 	{
 		BufferDesc.Height = glm::iround(Screen::GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);

@@ -413,11 +413,17 @@ Mesh * RHI::CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Sett
 	return newmesh;
 }
 
-FrameBuffer* RHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc)
+FrameBuffer* RHI::CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc, bool AutoSizeDesc/* = false*/)
 {
 	if (Device == nullptr)
 	{
 		Device = RHI::GetDefaultDevice();
+	}
+	if (AutoSizeDesc)
+	{
+		RHIFrameBufferDesc NewDesc = Desc;
+		FrameBuffer::AutoUpdateSize(NewDesc);
+		return GetRHIClass()->CreateFrameBuffer(Device, NewDesc);
 	}
 	return GetRHIClass()->CreateFrameBuffer(Device, Desc);
 }

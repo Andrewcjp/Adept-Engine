@@ -255,6 +255,17 @@ void EditorWindow::Update()
 		currentmode = currentmode % (ERenderDebugOutput::Limit);
 		RHI::GetRenderSettings()->SetDebugRenderMode((ERenderDebugOutput::Type)currentmode);
 	}
+	if (Input::GetKeyDown('N'))
+	{
+		if (RHI::GetRenderSettings()->CurrentAAMode != AAMode::NONE)
+		{
+			RHI::GetRenderSettings()->CurrentAAMode = AAMode::NONE;
+		}
+		else
+		{
+			RHI::GetRenderSettings()->CurrentAAMode = AAMode::FXAA;
+		}
+	}
 	if (Input::GetKeyDown(VK_ESCAPE))
 	{
 		ExitPlayMode();

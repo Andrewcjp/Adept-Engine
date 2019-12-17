@@ -352,7 +352,7 @@ void RHICommandList::SetTexture2(RHITexture * buffer, std::string slot)
 	{
 		return;
 	}
-	SetTexture2(buffer, index,RHIViewDesc::DefaultSRV());
+	SetTexture2(buffer, index, RHIViewDesc::DefaultSRV());
 }
 
 void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)
@@ -403,6 +403,20 @@ void RHICommandList::SetUAV(FrameBuffer * uav, int slot, int ResourceIndex, int 
 	view.Mip = MipSlice;
 	view.ResourceIndex = ResourceIndex;
 	SetUAV(uav, slot, view);
+}
+
+void RHICommandList::DispatchSized(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
+{
+	if (CurrentPSO != nullptr && CurrentPSO->GetDesc().ShaderInUse != nullptr)
+	{
+		glm::ivec3 DispatchGroupSize = CurrentPSO->GetDesc().ShaderInUse->GetShaderProgram()->GetComputeThreadSize();
+		Dispatch(glm::ceil((float)ThreadGroupCountX / (float)DispatchGroupSize.x), glm::ceil((float)ThreadGroupCountY / (float)DispatchGroupSize.y), glm::ceil((float)ThreadGroupCountZ / (float)DispatchGroupSize.z));
+	}
+	else
+	{
+		ensureMsgf(false, "No shader bound");
+		Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
+	}
 }
 
 void RHICommandList::SetCommandSigniture(RHICommandSignitureDescription desc)

@@ -74,6 +74,12 @@ void RenderGraph::Resize()
 	{
 		N->Resize();
 	}
+	RenderNode* Node = RootNode;
+	while (Node != nullptr)
+	{
+		Node->OnResourceResize();
+		Node = Node->GetNextNode();
+	}
 }
 
 void RenderGraph::ResetForFrame()

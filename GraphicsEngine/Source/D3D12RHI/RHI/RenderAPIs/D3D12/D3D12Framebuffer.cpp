@@ -145,21 +145,16 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	D3D12CommandList* CMdList = (D3D12CommandList*)List;
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = OtherB->RenderTarget[0]->GetResource()->GetResource()->GetDesc();
 	OtherB->RenderTarget[0]->GetResource()->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
-	//TargetCopy->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+	RenderTarget[0]->GetResource()->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
 	const int count = BufferDesc.TextureDepth;
-	//for (int i = 0; i < count; i++)
-	//{
-	//	int offset = i;
-	//	CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource(), offset);
-	//	CD3DX12_TEXTURE_COPY_LOCATION src(TargetCopy->GetResource(), offset);
-	//	int PXoffset = 0;
-	//	if (RHI::GetMGPUSettings()->ShowSplit)
-	//	{
-	//		PXoffset = 10;
-	//	}
-	//	CD3DX12_BOX box((LONG)BufferDesc.ScissorRect.x, 0, m_width - PXoffset, m_height);
-	//	CMdList->GetCommandList()->CopyTextureRegion(&dest, (LONG)BufferDesc.ScissorRect.x + PXoffset, 0, 0, &src, &box);
-	//}
+	for (int i = 0; i < count; i++)
+	{
+		int offset = i;
+		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource()->GetResource(), offset);
+		CD3DX12_TEXTURE_COPY_LOCATION src(RenderTarget[0]->GetResource()->GetResource(), offset);
+		CD3DX12_BOX box(0, 0, BufferDesc.Width , BufferDesc.Height);
+		CMdList->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
 }
 
 

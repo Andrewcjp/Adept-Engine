@@ -50,6 +50,10 @@ public:
 #if !BUILD_SHIPPING
 	static void PrintShaderStats();
 #endif
+	glm::ivec3 ComputeThreadSize = glm::ivec3(1, 1, 1);
+
+	glm::ivec3 GetComputeThreadSize() const override;
+
 private:
 #if USE_DIXL
 	DxcDefine * ParseDefines();
@@ -88,5 +92,6 @@ private:
 	};
 	static ShaderStats stats;
 #endif
+	
 };
 

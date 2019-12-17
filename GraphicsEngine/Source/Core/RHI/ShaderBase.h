@@ -80,6 +80,7 @@ struct ShaderParameter
 	{
 		return A.Type == Type && A.RegisterSlot == RegisterSlot && A.RegisterSpace == RegisterSpace && A.NumDescriptors == NumDescriptors && A.Name == Name;
 	}
+	int NumVariablesContained = 1;
 };
 
 #endif

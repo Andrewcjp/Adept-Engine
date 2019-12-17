@@ -3,6 +3,7 @@
 #include "PostProcessEffectBase.h"
 
 struct DeviceDependentObjects;
+class PP_FXAA;
 class PostProcessing
 {
 
@@ -25,6 +26,7 @@ public:
 	class PP_Bloom* Bloom = nullptr;
 	class PP_SSAO* SSAO = nullptr;
 	class PP_Debug* Debug = nullptr;
+	FrameBuffer* Gbuffer = nullptr;
 private:
-
+	PP_FXAA* FXAA = nullptr;
 };

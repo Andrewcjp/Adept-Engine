@@ -9,6 +9,7 @@
 
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI_inc.h"
+#include "PP_FXAA.h"
 
 PostProcessing* PostProcessing::Instance = nullptr;
 void PostProcessing::StartUp()
@@ -88,23 +89,28 @@ void PostProcessing::Init(FrameBuffer* Target)
 	Bloom = new PP_Bloom();
 	Bloom->SetUpData();
 	Bloom->InitEffect(Target);
-
-	SSAO = new PP_SSAO();
-	SSAO->SetUpData();
-	SSAO->InitEffect(Target);*/
+	*/
+	//SSAO = new PP_SSAO();
+	//SSAO->SetUpData();
+	//SSAO->InitEffect(Target);
 	Debug = new PP_Debug();
 	Debug->SetUpData();
 	Debug->InitEffect(Target);
-	//AddEffect(Debug);
+	////AddEffect(Debug);
 
 	//AddEffect(SSAO);
 
 	//AddEffect(Bloom);
 	//AddEffect(Blur);
 	//AddEffect(ColourCorrect);
+	FXAA = new PP_FXAA();
+	FXAA->SetUpData();
+	FXAA->InitEffect(Target);
+	//AddEffect(FXAA);
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {
+	FXAA->InitEffect(Target);
 	//Bloom->InitEffect(Target);
 //	Blur->InitEffect(Target);
 	//Bloom->InitEffect(Target);

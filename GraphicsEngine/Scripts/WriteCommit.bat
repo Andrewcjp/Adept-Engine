@@ -9,4 +9,6 @@ echo Git Commit is %Ver%
 
 set Def=#define GITCOMMIT %Ver%
 rem echo %Def%
-if /I "%Def%" NEQ "%Build%" (@echo %Def% >../Source/Core/GitCommitVersion.h)
+if /I "%Def%" NEQ "%Build%" (
+	@echo %Def% >../Source/Core/GitCommitVersion.h
+	)

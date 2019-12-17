@@ -119,6 +119,7 @@ public:
 	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
+	RHI_API void DispatchSized(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ);
 	//Indirect
 	RHI_API RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSignitureDescription desc);

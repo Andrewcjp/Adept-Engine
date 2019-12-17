@@ -39,7 +39,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	}
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 	const int TileSize = 16;
-	list->Dispatch(Target->GetWidth() / TileSize, Target->GetHeight() / TileSize, 1);
+	list->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);
 	list->UAVBarrier(Target);
 }
 

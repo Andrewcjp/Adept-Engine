@@ -27,9 +27,13 @@ public:
 	bool IsComputeShader();
 	bool IsRSResolved()const;
 	void ResolveRS();
+	virtual glm::ivec3 GetComputeThreadSize()const;
+	uint32 GetInstructionCount() const { return InstructionCount; }
 protected:
 	bool HasResolved = false;
 	void NumberRS();
 	std::vector<Shader_Define> Defines;
+	uint32 InstructionCount = 0;
+	friend class ShaderReflection;
 };
 

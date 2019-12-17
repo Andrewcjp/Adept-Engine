@@ -76,7 +76,7 @@ public:
 	RHI_API static BaseTexture* CreateNullTexture(DeviceContext* Device = nullptr);
 	RHI_API static Mesh * CreateMesh(const char * path);
 	RHI_API static Mesh * CreateMesh(const char * path, MeshLoader::FMeshLoadingSettings& Settings);
-	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc);
+	RHI_API static FrameBuffer* CreateFrameBuffer(DeviceContext* Device, const RHIFrameBufferDesc& Desc,bool AutoSizeDesc = false);
 	RHI_API static ShaderProgramBase* CreateShaderProgam(DeviceContext* Device = nullptr);
 	RHI_API static RHITextureArray * CreateTextureArray(DeviceContext * Device, int Length);
 	RHI_API static bool SupportsUnlinkedAdaptors();
