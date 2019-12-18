@@ -253,6 +253,7 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 	{
 		Flags |= aiProcess_FlipUVs;
 	}
+	Flags |= aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph;
 	const aiScene* scene = importer.ReadFile(filename.c_str(), Flags);
 
 	if (!scene)

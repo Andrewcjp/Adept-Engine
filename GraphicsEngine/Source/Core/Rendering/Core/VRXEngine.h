@@ -18,7 +18,7 @@ public:
 	void SetVRSShadingRate(RHICommandList* List, VRS_SHADING_RATE::type Rate);
 	void SetVRRShadingRate(RHICommandList* List, int FactorIndex);
 	void SetVRXShadingRateImage(RHICommandList* List, RHITexture* Target);
-	static void SetupVRRShader(Shader* S);
+	static void SetupVRRShader(Shader* S, DeviceContext* device);
 	static void AddVRRToRS(std::vector<ShaderParameter>& S, int lastindex = 0);
 	static void SetupVRSShader(Shader* S);
 	static void AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex = 0);

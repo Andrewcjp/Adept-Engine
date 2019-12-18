@@ -4,6 +4,7 @@ static ConsoleVariable DebugRateVRR("VRR.ShowRate", 0, ECVarType::ConsoleAndLaun
 IMPLEMENT_GLOBAL_SHADER(Shader_VRRResolve);
 Shader_VRRResolve::Shader_VRRResolve(DeviceContext * device) :Shader(device)
 {
+	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(device->GetCaps().VRSTileSize)));
 	m_Shader->AttachAndCompileShaderFromFile("VRX\\VRRResolve", EShaderType::SHADER_COMPUTE);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->SetDebugName("Shader_VRSResolve DataBuffer");

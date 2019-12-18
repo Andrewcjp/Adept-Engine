@@ -59,7 +59,7 @@ void BleedOutPlayer::CheckForGround()
 	glm::vec3 down = -GetOwner()->GetTransform()->GetUp();
 	std::vector<RigidBody*> IgnoreActors;
 	IgnoreActors.push_back(RB->GetActor());
-	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), down, 2.5f, &hit, IgnoreActors))
+	if (Engine::GetPhysEngineInstance()->RayCastScene(GetOwner()->GetPosition(), -down, 2.5f, &hit, IgnoreActors))
 	{
 		const float angle = glm::degrees(glm::angle(glm::vec3(0, 1, 0), hit.Normal));
 		if (angle < MaxWalkableAngle)
@@ -100,7 +100,7 @@ void BleedOutPlayer::TickBleedout()
 	SecondsLeft = Mhealth->GetCurrentHealth() / BleedOutRate;
 }
 static ConsoleVariable Sensitivity("sensitivity", 1.0f, ECVarType::ConsoleOnly);
-static ConsoleVariable GodMode("god", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable GodMode("god", 1, ECVarType::ConsoleAndLaunch);
 void BleedOutPlayer::Update(float delta)
 {
 #if WITH_EDITOR
@@ -125,8 +125,11 @@ void BleedOutPlayer::Update(float delta)
 		CurrnetRot.x = glm::clamp(CurrnetRot.x, -YAxisLock, YAxisLock);
 		glm::quat newrot = glm::quat(glm::radians(glm::vec3(CurrnetRot.x, 0, 0)));
 		CameraObject->GetTransform()->SetQrot(newrot);
-		CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
-		CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
+		if (CameraComponent::GetMainCamera() != nullptr)
+		{
+			CameraComponent::GetMainCamera()->SetUpAndForward(CameraObject->GetTransform()->GetForward(), CameraObject->GetTransform()->GetUp());
+			CameraComponent::GetMainCamera()->SetPos(CameraObject->GetTransform()->GetPos());
+		}
 	}
 	Input::SetCursorState(true, false);
 	TickAudio();
@@ -147,11 +150,11 @@ void BleedOutPlayer::UpdateMovement(float delta)
 
 	if (Input::GetKey('a'))
 	{
-		TargetVel -= right * Speed;
+		TargetVel += right * Speed;
 	}
 	if (Input::GetKey('d'))
 	{
-		TargetVel += right * Speed;
+		TargetVel -= right * Speed;
 	}
 	if (Input::GetKey('w'))
 	{
@@ -185,16 +188,17 @@ void BleedOutPlayer::UpdateMovement(float delta)
 		const glm::vec3 tVel = NewVel /*+ ExtraVel*/;
 		glm::vec3 correction = tVel - RB->GetVelocity();
 		correction.y = 0.0f;
-		RB->GetActor()->AddForce(correction * (IsGrounded ? 10 : 2.5f));
+		RB->GetActor()->AddForce(correction * (IsGrounded ? 100 : 25.0f));
 #else
 		RB->SetLinearVelocity(NewVel);
 #endif
 	}
 	if (Input::GetKeyDown(KeyCode::SPACE) && IsGrounded)
 	{
-		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 10) / delta);
+		RB->GetActor()->AddForce((glm::vec3(0, 1, 0) * 5000));
 		AudioEngine::PostEvent("Jump", GetOwner());
 	}
+	
 }
 
 void BleedOutPlayer::TickAudio()

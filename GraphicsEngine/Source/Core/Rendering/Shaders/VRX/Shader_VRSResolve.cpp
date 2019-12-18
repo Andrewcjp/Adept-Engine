@@ -1,5 +1,6 @@
 #include "Shader_VRSResolve.h"
 #include "..\..\Core\Screen.h"
+#include "..\..\Core\VRXEngine.h"
 
 static ConsoleVariable DebugRate("VRS.ShowRate", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable ShowGrid("VRS.ShowGrid", 1, ECVarType::ConsoleAndLaunch);
@@ -7,10 +8,11 @@ IMPLEMENT_GLOBAL_SHADER(Shader_VRSResolve);
 Shader_VRSResolve::Shader_VRSResolve(DeviceContext * device) :Shader(device)
 	, DataInst()
 {
-	m_Shader->AttachAndCompileShaderFromFile("VRX\\VRSResolve", EShaderType::SHADER_COMPUTE);
-	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	DataBuffer->SetDebugName("Shader_VRSResolve DataBuffer");
-	DataBuffer->CreateConstantBuffer(sizeof(VRSData), 1);
+	//VRXEngine::SetupVRSShader(this, device);
+	//m_Shader->AttachAndCompileShaderFromFile("VRX\\VRSResolve", EShaderType::SHADER_COMPUTE);
+	//DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	//DataBuffer->SetDebugName("Shader_VRSResolve DataBuffer");
+	//DataBuffer->CreateConstantBuffer(sizeof(VRSData), 1);
 }
 
 Shader_VRSResolve::~Shader_VRSResolve()

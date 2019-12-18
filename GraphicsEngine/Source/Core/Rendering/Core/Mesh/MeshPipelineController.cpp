@@ -66,9 +66,13 @@ void MeshPipelineController::GatherBatches()
 		if (CurrentObj->GetMesh() != nullptr)
 		{
 			MeshBatch* batch = CurrentObj->GetMesh()->GetMeshBatch();
-			if (batch->Owner != nullptr)
+			if (batch != nullptr && batch->Owner != nullptr && batch->elements.size() > 0) 
 			{
 				Batches.push_back(batch);
+			}
+			else
+			{
+				float t = 0;
 			}
 		}
 	}

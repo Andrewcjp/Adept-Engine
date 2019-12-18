@@ -212,7 +212,7 @@ void ColliderComponent::LoadMesh()
 
 void ColliderComponent::SceneInitComponent()
 {
-	return;
+	///return;
 	RigidComp = GetOwner()->GetComponent<RigidbodyComponent>();
 	if ((GetOwner() != nullptr && RigidComp == nullptr) || GetOwner() == nullptr)
 	{

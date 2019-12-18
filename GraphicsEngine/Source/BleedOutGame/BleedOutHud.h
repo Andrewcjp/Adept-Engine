@@ -9,7 +9,6 @@ class BleedOutHud : public GameHud
 public:
 	BleedOutHud();
 	~BleedOutHud();
-
 	virtual void OnStart() override;
 	void UnPause();
 	void CloseGame();

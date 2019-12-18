@@ -12,12 +12,12 @@
 UIWidgetContext::UIWidgetContext()
 {
 	Quad = new Shader_TexturedUI(RHI::GetDefaultDevice());
-	//TextureImportSettings set;
-	//set.ForceMipCount = 1;
-	//PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
-	//LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png", set);
-	//LoadingTex->MaxMip = 1;
-	//Quad->Texture = PauseTex;
+	TextureImportSettings set;
+	set.ForceMipCount = 1;
+	PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
+	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png", set);
+	LoadingTex->MaxMip = 1;
+	Quad->Texture = PauseTex;
 }
 
 UIWidgetContext::~UIWidgetContext()

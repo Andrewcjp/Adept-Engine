@@ -63,6 +63,10 @@ void LevelBenchMarker::Setup()
 
 void LevelBenchMarker::Init()
 {
+	if (Settings.size() == 0)
+	{
+		return;
+	}
 	CameraObject->SetPosition(glm::vec3(0, 0, 0));
 	Points.push_back(SplineNodes{ glm::vec3(0, 8, 16) ,glm::vec3(0,0,-1) });
 	Points.push_back(SplineNodes{ glm::vec3(30, 10, 0) ,glm::vec3(1,0,0) });

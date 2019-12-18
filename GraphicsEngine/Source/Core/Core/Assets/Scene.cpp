@@ -218,7 +218,7 @@ void Scene::LoadExampleScene()
 	go->GetTransform()->GetScale();
 	go->AttachComponent(new CameraComponent());
 #if !WITH_EDITOR
-	go->AttachComponent(new FreeLookComponent());
+	//go->AttachComponent(new FreeLookComponent());
 #endif
 	AddGameobjectToScene(go);
 

@@ -24,9 +24,7 @@ void VRXShadingRateNode::OnExecute()
 	//#VRX todo: use inputs from scene for this (Gbuffer, PreZ pass)
 	List->SetUAV(UAV, "RateData");
 	glm::ivec2 Resoloution = Screen::GetScaledRes();
-	List->SetRootConstant("Data", 1, &Resoloution.x);
-	List->SetRootConstant("Data2", 1, &Resoloution.y);
-	const int TileSize = 16;
+	List->SetRootConstant("ResData", 2, &Resoloution);
 	List->Dispatch(UAV->GetWidth(), UAV->GetHeight(), 1);
 	List->UAVBarrier(UAV);
 	UAV->SetResourceState(List, EResourceState::Non_PixelShader);
@@ -48,5 +46,5 @@ void VRXShadingRateNode::OnNodeSettingChange()
 void VRXShadingRateNode::OnSetupNode()
 {
 	List = RHI::CreateCommandList(ECommandListType::Compute, Context);
-	Shader = new Shader_Pair(Context, { "VRX/VRXGScreen" }, { EShaderType::SHADER_COMPUTE });
+	Shader = new Shader_Pair(Context, { "VRX/VRXGScreen" }, { EShaderType::SHADER_COMPUTE }, { ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(Context->GetCaps().VRSTileSize)) });
 }

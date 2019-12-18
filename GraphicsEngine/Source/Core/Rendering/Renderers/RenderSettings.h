@@ -99,7 +99,7 @@ struct RenderSettings
 	RenderSettings();
 public:
 
-	AAMode::Type CurrentAAMode = AAMode::FXAA;
+	AAMode::Type CurrentAAMode = AAMode::NONE;
 	EBuiltinRenderGraphs::Type SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 	EBuiltInRenderGraphPatch::Type SelectedPatch = EBuiltInRenderGraphPatch::NONE;
 	bool EnableGPUParticles = true;

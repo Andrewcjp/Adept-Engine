@@ -33,7 +33,7 @@ void SpawningPool::Update(float delta)
 		const float distancetoplayer = glm::distance(GetOwner()->GetPosition(), t->GetPlayer()->GetPosition());
 		if (distancetoplayer < 5)
 		{
-			((BleedOutHud*)t->GetCurrentHudInstance())->ShowInteractPrompt(true);
+			//((BleedOutHud*)t->GetCurrentHudInstance())->ShowInteractPrompt(true);
 			if (Input::GetKeyDown('E'))
 			{
 				GetOwner()->Destory();

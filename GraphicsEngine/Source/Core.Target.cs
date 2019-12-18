@@ -70,6 +70,7 @@ class CoreTargetRules : TargetRules
         {
             CoreModule.PreProcessorDefines.Add("WITH_VK");
         }
+        CoreModule.GameModuleName = "BleedOutGame";
         return CoreModule;
     }
 }

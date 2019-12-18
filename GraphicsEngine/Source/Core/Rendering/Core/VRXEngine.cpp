@@ -81,11 +81,12 @@ void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Targe
 
 }
 
-void VRXEngine::SetupVRRShader(Shader * S)
+void VRXEngine::SetupVRRShader(Shader* S, DeviceContext* device)
 {
 	if (RenderSettings::GetVRXSettings().EnableVRR)
 	{
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SUPPORT_VRR", "1"));
+		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(device->GetCaps().VRSTileSize)));
 	}
 }
 

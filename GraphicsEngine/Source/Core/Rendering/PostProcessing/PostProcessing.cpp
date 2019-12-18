@@ -106,7 +106,7 @@ void PostProcessing::Init(FrameBuffer* Target)
 	FXAA = new PP_FXAA();
 	FXAA->SetUpData();
 	FXAA->InitEffect(Target);
-	//AddEffect(FXAA);
+	AddEffect(FXAA);
 }
 void PostProcessing::Resize(FrameBuffer* Target)
 {

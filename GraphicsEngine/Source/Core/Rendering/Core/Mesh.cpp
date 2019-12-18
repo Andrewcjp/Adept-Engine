@@ -213,10 +213,10 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 
 MeshBatch * Mesh::GetMeshBatch()
 {
-	if (RHI::GetFrameCount() <= FrameCreated + 1)
-	{
-		return nullptr;
-	}
+	//if (RHI::GetFrameCount() <= FrameCreated + 1)
+	//{
+	//	return nullptr;
+	//}
 	//todo: handle multiGPU
 	MeshBatch* B = new MeshBatch();
 
@@ -252,10 +252,10 @@ MeshBatch * Mesh::GetMeshBatch()
 
 void Mesh::PrepareDataForRender(GameObject* parent)
 {
-	if (parent->GetLastMovedFrame() < RHI::GetFrameCount())
+	/*if (parent->GetLastMovedFrame() < RHI::GetFrameCount())
 	{
 		return;
-	}
+	}*/
 	MeshTransfromBuffer SCB = {};
 	SCB.M = parent->GetTransform()->GetModel();
 	PrimitiveTransfromBuffer->UpdateConstantBuffer(&SCB, 0);

@@ -56,6 +56,10 @@ Transform * Transform::GetParent() const
 
 bool Transform::IsChanged()
 {
+	if (parent.IsValid())
+	{
+		return parent->GetTransform()->UpdateModel;
+	}
 	return UpdateModel;
 }
 

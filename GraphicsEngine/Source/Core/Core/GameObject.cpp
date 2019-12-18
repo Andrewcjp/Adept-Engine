@@ -89,7 +89,6 @@ uint GameObject::GetLastMovedFrame()
 #if !WITH_EDITOR
 	if (IsStatic())
 	{
-
 		//todo: push transfrom once
 		return 0;
 	}

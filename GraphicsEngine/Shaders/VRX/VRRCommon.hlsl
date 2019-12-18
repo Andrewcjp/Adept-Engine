@@ -1,17 +1,14 @@
 #if SUPPORT_VRR
-#define VRS_TILE_SIZE 64
+#include "VRX/VRXCommon.hlsl"
 int2 GetShadingRate(int ID)
-{
-	if (ID == 2)
-	{
-		//return int2(1, 2);
-		return int2(1, 2);
-	}
-	else if (ID == 3)
-	{
-		return int2(2, 2);
-	}
-	return int2(1, 1);
+{	
+	int2 decoded = int2(D3D12_GET_COARSE_SHADING_RATE_X_AXIS(ID), D3D12_GET_COARSE_SHADING_RATE_Y_AXIS(ID));
+	const int RateArray[] = {
+		1,
+		2,
+		4,
+	};
+	return int2(RateArray[decoded.x], RateArray[decoded.y]);
 }
 int2 GetTileID(int2 PixelPos)
 {
@@ -47,21 +44,21 @@ bool IsWithinRect(float2 ScreenUV, int2 res, float size)
 int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 {
 	float Size = 0.2;
-	if (IsWithinRect(ScreenUV, Res, 0.25))
-	{
-		return 1;
-	}
 	if (IsWithinRect(ScreenUV, Res, 0.35))
 	{
-		return 2;
+		return D3D12_MAKE_COARSE_SHADING_RATE(RATE_1X, RATE_1X);
 	}
-	return 3;
+	if (IsWithinRect(ScreenUV, Res, 0.25))
+	{
+		return D3D12_MAKE_COARSE_SHADING_RATE(RATE_2X, RATE_2X);
+	}
+	return D3D12_MAKE_COARSE_SHADING_RATE(RATE_4X, RATE_4X);
 }
 bool ShouldShadePixel(float2 ScreenUV, int2 res)
 {
 	int Rate = GetShadingRateIDForPixel(ScreenUV, res);
 	int2 PixelPos = ScreenUV * res;
-	if (Rate == 1)
+	if (Rate == D3D12_MAKE_COARSE_SHADING_RATE(RATE_1X, RATE_1X))
 	{
 		return true;
 	}

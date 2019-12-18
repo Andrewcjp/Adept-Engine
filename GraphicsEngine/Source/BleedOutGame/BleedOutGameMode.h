@@ -1,7 +1,7 @@
 #pragma once
 #include "EngineHeader.h"
 #include "Core\Game\Gamemode.h"
-#define RUN_ONLY_BENCHER 1
+#define RUN_ONLY_BENCHER 0
 class BleedOutHud;
 class LevelBenchMarker;
 struct DifficultyPreset

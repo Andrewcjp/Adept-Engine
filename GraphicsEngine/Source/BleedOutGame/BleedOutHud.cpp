@@ -1,15 +1,14 @@
 
 #include "BleedOutHud.h"
 #include "UI/UIManager.h"
-#include "UI/Core/UIBox.h"
-#include "UI/GameUI/GameHud.h"
-#include "UI/Core/UIWidgetContext.h"
-#include "UI/Core/UILabel.h"
 #include "BleedOutGameMode.h"
 #include "Components/BleedOutPlayer.h"
 #include "Rendering/Core/DebugLineDrawer.h"
-#include "UI/Core/UIButton.h"
 #include "Components/Health.h"
+#include "UI/BasicWidgets/UILabel.h"
+#include "UI/Core/UIWidget.h"
+#include "UI/Core/UIWidgetContext.h"
+#include "UI/CompoundWidgets/UIButton.h"
 
 
 BleedOutHud::BleedOutHud()
@@ -153,7 +152,7 @@ void BleedOutHud::OnDestory()
 void BleedOutHud::DisplayText(std::string Test, float Time, float Xoffset)
 {
 	DisplayTimeRemaining = Time;
-	ObjectiveText->SetText(Test);	
+	ObjectiveText->SetText(Test);
 	ObjectiveText->SetScaled(0.2f, 0.2f, 0.3f + Xoffset, 0.6f);
 	ObjectiveText->SetEnabled(true);
 	Context->UpdateBatches();

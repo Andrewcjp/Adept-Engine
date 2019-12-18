@@ -60,16 +60,40 @@ void ShaderReflection::ApplyRootConstantPatch(ID3D12ShaderReflection* REF, std::
 				if (vr != nullptr)
 				{
 					D3D12_SHADER_VARIABLE_DESC VR_desc = {};
-					if (!FAILED(vr->GetDesc(&VR_desc)))
+					HRESULT hr = vr->GetDesc(&VR_desc);
+					if (!FAILED(hr))
 					{
 						//a single root constant is 32 bit == 4 bytes so:
 						shaderbinds[x].NumVariablesContained = VR_desc.Size / 4;
+						break;
 					}
 				}
+				ID3D12ShaderReflectionConstantBuffer* VCB = REF->GetConstantBufferByName(shaderbinds[x].Name.c_str());
+				if (VCB != nullptr)
+				{
+					D3D12_SHADER_BUFFER_DESC d;
+					if (!FAILED(VCB->GetDesc(&d)))
+					{
+						int RawSize = 0;// all CBs are aligned to 16 bytes
+						for (int i = 0; i < d.Variables; i++)
+						{
+							vr = VCB->GetVariableByIndex(i);
+							D3D12_SHADER_VARIABLE_DESC VR_desc = {};
+							if (!FAILED(vr->GetDesc(&VR_desc)))
+							{
+								RawSize += VR_desc.Size;
+							}
+						}
+						shaderbinds[x].NumVariablesContained = RawSize / 4;
+						break;
+					}
+				}
+				LogEnsure_Always("Failed to Reflect shader var " + shaderbinds[x].Name);
 			}
 		}
 	}
 }
+
 
 void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::vector<ShaderParameter> & shaderbinds)
 {

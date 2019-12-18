@@ -132,7 +132,7 @@ void BaseWindow::Render()
 		{
 			{
 				SCOPE_CYCLE_COUNTER("stepPhysics");
-				//Engine::PhysEngine->StepPhysics(TimeStep);
+				Engine::PhysEngine->StepPhysics(TimeStep);
 			}
 			if (ShouldTickScene)
 			{
@@ -173,10 +173,10 @@ void BaseWindow::Render()
 		GPUPerfGraph->SetEnabled(!GPUPerfGraph->IsEnabled());
 	}
 
-	//if (Input::GetKeyDown(VK_F8))
-	//{
-	//	SetPauseState(!PauseState);
-	//}
+	if (Input::GetKeyDown(VK_F8))
+	{
+		SetPauseState(!PauseState);
+	}
 	if (StepOnce)
 	{
 		PauseState = true;
@@ -201,7 +201,7 @@ void BaseWindow::Render()
 	if (ShouldTickScene)
 	{
 		CurrentScene->AlwaysUpdate(DeltaTime);
-		//if (!IsScenePaused())
+		if (!IsScenePaused())
 		{
 			Engine::GetGame()->Update();
 			PerfManager::StartTimer("Scene Update");

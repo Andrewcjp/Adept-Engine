@@ -191,13 +191,15 @@ void AudioEngine::LoadBanks()
 }
 
 
+#endif
 void AudioEngine::MakeDefaultListener(GameObject* g)
 {
+#if BUILD_WISE
 	CurrnetMainListener = g;
 	AkGameObjectID id = (AkGameObjectID)g->GetAudioId();
 	AK::SoundEngine::SetDefaultListeners(&id, 1);
-}
 #endif
+}
 void AudioEngine::RegisterObject(GameObject* obj)
 {
 #if BUILD_WISE
