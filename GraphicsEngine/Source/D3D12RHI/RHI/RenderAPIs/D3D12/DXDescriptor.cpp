@@ -14,7 +14,7 @@ DXDescriptor::~DXDescriptor()
 void DXDescriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int size)
 {
 	Type = T;
-	Data.resize(size);
+	ItemDesc.Data.resize(size);
 	Owner = heap;
 	DescriptorCount = size;
 }
@@ -43,7 +43,7 @@ void DXDescriptor::Recreate()
 {
 	for (int i = 0; i < DescriptorCount; i++)
 	{
-		DescData* Desc = &Data[i];
+		DescData* Desc = &ItemDesc.Data[i];
 		if (Desc->NeedsUpdate)
 		{
 			if (DescriptorType == EDescriptorType::SRV)
@@ -72,7 +72,7 @@ void DXDescriptor::Recreate()
 void DXDescriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::SRV;
-	DescData* Desc = &Data[offset];
+	DescData* Desc = &ItemDesc.Data[offset];
 	Desc->SRVDesc = *pDesc;
 	Desc->TargetResource = pResource;
 	Desc->OffsetInHeap = offset;
@@ -83,7 +83,7 @@ void DXDescriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3
 void DXDescriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::UAV;
-	DescData* Desc = &Data[offset];
+	DescData* Desc = &ItemDesc.Data[offset];
 	Desc->UAVDesc = *pDesc;
 	Desc->TargetResource = pResource;
 	Desc->UAVCounterResource = pCounterResource;
@@ -100,17 +100,17 @@ void DXDescriptor::Release()
 void DXDescriptor::SetOwner(DescriptorHeap * heap)
 {
 	Owner = heap;
-	Data[0].NeedsUpdate = true;
+	ItemDesc.Data[0].NeedsUpdate = true;
 }
 
 bool DXDescriptor::GetNeedsUpdate()
 {
-	return Data[0].NeedsUpdate;
+	return ItemDesc.Data[0].NeedsUpdate;
 }
 
 bool DXDescriptor::IsTargetValid() const
 {
-	return Data[0].TargetResource;
+	return ItemDesc.Data[0].TargetResource;
 }
 
 bool DXDescriptor::IsValid() const
@@ -121,6 +121,46 @@ bool DXDescriptor::IsValid() const
 void DXDescriptor::InitFromDesc(DXDescriptor * other)
 {
 	DescriptorType = other->DescriptorType;
-	Data = other->Data;
+	ItemDesc = ItemDesc;
+}
+
+uint64 GetSRVHash(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+{
+	uint64 hash = 0;
+	HashUtils::hash_combine(hash, desc.Format);
+	HashUtils::hash_combine(hash, desc.ViewDimension);
+	HashUtils::hash_combine(hash, desc.Shader4ComponentMapping);
+	//HashUtils::hash_combine(hash, desc.);
+	return hash;
+}
+
+uint64 GetUAVHash(const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc)
+{
+	uint64 hash = 0;
+	HashUtils::hash_combine(hash, desc.Format);
+	HashUtils::hash_combine(hash, desc.ViewDimension);
+	HashUtils::hash_combine(hash, desc.Texture2D.PlaneSlice);
+	//HashUtils::hash_combine(hash, desc.);
+	return hash;
+}
+
+uint64 DXDescriptor::GetHash() const
+{
+	uint64 hash = 0;
+	HashUtils::hash_combine(hash, DescriptorCount);
+	for (int i = 0; i < DescriptorCount; i++)
+	{
+		HashUtils::hash_combine(hash, ItemDesc.Data[i].TargetResource);
+		if (DescriptorType == EDescriptorType::SRV)
+		{
+			HashUtils::hash_combine(hash, GetSRVHash(ItemDesc.Data[i].SRVDesc));
+		}
+		else if(DescriptorType == EDescriptorType::UAV)
+		{
+			HashUtils::hash_combine(hash, ItemDesc.Data[i].UAVCounterResource);
+			HashUtils::hash_combine(hash, GetUAVHash(ItemDesc.Data[i].UAVDesc));
+		}
+	}
+	return hash;
 }
 

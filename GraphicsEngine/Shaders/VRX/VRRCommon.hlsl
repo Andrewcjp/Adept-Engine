@@ -36,10 +36,10 @@ bool IsWithinRectTile(int2 tile, int2 Size, int2 end)
 }
 bool IsWithinRect(float2 ScreenUV, int2 res, float size)
 {
-	int2 MaxPoint = GetTileID((1.0 - size) * res);
-	int2 min = GetTileID(size * res);
+	int2 MaxPoint = ((1.0 - size) * res);
+	int2 min = (size * res);
 
-	return IsWithinRectTile(GetTileID(ScreenUV*res), min, MaxPoint);
+	return IsWithinRectTile(ScreenUV*res, min, MaxPoint);
 }
 int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 {

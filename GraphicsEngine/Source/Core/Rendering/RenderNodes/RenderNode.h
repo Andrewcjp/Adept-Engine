@@ -92,6 +92,8 @@ public:
 	void AddBeginTransition(const ResourceTransition & transition);
 	void AddEndTransition(const ResourceTransition & transition);
 	virtual void OnResourceResize();
+	RenderNode* GetLastNode() const { return LastNode; }
+	void SetLastNode(RenderNode* val) { LastNode = val; }
 protected:
 
 	//search forwards until we reach the end VR node 

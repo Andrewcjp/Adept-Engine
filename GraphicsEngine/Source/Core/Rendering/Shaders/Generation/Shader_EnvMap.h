@@ -26,6 +26,5 @@ private:
 	};
 	SData Data[6];
 	Mesh* Cube = nullptr;
-	Shader_Convolution::QuadDrawer* QuadDraw = nullptr;
 };
 

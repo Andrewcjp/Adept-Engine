@@ -19,6 +19,10 @@ struct DescData
 	int OffsetInHeap = 0;
 	bool NeedsUpdate = false;
 };
+struct DescriptorItemDesc
+{
+	std::vector<DescData> Data;
+};
 class DescriptorHeap;
 class DXDescriptor : public IRHIResourse
 {
@@ -46,12 +50,13 @@ public:
 	bool IsTargetValid() const;
 	bool IsValid()const;
 	void InitFromDesc(DXDescriptor* other);
+	uint64 GetHash()const;
 private:
 	
 	int DescriptorCount = 1;
 	//TODO: descriptor in multiple heaps
 	EDescriptorType::Type DescriptorType = EDescriptorType::Limit;
 	D3D12_DESCRIPTOR_HEAP_TYPE Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	std::vector<DescData> Data;
+	DescriptorItemDesc ItemDesc;
 };
 

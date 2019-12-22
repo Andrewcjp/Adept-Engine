@@ -92,6 +92,9 @@ public:
 
 	RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) override;
 
+
+	RHI_VIRTUAL void SetStencilRef(uint value) override;
+
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();

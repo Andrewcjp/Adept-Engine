@@ -82,6 +82,8 @@ public:
 	///Not Const Desc as they hash on demand
 	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) = 0;
 	RHI_API RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
+	//PSO setting functions
+	RHI_API RHI_VIRTUAL void SetStencilRef(uint value) = 0;
 	//setters
 	RHI_API RHI_VIRTUAL void SetVertexBuffer(RHIBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void SetIndexBuffer(RHIBuffer* buffer) = 0;

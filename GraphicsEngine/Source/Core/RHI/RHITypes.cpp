@@ -173,11 +173,12 @@ void RHIPipeLineStateDesc::CalulateHash()
 	HashUtils::hash_combine(UniqueHash, Cull);
 	HashUtils::hash_combine(UniqueHash, DepthStencilState.DepthEnable);
 	HashUtils::hash_combine(UniqueHash, DepthStencilState.DepthWrite);
-	HashUtils::hash_combine(UniqueHash, DepthCompareFunction);
+	HashUtils::hash_combine(UniqueHash, DepthStencilState.DepthCompareFunction);
 	for (int i = 0; i < MRT_MAX; i++)
 	{
 		HashUtils::hash_combine(UniqueHash, (int)RenderTargetDesc.RTVFormats[i]);
 	}
+	HashUtils::hash_combine(UniqueHash, (int)RenderTargetDesc.DSVFormat);
 	HashUtils::hash_combine(UniqueHash, RenderPassDesc.GetHash());
 }
 
@@ -197,7 +198,7 @@ bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 	}
 	//#RHI: compare all props
 	return Cull == other.Cull && DepthStencilState.DepthEnable == other.DepthStencilState.DepthEnable
-		&& other.DepthCompareFunction == DepthCompareFunction
+		&& other.DepthStencilState.DepthCompareFunction == DepthStencilState.DepthCompareFunction
 		&& RenderTargetDesc == other.RenderTargetDesc && other.DepthStencilState.DepthWrite == DepthStencilState.DepthWrite && RenderPassDesc == other.RenderPassDesc;
 }
 

@@ -15,13 +15,6 @@ public:
 	std::vector<VertexElementDESC> GetVertexFormat() override;
 	BaseTextureRef TargetCubemap = nullptr;
 	FrameBuffer * CubeBuffer = nullptr;
-	struct QuadDrawer
-	{
-		~QuadDrawer();
-		RHIBuffer* VertexBuffer = nullptr;
-		void init(DeviceContext* dev);
-		void RenderScreenQuad(RHICommandList * list);
-	};
 private:
 	RHIPipeLineStateDesc ConvPSODesc;
 	RHICommandList* CmdList = nullptr;
@@ -34,7 +27,5 @@ private:
 	};
 	SData Data[6];
 	Mesh* Cube = nullptr;
-
-	QuadDrawer* Test = nullptr;
 };
 

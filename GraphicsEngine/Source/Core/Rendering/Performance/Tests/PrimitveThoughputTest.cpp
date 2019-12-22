@@ -30,7 +30,7 @@ void PrimitveThoughputTest::RunTest()
 		DECALRE_SCOPEDGPUCOUNTER(List, PrimitveThoughputTest_Name);
 		RHIPipeLineStateDesc desc;
 		desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), TestBuffer);
-		desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
+		desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 		desc.DepthStencilState.DepthWrite = true;
 		desc.DepthStencilState.DepthEnable = true;
 		desc.RenderPassDesc = RHIRenderPassDesc(TestBuffer, ERenderPassLoadOp::Clear);

@@ -548,9 +548,20 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	}
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = PSODesc.DepthStencilState.DepthEnable;
-	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)PSODesc.DepthCompareFunction;
+	psoDesc.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)PSODesc.DepthStencilState.DepthCompareFunction;
 	psoDesc.DepthStencilState.DepthWriteMask = PSODesc.DepthStencilState.DepthWrite ? D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ZERO;
-	psoDesc.DepthStencilState.StencilEnable = false;
+	psoDesc.DepthStencilState.StencilEnable = PSODesc.DepthStencilState.StencilEnable;
+
+	psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilDepthFailOp;
+	psoDesc.DepthStencilState.FrontFace.StencilFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilFailOp;
+	psoDesc.DepthStencilState.FrontFace.StencilPassOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilPassOp;
+	psoDesc.DepthStencilState.FrontFace.StencilFunc= (D3D12_COMPARISON_FUNC)PSODesc.DepthStencilState.FrontFace.StencilFunc;
+
+	psoDesc.DepthStencilState.BackFace.StencilDepthFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.BackFace.StencilDepthFailOp;
+	psoDesc.DepthStencilState.BackFace.StencilFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.BackFace.StencilFailOp;
+	psoDesc.DepthStencilState.BackFace.StencilPassOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.BackFace.StencilPassOp;
+	psoDesc.DepthStencilState.BackFace.StencilFunc = (D3D12_COMPARISON_FUNC)PSODesc.DepthStencilState.BackFace.StencilFunc;
+
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = (D3D12_PRIMITIVE_TOPOLOGY_TYPE)PSODesc.RasterMode;
 	psoDesc.NumRenderTargets = PSODesc.RenderTargetDesc.NumRenderTargets;

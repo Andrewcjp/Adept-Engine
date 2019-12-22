@@ -147,8 +147,7 @@ void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIView
 	{
 		ensureMsgf(Desc.AllowUnorderedAccess, "Attempt to create a UAV on a framebuffer without AllowUnorderedAccess set");
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
-		//DX12: TODO handle UAv dimensions 
-		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		destTextureUAVDesc.ViewDimension = D3D12Helpers::ConvertDimensionUAV(Desc.Dimension);
 		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().Format);
 		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
 		if (GetDescription().Depth > 1)

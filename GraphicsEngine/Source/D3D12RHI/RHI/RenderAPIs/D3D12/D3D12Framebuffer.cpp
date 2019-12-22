@@ -480,16 +480,21 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 	}
 	if (BufferDesc.NeedsDepthStencil)
 	{
+		D3D12_CLEAR_FLAGS flags = D3D12_CLEAR_FLAG_DEPTH;
+		if (BufferDesc.DepthFormat == FORMAT_D24_UNORM_S8_UINT || BufferDesc.DepthFormat == FORMAT_D32_FLOAT_S8X24_UINT)
+		{
+			flags |= D3D12_CLEAR_FLAG_STENCIL;
+		}
 		if (!BufferDesc.CubeMapAddressAsOne)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
 			{
-				list->ClearDepthStencilView(DSVHeap->GetCPUAddress(i), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
+				list->ClearDepthStencilView(DSVHeap->GetCPUAddress(i), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
 			}
 		}
 		else
 		{
-			list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), D3D12_CLEAR_FLAG_DEPTH, BufferDesc.DepthClearValue, 0, 0, nullptr);
+			list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
 		}
 	}
 	if (BufferDesc.RenderTargetCount > 0)

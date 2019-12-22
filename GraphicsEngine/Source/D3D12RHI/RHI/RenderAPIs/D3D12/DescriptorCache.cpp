@@ -68,6 +68,14 @@ DescriptorCache::~DescriptorCache()
 uint64 DescriptorCache::GetHash(const RSBind* bind)
 {
 	uint64 hash = 0;
+	if (bind->BindType == ERSBindType::Texture2)
+	{
+		DXDescriptor* TMPDesc = new DXDescriptor();
+		TMPDesc->Init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, nullptr, 1);
+		D3D12RHI::DXConv(bind->Texture2)->WriteToDescriptor(TMPDesc,bind->View);
+		HashUtils::hash_combine(hash, TMPDesc->GetHash());
+		return hash;
+	}
 	if (bind->BindType == ERSBindType::Texture)
 	{
 		std::string path = bind->Texture.Get()->TexturePath;
@@ -85,10 +93,6 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 	if (bind->BindType == ERSBindType::TextureArray)
 	{
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->TextureArray)->GetHash());
-	}
-	if (bind->BindType == ERSBindType::Texture2)
-	{
-		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Texture2)->GetResource());
 	}
 	HashUtils::hash_combine(hash, bind->View.Mip);
 	HashUtils::hash_combine(hash, bind->View.ArraySlice);
@@ -129,6 +133,8 @@ DXDescriptor* DescriptorCache::CopyToCurrentHeap(DXDescriptor * d, bool CouldbeR
 bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
 	return false;
+	//todo: fix issue with caching framebuffer descriptors
+	return bind->BindType != ERSBindType::FrameBuffer;
 }
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)

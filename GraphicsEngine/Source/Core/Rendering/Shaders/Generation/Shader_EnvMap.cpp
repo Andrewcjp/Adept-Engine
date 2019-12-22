@@ -2,6 +2,7 @@
 #include "Shader_EnvMap.h"
 #include "Rendering/Core/Mesh.h"
 #include "RHI/RHI_inc.h"
+#include "../../Core/SceneRenderer.h"
 
 IMPLEMENT_GLOBAL_SHADER(Shader_EnvMap);
 Shader_EnvMap::Shader_EnvMap(class DeviceContext* dev) :Shader(dev)
@@ -14,7 +15,6 @@ Shader_EnvMap::Shader_EnvMap(class DeviceContext* dev) :Shader(dev)
 Shader_EnvMap::~Shader_EnvMap()
 {
 	EnqueueSafeRHIRelease(CmdList);
-	delete QuadDraw;
 	EnqueueSafeRHIRelease(ShaderData);
 	EnqueueSafeRHIRelease(CubeBuffer);
 	EnqueueSafeRHIRelease(Cube);
@@ -32,8 +32,6 @@ void Shader_EnvMap::Init()
 	Desc = RHIFrameBufferDesc::CreateColour(Size, Size);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	EnvBRDFBuffer = RHI::CreateFrameBuffer(Device, Desc);
-	QuadDraw = new Shader_Convolution::QuadDrawer();
-	QuadDraw->init(Device);
 	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(false, false, false);
@@ -87,7 +85,7 @@ void Shader_EnvMap::ComputeEnvBRDF()
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CmdList->BeginRenderPass(D);
 	CmdList->SetConstantBufferView(ShaderData, 0, 0);
-	QuadDraw->RenderScreenQuad(CmdList);
+	SceneRenderer::DrawScreenQuad(CmdList);
 	CmdList->EndRenderPass();
 	EnvBRDFBuffer->SetResourceState(CmdList, EResourceState::PixelShader);
 	CmdList->Execute();

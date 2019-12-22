@@ -31,7 +31,7 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->StartTimer(EGPUTIMERS::PreZ);
 	RHIPipeLineStateDesc desc;
 	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), Target);
-	desc.DepthCompareFunction = COMPARISON_FUNC_LESS;
+	desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
 	desc.RenderPassDesc = RHIRenderPassDesc(Target, ERenderPassLoadOp::Clear);
 	Cmdlist->SetPipelineStateDesc(desc);

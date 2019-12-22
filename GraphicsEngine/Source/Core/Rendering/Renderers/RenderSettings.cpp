@@ -15,7 +15,7 @@ RenderSettings::RenderSettings()
 	//ShadowSettings.UseViewInstancingForShadows = true; 
 	//DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
-	CurrentAAMode = AAMode::FXAA;
+	CurrentAAMode = AAMode::NONE;
 	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
@@ -23,20 +23,20 @@ RenderSettings::RenderSettings()
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRS = false;
-	//VRXSet.EnableVRR = true;
-	//AllowMeshInstancing = true;
+	VRXSet.EnableVRR = true;
+	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
 	}
 }
-
+ 
 void RenderSettings::ValidateSettings()
 {
 	if (VRHMDMode != EVRHMDMode::Disabled)
-	{
-		RTSettings.Enabled = false;
+	{ 
+		RTSettings.Enabled = false; 
 	}
 #if !RHI_SUPPORTS_RT
 	//until software version is ready.

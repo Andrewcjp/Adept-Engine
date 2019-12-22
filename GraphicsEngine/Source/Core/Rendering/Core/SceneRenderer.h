@@ -96,6 +96,7 @@ public:
 	void SetEditorCamera(Editor_Camera* Cam);
 
 	ReflectionEnviroment* GetReflectionEnviroment();
+	static void DrawScreenQuad(RHICommandList* list);
 private:
 	bool SceneChanged = false;
 	ReflectionEnviroment* Enviroment = nullptr;
@@ -112,5 +113,6 @@ private:
 	CullingManager* Culling = nullptr;
 	Camera* CurrentCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
+	RHIBuffer* QuadBuffer = nullptr;
 };
 

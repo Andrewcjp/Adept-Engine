@@ -30,6 +30,7 @@
 #include "RenderGraphProcessor.h"
 #include "Nodes/LightCullingNode.h"
 #include "Nodes/VRXShadingRateNode.h"
+#include "Nodes/ShadowMaskNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -163,8 +164,8 @@ void RenderGraph::AddVRXSupport()
 	RenderNode* LightingNode = FindFirstOf(DeferredLightingNode::GetNodeName());
 	VRXShadingRateNode* RateNode = new VRXShadingRateNode();
 	RateNode->GetInput(0)->SetStore(VRXShadingRateImage);
-	RateNode->LinkToNode(LightingNode->GetNextNode());
-	LightingNode->LinkToNode(RateNode);
+	LightingNode->GetLastNode()->LinkToNode(RateNode);
+	RateNode->LinkToNode(LightingNode);
 	NodeLink* link = LightingNode->GetInputLinkByName("VRX Image");
 	if (link != nullptr)
 	{
@@ -174,6 +175,16 @@ void RenderGraph::AddVRXSupport()
 	if (pp != nullptr)
 	{
 		pp->GetInput(1)->SetStore(VRXShadingRateImage);
+	}
+	RenderNode* gbufferwrite = FindFirstOf(GBufferWriteNode::GetNodeName());
+	if (gbufferwrite != nullptr)
+	{
+		RateNode->GetInput(1)->SetLink(gbufferwrite->GetOutput(0));
+	}
+	RenderNode* shadowmask = FindFirstOf(ShadowMaskNode::GetNodeName());
+	if (shadowmask != nullptr)
+	{
+		RateNode->GetInput(2)->SetLink(shadowmask->GetOutput(0));
 	}
 }
 
@@ -226,6 +237,11 @@ void RenderGraph::CreateDefTestgraph()
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		Desc.NeedsDepthStencil = true;
+		Desc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
+	}
 #if 1
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT;
 #endif
@@ -244,6 +260,12 @@ void RenderGraph::CreateDefTestgraph()
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	SSAOBuffer->SetFrameBufferDesc(Desc);
 
+	FrameBufferStorageNode* ShadowMaskBuffer = AddStoreNode(new FrameBufferStorageNode());
+	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	ShadowMaskBuffer->SetFrameBufferDesc(Desc);
+	ShadowMaskNode* MaskNode = new ShadowMaskNode();
+
 
 	ZPrePassNode* PreZ = new ZPrePassNode();
 	RootNode = PreZ;
@@ -261,9 +283,14 @@ void RenderGraph::CreateDefTestgraph()
 	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
 	WriteNode->LinkToNode(ShadowUpdate);
 
+	MaskNode->GetInput(0)->SetStore(ShadowMaskBuffer);
+	MaskNode->GetInput(1)->SetStore(ShadowDataNode);
+	MaskNode->GetInput(2)->SetLink(WriteNode->GetOutput(0));
+	LinkNode(ShadowUpdate, MaskNode);
+
 	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
 	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);
-	LinkNode(ShadowUpdate, UpdateProbesNode);
+	LinkNode(MaskNode, UpdateProbesNode);
 
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 	ParticleSimulateNode* ParticleSimNode = new ParticleSimulateNode();
@@ -281,6 +308,7 @@ void RenderGraph::CreateDefTestgraph()
 	LightNode->GetInput(1)->SetStore(MainBuffer);
 	LightNode->GetInput(2)->SetStore(SceneData);
 	LightNode->GetInput(3)->SetStore(ShadowDataNode);
+	LightNode->GetInputLinkByName("ShadowMask")->SetLink(MaskNode->GetOutput(0));
 
 	ParticleRenderNode* PRenderNode = new ParticleRenderNode();
 	LinkNode(LightNode, PRenderNode);

@@ -58,7 +58,7 @@ void RenderNode::ExecuteNode()
 void RenderNode::LinkToNode(RenderNode * NextNode)
 {
 	Next = NextNode;
-	NextNode->LastNode = this;
+	NextNode->SetLastNode(this);
 }
 
 NodeLink * RenderNode::GetInput(int index)

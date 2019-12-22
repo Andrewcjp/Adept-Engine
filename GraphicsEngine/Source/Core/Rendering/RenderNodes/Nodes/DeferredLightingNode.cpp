@@ -9,6 +9,8 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "Core/Assets/ShaderComplier.h"
 #include "../StoreNodes/FrameBufferStorageNode.h"
+#include "../../Shaders/Shader_Pair.h"
+#include "../../Core/Screen.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -29,6 +31,7 @@ void DeferredLightingNode::OnSetupNode()
 
 void DeferredLightingNode::OnExecute()
 {
+	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(0);
 	FrameBuffer* MainBuffer = GetFrameBufferFromInput(1);
 	Scene* MainScene = GetSceneDataFromInput(2);
@@ -36,16 +39,47 @@ void DeferredLightingNode::OnExecute()
 	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.BufferMode);
 	List->ResetList();
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::PixelShader);
+		//write the depth stencil
+		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
+		desc.InitOLD(false, false, false);
+		Shader_Pair* Pair = new Shader_Pair(Context, { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
+			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(Context->GetCaps().VRSTileSize)) });
+		desc.ShaderInUse = Pair;
+		desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
+		desc.DepthStencilState.StencilEnable = true;
+		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+		desc.DepthStencilState.FrontFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+		//looks like discard acts as a stencil pass
+		desc.DepthStencilState.FrontFace.StencilPassOp = STENCIL_OP_INCR;
+		desc.DepthStencilState.BackFace.StencilPassOp = STENCIL_OP_INCR;
+		List->SetPipelineStateDesc(desc);
+		List->SetTexture2(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture(), "RateImage");
+		glm::ivec2 Resoloution = Screen::GetScaledRes();
+		List->SetRootConstant("ResData", 2, &Resoloution);
+		RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, ERenderPassLoadOp::Clear);
+		List->BeginRenderPass(D);
+		SceneRenderer::DrawScreenQuad(List);
+		List->EndRenderPass();
+		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::Non_PixelShader);
+	}
+
+
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = DeferredShader;
 	desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	{
+		desc.DepthStencilState.StencilEnable = true;
+		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+		desc.DepthStencilState.FrontFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+	}
 	List->SetPipelineStateDesc(desc);
 
-	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, ERenderPassLoadOp::Clear);
-#if NOSHADOW
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-#endif
+	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().EnableVRR ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	List->BeginRenderPass(D);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
@@ -67,13 +101,12 @@ void DeferredLightingNode::OnExecute()
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}
-	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
+
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
+		//List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
 	}
-
-	DeferredShader->RenderScreenQuad(List);
+	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
 #if !TEST_VRR
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
@@ -83,7 +116,7 @@ void DeferredLightingNode::OnExecute()
 	SetEndStates(List);
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::UAV);
+		//StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::UAV);
 	}
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
@@ -105,4 +138,5 @@ void DeferredLightingNode::OnNodeSettingChange()
 	{
 		AddInput(EStorageType::Framebuffer, StorageFormats::ShadingImage, "VRX Image");
 	}
+	AddInput(EStorageType::Framebuffer, StorageFormats::PreSampleShadowData, "ShadowMask");
 }

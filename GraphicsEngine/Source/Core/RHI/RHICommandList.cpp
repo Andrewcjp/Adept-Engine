@@ -49,6 +49,7 @@ void RHICommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint Insta
 
 void RHICommandList::SetRootConstant(std::string SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {
+	ensure(CurrentPSO);
 	SetRootConstant(CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(SignitureSlot), ValueNum, Data, DataOffset);
 }
 

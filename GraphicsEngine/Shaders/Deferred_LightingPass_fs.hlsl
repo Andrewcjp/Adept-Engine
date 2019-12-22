@@ -21,8 +21,6 @@ TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
 
 #include "Lighting.hlsl"
 #include "Shadow.hlsl"
-#include "VRX\VRRCommon.hlsl"
-//#include "VRX\VRSCommon.hlsl"
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -60,14 +58,6 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
-#if SUPPORT_VRR
-	if (!ShouldShadePixel(input.uv,Resolution))
-	{
-		//discard;
-		return float4(1, 1, 1, 0);
-	}	
-#endif
-
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);

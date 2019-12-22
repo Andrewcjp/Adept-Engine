@@ -25,7 +25,6 @@ public:
 
 	static eTEXTURE_FORMAT GetDepthType();
 	static eTEXTURE_FORMAT GetDepthReadType();
-	void PreSampleShadows(RHICommandList* list);
 	static void RenderPointShadows(RHICommandList * list);
 	static void RenderDirectionalShadows(RHICommandList * list);
 

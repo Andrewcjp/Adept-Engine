@@ -19,7 +19,6 @@ Shader_Convolution::~Shader_Convolution()
 	EnqueueSafeRHIRelease(ShaderData);
 	EnqueueSafeRHIRelease(CubeBuffer);
 	EnqueueSafeRHIRelease(Cube);
-	SafeDelete(Test);
 }
 
 void Shader_Convolution::init()
@@ -108,30 +107,4 @@ std::vector<Shader::VertexElementDESC> Shader_Convolution::GetVertexFormat()
 	return out;
 }
 
-Shader_Convolution::QuadDrawer::~QuadDrawer()
-{
-	EnqueueSafeRHIRelease(VertexBuffer);
-}
 
-void Shader_Convolution::QuadDrawer::init(DeviceContext* dev)
-{
-	float g_quad_vertex_buffer_data[] = {
-		-1.0f, -1.0f, 0.0f,0.0f,
-		1.0f, -1.0f, 0.0f,0.0f,
-		-1.0f,  1.0f, 0.0f,0.0f,
-		-1.0f,  1.0f, 0.0f,0.0f,
-		1.0f, -1.0f, 0.0f,0.0f,
-		1.0f,  1.0f, 0.0f,0.0f,
-	};
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, dev);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
-	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-}
-
-void Shader_Convolution::QuadDrawer::RenderScreenQuad(RHICommandList * list)
-{
-	//todo: less than full screen!
-	list->SetVertexBuffer(VertexBuffer);
-	list->DrawPrimitive(6, 1, 0, 0);
-
-}

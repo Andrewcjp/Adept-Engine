@@ -36,7 +36,7 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 	else
 	{
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
-		RelfectShader(REF, iscompute, shaderbinds, Type);
+		RelfectShader(REF, iscompute, shaderbinds, Type,shader);
 	}
 #endif
 	ApplyRootConstantPatch(REF, shaderbinds, Sourcefile);
@@ -48,9 +48,9 @@ void ShaderReflection::ApplyRootConstantPatch(ID3D12ShaderReflection* REF, std::
 	{
 		return;
 	}
-	for (int i = 0; i < Sourcefile->RootConstants.size(); i++)
+	for (uint32 i = 0; i < Sourcefile->RootConstants.size(); i++)
 	{
-		for (int x = 0; x < shaderbinds.size(); x++)
+		for (uint32 x = 0; x < shaderbinds.size(); x++)
 		{
 			if (shaderbinds[x].Name == Sourcefile->RootConstants[i])
 			{

@@ -61,7 +61,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 	}
 	RHIPipeLineStateDesc desc;
 	desc.DepthStencilState.DepthEnable = true;
-	desc.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
+	desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 	desc.Cull = true;
 	if (Pass.ReadDepth)
 	{

@@ -10,18 +10,6 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_2, Shader_Deferred, int, Fram
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_3, Shader_Deferred, int, FrameBufferVariableRateSettings::VRS_Decoupled, nullptr);
 Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 {
-	float g_quad_vertex_buffer_data[] = {
-		-1.0f, -1.0f, 0.0f,0.0f,
-		1.0f, -1.0f, 0.0f,0.0f,
-		-1.0f,  1.0f, 0.0f,0.0f,
-		-1.0f,  1.0f, 0.0f,0.0f,
-		1.0f, -1.0f, 0.0f,0.0f,
-		1.0f,  1.0f, 0.0f,0.0f,
-	};
-	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, dev);
-	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
-	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-
 	//Initialize shader
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
@@ -43,7 +31,7 @@ Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 
 Shader_Deferred::~Shader_Deferred()
 {
-	EnqueueSafeRHIRelease(VertexBuffer);
+	
 }
 
 std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
@@ -80,12 +68,4 @@ std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out[0].Stride = sizeof(glm::vec4);
 	return out;
-}
-
-void Shader_Deferred::RenderScreenQuad(RHICommandList * list)
-{
-	//todo: less than full screen!
-	list->SetVertexBuffer(VertexBuffer);
-	list->DrawPrimitive(6, 1, 0, 0);
-
 }

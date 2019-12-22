@@ -153,7 +153,11 @@ D3D12_SRV_DIMENSION D3D12Helpers::ConvertDimension(eTextureDimension Dim)
 	static_assert(D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE == eTextureDimension::DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE, "");
 	return (D3D12_SRV_DIMENSION)Dim;
 }
-
+D3D12_UAV_DIMENSION D3D12Helpers::ConvertDimensionUAV(eTextureDimension Dim)
+{
+	static_assert(D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE3D == eTextureDimension::DIMENSION_TEXTURE3D, "");
+	return (D3D12_UAV_DIMENSION)Dim;
+}
 //#DX12 complete!
 D3D12_DSV_DIMENSION D3D12Helpers::ConvertDimensionDSV(eTextureDimension Dim)
 {

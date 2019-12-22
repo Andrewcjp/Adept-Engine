@@ -1,4 +1,3 @@
-#include "VRX\VRRCommon.hlsl"
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;

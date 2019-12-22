@@ -425,7 +425,6 @@ struct RHIRender_Target_Blend_Desc
 
 struct RHIBlendState
 {
-
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
 	RHIRender_Target_Blend_Desc RenderTargetDescs[MRT_MAX] = {};
@@ -436,17 +435,46 @@ struct RHIRasterizerDesc
 {
 	bool Cull = false;
 };
+
+typedef
+enum DEPTH_WRITE_MASK
+{
+	DEPTH_WRITE_MASK_ZERO = 0,
+	DEPTH_WRITE_MASK_ALL = 1
+} 	DEPTH_WRITE_MASK;
+
+typedef
+enum STENCIL_OP
+{
+	STENCIL_OP_KEEP = 1,
+	STENCIL_OP_ZERO = 2,
+	STENCIL_OP_REPLACE = 3,
+	STENCIL_OP_INCR_SAT = 4,
+	STENCIL_OP_DECR_SAT = 5,
+	STENCIL_OP_INVERT = 6,
+	STENCIL_OP_INCR = 7,
+	STENCIL_OP_DECR = 8
+} 	STENCIL_OP;
+
+typedef struct DEPTH_STENCILOP_DESC
+{
+	STENCIL_OP StencilFailOp = STENCIL_OP_KEEP;
+	STENCIL_OP StencilDepthFailOp = STENCIL_OP_KEEP;
+	STENCIL_OP StencilPassOp = STENCIL_OP_KEEP;
+	COMPARISON_FUNC StencilFunc = COMPARISON_FUNC_ALWAYS;
+} 	DEPTH_STENCILOP_DESC;
+
 struct RHIDepthStencilDesc
 {
 	bool DepthEnable = true;
 	bool DepthWrite = true;
-	/*DEPTH_WRITE_MASK DepthWriteMask;
-	COMPARISON_FUNC DepthFunc;
-	BOOL StencilEnable;
-	UINT8 StencilReadMask;
-	UINT8 StencilWriteMask;
+	bool StencilEnable = false;
+	//DEPTH_WRITE_MASK DepthWriteMask;
+	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS_EQUAL;
+	//UINT8 StencilReadMask;
+	//UINT8 StencilWriteMask;
 	DEPTH_STENCILOP_DESC FrontFace;
-	DEPTH_STENCILOP_DESC BackFace;*/
+	DEPTH_STENCILOP_DESC BackFace;
 };
 
 struct ViewInstancingMode
@@ -464,7 +492,6 @@ struct  RHIPipeLineStateDesc
 	RHIBlendState BlendState;
 	RHIRasterizerDesc RasterizerState;
 	PRIMITIVE_TOPOLOGY_TYPE RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	COMPARISON_FUNC DepthCompareFunction = COMPARISON_FUNC::COMPARISON_FUNC_LESS;
 	RHIPipeRenderTargetDesc RenderTargetDesc = RHIPipeRenderTargetDesc();
 	RHIDepthStencilDesc DepthStencilState;
 	int SampleCount = 1;

@@ -361,16 +361,16 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	{
 		switch (ListType)
 		{
-			case ECommandListType::Graphics:
-				Target = DeviceContextQueue::Graphics;
-				break;
-			case ECommandListType::RayTracing:
-			case ECommandListType::Compute:
-				Target = DeviceContextQueue::Compute;
-				break;
-			case ECommandListType::Copy:
-				Target = DeviceContextQueue::Copy;
-				break;
+		case ECommandListType::Graphics:
+			Target = DeviceContextQueue::Graphics;
+			break;
+		case ECommandListType::RayTracing:
+		case ECommandListType::Compute:
+			Target = DeviceContextQueue::Compute;
+			break;
+		case ECommandListType::Copy:
+			Target = DeviceContextQueue::Copy;
+			break;
 		}
 	}
 	if (IsOpen())
@@ -596,6 +596,16 @@ RHIRootSigniture * D3D12CommandList::GetRootSig()
 void D3D12CommandList::SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view)
 {
 	RootSigniture.SetTexture2(slot, t, view);
+}
+
+void D3D12CommandList::SetStencilRef(uint value)
+{
+	ensure(IsGraphicsList());
+	if (CurrentPSO != nullptr)
+	{
+		LogEnsure(CurrentPSO->GetDesc().DepthStencilState.StencilEnable);
+	}
+	CurrentCommandList->OMSetStencilRef(value);
 }
 
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

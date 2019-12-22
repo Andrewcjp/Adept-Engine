@@ -50,6 +50,17 @@ SceneRenderer::SceneRenderer()
 	Enviroment = new ReflectionEnviroment();
 	Init();
 	LightsBuffer = LightBufferW();
+	float g_quad_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,0.0f,
+		1.0f, -1.0f, 0.0f,0.0f,
+		-1.0f,  1.0f, 0.0f,0.0f,
+		-1.0f,  1.0f, 0.0f,0.0f,
+		1.0f, -1.0f, 0.0f,0.0f,
+		1.0f,  1.0f, 0.0f,0.0f,
+	};
+	QuadBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDefaultDevice());
+	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
+	QuadBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 }
 
 
@@ -330,6 +341,12 @@ void SceneRenderer::SetEditorCamera(Editor_Camera * Cam)
 ReflectionEnviroment * SceneRenderer::GetReflectionEnviroment()
 {
 	return Enviroment;
+}
+
+void SceneRenderer::DrawScreenQuad(RHICommandList * list)
+{
+	list->SetVertexBuffer(SceneRenderer::Get()->QuadBuffer);
+	list->DrawPrimitive(6, 1, 0, 0);
 }
 
 
