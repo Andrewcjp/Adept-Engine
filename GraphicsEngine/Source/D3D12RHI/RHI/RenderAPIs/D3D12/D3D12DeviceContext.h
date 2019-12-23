@@ -95,6 +95,7 @@ class DescriptorHeapManager;
 class D3D12QueryHeap;
 class DXMemoryManager;
 class DescriptorCache;
+class CommandAllocator;
 //once this class has been completed it will be RHI split
 class D3D12DeviceContext : public DeviceContext
 {
@@ -143,7 +144,6 @@ public:
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
 	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-	void ResetWork();
 	RHICommandList* GetInterGPUCopyList();
 	DescriptorHeapManager* GetHeapManager();
 	DescriptorCache * GetDescriptorCache();
@@ -160,6 +160,7 @@ public:
 	D3D12QueryHeap* GetPipelinePerfHeap() const { return PipelinePerfHeap; }
 
 	void EnqueueUploadRequest(const GPUUploadRequest & request);
+	CommandAllocator* GetAllocator(D3D12CommandList* list);
 private:
 	void FlushUploadQueue();
 	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
@@ -218,6 +219,7 @@ private:
 	DescriptorHeapManager* HeapManager = nullptr;
 	DescriptorCache* DescriptorCacheManager = nullptr;
 	std::vector<GPUUploadRequest> Requests;
+	std::vector<CommandAllocator*> Allocators;
 };
 
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent

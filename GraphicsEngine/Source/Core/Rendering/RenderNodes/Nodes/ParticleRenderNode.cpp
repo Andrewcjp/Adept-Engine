@@ -27,6 +27,7 @@ void ParticleRenderNode::OnExecute()
 	}
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
+	SetBeginStates(RenderList);
 	ParticleSystemManager::Get()->Render(Buffer, DepthSource, GetEye());
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 	SetEndStates(RenderList);
@@ -36,9 +37,10 @@ void ParticleRenderNode::OnExecute()
 
 void ParticleRenderNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "Screen Data");
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "Depth Data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::LitScene, "Screen Data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "Depth Data");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
+	LinkThough(0);
 }
 
 void ParticleRenderNode::OnSetupNode()

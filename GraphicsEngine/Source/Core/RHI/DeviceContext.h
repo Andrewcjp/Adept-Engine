@@ -1,5 +1,7 @@
 #pragma once
 #include "RHI/RHI.h"
+#include "CommandListPool.h"
+
 struct EGPUType
 {
 	enum Type
@@ -135,6 +137,7 @@ public:
 	int GetDeviceFrame()const;
 	void TickDeferredDeleteQueue();
 	bool SupportsIndirectExecute()const;
+	CommandListPool* GetListPool() { return &Pool; }
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();
@@ -164,6 +167,7 @@ protected:
 	//Devices might not move to the next frame in sync 
 	int DeviceFrameNumber = 0;
 	std::vector<IRHIResourse*> DeferredDeleteQueue;
+	CommandListPool Pool;
 };
 
 class RHIGPUSyncEvent : public IRHIResourse

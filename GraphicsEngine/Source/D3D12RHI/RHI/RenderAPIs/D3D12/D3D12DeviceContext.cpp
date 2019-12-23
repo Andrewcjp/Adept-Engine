@@ -200,19 +200,19 @@ void D3D12DeviceContext::CheckFeatures()
 #if USE_DIXL
 	switch (HighestShaderModel)
 	{
-		case D3D_SHADER_MODEL_5_1:
-			Caps_Data.HighestModel = EShaderSupportModel::SM5;
-			break;
-		case D3D_SHADER_MODEL_6_0:
-		case D3D_SHADER_MODEL_6_1:
-		case D3D_SHADER_MODEL_6_2:
-		case D3D_SHADER_MODEL_6_3:
-		case D3D_SHADER_MODEL_6_4:
+	case D3D_SHADER_MODEL_5_1:
+		Caps_Data.HighestModel = EShaderSupportModel::SM5;
+		break;
+	case D3D_SHADER_MODEL_6_0:
+	case D3D_SHADER_MODEL_6_1:
+	case D3D_SHADER_MODEL_6_2:
+	case D3D_SHADER_MODEL_6_3:
+	case D3D_SHADER_MODEL_6_4:
 #if WIN10_1903
-		case D3D_SHADER_MODEL_6_5:
+	case D3D_SHADER_MODEL_6_5:
 #endif
-			Caps_Data.HighestModel = EShaderSupportModel::SM6;
-			break;
+		Caps_Data.HighestModel = EShaderSupportModel::SM6;
+		break;
 	}
 #else
 	Log::LogMessage("Compiling Without DXIL complier, shader model is limited to SM5");
@@ -232,7 +232,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier,"(Tile size "+std::to_string(FeatureData6.ShadingRateImageTileSize)+")");
+			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier, "(Tile size " + std::to_string(FeatureData6.ShadingRateImageTileSize) + ")");
 		}
 		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
 		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_1)
@@ -254,16 +254,16 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		switch (options.CrossNodeSharingTier)
 		{
-			case D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED:
-				Caps_Data.ConnectionMode = EMGPUConnectionMode::HostStagedTransfer;
-				break;
-			case D3D12_CROSS_NODE_SHARING_TIER_1:
-				Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
-				break;
-			case D3D12_CROSS_NODE_SHARING_TIER_3:
-			case D3D12_CROSS_NODE_SHARING_TIER_2:
-				Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
-				break;
+		case D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED:
+			Caps_Data.ConnectionMode = EMGPUConnectionMode::HostStagedTransfer;
+			break;
+		case D3D12_CROSS_NODE_SHARING_TIER_1:
+			Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
+			break;
+		case D3D12_CROSS_NODE_SHARING_TIER_3:
+		case D3D12_CROSS_NODE_SHARING_TIER_2:
+			Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
+			break;
 		}
 		//#DXMGPU: Detect what the other GPU is.
 	}
@@ -283,9 +283,9 @@ void D3D12DeviceContext::LogDeviceData(const std::string& data)
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + ": " + data);
 }
 
-void D3D12DeviceContext::LogTierData(const std::string& data, int teir,const std::string & extramsg)
+void D3D12DeviceContext::LogTierData(const std::string& data, int teir, const std::string & extramsg)
 {
-	LogDeviceData(data + " tier " + std::to_string(teir) +" "+ extramsg);
+	LogDeviceData(data + " tier " + std::to_string(teir) + " " + extramsg);
 }
 
 void D3D12DeviceContext::InitDevice(int index)
@@ -403,6 +403,21 @@ void D3D12DeviceContext::EnqueueUploadRequest(const GPUUploadRequest & request)
 	Requests.push_back(request);
 }
 
+CommandAllocator * D3D12DeviceContext::GetAllocator(D3D12CommandList * list)
+{
+	//todo: match threads
+	for (int i = 0; i < Allocators.size(); i++)
+	{
+		if (!Allocators[i]->IsInUse() && Allocators[i]->GetType() == list->GetListType())
+		{
+			return Allocators[i];
+		}
+	}
+	CommandAllocator* Alloc = new CommandAllocator(list->GetListType(), this);
+	Allocators.push_back(Alloc);
+	return Alloc;
+}
+
 void D3D12DeviceContext::FlushUploadQueue()
 {
 	for (int i = 0; i < Requests.size(); i++)
@@ -484,17 +499,17 @@ ID3D12CommandAllocator* D3D12DeviceContext::GetCommandAllocator(ECommandListType
 {
 	switch (ListType)
 	{
-		case ECommandListType::Graphics:
-			return m_GFXcommandAllocator[CurrentFrameIndex];
-		case ECommandListType::Compute:
-		case ECommandListType::RayTracing:
-			return m_ComputeCommandAllocator[CurrentFrameIndex];
-		case ECommandListType::Copy:
-			return m_CopyCommandAllocator[CurrentFrameIndex];
-		case ECommandListType::VideoEncode:
-		case ECommandListType::VideoDecode:
-		case ECommandListType::Limit:
-			return nullptr;
+	case ECommandListType::Graphics:
+		return m_GFXcommandAllocator[CurrentFrameIndex];
+	case ECommandListType::Compute:
+	case ECommandListType::RayTracing:
+		return m_ComputeCommandAllocator[CurrentFrameIndex];
+	case ECommandListType::Copy:
+		return m_CopyCommandAllocator[CurrentFrameIndex];
+	case ECommandListType::VideoEncode:
+	case ECommandListType::VideoDecode:
+	case ECommandListType::Limit:
+		return nullptr;
 	};
 	return nullptr;
 }
@@ -638,22 +653,21 @@ void D3D12DeviceContext::NotifyWorkForCopyEngine()
 
 void D3D12DeviceContext::UpdateCopyEngine()
 {
-	if (true)
+	if (Requests.size() > 0 || CopyEngineHasWork)
 	{
 		FlushUploadQueue();
-		//CopyEngineHasWork = false;
 		GPUCopyList->Execute();
+		CopyEngineHasWork = false;
 	}
 
 }
 
 void D3D12DeviceContext::ResetCopyEngine()
 {
-	if (/*CopyEngineHasWork*/true)
+	if (!GPUCopyList->IsOpen())
 	{
 		GPUCopyList->ResetList();
 	}
-
 }
 
 void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
@@ -723,18 +737,18 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 {
 	switch (value)
 	{
-		case DeviceContextQueue::Graphics:
-			return m_MainCommandQueue;
-			break;
-		case DeviceContextQueue::Compute:
-			return m_ComputeCommandQueue;
-			break;
-		case DeviceContextQueue::Copy:
-			return m_CopyCommandQueue;
-			break;
-		case DeviceContextQueue::InterCopy:
-			return m_SharedCopyCommandQueue;
-			break;
+	case DeviceContextQueue::Graphics:
+		return m_MainCommandQueue;
+		break;
+	case DeviceContextQueue::Compute:
+		return m_ComputeCommandQueue;
+		break;
+	case DeviceContextQueue::Copy:
+		return m_CopyCommandQueue;
+		break;
+	case DeviceContextQueue::InterCopy:
+		return m_SharedCopyCommandQueue;
+		break;
 	}
 	return nullptr;
 }
@@ -745,10 +759,6 @@ void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, De
 	GPUWaitPoints[0][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
 
-void D3D12DeviceContext::ResetWork()
-{
-	CopyEngineHasWork = false;
-}
 
 RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
 {

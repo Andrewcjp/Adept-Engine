@@ -3,6 +3,7 @@
 #include "Core/Utils/StringUtil.h"
 
 class D3D12DeviceContext;
+class D3D12CommandList;
 
 #if NAME_RHI_PRIMS
 inline void NAME_D3D12_SetName_Convert(ID3D12Object* pObject, std::string name)
@@ -90,8 +91,13 @@ public:
 	void Reset();
 	CommandAllocator(ECommandListType::Type Type, D3D12DeviceContext * D);
 	~CommandAllocator();
+	void SetUser(D3D12CommandList* list);
+	bool IsInUse() const;
+	ECommandListType::Type GetType()const;
 private:
+	ECommandListType::Type AllocatorType = ECommandListType::Graphics;
 	uint FrameReset = 0;
 	DeviceContext* Device = nullptr;
 	ID3D12CommandAllocator* Allocators[RHI::CPUFrameCount] = { nullptr,nullptr };
+	D3D12CommandList* User = nullptr;
 };

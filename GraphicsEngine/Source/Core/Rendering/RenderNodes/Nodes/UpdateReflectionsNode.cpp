@@ -12,6 +12,7 @@
 
 UpdateReflectionsNode::UpdateReflectionsNode()
 {
+	SetNodeActive(false);
 	OnNodeSettingChange();
 }
 
@@ -26,6 +27,7 @@ void UpdateReflectionsNode::OnExecute()
 		return;
 	}
 	CubemapCaptureList->ResetList();
+	SetBeginStates(CubemapCaptureList);
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Material::GetDefaultMaterialShader());
 	CubemapCaptureList->SetPipelineStateDesc(Desc);
 	//if (mShadowRenderer != nullptr)
@@ -40,6 +42,7 @@ void UpdateReflectionsNode::OnExecute()
 	}
 	//CubemapCaptureList->SetFrameBufferTexture(DDOs[CubemapCaptureList->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, MainShaderRSBinds::EnvBRDF);
 	SceneRenderer::Get()->GetReflectionEnviroment()->UpdateRelflectionProbes(CubemapCaptureList);
+	SetEndStates(CubemapCaptureList);
 	CubemapCaptureList->Execute();
 	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	ComputeList->ResetList();

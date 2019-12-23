@@ -18,43 +18,38 @@ void VisModeNode::OnExecute()
 {
 	PassNodeThough(0);
 	ERenderDebugOutput::Type mode = RHI::GetRenderSettings()->GetDebugRenderMode();
-	if (mode == ERenderDebugOutput::Off)
-	{
-		return;
-	}
-	DebugList->ResetList();
+	DebugList = Context->GetListPool()->GetCMDList();
+	SetBeginStates(DebugList);
 	switch (mode)
 	{
-		case ERenderDebugOutput::Off:
-			break;
-		case ERenderDebugOutput::GBuffer_Pos:
-		case ERenderDebugOutput::GBuffer_Normal:
-		case ERenderDebugOutput::GBuffer_Material:
-		case ERenderDebugOutput::GBuffer_RoughNess:
-		case ERenderDebugOutput::GBuffer_Metallic:
-			RenderGBufferModes(mode);
-			break;
-		case ERenderDebugOutput::Scene_Metallic:
-		case ERenderDebugOutput::Scene_RoughNess:
-		case ERenderDebugOutput::Scene_LightRange:
-		case ERenderDebugOutput::Scene_UVs:
-			RenderForwardMode(mode);
-			break;
+	case ERenderDebugOutput::Off:
+		break;
+	case ERenderDebugOutput::GBuffer_Pos:
+	case ERenderDebugOutput::GBuffer_Normal:
+	case ERenderDebugOutput::GBuffer_Material:
+	case ERenderDebugOutput::GBuffer_RoughNess:
+	case ERenderDebugOutput::GBuffer_Metallic:
+		RenderGBufferModes(mode);
+		break;
+	case ERenderDebugOutput::Scene_Metallic:
+	case ERenderDebugOutput::Scene_RoughNess:
+	case ERenderDebugOutput::Scene_LightRange:
+	case ERenderDebugOutput::Scene_UVs:
+		RenderForwardMode(mode);
+		break;
 	}
-
-
-	DebugList->Execute();
-
+	SetEndStates(DebugList);
 }
 
 
 void VisModeNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "OutputBuffer");
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DontCare, "OutputBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer data");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene data");
 
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
+	LinkThough(0);
 }
 
 void VisModeNode::OnSetupNode()

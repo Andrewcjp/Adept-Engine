@@ -23,12 +23,13 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 {
 	AddCheckerRef(D3D12CommandList, this);
 	mDeviceContext = D3D12RHI::DXConv(inDevice);
-	CommandAlloc = new CommandAllocator(ListType, mDeviceContext);
+	//CommandAlloc = new CommandAllocator(ListType, mDeviceContext);
 	if (ListType == ECommandListType::Copy)
 	{
 		//copy queues don't have pipeline states!
 		CreateCommandList();
 	}
+	PerfManager::Get()->AddTimer("Resource Barrier Calls", "RHI");
 }
 
 void D3D12CommandList::Release()
@@ -36,17 +37,18 @@ void D3D12CommandList::Release()
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12CommandList, this);
 	SafeRelease(CurrentCommandList);
-	SafeDelete(CommandAlloc);
+	//SafeDelete(CommandAlloc);
 	//	SafeRelease(CommandSig);
 }
 
-bool D3D12CommandList::IsOpen()
+bool D3D12CommandList::IsOpen()const
 {
 	return m_IsOpen;
 }
 
 void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
+//	ensure(IsOpen());
 	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
 	{
 		return;
@@ -62,6 +64,7 @@ void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 
 void D3D12CommandList::BeginRenderPass(const RHIRenderPassDesc& info)
 {
+	CommandCount++;
 	ensure(IsOpen());
 	RHICommandList::BeginRenderPass(info);
 	if (info.TargetSwapChain)
@@ -93,6 +96,7 @@ void D3D12CommandList::EndRenderPass()
 {
 	RHICommandList::EndRenderPass();
 	SetRenderTarget(nullptr);
+	CommandCount++;
 }
 
 void D3D12CommandList::AddHeap(DescriptorHeap * heap)
@@ -166,7 +170,9 @@ void D3D12CommandList::ResetList()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ResetList", "RHI");
 	ensure(!m_IsOpen);
+	CommandAlloc = mDeviceContext->GetAllocator(this);
 	CommandAlloc->Reset();
+	CommandAlloc->SetUser(this);
 	m_IsOpen = true;
 	if (CurrentCommandList == nullptr)
 	{
@@ -186,15 +192,13 @@ void D3D12CommandList::ResetList()
 		mDeviceContext->GetHeapManager()->BindHeap(this);
 	}
 	RootSigniture.Reset();
+	DrawDispatchCount = 0;
+	GPUWorkEstimate = 0;
+	CommandCount = 0;
 }
+
 ID3D12CommandAllocator* D3D12CommandList::GetCommandAllocator()
 {
-#if 0
-	if (ListType == ECommandListType::Graphics)
-	{
-		return D3D12RHI::DXConv(Device)->GetCommandAllocator(ListType);
-	}
-#endif
 	return CommandAlloc->GetAllocator();
 }
 
@@ -214,13 +218,14 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 		ensure(!target->IsPendingKill());
 		CurrentRenderTarget = D3D12RHI::DXConv(target);
 		ensure(CurrentRenderTarget->CheckDevice(Device->GetDeviceIndex()));
-		CurrentRenderTarget->BindBufferAsRenderTarget(CurrentCommandList, SubResourceIndex);
+		CurrentRenderTarget->BindBufferAsRenderTarget(this, SubResourceIndex);
 	}
 }
 
 void D3D12CommandList::PrepareforDraw()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("PrepareforDraw", "RHI");
+	FlushBarriers();
 	PushHeaps();
 	//ClearHeaps();
 	PushPrimitiveTopology();
@@ -326,8 +331,9 @@ void D3D12CommandList::PrepareforDraw()
 	}
 	//if a resize occurred we need to set the heap to the cmd list again
 	mDeviceContext->GetHeapManager()->RebindHeap(this);
+	DrawDispatchCount++;
+	CommandCount++;
 }
-
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
@@ -357,6 +363,7 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Execute", "RHI");
+	FlushBarriers();
 	if (Target == DeviceContextQueue::LIMIT)
 	{
 		switch (ListType)
@@ -394,10 +401,20 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 		mDeviceContext->ExecuteInterGPUCopyCommandList(CurrentCommandList);
 	}
 	m_IsOpen = false;
+	CommandAlloc->SetUser(nullptr);
+	if (RHI::GetFrameCount() % 100 == 0)
+	{
+		if (ListType != ECommandListType::Copy)
+		{
+			LogEnsureMsgf(DrawDispatchCount, "No dispatch/draw commands in list");
+		}
+		LogEnsureMsgf(CommandCount, "Executing empty command list");
+	}
 }
 
 void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 {
+	FlushBarriers();
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
@@ -406,16 +423,19 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 	PushPrimitiveTopology();
+	CommandCount++;
 }
 
 void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 {
+	FlushBarriers();
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
 	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	dbuffer->EnsureResouceInFinalState(GetCommandList());
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
+	CommandCount++;
 }
 
 
@@ -475,6 +495,7 @@ void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 	PushState();
 	RootSigniture.SetRootSig(Object->GetDesc().ShaderInUse->GetShaderParameters());
 	RootSigniture.Reset();
+	CommandCount++;
 }
 
 void D3D12CommandList::PushState()
@@ -503,6 +524,10 @@ void D3D12CommandList::CreateCommandList()
 	if (CurrentCommandList != nullptr)
 	{
 		return;
+	}
+	if (CommandAlloc == nullptr)
+	{
+		CommandAlloc = mDeviceContext->GetAllocator(this);
 	}
 	ID3D12PipelineState* PSO = nullptr;
 	if (CurrentPSO != nullptr)
@@ -578,14 +603,18 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 void D3D12CommandList::UAVBarrier(FrameBuffer* target)
 {
 	D3D12FrameBuffer* dtarget = D3D12RHI::DXConv(target);
-	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource(0)->GetResource()));
+	//CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource(0)->GetResource()));
 	//CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->UAVCounter));
+	AddTransition(CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource(0)->GetResource()));
+	CommandCount++;
 }
 
 void D3D12CommandList::UAVBarrier(RHIBuffer* target)
 {
 	D3D12Buffer* dtarget = D3D12RHI::DXConv(target);
-	CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource()->GetResource()));
+	//CurrentCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource()->GetResource()));
+	AddTransition(CD3DX12_RESOURCE_BARRIER::UAV(dtarget->GetResource()->GetResource()));
+	CommandCount++;
 }
 
 RHIRootSigniture * D3D12CommandList::GetRootSig()
@@ -595,7 +624,9 @@ RHIRootSigniture * D3D12CommandList::GetRootSig()
 
 void D3D12CommandList::SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view)
 {
+	FlushBarriers();
 	RootSigniture.SetTexture2(slot, t, view);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetStencilRef(uint value)
@@ -606,6 +637,24 @@ void D3D12CommandList::SetStencilRef(uint value)
 		LogEnsure(CurrentPSO->GetDesc().DepthStencilState.StencilEnable);
 	}
 	CurrentCommandList->OMSetStencilRef(value);
+	CommandCount++;
+}
+
+void D3D12CommandList::FlushBarriers()
+{
+	if (QueuedBarriers.size() == 0)
+	{
+		return;
+	}
+	GetCommandList()->ResourceBarrier(QueuedBarriers.size(), QueuedBarriers.data());
+	QueuedBarriers.clear();
+	PerfManager::Get()->AddToCountTimer("Resource Barrier Calls", 1);
+	CommandCount++;
+}
+
+void D3D12CommandList::AddTransition(D3D12_RESOURCE_BARRIER transition)
+{
+	QueuedBarriers.push_back(transition);
 }
 
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
@@ -633,6 +682,7 @@ void D3D12CommandList::SetCommandSigniture(RHICommandSignitureDescription desc)
 	desc.PSO = CurrentPSO;
 	CommandSig = new D3D12CommandSigniture(GetDevice(), desc);
 	CommandSig->Build();
+	CommandCount++;
 }
 
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
@@ -649,6 +699,7 @@ void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * D
 	{
 		CurrentCommandList->SetComputeRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
 	}
+	CommandCount++;
 }
 
 CMDListType* D3D12CommandList::GetCommandList()
@@ -680,6 +731,7 @@ void D3D12CommandList::ClearScreen()
 
 void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, const RHIViewDesc & desc)
 {
+	FlushBarriers();
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
 	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
@@ -687,12 +739,17 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 	{
 		ensure(DBuffer->IsReadyForCompute());
 	}
+	else
+	{
+		ensure(DBuffer->GetCurrentState() == EResourceState::PixelShader);
+	}	
 	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{
 		return;
 	}
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	RootSigniture.SetFrameBufferTexture(slot, buffer, desc);
+	CommandCount++;
 }
 #if WIN10_1903
 ID3D12GraphicsCommandList5 * D3D12CommandList::GetCMDList5()
@@ -708,6 +765,7 @@ void D3D12CommandList::SetDepthBounds(float Min, float Max)
 		return;
 	}
 	CommandList1->OMSetDepthBounds(Min, Max);
+	CommandCount++;
 }
 #if WIN10_1809
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
@@ -717,6 +775,7 @@ void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
 	//#DXR: todo
 	CurrentRTState->Trace(desc, this, D3D12RHI::DXConv(desc.Target));
 	UAVBarrier(desc.Target);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
@@ -729,11 +788,13 @@ void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 {
 	CurrentRTState = D3D12RHI::DXConv(Object);
 	CurrentRTState->BindToList(this);
+	CommandCount++;
 }
 #endif
 
 void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc)
 {
+	FlushBarriers();
 	ensure(texture != nullptr);
 	ensure(!texture->IsPendingKill());
 	Texture = D3D12RHI::DXConv(texture.Get());
@@ -745,6 +806,7 @@ void D3D12CommandList::SetTexture(BaseTextureRef texture, int slot, const RHIVie
 	}
 	//	ensure(Texture->GetResource()->IsValidStateForList(this));
 	RootSigniture.SetTexture(slot, texture, desc);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int Slot)
@@ -753,40 +815,51 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 	{
 		return;
 	}
+	FlushBarriers();
 	ensure(!buffer->IsPendingKill());
 	D3D12Buffer* d3Buffer = D3D12RHI::DXConv(buffer);
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
 	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute || IsRaytracingList(), Device->GetDeviceIndex());
+	CommandCount++;
 }
 
 void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, RHIViewDesc Desc, int Slot)
 {
+	FlushBarriers();
 	RootSigniture.SetConstantBufferView(Slot, buffer, 0, Desc);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc)
 {
+	FlushBarriers();
 	RootSigniture.SetBufferReadOnly(slot, Buffer, desc);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view)
 {
+	FlushBarriers();
 	RootSigniture.SetTextureArray(slot, array, view);
+	CommandCount++;
 }
 
 void D3D12CommandList::SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view)
 {
+	FlushBarriers();
 	RHIViewDesc v = view;
 	v.ViewType = EViewType::UAV;
 	RootSigniture.SetUAV(slot, buffer, v);
+	CommandCount++;
 }
-
 
 void D3D12CommandList::SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view /*= RHIViewDesc()*/)
 {
+	FlushBarriers();
 	RHIViewDesc v = view;
 	v.ViewType = EViewType::UAV;
 	RootSigniture.SetUAV(slot, buffer, v);
+	CommandCount++;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #pragma once
 #include "StorageNode.h"
 #include "RenderGraphDrawer.h"
+#include "RenderGraphProcessor.h"
 
 class RenderNode;
 class StorageNode;
@@ -46,6 +47,7 @@ public:
 	T * AddStoreNode(T * Node)
 	{
 		StoreNodes.push_back(Node);
+		Node->OwnerGraph = this;
 		return (T*)Node;
 	}
 
@@ -95,6 +97,7 @@ public:
 	void RunTests();
 	bool RequiresMGPU = false;
 	bool RequiresRT = false;
+	int TotalResourceSize = 0;
 private:
 	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";
@@ -105,6 +108,7 @@ private:
 
 	void ExposeNodeOption(RenderNode * N, std::string name, bool * data, bool Defaultstate);
 	RenderGraphDrawer Drawer;
+	RenderGraphProcessor Processor;
 };
 
 namespace StandardSettings

@@ -47,7 +47,7 @@ public:
 	void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false);
 	void MakeReadyForCopy(RHICommandList * list, bool changeDepth = false);
 	void MakeReadyForPixel(RHICommandList* List, bool Depth = false);
-	EResourceState::Type GetCurrentState()const;
+	RHI_API EResourceState::Type GetCurrentState()const;
 	virtual uint64 GetInstanceHash()const;
 	RHITexture* GetRenderTexture(int index = 0);
 	RHITexture* GetDepthStencil();

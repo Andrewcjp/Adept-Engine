@@ -8,14 +8,11 @@
 PostProcessNode::PostProcessNode()
 {
 	OnNodeSettingChange();
-	NodeEngineType = ENodeQueueType::Compute;
+	NodeEngineType = ECommandListType::Compute;
 	ViewMode = EViewMode::PerView;
 	//SetNodeActive(false);
 	PostProcessing::StartUp();
-
 }
-
-
 
 PostProcessNode::~PostProcessNode()
 {}
@@ -24,6 +21,7 @@ void PostProcessNode::OnExecute()
 {
 	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	CommandList->ResetList();
+	SetBeginStates(CommandList);
 	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
@@ -33,9 +31,7 @@ void PostProcessNode::OnExecute()
 	SetEndStates(CommandList);
 	CommandList->Execute();
 	FLAT_COMPUTE_END(RHI::GetDeviceContext(0));
-	PassNodeThough(0);
 }
-
 
 void PostProcessNode::OnResourceResize()
 {
@@ -44,16 +40,16 @@ void PostProcessNode::OnResourceResize()
 
 void PostProcessNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::LitScene);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Post Image");
 	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
-		AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene, "VRX Image");
+		AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::LitScene, "VRX Image");
 	}
+	LinkThough(0);
 }
 
 void PostProcessNode::OnSetupNode()
 {
 	CommandList = RHI::CreateCommandList(ECommandListType::Compute, Context);
-
 }

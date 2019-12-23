@@ -8,6 +8,7 @@
 InterGPUCopyNode::InterGPUCopyNode(DeviceContext* con)
 {
 	Context = con;
+	NodeEngineType = ECommandListType::Copy;
 	OnNodeSettingChange();
 }
 
@@ -22,7 +23,7 @@ void InterGPUCopyNode::OnExecute()
 	InterGPUStorageNode* Node = (InterGPUStorageNode*)GetInput(1)->GetStoreTarget();
 	RHIInterGPUStagingResource* InterRes = Node->GetStore(0)->Resource;
 	CopyList->ResetList();
-	//todo: target subresources in FBs
+	//todo: target sub resources in FBs
 
 	/*if (CopyTo)
 	{
@@ -42,7 +43,7 @@ bool InterGPUCopyNode::IsNodeSupported(const RenderSettings& settings)
 
 void InterGPUCopyNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DontCare, "Buffer to copy");
+	AddResourceInput(EStorageType::Framebuffer,EResourceState::CopySrc, StorageFormats::DontCare, "Buffer to copy");
 	AddInput(EStorageType::InterGPUStagingResource, StorageFormats::DontCare, "Staging resource");
 }
 

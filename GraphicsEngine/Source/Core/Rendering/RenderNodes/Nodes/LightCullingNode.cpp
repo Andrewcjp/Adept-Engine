@@ -5,7 +5,7 @@
 
 LightCullingNode::LightCullingNode()
 {
-	NodeEngineType = ENodeQueueType::Compute;
+	NodeEngineType = ECommandListType::Compute;
 	SetNodeActive(false);
 }
 

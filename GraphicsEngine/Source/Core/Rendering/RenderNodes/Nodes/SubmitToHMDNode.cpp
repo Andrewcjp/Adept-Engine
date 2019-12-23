@@ -25,7 +25,7 @@ bool SubmitToHMDNode::IsNodeSupported(const RenderSettings& settings)
 
 void SubmitToHMDNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::LitScene, "both Eye Framebuffer");
+	AddResourceInput(EStorageType::Framebuffer,EResourceState::PixelShader, StorageFormats::LitScene, "both Eye Framebuffer");
 }
 
 void SubmitToHMDNode::OnValidateNode(RenderGraph::ValidateArgs & args)

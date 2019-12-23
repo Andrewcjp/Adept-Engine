@@ -12,28 +12,29 @@ namespace EViewMode
 	};
 };
 
-namespace ENodeQueueType
-{
-	enum Type
-	{
-		Graphics,
-		Compute,
-		RT,
-		Copy,
-		Limit
-	};
-};
 class NodeLink;
 class SceneDataNode;
 class ShadowAtlasStorageNode;
 class VRBranchNode;
 class RenderNode;
+
 struct ResourceTransition
 {
+	enum Type
+	{
+		StateChange,
+		QueueWait,
+		AlisingBarrier,
+		Limit
+	};
+	ResourceTransition::Type TransitonType = Limit;
 	NodeLink* Target = nullptr;
 	StorageNode* StoreNode = nullptr;
 	EResourceState::Type TargetState = EResourceState::Undefined;
 	void Execute(RHICommandList* list, RenderNode* eye);
+
+	//queue wait
+	DeviceContextQueue::Type SignalingQueue = DeviceContextQueue::LIMIT;
 };
 
 class RenderNode
@@ -64,7 +65,7 @@ public:
 	//Node Type
 	//For VR Only
 	EViewMode::Type GetViewMode() const;
-	ENodeQueueType::Type GetNodeQueueType() const;
+	ECommandListType::Type GetNodeQueueType() const;
 	RenderNode* GetNextNode()const;
 	bool IsComputeNode()const;
 	virtual std::string GetName()const;
@@ -123,10 +124,11 @@ protected:
 	void AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	void AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName = std::string());
 	void AddRefrence(EStorageType::Type TargetType, const std::string& format, const std::string& InputName);
+	void LinkThough(int inputindex, int outputindex = -1);
 	void PassNodeThough(int inputindex, std::string newformat = std::string(), int outputinput = -1);
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;
-	ENodeQueueType::Type NodeEngineType = ENodeQueueType::Graphics;
+	ECommandListType::Type NodeEngineType = ECommandListType::Graphics;
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;
@@ -140,6 +142,8 @@ protected:
 
 	std::vector<ResourceTransition> BeginTransitions;
 	std::vector<ResourceTransition> EndTransitions;
+	bool HasRunBegin = false;
+	bool HasRunEnd = false;
 };
 
 #define NameNode(name) std::string GetName()const {return name;} static std::string GetNodeName(){return name;}

@@ -30,5 +30,6 @@ public:
 
 	std::vector<ShaderParameter> GetShaderParameters();
 	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+
 };
 

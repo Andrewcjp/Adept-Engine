@@ -289,6 +289,11 @@ void RHI::RunGPUTests()
 	Get()->TestManager->ExecuteAllTests();
 }
 
+void RHI::MakeSwapChainReady(RHICommandList * list)
+{
+	GetRHIClass()->MakeSwapChainReady(list);
+}
+
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
 {
 	LogEnsure(!Resource->IsPendingKill());

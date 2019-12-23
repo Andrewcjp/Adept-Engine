@@ -174,8 +174,8 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
 	GPUResource* TargetResource = GetResource();
 
-	TargetResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
-	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
+	TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
 	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);
 
 	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
@@ -208,8 +208,8 @@ void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, R
 	// layout prescribed by the texture.
 
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
-	GetResource()->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
-	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_DEST);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
 	GPUResource* TargetResource = GetResource();
 	const int count = Desc.Depth;
 	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);

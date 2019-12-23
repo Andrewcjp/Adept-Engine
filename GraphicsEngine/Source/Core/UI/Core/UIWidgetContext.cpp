@@ -46,7 +46,7 @@ void UIWidgetContext::UpdateWidgets()
 }
 void UIWidgetContext::RenderWidgetText()
 {
-	TextRender->Reset();
+	//TextRender->Reset();
 	for (int i = 0; i < widgets.size(); i++)
 	{
 		if (widgets[i]->GetEnabled())
@@ -54,7 +54,7 @@ void UIWidgetContext::RenderWidgetText()
 			widgets[i]->Render();
 		}
 	}
-	TextRender->Finish();
+	//TextRender->Finish();
 	if (ShowQuadPostUI)
 	{
 		Quad->Render();

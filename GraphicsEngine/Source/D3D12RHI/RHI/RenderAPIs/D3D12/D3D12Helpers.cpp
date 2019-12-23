@@ -340,7 +340,7 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	}
 	Cmdlist->ResetList();
 	D3D12_RESOURCE_STATES InitalState = Target->GetCurrentState();
-	Target->SetResourceState(Cmdlist->GetCommandList(), D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
+	Target->SetResourceState(Cmdlist, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
 	D3D12_RESOURCE_DESC Desc = Target->GetResource()->GetDesc();
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
 	CD3DX12_BOX box(0, 0, (LONG)Desc.Width, Desc.Height);
@@ -350,7 +350,7 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	CD3DX12_TEXTURE_COPY_LOCATION src(Target->GetResource(), 0);
 	Cmdlist->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
 
-	Target->SetResourceState(Cmdlist->GetCommandList(), InitalState);
+	Target->SetResourceState(Cmdlist, InitalState);
 	if (UseCopy)
 	{
 		Device->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
@@ -732,12 +732,28 @@ CommandAllocator::CommandAllocator(ECommandListType::Type Type, D3D12DeviceConte
 	{
 		ThrowIfFailed(D->GetDevice()->CreateCommandAllocator(D3D12Helpers::ConvertListType(Type), IID_PPV_ARGS(&Allocators[i])));
 	}
+	AllocatorType = Type;
 	Device = D;
 }
 
 CommandAllocator::~CommandAllocator()
 {
 	MemoryUtils::DeleteReleaseableCArray(Allocators, RHI::CPUFrameCount);
+}
+
+void CommandAllocator::SetUser(D3D12CommandList * list)
+{
+	User = list;
+}
+
+bool CommandAllocator::IsInUse() const
+{
+	return User != nullptr;
+}
+
+ECommandListType::Type CommandAllocator::GetType() const
+{
+	return AllocatorType;
 }
 
 

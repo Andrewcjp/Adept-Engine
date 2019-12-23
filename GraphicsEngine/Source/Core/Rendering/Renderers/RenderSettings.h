@@ -33,6 +33,7 @@ struct ERenderDebugOutput
 		Scene_RoughNess,
 		Scene_LightRange,
 		Scene_UVs,
+		Scene_ShaderInstructionCount,
 		Limit
 	};
 };

@@ -15,6 +15,7 @@ GBufferWriteNode::GBufferWriteNode()
 	ViewMode = EViewMode::PerView;
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
 	AddResourceOutput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::GBufferData);
+	GetOutput(0)->SetLink(GetInput(0));
 }
 
 GBufferWriteNode::~GBufferWriteNode()
@@ -26,7 +27,7 @@ void GBufferWriteNode::OnExecute()
 {
 	GetInput(0)->GetStoreTarget()->DataFormat = StorageFormats::GBufferData;
 	//pass the input to the output now changed
-	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
+	
 	SCOPE_CYCLE_COUNTER_GROUP("GBufferWrite", "Render");
 	CommandList->ResetList();
 	SetBeginStates(CommandList);

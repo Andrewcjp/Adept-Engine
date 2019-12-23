@@ -1,4 +1,6 @@
 #pragma once
+
+class RenderGraph;
 namespace EStorageType
 {
 	enum Type
@@ -15,7 +17,7 @@ namespace EStorageType
 class StorageNode
 {
 public:
-	StorageNode();
+	StorageNode(const std::string& name = "");
 	virtual ~StorageNode();
 	EStorageType::Type StoreType = EStorageType::Limit;
 	std::string DataFormat = "";
@@ -34,11 +36,16 @@ public:
 	{
 		return dynamic_cast<T*>(node);
 	}
+	std::string Name = "";
+	RenderGraph* OwnerGraph = nullptr;
+	bool GetIsTransisent() const { return IsTransisent; }
+	void SetRetained() { IsTransisent = false; }
 protected:
 	//called when the graph is built to create this resource (if needed)
 
 	virtual void Create() {}; 
 	DeviceContext* DeviceObject = nullptr;
+	bool IsTransisent = true;
 private:
 	std::string InitalFormat = "";
 };

@@ -82,7 +82,30 @@ bool GPUResource::IsValidStateForList(D3D12CommandList* List)
 	return false;
 }
 
-void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::SetResourceState(D3D12CommandList*  List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion)
+{
+	QueueTranstion = true;
+	if (newstate != CurrentResourceState)
+	{
+#if LOG_RESOURCE_TRANSITIONS
+		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
+			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
+#endif
+		if (QueueTranstion)
+		{
+			List->AddTransition(CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
+		}
+		else
+		{
+			List->GetCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
+		}
+		CurrentResourceState = newstate;
+		TargetState = newstate;
+		PerfManager::Get()->AddToCountTimer("ResourceTransitons", 1);
+	}
+}
+
+void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -90,6 +113,7 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
 			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
 #endif
+		ensure(!QueueTranstion);
 		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
 		CurrentResourceState = newstate;
 		TargetState = newstate;
@@ -97,7 +121,7 @@ void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOU
 	}
 }
 
-void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::StartResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -107,12 +131,12 @@ void GPUResource::StartResourceTransition(ID3D12GraphicsCommandList * List, D3D1
 		BarrierDesc.Transition.StateBefore = CurrentResourceState;
 		BarrierDesc.Transition.StateAfter = newstate;
 		BarrierDesc.Transition.pResource = resource;
-		List->ResourceBarrier(1, &BarrierDesc);
+		List->AddTransition(BarrierDesc);
 		TargetState = newstate;
 	}
 }
 
-void GPUResource::EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::EndResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -122,7 +146,7 @@ void GPUResource::EndResourceTransition(ID3D12GraphicsCommandList * List, D3D12_
 		BarrierDesc.Transition.StateBefore = CurrentResourceState;
 		BarrierDesc.Transition.StateAfter = newstate;
 		BarrierDesc.Transition.pResource = resource;
-		List->ResourceBarrier(1, &BarrierDesc);
+		List->AddTransition(BarrierDesc);
 		CurrentResourceState = newstate;
 	}
 }

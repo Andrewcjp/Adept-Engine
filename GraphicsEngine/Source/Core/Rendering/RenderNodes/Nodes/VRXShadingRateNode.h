@@ -11,7 +11,7 @@ public:
 
 	void OnExecute() override;
 	bool IsNodeSupported(const RenderSettings& settings) override;
-
+	NameNode("VRX Shading Rate");
 protected:
 	void OnNodeSettingChange() override;
 	RHICommandList* List = nullptr;

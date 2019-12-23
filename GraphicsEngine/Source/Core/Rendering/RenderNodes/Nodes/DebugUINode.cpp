@@ -18,14 +18,15 @@ void DebugUINode::OnExecute()
 {
 	FrameBuffer* FB = GetFrameBufferFromInput(0);
 	//debug lines are always draw to screen
-	CommandList->ResetList();
+	CommandList = Context->GetListPool()->GetCMDList();
+	SetBeginStates(CommandList);
 	if (ClearBuffer)
 	{
 		CommandList->ClearFrameBuffer(FB);
 	}
 	DebugLineDrawer::Get()->RenderLines(FB, CommandList, GetEye());
 	DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());
-	CommandList->Execute();
+	SetEndStates(CommandList);
 	PassNodeThough(0);
 }
 
@@ -38,10 +39,11 @@ void DebugUINode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::LitScene, "Data");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Final frame");
+	LinkThough(0);
 }
 
 void DebugUINode::OnSetupNode()
 {
-	CommandList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
+	
 }
 

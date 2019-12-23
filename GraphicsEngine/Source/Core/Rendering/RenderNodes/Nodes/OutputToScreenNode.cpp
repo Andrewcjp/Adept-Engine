@@ -28,8 +28,10 @@ void OutputToScreenNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	FrameBufferStorageNode* FBNode = ((FrameBufferStorageNode*)GetInput(0)->GetStoreTarget());
 	const bool IsVRFb = FBNode->IsVRFramebuffer;
-	ScreenWriteList->ResetList();
-	Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
+
+	ScreenWriteList = Context->GetListPool()->GetCMDList();
+	SetBeginStates(ScreenWriteList);
+	//Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 #if WITH_EDITOR
 	RHIRenderPassDesc RP = RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear);
 	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
@@ -79,7 +81,6 @@ void OutputToScreenNode::OnExecute()
 		D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 		ScreenWriteList->SetPipelineStateDesc(D);
 		ScreenWriteList->SetFrameBufferTexture(Target, 0);
-		//ScreenWriteList->SetTexture2(Testtex, 0, RHIViewDesc::DefaultSRV());
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->EndRenderPass();
@@ -87,8 +88,8 @@ void OutputToScreenNode::OnExecute()
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 	UIManager::Get()->SetEditorViewPortRenderTarget(GetFrameBufferFromInput(1));
 #endif
-	ScreenWriteList->Execute();
-
+	SetEndStates(ScreenWriteList);
+	Context->GetListPool()->Flush();
 }
 
 void OutputToScreenNode::OnNodeSettingChange()
@@ -102,17 +103,4 @@ void OutputToScreenNode::OnNodeSettingChange()
 void OutputToScreenNode::OnSetupNode()
 {
 	ScreenWriteList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
-	Test();
-}
-
-void OutputToScreenNode::Test()
-{
-	Testtex = RHI::GetRHIClass()->CreateTexture2();
-	RHITextureDesc2 Desc = {};
-	Desc.Width = 1000;
-	Desc.Height = 1000;
-	Desc.Format = FORMAT_R32G32B32A32_FLOAT;
-	Desc.IsRenderTarget = true;
-	Desc.Name = "Testtex";
-	Testtex->Create(Desc);
 }

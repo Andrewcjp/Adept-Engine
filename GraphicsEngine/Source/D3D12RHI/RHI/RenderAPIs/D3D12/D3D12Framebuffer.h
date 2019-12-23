@@ -25,7 +25,7 @@ public:
 	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
 	// Inherited via FrameBuffer
 	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
-	virtual void					BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex);
+	virtual void					BindBufferAsRenderTarget(D3D12CommandList * list, int SubResourceIndex);
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
 	void							CreateSRVHeap(int Num);

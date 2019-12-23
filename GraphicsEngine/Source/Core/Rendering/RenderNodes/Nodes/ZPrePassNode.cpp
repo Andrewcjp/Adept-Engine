@@ -43,12 +43,12 @@ void ZPrePassNode::OnExecute()
 	Cmdlist->GetDevice()->GetTimeManager()->EndPipelineStatCapture(Cmdlist);
 	SetEndStates(Cmdlist);
 	Cmdlist->Execute();
-	
+
 }
 
 void ZPrePassNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::PreZData);
 	GetOutput(0)->SetLink(GetInput(0));
 }

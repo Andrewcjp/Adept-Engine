@@ -139,23 +139,28 @@ std::string RenderGraphDrawer::CreateLinksforNode(RenderNode* node)
 		}
 		else if (Inputlink->GetStoreTarget() != nullptr)
 		{
-			std::string name = "";
+			std::string Typename = "";
 			switch (Inputlink->GetStoreTarget()->StoreType)
 			{
-				case EStorageType::Framebuffer:
-					name = "Framebuffer";
-					break;
-				case EStorageType::ShadowData:
-					name = "ShadowData";
-					break;
-				case EStorageType::CPUData:
-					name = "CPUData";
-					break;
-				case EStorageType::SceneData:
-					name = "SceneData";
-					break;
+			case EStorageType::Framebuffer:
+				Typename = "Framebuffer";
+				break;
+			case EStorageType::ShadowData:
+				Typename = "ShadowData";
+				break;
+			case EStorageType::CPUData:
+				Typename = "CPUData";
+				break;
+			case EStorageType::SceneData:
+				Typename = "SceneData";
+				break;
 			}
-			std::string StoreItemName = name + ":" + Inputlink->GetStoreTarget()->DataFormat;
+			std::string nodename = "'" + Inputlink->GetStoreTarget()->Name + "' ";
+			if (Inputlink->GetStoreTarget()->Name.length() == 0)
+			{
+				nodename = "";
+			}
+			std::string StoreItemName = Typename + ":" + Inputlink->GetStoreTarget()->DataFormat;
 			if (Inputlink->GetStoreTarget()->StoreType == EStorageType::Framebuffer)
 			{
 				FrameBufferStorageNode* FBN = (FrameBufferStorageNode*)Inputlink->GetStoreTarget();
@@ -163,9 +168,9 @@ std::string RenderGraphDrawer::CreateLinksforNode(RenderNode* node)
 				std::string fomat = "RT:" + std::to_string(Desc.RenderTargetCount);
 				fomat += "D:" + std::to_string(Desc.NeedsDepthStencil);
 				fomat += "FMT:" + std::to_string(Desc.RTFormats[0]);
-				StoreItemName = name + ":" + fomat;
+				StoreItemName = Typename + ":" + fomat;
 			}
-			out += "\"" + StoreItemName + "\" -> \"" + NodeName + "\":\"" + Inputlink->GetLinkName() + +"\" [	id = " + std::to_string(LinkId) + "	];\n";
+			out += "\"" + nodename+StoreItemName + "\" -> \"" + NodeName + "\":\"" + Inputlink->GetLinkName() + +"\" [	id = " + std::to_string(LinkId) + "	];\n";
 		}
 		LinkId++;
 	}

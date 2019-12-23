@@ -151,6 +151,7 @@ public:
 	RHI_API bool IsCopyList() const;
 	RHI_API bool IsComputeList() const;
 	RHI_API bool IsRaytracingList() const;
+	RHI_API virtual bool IsOpen()const;
 	RHI_API void InsertGPUStallTimer();
 	RHI_API void HandleStallTimer();
 	//RT
@@ -168,6 +169,8 @@ public:
 	RHI_API void SetVRXShadingRateImage(RHITexture* Target);
 	RHI_API RHIPipeLineStateObject* GetCurrnetPSO();
 	RHI_API ECommandListType::Type GetListType() const;
+	//forces any queued barriers to be executed
+	RHI_API RHI_VIRTUAL void FlushBarriers();
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);

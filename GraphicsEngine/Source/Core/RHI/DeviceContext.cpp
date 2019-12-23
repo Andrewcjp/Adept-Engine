@@ -11,6 +11,7 @@ DeviceContext::DeviceContext()
 {
 	PSOCache = new PipelineStateObjectCache(this);
 	StateCache = new GPUStateCache();
+	Pool.Init(1);
 }
 
 DeviceContext::~DeviceContext()

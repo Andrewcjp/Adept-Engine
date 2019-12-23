@@ -1,7 +1,8 @@
 #include "FrameBufferStorageNode.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "../RenderGraph.h"
 
-FrameBufferStorageNode::FrameBufferStorageNode()
+FrameBufferStorageNode::FrameBufferStorageNode(const std::string& name) :StorageNode(name)
 {
 	StoreType = EStorageType::Framebuffer;
 }
@@ -29,6 +30,10 @@ void FrameBufferStorageNode::Update()
 void FrameBufferStorageNode::Resize()
 {
 	FBuffer->AutoResize();
+	if (OwnerGraph != nullptr)
+	{
+		OwnerGraph->TotalResourceSize += FBuffer->GetSizeOnGPU();
+	}
 }
 
 void FrameBufferStorageNode::Create()

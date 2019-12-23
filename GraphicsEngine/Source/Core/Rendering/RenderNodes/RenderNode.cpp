@@ -37,6 +37,8 @@ void RenderNode::ExecuteNode()
 		if (IsNodeActive())
 		{
 			OnExecute();
+			ensure(HasRunBegin);
+			ensure(HasRunEnd);
 		}
 		else
 		{
@@ -104,7 +106,7 @@ EViewMode::Type RenderNode::GetViewMode() const
 	return ViewMode;
 }
 
-ENodeQueueType::Type RenderNode::GetNodeQueueType() const
+ECommandListType::Type RenderNode::GetNodeQueueType() const
 {
 	return NodeEngineType;
 }
@@ -116,7 +118,7 @@ RenderNode * RenderNode::GetNextNode() const
 
 bool RenderNode::IsComputeNode() const
 {
-	return NodeEngineType == ENodeQueueType::Compute;
+	return NodeEngineType == ECommandListType::Compute;
 }
 
 std::string RenderNode::GetName() const
@@ -156,6 +158,9 @@ void RenderNode::SetupNode()
 		//this causes data to be passed though
 		SetNodeActive(false);
 	}
+#if !BUILD_SHIPPING
+	Log::LogMessage("Node " + GetName() + " has " + std::to_string(BeginTransitions.size()) + " and " + std::to_string(EndTransitions.size()) + " transitions");
+#endif
 }
 
 bool RenderNode::IsNodeDeferred() const
@@ -309,7 +314,14 @@ void RenderNode::AddRefrence(EStorageType::Type TargetType, const std::string& f
 {
 	Refrences.push_back(new NodeLink(TargetType, format, InputName, this));
 }
-
+void RenderNode::LinkThough(int inputindex, int outputindex /*= -1*/)
+{
+	if (outputindex == -1)
+	{
+		outputindex = inputindex;
+	}
+	GetOutput(outputindex)->SetLink(GetInput(inputindex));
+}
 void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::string()*/, int outputindex /*= -1*/)
 {
 	if (outputindex == -1)
@@ -329,6 +341,7 @@ void RenderNode::SetBeginStates(RHICommandList * list)
 	{
 		BeginTransitions[i].Execute(list, this);
 	}
+	HasRunBegin = true;
 }
 
 void RenderNode::SetEndStates(RHICommandList * list)
@@ -337,30 +350,37 @@ void RenderNode::SetEndStates(RHICommandList * list)
 	{
 		EndTransitions[i].Execute(list, this);
 	}
+	HasRunEnd = true;
 }
 
 void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 {
-	if (TargetState == EResourceState::Undefined || (Target == nullptr && StoreNode == nullptr))
+	if (TransitonType == StateChange)
 	{
-		return;
-	}
-	if (Target->TargetType == EStorageType::Framebuffer)
-	{
-		if (StoreNode == nullptr)
+		if (TargetState == EResourceState::Undefined || (Target == nullptr && StoreNode == nullptr))
 		{
-			StoreNode = Target->GetStoreTarget();
-		}
-		FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(StoreNode);
-		if (Node == nullptr)
-		{		
 			return;
 		}
-		FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
-		//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
-		buffer->SetResourceState(list, TargetState);
+		if (Target->TargetType == EStorageType::Framebuffer)
+		{
+			if (StoreNode == nullptr)
+			{
+				StoreNode = Target->GetStoreTarget();
+			}
+			FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(StoreNode);
+			if (Node == nullptr)
+			{
+				return;
+			}
+			FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
+			//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
+			buffer->SetResourceState(list, TargetState);
+		}
 	}
-
+	else if (TransitonType == QueueWait)
+	{
+		list->GetDevice()->InsertGPUWait(DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+	}
 }
 
 void RenderNode::AddBeginTransition(const ResourceTransition& transition)

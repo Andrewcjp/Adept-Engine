@@ -56,7 +56,7 @@ public:
 	virtual void CopyResourceToSharedMemory(FrameBuffer* Buffer)override;
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 	void Release()override;
-	bool IsOpen();
+	bool IsOpen() const override;
 	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
 	virtual void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) override;
@@ -94,7 +94,8 @@ public:
 
 
 	RHI_VIRTUAL void SetStencilRef(uint value) override;
-
+	RHI_VIRTUAL void FlushBarriers() override;
+	void AddTransition(D3D12_RESOURCE_BARRIER transition);
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
@@ -122,6 +123,13 @@ private:
 	D3D12CommandSigniture* CommandSig = nullptr;
 	RHIRootSigniture RootSigniture;
 	ID3D12DescriptorHeap* CurrentBoundHeap = nullptr;
+	std::vector<D3D12_RESOURCE_BARRIER> QueuedBarriers;
+	//value based on shaders + size of screen/dispatch.
+	uint GPUWorkEstimate = 0;
+	//raw number of CPU commands
+	uint CommandCount = 0;
+	//number of commands that launch CUs
+	uint DrawDispatchCount = 0;
 protected:
 #if WIN10_1903
 	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) override;

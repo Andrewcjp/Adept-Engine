@@ -28,11 +28,10 @@ void Shader_Convolution::init()
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	CubeBuffer = RHI::CreateFrameBuffer(Device, Desc);
 	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Device);
-
 	ConvPSODesc.InitOLD(false, false, false);
 	ConvPSODesc.ShaderInUse = this;
 	ConvPSODesc.RenderTargetDesc = CubeBuffer->GetPiplineRenderDesc();
-	CmdList->SetPipelineStateDesc(ConvPSODesc);
+
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -62,6 +61,7 @@ void Shader_Convolution::ComputeConvolution(BaseTextureRef Target, FrameBuffer* 
 {
 	ensure(Target->GetType() == ETextureType::Type_CubeMap);
 	CmdList->ResetList();
+	CmdList->SetPipelineStateDesc(ConvPSODesc);
 	RHIRenderPassDesc D = RHIRenderPassDesc(Buffer, ERenderPassLoadOp::Clear);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CmdList->BeginRenderPass(D);

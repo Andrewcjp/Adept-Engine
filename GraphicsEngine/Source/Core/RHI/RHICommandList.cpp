@@ -145,6 +145,11 @@ bool RHICommandList::IsRaytracingList() const
 	return ListType == ECommandListType::RayTracing;
 }
 
+bool RHICommandList::IsOpen() const
+{
+	return false;
+}
+
 void RHICommandList::InsertGPUStallTimer()
 {
 	if (RHI::GetDeviceCount() > 1)
@@ -238,6 +243,11 @@ RHIPipeLineStateObject * RHICommandList::GetCurrnetPSO()
 ECommandListType::Type RHICommandList::GetListType() const
 {
 	return ListType;
+}
+
+void RHICommandList::FlushBarriers()
+{
+	
 }
 
 void RHICommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)

@@ -1,8 +1,9 @@
 #include "StorageNode.h"
 #include "StorageNodeFormats.h"
 
-StorageNode::StorageNode()
-	:DataFormat(StorageFormats::DefaultFormat)
+StorageNode::StorageNode(const std::string& name)
+	:DataFormat(StorageFormats::DefaultFormat),
+	Name(name)
 {}
 
 StorageNode::~StorageNode()

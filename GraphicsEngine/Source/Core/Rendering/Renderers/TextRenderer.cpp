@@ -179,6 +179,7 @@ void TextRenderer::Finish(bool final /*= false*/)
 	if (instance == this && final)
 	{
 		TextCommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(TextCommandList);
+		RHI::MakeSwapChainReady(TextCommandList);
 	}
 	TextCommandList->Execute();
 	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
@@ -210,7 +211,7 @@ void TextRenderer::LoadText()
 	Desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 	PSO = RHI::CreatePipelineStateObject(Desc);
 	//TextCommandList->ResetList();
-	TextCommandList->SetPipelineStateObject(PSO);
+	
 	if (UseFrameBuffer)
 	{
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Screen::GetWindowWidth(), Screen::GetWindowHeight());

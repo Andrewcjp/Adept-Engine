@@ -81,6 +81,7 @@ void RenderGraph::Resize()
 		Node->OnResourceResize();
 		Node = Node->GetNextNode();
 	}
+	Log::LogMessage("RenderGraph Memory usage: " + StringUtils::ByteToMB(TotalResourceSize));
 }
 
 void RenderGraph::ResetForFrame()
@@ -113,7 +114,7 @@ void RenderGraph::BuildGraph()
 	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
-	RenderGraphProcessor::Process(this);
+	Processor.Process(this);
 	for (StorageNode* N : StoreNodes)
 	{
 		N->CreateNode();
@@ -140,11 +141,12 @@ void RenderGraph::ApplyEditorToGraph()
 {
 	GraphName += "(Editor)";
 	OutputToScreenNode* OutputNode = (OutputToScreenNode*)FindFirstOf(OutputToScreenNode::GetNodeName());
-	FrameBufferStorageNode* FinalCompostBuffer = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* FinalCompostBuffer = AddStoreNode(new FrameBufferStorageNode("Editor Output"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	FinalCompostBuffer->SetFrameBufferDesc(Desc);
+	FinalCompostBuffer->SetRetained();
 	OutputNode->GetInput(1)->SetStore(FinalCompostBuffer);
 	//the editor composts to this temp buffer, which is rendered by the UI
 }
@@ -152,7 +154,7 @@ void RenderGraph::ApplyEditorToGraph()
 void RenderGraph::AddVRXSupport()
 {
 	GraphName += "(VRX)";
-	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode("VRX Image"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UINT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale_TileSize;
@@ -200,7 +202,7 @@ void RenderGraph::CreateDefGraphWithRT()
 	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
 
 	//then insert
-	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode("RTX Buffer"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	//Desc.LinkToBackBufferScaleFactor = 2.0f;
@@ -228,14 +230,14 @@ void RenderGraph::CreateDefGraphWithRT()
 void RenderGraph::CreateDefTestgraph()
 {
 	GraphName = "Deferred Renderer";
-	FrameBufferStorageNode* GBufferNode = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* GBufferNode = AddStoreNode(new FrameBufferStorageNode("GBuffer"));
 	ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateGBuffer(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	GBufferNode->SetFrameBufferDesc(Desc);
 
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
-	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode("Output Buffer"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
@@ -252,17 +254,19 @@ void RenderGraph::CreateDefTestgraph()
 #endif
 	Desc.AllowDynamicResize = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
+	MainBuffer->SetRetained();
 
-	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode("SSAO Buffer"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	SSAOBuffer->SetFrameBufferDesc(Desc);
 
-	FrameBufferStorageNode* ShadowMaskBuffer = AddStoreNode(new FrameBufferStorageNode());
+	FrameBufferStorageNode* ShadowMaskBuffer = AddStoreNode(new FrameBufferStorageNode("Shadow Mask"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.SimpleStartingState = EResourceState::RenderTarget;
 	ShadowMaskBuffer->SetFrameBufferDesc(Desc);
 	ShadowMaskNode* MaskNode = new ShadowMaskNode();
 

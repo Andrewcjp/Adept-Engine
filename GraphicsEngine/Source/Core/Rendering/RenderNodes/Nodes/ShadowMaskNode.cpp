@@ -25,9 +25,10 @@ void ShadowMaskNode::OnExecute()
 {
 	List->ResetList();
 	FrameBuffer* OutputBuffer = GetFrameBufferFromInput(0);
-	
+
 	List->StartTimer(EGPUTIMERS::ShadowPreSample);
-	RHIPipeLineStateDesc psodesc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShadowSample>(Context,4),OutputBuffer);
+	SetBeginStates(List);
+	RHIPipeLineStateDesc psodesc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShadowSample>(Context, 4), OutputBuffer);
 	psodesc.InitOLD(false, false, false);
 	List->SetPipelineStateDesc(psodesc);
 	int ShaderData[4] = { 0,1,2,3 };
@@ -35,22 +36,24 @@ void ShadowMaskNode::OnExecute()
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(2);
 	List->SetFrameBufferTexture(GBuffer, "GBuffer_Pos");
 	List->BeginRenderPass(RHIRenderPassDesc(OutputBuffer, ERenderPassLoadOp::Clear));
-	GetShadowDataFromInput(1)->BindPointArray(List, "g_Shadow_texture2");	
-	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(),"lights");
+	GetShadowDataFromInput(1)->BindPointArray(List, "g_Shadow_texture2");
+	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "lights");
 	SceneRenderer::DrawScreenQuad(List);
-	List->EndRenderPass();    
+	List->EndRenderPass();
 	OutputBuffer->SetResourceState(List, EResourceState::Non_PixelShader);
+	SetEndStates(List);
 	List->EndTimer(EGPUTIMERS::ShadowPreSample);
 	List->Execute();
-	GetOutput(0)->SetStore(GetInput(0)->GetStoreTarget());
+	
 }
 
 void ShadowMaskNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::PreSampleShadowData, "ShadowMask");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::PreSampleShadowData, "ShadowMask");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
-	AddInput(EStorageType::Framebuffer, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
+	GetOutput(0)->SetLink(GetInput(0));
 }
 
 void ShadowMaskNode::OnSetupNode()

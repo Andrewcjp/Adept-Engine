@@ -144,8 +144,8 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	D3D12FrameBuffer* OtherB = (D3D12FrameBuffer*)OtherBuffer;
 	D3D12CommandList* CMdList = (D3D12CommandList*)List;
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = OtherB->RenderTarget[0]->GetResource()->GetResource()->GetDesc();
-	OtherB->RenderTarget[0]->GetResource()->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_DEST);
-	RenderTarget[0]->GetResource()->SetResourceState(CMdList->GetCommandList(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+	OtherB->RenderTarget[0]->GetResource()->SetResourceState(CMdList, D3D12_RESOURCE_STATE_COPY_DEST);
+	RenderTarget[0]->GetResource()->SetResourceState(CMdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	const int count = BufferDesc.TextureDepth;
 	for (int i = 0; i < count; i++)
 	{
@@ -157,12 +157,11 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	}
 }
 
-
 void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool Depth)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		GetResource(i)->SetResourceState(D3D12RHI::DXConv(List)->GetCommandList(), state);
+		GetResource(i)->SetResourceState(D3D12RHI::DXConv(List), state,true);
 	}
 	if (Depth && BufferDesc.DepthStencil != nullptr)
 	{
@@ -170,9 +169,10 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 		{
 			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
-		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List)->GetCommandList(), state);
-	}
+		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), state,true);
+	}	
 }
+
 D3D12_RESOURCE_STATES D3D12FrameBuffer::ConvertState(EResourceState::Type State)
 {
 	switch (State)
@@ -412,8 +412,9 @@ void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, i
 	}
 }
 
-void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list, int SubResourceIndex)
+void D3D12FrameBuffer::BindBufferAsRenderTarget(D3D12CommandList * dxList, int SubResourceIndex)
 {
+	ID3D12GraphicsCommandList* list = dxList->GetCommandList();
 	list->RSSetViewports(1, &m_viewport);
 	list->RSSetScissorRects(1, &m_scissorRect);
 
@@ -421,13 +422,14 @@ void D3D12FrameBuffer::BindBufferAsRenderTarget(ID3D12GraphicsCommandList * list
 	{
 		if (GetResource(i) != nullptr)
 		{
-			GetResource(i)->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			GetResource(i)->SetResourceState(dxList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 	}
 	if (BufferDesc.DepthStencil != nullptr)
 	{
-		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(dxList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
+	dxList->FlushBarriers();
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
@@ -459,7 +461,7 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 		{
 			if (RenderTarget[i] != nullptr)
 			{
-				RenderTarget[i]->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		//		RenderTarget[i]->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 			}
 		}
 	}

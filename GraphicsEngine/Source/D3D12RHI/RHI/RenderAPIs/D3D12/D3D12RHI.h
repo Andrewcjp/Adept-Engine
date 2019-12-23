@@ -101,6 +101,9 @@ public:
 
 	RHI_VIRTUAL RHITexture* CreateTexture2() override;
 
+
+	RHI_VIRTUAL void MakeSwapChainReady(RHICommandList* list) override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();

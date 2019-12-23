@@ -32,6 +32,7 @@ void ForwardRenderNode::OnExecute()
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
 	CommandList->ResetList();
 	CommandList->StartTimer(EGPUTIMERS::MainPass);
+	SetBeginStates(CommandList);
 	Scene* MainScene = GetSceneDataFromInput(1);
 	ensure(MainScene);
 	UsePreZPass = (GetInput(0)->GetStoreTarget()->DataFormat == StorageFormats::PreZData);
@@ -68,7 +69,7 @@ void ForwardRenderNode::OnExecute()
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), CommandList, TargetBuffer, nullptr);
 	CommandList->EndTimer(EGPUTIMERS::MainPass);
-	
+	SetEndStates(CommandList);
 	CommandList->Execute();
 	PassNodeThough(0, StorageFormats::LitScene);
 }
@@ -98,7 +99,7 @@ std::string ForwardRenderNode::GetName() const
 
 void ForwardRenderNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Output buffer");
+	AddResourceInput(EStorageType::Framebuffer,EResourceState::RenderTarget, StorageFormats::DefaultFormat, "Output buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit output");
@@ -110,5 +111,5 @@ void ForwardRenderNode::OnNodeSettingChange()
 	{
 		//AddInput(EStorageType::Framebuffer, StorageFormats::PreZData, "Pre-Z data");
 	}
-
+	LinkThough(0);
 }

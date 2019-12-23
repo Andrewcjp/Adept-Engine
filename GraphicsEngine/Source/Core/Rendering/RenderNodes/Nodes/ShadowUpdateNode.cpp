@@ -23,8 +23,10 @@ void ShadowUpdateNode::OnExecute()
 	//ShadowAtlasStorageNode* Node = GetShadowDataFromInput(0);
 	//#Shadows: does this node need atlas
 	ShadowList->ResetList();
+	SetBeginStates(ShadowList);
 	ShadowRenderer::RenderPointShadows(ShadowList);
 	ShadowRenderer::RenderDirectionalShadows(ShadowList);
+	SetEndStates(ShadowList);
 	ShadowList->Execute();
 }
 

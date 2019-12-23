@@ -159,7 +159,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
 	{
-		m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), PostUploadState);
+		m_DataBuffer->SetResourceState(d3dlist, PostUploadState);
 	}
 	RHIViewDesc d = RHIViewDesc::DefaultSRV();
 	d.Dimension = DIMENSION_BUFFER;
@@ -169,7 +169,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
-	m_DataBuffer->SetResourceState(d3dlist->GetCommandList(), D3D12Helpers::ConvertBufferResourceState(State));
+	m_DataBuffer->SetResourceState(d3dlist, D3D12Helpers::ConvertBufferResourceState(State),true);
 }
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)

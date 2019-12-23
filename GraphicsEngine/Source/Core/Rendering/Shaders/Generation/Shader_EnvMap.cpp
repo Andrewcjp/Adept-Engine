@@ -33,11 +33,8 @@ void Shader_EnvMap::Init()
 	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	EnvBRDFBuffer = RHI::CreateFrameBuffer(Device, Desc);
 	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Device);
-	RHIPipeLineStateDesc desc;
-	desc.InitOLD(false, false, false);
-	desc.ShaderInUse = this;
-	desc.RenderTargetDesc = EnvBRDFBuffer->GetPiplineRenderDesc();
-	CmdList->SetPipelineStateDesc(desc);
+
+	
 	ShaderData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Device);
 	ShaderData->CreateConstantBuffer(sizeof(SData) * 6, 6);
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -67,6 +64,11 @@ void Shader_EnvMap::Init()
 void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 {
 	CmdList->ResetList();
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = this;
+	desc.RenderTargetDesc = EnvBRDFBuffer->GetPiplineRenderDesc();
+	CmdList->SetPipelineStateDesc(desc);
 	CmdList->SetTexture(Target, 0);
 	CmdList->BeginRenderPass(RHIRenderPassDesc(CubeBuffer));
 	for (int i = 0; i < 6; i++)
@@ -81,6 +83,12 @@ void Shader_EnvMap::ProcessTexture(BaseTextureRef Target)
 void Shader_EnvMap::ComputeEnvBRDF()
 {
 	CmdList->ResetList();
+	RHIPipeLineStateDesc desc;
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = this;
+	desc.RenderTargetDesc = EnvBRDFBuffer->GetPiplineRenderDesc();
+	CmdList->SetPipelineStateDesc(desc);
+
 	RHIRenderPassDesc D = RHIRenderPassDesc(EnvBRDFBuffer);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	CmdList->BeginRenderPass(D);

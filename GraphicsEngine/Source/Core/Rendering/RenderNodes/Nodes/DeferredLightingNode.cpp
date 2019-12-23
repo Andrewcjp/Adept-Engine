@@ -1,16 +1,16 @@
 #include "DeferredLightingNode.h"
+#include "Core/Assets/ShaderComplier.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/LightCulling/LightCullingEngine.h"
 #include "Rendering/Core/ReflectionEnviroment.h"
+#include "Rendering/Core/Screen.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/RenderNodes/StoreNodes/FrameBufferStorageNode.h"
 #include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
 #include "Rendering/Shaders/Shader_Deferred.h"
+#include "Rendering/Shaders/Shader_Pair.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
-#include "Core/Assets/ShaderComplier.h"
-#include "../StoreNodes/FrameBufferStorageNode.h"
-#include "../../Shaders/Shader_Pair.h"
-#include "../../Core/Screen.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -26,7 +26,8 @@ DeferredLightingNode::~DeferredLightingNode()
 void DeferredLightingNode::OnSetupNode()
 {
 	List = RHI::CreateCommandList(ECommandListType::Graphics, Context);
-	//DeferredShader = new Shader_Deferred(Context);
+	 StencilWriteShader = new Shader_Pair(Context, { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
+		{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(Context->GetCaps().VRSTileSize)) });
 }
 
 void DeferredLightingNode::OnExecute()
@@ -39,15 +40,13 @@ void DeferredLightingNode::OnExecute()
 	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.BufferMode);
 	List->ResetList();
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
+	SetBeginStates(List);
 	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
-		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::PixelShader);
 		//write the depth stencil
 		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 		desc.InitOLD(false, false, false);
-		Shader_Pair* Pair = new Shader_Pair(Context, { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
-			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(Context->GetCaps().VRSTileSize)) });
-		desc.ShaderInUse = Pair;
+		desc.ShaderInUse = StencilWriteShader;
 		desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
 		desc.DepthStencilState.StencilEnable = true;
 		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
@@ -63,7 +62,6 @@ void DeferredLightingNode::OnExecute()
 		List->BeginRenderPass(D);
 		SceneRenderer::DrawScreenQuad(List);
 		List->EndRenderPass();
-		StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::Non_PixelShader);
 	}
 
 
@@ -87,7 +85,7 @@ void DeferredLightingNode::OnExecute()
 	if (UseScreenSpaceReflection)
 	{
 		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(4);
-		ScreenSpaceData->SetResourceState(List, EResourceState::PixelShader);
+	//	ScreenSpaceData->SetResourceState(List, EResourceState::PixelShader);
 		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
 	}
 
@@ -120,23 +118,24 @@ void DeferredLightingNode::OnExecute()
 	}
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
-	GetOutput(0)->SetStore(GetInput(1)->GetStoreTarget());
+
 }
 
 void DeferredLightingNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat, "Main buffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat, "Main buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
 	if (UseScreenSpaceReflection)
 	{
-		AddInput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "SSR Data");
+		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ScreenReflectionData, "SSR Data");
 	}
 	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
-		AddInput(EStorageType::Framebuffer, StorageFormats::ShadingImage, "VRX Image");
+		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ShadingImage, "VRX Image");
 	}
-	AddInput(EStorageType::Framebuffer, StorageFormats::PreSampleShadowData, "ShadowMask");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
+	GetOutput(0)->SetLink(GetInput(1));
 }

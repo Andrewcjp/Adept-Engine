@@ -5,7 +5,7 @@ class FrameBuffer;
 class FrameBufferStorageNode : public StorageNode
 {
 public:
-	FrameBufferStorageNode();
+	FrameBufferStorageNode(const std::string& name = "");
 	~FrameBufferStorageNode();
 	void SetFrameBufferDesc(RHIFrameBufferDesc& desc);
 	const RHIFrameBufferDesc& GetFrameBufferDesc() const;

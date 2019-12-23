@@ -47,7 +47,7 @@ void PathTraceSceneNode::OnExecute()
 
 void PathTraceSceneNode::OnNodeSettingChange()
 {
-	AddInput(EStorageType::Framebuffer, StorageFormats::DefaultFormat);
+	AddResourceInput(EStorageType::Framebuffer,EResourceState::UAV, StorageFormats::DefaultFormat);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 }
 

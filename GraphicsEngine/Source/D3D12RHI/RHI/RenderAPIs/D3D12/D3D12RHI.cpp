@@ -143,6 +143,15 @@ RHITexture* D3D12RHI::CreateTexture2()
 	return new D3D12RHITexture();
 }
 
+void D3D12RHI::MakeSwapChainReady(RHICommandList* list)
+{
+	D3D12CommandList* dlist = DXConv(list);
+	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
+	{
+		m_RenderTargetResources[m_frameIndex]->SetResourceState(dlist, D3D12_RESOURCE_STATE_PRESENT);
+	}
+}
+
 #if RHI_SUPPORTS_RT
 RHIStateObject* D3D12RHI::CreateStateObject(DeviceContext* Device, RHIStateObjectDesc Desc)
 {
@@ -672,14 +681,7 @@ D3D12RHI * D3D12RHI::Get()
 void D3D12RHI::PresentFrame()
 {
 	//todo: remove this
-	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
-	{
-		m_SetupCommandList->Reset(GetPrimaryDevice()->GetCommandAllocator(), nullptr);
-		m_RenderTargetResources[m_frameIndex]->SetResourceState(m_SetupCommandList, D3D12_RESOURCE_STATE_PRESENT);
-
-		m_SetupCommandList->Close();
-		GetPrimaryDevice()->ExecuteCommandList(m_SetupCommandList);
-	}
+	
 
 	//only set up to grab the 0 frame of spawn chain
 	if (RunScreenShot && m_frameIndex == 0)

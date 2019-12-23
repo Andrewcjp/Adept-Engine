@@ -2,6 +2,7 @@
 #include "../RenderNode.h"
 
 class Shader_Deferred;
+class Shader_Pair;
 class DeferredLightingNode : public RenderNode
 {
 public:
@@ -12,14 +13,11 @@ public:
 
 
 	virtual void OnNodeSettingChange() override;
-	/*std::string GetName() const
-	{
-		return "Deferred Lighting";
-	}*/
 	NameNode("Deferred Lighting");
 	bool UseScreenSpaceReflection = false;
 private:
 	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
+	Shader_Pair* StencilWriteShader = nullptr;
 };
 

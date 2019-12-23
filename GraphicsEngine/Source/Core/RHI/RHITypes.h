@@ -27,6 +27,21 @@ enum eTextureDimension
 	DIMENSION_TEXTURECUBEARRAY = 10,
 	DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE = 11,
 };
+
+namespace ECommandListType
+{
+	enum Type
+	{
+		Graphics,
+		Compute,
+		RayTracing,
+		Copy,
+		VideoEncode,
+		VideoDecode,
+		Limit
+	};
+};
+
 struct  EResourceState
 {
 	enum Type
@@ -44,7 +59,9 @@ struct  EResourceState
 		Limit
 	};
 	static std::string ToString(EResourceState::Type state);
+	static bool IsStateValidForList(ECommandListType::Type listtype, EResourceState::Type state);
 };
+
 namespace GPU_RESOURCE_STATES
 {
 	enum Type
@@ -213,6 +230,7 @@ namespace DeviceContextQueue
 		InterCopy,//Used to Transfer Resources From other GPUS Via HOST
 		LIMIT
 	};
+	DeviceContextQueue::Type GetFromCommandListType(ECommandListType::Type listType);
 }
 namespace EBufferResourceState
 {
@@ -224,19 +242,7 @@ namespace EBufferResourceState
 		Limit
 	};
 }
-namespace ECommandListType
-{
-	enum Type
-	{
-		Graphics,
-		Compute,
-		RayTracing,
-		Copy,
-		VideoEncode,
-		VideoDecode,
-		Limit
-	};
-}
+
 
 enum COMPARISON_FUNC
 {
