@@ -134,6 +134,11 @@ bool RHI::SupportsExplictMultiAdaptor()
 	return (GetType() == RenderSystemD3D12) || (GetType() == RenderSystemVulkan);
 }
 
+bool RHI::AllowIHVAcceleration()
+{
+	return true;
+}
+
 bool RHI::SupportsUnlinkedAdaptors()
 {
 	//vulkan only supports GPUs linked in drivers :(

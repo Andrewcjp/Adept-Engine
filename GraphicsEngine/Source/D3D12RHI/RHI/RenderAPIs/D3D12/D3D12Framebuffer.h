@@ -20,18 +20,13 @@ public:
 
 	void CreateFromTextures();
 
-	void							CreateResource(GPUResource ** Resourceptr, DescriptorHeap * Heapptr, bool IsDepthStencil, DXGI_FORMAT Format, eTextureDimension ViewDimension, int OffsetInHeap = 0);
-	void CreateRTDescriptor(D3D12RHITexture * Texture, DescriptorHeap * Heapptr, int OffsetInHeap);
-	void							ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex = 0);
+	void							CreateRTDescriptor(D3D12RHITexture * Texture, DescriptorHeap * Heapptr, int OffsetInHeap);
+
 	// Inherited via FrameBuffer
 	void							BindBufferToTexture(ID3D12GraphicsCommandList * list, int slot, int Resourceindex = 0, DeviceContext* target = nullptr, bool isCompute = false);
 	virtual void					BindBufferAsRenderTarget(D3D12CommandList * list, int SubResourceIndex);
 	void							UnBind(ID3D12GraphicsCommandList * list);
-	virtual void					ClearBuffer(ID3D12GraphicsCommandList * list = nullptr);
-	void							CreateSRVHeap(int Num);
-	void							CreateSRVInHeap(int HeapOffset, DXDescriptor* desc);
-	void							CreateSRVInHeap(int HeapOffset, DXDescriptor* desc, DeviceContext * target);
-	void							CreateDepthSRV(int HeapOffset, DXDescriptor * desc);
+	virtual void					ClearBuffer(D3D12CommandList * list = nullptr);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
@@ -45,14 +40,14 @@ public:
 	GPUResource* GetResource(int index) const;
 	void Release() override;
 	virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List) override;
-	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false) override;
+	virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false, EResourceTransitionMode::Type TransitionMode = EResourceTransitionMode::Direct) override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
 
 	virtual uint64 GetInstanceHash() const override;
 	static	D3D12_RESOURCE_STATES ConvertState(EResourceState::Type State);
 	void PopulateDescriptor(DXDescriptor* desc, int index, const RHIViewDesc& view);
 private:
-	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth);
+	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth, EResourceTransitionMode::Type TransitionMode);
 	D3D12DeviceContext * CurrentDevice = nullptr;
 
 	DescriptorHeap* RTVHeap = nullptr;

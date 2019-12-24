@@ -743,12 +743,13 @@ void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 	list->RSSetScissorRects(1, &m_scissorRect);
 }
 
-void D3D12RHI::SetScreenRenderTarget(ID3D12GraphicsCommandList* list)
+void D3D12RHI::SetScreenRenderTarget(D3D12CommandList* list)
 {
+	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	list->FlushBarriers();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	list->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	list->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
 DeviceContext * D3D12RHI::GetDeviceContext(int index)

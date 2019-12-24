@@ -141,7 +141,7 @@ void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHIComm
 void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list)
 {}
 
-void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/)
+void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/, EResourceTransitionMode::Type TransitionMode /*= EResourceTransitionMode::Direct*/)
 {}
 
 void FrameBuffer::Release()

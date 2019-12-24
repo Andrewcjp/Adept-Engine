@@ -31,7 +31,6 @@ void OutputToScreenNode::OnExecute()
 
 	ScreenWriteList = Context->GetListPool()->GetCMDList();
 	SetBeginStates(ScreenWriteList);
-	//Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 #if WITH_EDITOR
 	RHIRenderPassDesc RP = RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear);
 	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;

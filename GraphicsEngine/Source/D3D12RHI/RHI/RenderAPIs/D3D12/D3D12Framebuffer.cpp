@@ -95,11 +95,11 @@ void D3D12FrameBuffer::BindDepthWithColourPassthrough(RHICommandList* List, Fram
 	list->RSSetScissorRects(1, &m_scissorRect);
 	if (DPassBuffer->GetResource(0))
 	{
-		DPassBuffer->GetResource(0)->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		DPassBuffer->GetResource(0)->SetResourceState(D3D12RHI::DXConv(List), D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 	if (BufferDesc.DepthStencil != nullptr)
 	{
-		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
 	list->OMSetRenderTargets(DPassBuffer->BufferDesc.RenderTargetCount, &DPassBuffer->RTVHeap->GetCPUAddress(0), true, &DSVHeap->GetCPUAddress(0));
 
@@ -146,6 +146,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	D3D12_RESOURCE_DESC secondaryAdapterTexture = OtherB->RenderTarget[0]->GetResource()->GetResource()->GetDesc();
 	OtherB->RenderTarget[0]->GetResource()->SetResourceState(CMdList, D3D12_RESOURCE_STATE_COPY_DEST);
 	RenderTarget[0]->GetResource()->SetResourceState(CMdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	CMdList->FlushBarriers();
 	const int count = BufferDesc.TextureDepth;
 	for (int i = 0; i < count; i++)
 	{
@@ -157,11 +158,11 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 	}
 }
 
-void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool Depth)
+void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool Depth, EResourceTransitionMode::Type TransitionMode)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
-		GetResource(i)->SetResourceState(D3D12RHI::DXConv(List), state,true);
+		GetResource(i)->SetResourceState(D3D12RHI::DXConv(List), state, TransitionMode);
 	}
 	if (Depth && BufferDesc.DepthStencil != nullptr)
 	{
@@ -169,7 +170,7 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 		{
 			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
-		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), state,true);
+		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), state, TransitionMode);
 	}	
 }
 
@@ -216,9 +217,9 @@ void D3D12FrameBuffer::PopulateDescriptor(DXDescriptor * desc, int index, const 
 	}
 }
 
-void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/)
+void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/, EResourceTransitionMode::Type TransitionMode /*= EResourceTransitionMode::Direct*/)
 {
-	SetState(List, D3D12FrameBuffer::ConvertState(State), ChangeDepth);
+	SetState(List, D3D12FrameBuffer::ConvertState(State), ChangeDepth,TransitionMode);
 	CurrentState = State;
 }
 
@@ -399,19 +400,6 @@ void D3D12FrameBuffer::CreateFromTextures()
 D3D12FrameBuffer::~D3D12FrameBuffer()
 {}
 
-void D3D12FrameBuffer::ReadyResourcesForRead(ID3D12GraphicsCommandList * list, int Resourceindex)
-{
-	if (GetResource(0) != nullptr)
-	{
-		GetResource(0)->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-
-	if (BufferDesc.DepthStencil != nullptr)
-	{
-		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-}
-
 void D3D12FrameBuffer::BindBufferAsRenderTarget(D3D12CommandList * dxList, int SubResourceIndex)
 {
 	ID3D12GraphicsCommandList* list = dxList->GetCommandList();
@@ -467,7 +455,7 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 	}
 }
 
-void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
+void D3D12FrameBuffer::ClearBuffer(D3D12CommandList * list)
 {
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
@@ -491,12 +479,12 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
 			{
-				list->ClearDepthStencilView(DSVHeap->GetCPUAddress(i), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
+				list->GetCommandList()->ClearDepthStencilView(DSVHeap->GetCPUAddress(i), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
 			}
 		}
 		else
 		{
-			list->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
+			list->GetCommandList()->ClearDepthStencilView(DSVHeap->GetCPUAddress(0), flags, BufferDesc.DepthClearValue, 0, 0, nullptr);
 		}
 	}
 	if (BufferDesc.RenderTargetCount > 0)
@@ -505,14 +493,14 @@ void D3D12FrameBuffer::ClearBuffer(ID3D12GraphicsCommandList * list)
 		{
 			for (int i = 0; i < BufferDesc.TextureDepth; i++)
 			{
-				list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+				list->GetCommandList()->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
 			}
 		}
 		else
 		{
 			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 			{
-				list->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+				list->GetCommandList()->ClearRenderTargetView(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
 			}
 		}
 	}

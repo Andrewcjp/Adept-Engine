@@ -10,6 +10,7 @@
 #include "ShaderReflection.h"
 #include <atlbase.h>
 #include "RHI/ShaderPreProcessor.h"
+#include "nvapi.h"
 
 
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
@@ -118,16 +119,16 @@ ShaderBlob** D3D12Shader::GetCurrentBlob(EShaderType::Type type)
 {
 	switch (type)
 	{
-		case EShaderType::SHADER_VERTEX:
-			return &mBlolbs.vsBlob;
-		case EShaderType::SHADER_FRAGMENT:
-			return &mBlolbs.fsBlob;
-		case EShaderType::SHADER_GEOMETRY:
-			return &mBlolbs.gsBlob;
-		case EShaderType::SHADER_COMPUTE:
-			return &mBlolbs.csBlob;
-		case EShaderType::SHADER_RT_LIB:
-			return &mBlolbs.RTLibBlob;
+	case EShaderType::SHADER_VERTEX:
+		return &mBlolbs.vsBlob;
+	case EShaderType::SHADER_FRAGMENT:
+		return &mBlolbs.fsBlob;
+	case EShaderType::SHADER_GEOMETRY:
+		return &mBlolbs.gsBlob;
+	case EShaderType::SHADER_COMPUTE:
+		return &mBlolbs.csBlob;
+	case EShaderType::SHADER_RT_LIB:
+		return &mBlolbs.RTLibBlob;
 	}
 	return nullptr;
 }
@@ -152,23 +153,23 @@ std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 {
 	switch (SM)
 	{
-		case D3D_SHADER_MODEL_5_1:
+	case D3D_SHADER_MODEL_5_1:
 #if USE_DIXL
-			return L"_6_0";//dxil does not support 5_1 profiles
+		return L"_6_0";//dxil does not support 5_1 profiles
 #else
-			return L"_5_1";//dxil does not support 5_1 profiles
+		return L"_5_1";//dxil does not support 5_1 profiles
 #endif
-		case D3D_SHADER_MODEL_6_0:
-			return L"_6_0";
-		case D3D_SHADER_MODEL_6_1:
-			return L"_6_1";
-		case D3D_SHADER_MODEL_6_2:
-			return L"_6_2";
+	case D3D_SHADER_MODEL_6_0:
+		return L"_6_0";
+	case D3D_SHADER_MODEL_6_1:
+		return L"_6_1";
+	case D3D_SHADER_MODEL_6_2:
+		return L"_6_2";
 #if WIN10_1809
-		case D3D_SHADER_MODEL_6_3:
-			return L"_6_3";
-		case D3D_SHADER_MODEL_6_4:
-			return L"_6_4";
+	case D3D_SHADER_MODEL_6_3:
+		return L"_6_3";
+	case D3D_SHADER_MODEL_6_4:
+		return L"_6_4";
 #endif
 	}
 	return L"BAD!";
@@ -196,18 +197,18 @@ std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
 #endif
 	switch (t)
 	{
-		case EShaderType::SHADER_COMPUTE:
-			return L"cs" + GetShaderModelString(ClampSm);
-		case EShaderType::SHADER_VERTEX:
-			return L"vs" + GetShaderModelString(ClampSm);
-		case EShaderType::SHADER_FRAGMENT:
-			//Currently there is no PS_6_4 target
-			return L"ps" + GetShaderModelString(ClampSm);
-		case EShaderType::SHADER_GEOMETRY:
-			return L"gs" + GetShaderModelString(ClampSm);
+	case EShaderType::SHADER_COMPUTE:
+		return L"cs" + GetShaderModelString(ClampSm);
+	case EShaderType::SHADER_VERTEX:
+		return L"vs" + GetShaderModelString(ClampSm);
+	case EShaderType::SHADER_FRAGMENT:
+		//Currently there is no PS_6_4 target
+		return L"ps" + GetShaderModelString(ClampSm);
+	case EShaderType::SHADER_GEOMETRY:
+		return L"gs" + GetShaderModelString(ClampSm);
 #if WIN10_1809
-		case EShaderType::SHADER_RT_LIB:
-			return L"lib" + GetShaderModelString(ClampSm);
+	case EShaderType::SHADER_RT_LIB:
+		return L"lib" + GetShaderModelString(ClampSm);
 #endif
 	}
 	return L"";
@@ -227,7 +228,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		const std::string FullShaderName = GetShaderNamestr(shadername, GetShaderInstanceHash(), ShaderType);
 		ShaderSourceFile* ShaderMetaData = nullptr;
 		AssetManager::Get()->LoadShaderMetaFile(FullShaderName, &ShaderMetaData);
-		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute, ShaderMetaData,this);
+		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute, ShaderMetaData, this);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 #if BUILD_SHIPPING
@@ -555,7 +556,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilDepthFailOp;
 	psoDesc.DepthStencilState.FrontFace.StencilFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilFailOp;
 	psoDesc.DepthStencilState.FrontFace.StencilPassOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.FrontFace.StencilPassOp;
-	psoDesc.DepthStencilState.FrontFace.StencilFunc= (D3D12_COMPARISON_FUNC)PSODesc.DepthStencilState.FrontFace.StencilFunc;
+	psoDesc.DepthStencilState.FrontFace.StencilFunc = (D3D12_COMPARISON_FUNC)PSODesc.DepthStencilState.FrontFace.StencilFunc;
 
 	psoDesc.DepthStencilState.BackFace.StencilDepthFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.BackFace.StencilDepthFailOp;
 	psoDesc.DepthStencilState.BackFace.StencilFailOp = (D3D12_STENCIL_OP)PSODesc.DepthStencilState.BackFace.StencilFailOp;
@@ -578,19 +579,36 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	{
 		Stream = CD3DX12_PIPELINE_STATE_STREAM1(psoDesc);
 		D3D12_VIEW_INSTANCE_LOCATION* Loc = nullptr;
-		if (context->GetCaps().SupportsViewInstancing && PSODesc.ViewInstancing.Active)
+		if (PSODesc.ViewInstancing.Active)
 		{
-			if (PSODesc.ViewInstancing.Active)
+			bool FallBack = true;
+			if (PSODesc.ViewInstancing.AllowIHVAcceleraton)
 			{
-				ensure(context->GetCaps().SupportsViewInstancing);
-				Loc = new D3D12_VIEW_INSTANCE_LOCATION[4];
-				for (int i = 0; i < PSODesc.ViewInstancing.Instances; i++)
+				if (context->IsDeviceNVIDIA() && RHI::AllowIHVAcceleration())
 				{
-					Loc[i].RenderTargetArrayIndex = 0;
-					Loc[i].ViewportArrayIndex = 0;
+					if (PSODesc.ViewInstancing.Instances == 2)
+					{
+						//use SMT
+						LogEnsureMsgf(false, "Accleration possible using SMP");
+						//FallBack = false;
+						//NvAPI_D3D12_SetSinglePassStereoMode(nullptr,2,0,0);
+					}
 				}
-				CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, &Loc[0], D3D12_VIEW_INSTANCING_FLAG_NONE);
-				Stream.ViewInstancingDesc = D;
+			}
+			if (context->GetCaps().SupportsViewInstancing && FallBack)
+			{
+				if (PSODesc.ViewInstancing.Active)
+				{
+					ensure(context->GetCaps().SupportsViewInstancing);
+					Loc = new D3D12_VIEW_INSTANCE_LOCATION[4];
+					for (int i = 0; i < PSODesc.ViewInstancing.Instances; i++)
+					{
+						Loc[i].RenderTargetArrayIndex = 0;
+						Loc[i].ViewportArrayIndex = 0;
+					}
+					CD3DX12_VIEW_INSTANCING_DESC D(PSODesc.ViewInstancing.Instances, &Loc[0], D3D12_VIEW_INSTANCING_FLAG_NONE);
+					Stream.ViewInstancingDesc = D;
+				}
 			}
 		}
 		if (context->GetCaps().SupportsDepthBoundsTest && PSODesc.EnableDepthBoundsTest)
@@ -612,7 +630,19 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	{
 		ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&output->PSO)));
 	}
-
+	if (blobs->gsBlob != nullptr && RHI::AllowIHVAcceleration() && context->IsDeviceNVIDIA() && false)
+	{
+		std::vector<const NVAPI_D3D12_PSO_EXTENSION_DESC*> Extentions;
+		NVAPI_D3D12_PSO_GEOMETRY_SHADER_DESC_V5* ext = new NVAPI_D3D12_PSO_GEOMETRY_SHADER_DESC_V5();
+		ext->version = NV_GEOMETRY_SHADER_PSO_EXTENSION_DESC_VER;
+		ext->psoExtension = NV_PSO_EXTENSION::NV_PSO_GEOMETRY_SHADER_EXTENSION;
+		//ext->ConvertToFastGS = true;
+		//ext->ForceFastGS = true;
+		ext->baseVersion = NV_PSO_EXTENSION_DESC_VER;
+		Extentions.push_back(ext);
+		NvAPI_Status r =  NvAPI_D3D12_CreateGraphicsPipelineState(D3D12RHI::DXConv(context)->GetDevice(), &psoDesc, Extentions.size(), Extentions.data(), &output->PSO);
+		check(r == NvAPI_Status::NVAPI_OK);
+	}
 }
 
 D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
@@ -716,7 +746,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -730,7 +760,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
@@ -780,19 +810,19 @@ const std::string D3D12Shader::GetUniqueName(std::vector<ShaderParameter>& Param
 		output += "T";
 		switch (sp.Type)
 		{
-			case ShaderParamType::RootConstant:
-				output += "RC";
-			case ShaderParamType::CBV:
-				output += "CBV";
-				break;
-			case ShaderParamType::SRV:
-				output += "SRV";
-				break;
-			case ShaderParamType::UAV:
-				output += "UAV";
-				break;
-			default:
-				break;
+		case ShaderParamType::RootConstant:
+			output += "RC";
+		case ShaderParamType::CBV:
+			output += "CBV";
+			break;
+		case ShaderParamType::SRV:
+			output += "SRV";
+			break;
+		case ShaderParamType::UAV:
+			output += "UAV";
+			break;
+		default:
+			break;
 		}
 		output += ", ";
 	}
@@ -803,16 +833,16 @@ ShaderBlob * D3D12Shader::ShaderBlobs::GetBlob(EShaderType::Type t)
 {
 	switch (t)
 	{
-		case EShaderType::SHADER_VERTEX:
-			return vsBlob;
-		case EShaderType::SHADER_FRAGMENT:
-			return fsBlob;
-		case EShaderType::SHADER_GEOMETRY:
-			return gsBlob;
-		case EShaderType::SHADER_COMPUTE:
-			return csBlob;
-		case EShaderType::SHADER_RT_LIB:
-			return RTLibBlob;
+	case EShaderType::SHADER_VERTEX:
+		return vsBlob;
+	case EShaderType::SHADER_FRAGMENT:
+		return fsBlob;
+	case EShaderType::SHADER_GEOMETRY:
+		return gsBlob;
+	case EShaderType::SHADER_COMPUTE:
+		return csBlob;
+	case EShaderType::SHADER_RT_LIB:
+		return RTLibBlob;
 	}
 	return nullptr;
 }

@@ -487,6 +487,7 @@ struct ViewInstancingMode
 {
 	bool Active = false;
 	uint32 Instances = 6;
+	bool AllowIHVAcceleraton = true;
 };
 
 struct  RHIPipeLineStateDesc
@@ -961,4 +962,15 @@ public:
 protected:
 	DeviceContext* Context = nullptr;
 	RHICommandSignitureDescription RHIdesc;
+};
+
+struct EResourceTransitionMode
+{
+	enum Type
+	{
+		Direct,
+		Start,
+		End,
+		Limit
+	};
 };

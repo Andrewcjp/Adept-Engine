@@ -64,6 +64,7 @@ void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 
 void D3D12CommandList::BeginRenderPass(const RHIRenderPassDesc& info)
 {
+	FlushBarriers();
 	CommandCount++;
 	ensure(IsOpen());
 	RHICommandList::BeginRenderPass(info);
@@ -420,7 +421,7 @@ void D3D12CommandList::SetVertexBuffer(RHIBuffer * buffer)
 	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
 	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
 	ensure(dbuffer->CheckDevice(Device->GetDeviceIndex()));
-	dbuffer->EnsureResouceInFinalState(GetCommandList());
+	dbuffer->EnsureResouceInFinalState(this);
 	CurrentCommandList->IASetVertexBuffers(0, 1, &dbuffer->m_vertexBufferView);
 	PushPrimitiveTopology();
 	CommandCount++;
@@ -433,7 +434,7 @@ void D3D12CommandList::SetIndexBuffer(RHIBuffer * buffer)
 	ensure(ListType == ECommandListType::Graphics);
 	D3D12Buffer* dbuffer = D3D12RHI::DXConv(buffer);
 	dbuffer = IRHISharedDeviceObject<RHIBuffer>::GetObject<D3D12Buffer>(buffer, Device);
-	dbuffer->EnsureResouceInFinalState(GetCommandList());
+	dbuffer->EnsureResouceInFinalState(this);
 	CurrentCommandList->IASetIndexBuffer(&dbuffer->m_IndexBufferView);
 	CommandCount++;
 }
@@ -597,7 +598,7 @@ void D3D12CommandList::ClearFrameBuffer(FrameBuffer * buffer)
 	ensure(buffer);
 	ensure(!buffer->IsPendingKill());
 	ensure(ListType == ECommandListType::Graphics);
-	D3D12RHI::DXConv(buffer)->ClearBuffer(CurrentCommandList);
+	D3D12RHI::DXConv(buffer)->ClearBuffer(this);
 }
 
 void D3D12CommandList::UAVBarrier(FrameBuffer* target)
@@ -718,7 +719,7 @@ void D3D12CommandList::SetScreenBackBufferAsRT()
 	}
 	ensureMsgf(Device->GetDeviceIndex() == 0, "Only the Primary Device Is allowed to write to the backbuffer");
 	ensure(m_IsOpen);
-	D3D12RHI::Instance->SetScreenRenderTarget(CurrentCommandList);
+	D3D12RHI::Instance->SetScreenRenderTarget(this);
 	D3D12RHI::Instance->RenderToScreen(CurrentCommandList);
 }
 
@@ -741,7 +742,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 	}
 	else
 	{
-		ensure(DBuffer->GetCurrentState() == EResourceState::PixelShader);
+		StateAssert(DBuffer, EResourceState::PixelShader);
 	}	
 	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{

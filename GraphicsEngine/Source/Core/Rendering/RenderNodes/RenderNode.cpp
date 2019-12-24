@@ -374,7 +374,7 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 			}
 			FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
 			//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
-			buffer->SetResourceState(list, TargetState);
+			buffer->SetResourceState(list, TargetState, false, TransitionMode);
 		}
 	}
 	else if (TransitonType == QueueWait)

@@ -1,6 +1,8 @@
 #include "Shader_VRRResolve.h"
 #include "..\..\Core\Screen.h"
 static ConsoleVariable DebugRateVRR("VRR.ShowRate", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable ShowGrid("VRR.ShowGrid", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable LerpBlend("VRR.Blend", 0.4f, ECVarType::ConsoleAndLaunch);
 IMPLEMENT_GLOBAL_SHADER(Shader_VRRResolve);
 Shader_VRRResolve::Shader_VRRResolve(DeviceContext * device) : Shader(device)
 {
@@ -9,7 +11,7 @@ Shader_VRRResolve::Shader_VRRResolve(DeviceContext * device) : Shader(device)
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->SetDebugName("Shader_VRSResolve DataBuffer");
 	DataBuffer->CreateConstantBuffer(sizeof(VRSData), 1);
-	//DebugRateVRR.SetValue(true);
+	DataInst = {};
 }
 
 Shader_VRRResolve::~Shader_VRRResolve()
@@ -17,10 +19,10 @@ Shader_VRRResolve::~Shader_VRRResolve()
 
 void Shader_VRRResolve::BindBuffer(RHICommandList * list)
 {
-	DataInst.Resolution[0] = Screen::GetScaledRes().x;
-	DataInst.Resolution[1] = Screen::GetScaledRes().y;
+	DataInst.Res = Screen::GetScaledRes();
 	DataInst.Debug = DebugRateVRR.GetBoolValue();
-	//	DataInst.ShowGrid = ShowGrid.GetBoolValue();
+	DataInst.LerpBlend = LerpBlend.GetFloatValue();
+	DataInst.ShowGrid = ShowGrid.GetBoolValue();
 	DataBuffer->UpdateConstantBuffer(&DataInst);
 	list->SetConstantBufferView(DataBuffer, 0, "Data");
 }

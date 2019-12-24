@@ -4,8 +4,9 @@ Texture2D<uint> RateImage: register(t0);
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
 cbuffer Data : register(b1)
-{
+{	
 	int2 Resolution;
+	float LerpBlend;
 	bool DebugShow;
 	bool DebugShowLines;
 };
@@ -27,6 +28,21 @@ float4 GetColourForRate(int r)
 	}
 	return float4(1, 1, 1, 0);
 }
+
+float4 SampleCoursePixel(int2 Fullpos)
+{
+	int ShadingRate = RateImage[Fullpos.xy/16];
+	int2 Rate = GetShadingRate(ShadingRate);
+	if (!IsPixelSource(Fullpos.xy, Rate))
+	{
+		const int2 DeltaToMain = Fullpos % Rate.xy;
+		int2 SourcePixel = Fullpos - DeltaToMain;
+		return DstTexture[SourcePixel];
+	}
+	return DstTexture[Fullpos.xy];
+}
+
+#ifndef PS_RESOLVE
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
@@ -38,7 +54,13 @@ void main(uint3 DTid : SV_DispatchThreadID)
 		//find the corse pixel for this pixel
 		const int2 DeltaToMain = DTid.xy % Rate.xy;
 		int2 SourcePixel = DTid.xy - DeltaToMain;
-		DstTexture[DTid.xy] = DstTexture[SourcePixel];	
+			
+		float4 AVg = SampleCoursePixel(DTid.xy + int2(Rate.x,0));
+		AVg += SampleCoursePixel(DTid.xy + int2(0, Rate.y));
+		AVg += SampleCoursePixel(DTid.xy - int2(Rate.x, 0));
+		AVg += SampleCoursePixel(DTid.xy + int2(0, -Rate.y));
+		AVg /= 4;
+		DstTexture[DTid.xy] = lerp(DstTexture[SourcePixel], AVg, LerpBlend);
 		//todo: use other corse pixels to smooth output
 	}
 	if (DebugShow)
@@ -53,6 +75,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 		}
 	}
 }
-
+#endif
 
 

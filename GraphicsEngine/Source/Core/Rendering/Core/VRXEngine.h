@@ -3,6 +3,7 @@
 
 class FrameBuffer;
 class RHICommandList;
+class Shader_Pair;
 //this handles everything relating to software VRS and VRR
 class VRXEngine
 {
@@ -10,6 +11,7 @@ public:
 	VRXEngine();
 	~VRXEngine();
 	static VRXEngine* Get();
+	static void ResolveVRRFramebuffer_PS(RHICommandList * list, FrameBuffer * Target, RHITexture * ShadingImage);
 	//resolve the Framebuffer to a single image.
 	static void ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage);
 	//resolve the Framebuffer to a single image.
@@ -23,6 +25,6 @@ public:
 	static void SetupVRSShader(Shader* S);
 	static void AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex = 0);
 private:
-
+	Shader_Pair* ResolvePS = nullptr;
 };
 

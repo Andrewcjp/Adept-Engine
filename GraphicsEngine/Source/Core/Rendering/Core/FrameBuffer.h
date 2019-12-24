@@ -43,7 +43,7 @@ public:
 
 	//state changers
 	//For render target -> read the ChangeDepth flag is ignored 
-	RHI_API virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false);
+	RHI_API virtual void SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth = false, EResourceTransitionMode::Type TransitionMode = EResourceTransitionMode::Direct);
 	void MakeReadyForComputeUse(RHICommandList* List, bool Depth = false);
 	void MakeReadyForCopy(RHICommandList * list, bool changeDepth = false);
 	void MakeReadyForPixel(RHICommandList* List, bool Depth = false);

@@ -16,7 +16,7 @@ public:
 	virtual void BindBufferReadOnly(RHICommandList* list, int RSSlot)override;
 	virtual void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) override;
 	bool CheckDevice(int index);
-	void EnsureResouceInFinalState(ID3D12GraphicsCommandList* list);
+	void EnsureResouceInFinalState(D3D12CommandList* list);
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 	void InitCBV(int StructSize, int Elementcount);

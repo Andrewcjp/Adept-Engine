@@ -28,6 +28,7 @@ struct ResourceTransition
 		Limit
 	};
 	ResourceTransition::Type TransitonType = Limit;
+	EResourceTransitionMode::Type TransitionMode = EResourceTransitionMode::Direct;
 	NodeLink* Target = nullptr;
 	StorageNode* StoreNode = nullptr;
 	EResourceState::Type TargetState = EResourceState::Undefined;
@@ -35,6 +36,7 @@ struct ResourceTransition
 
 	//queue wait
 	DeviceContextQueue::Type SignalingQueue = DeviceContextQueue::LIMIT;
+
 };
 
 class RenderNode

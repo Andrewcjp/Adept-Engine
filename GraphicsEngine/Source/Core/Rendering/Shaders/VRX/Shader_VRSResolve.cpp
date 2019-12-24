@@ -3,7 +3,7 @@
 #include "..\..\Core\VRXEngine.h"
 
 static ConsoleVariable DebugRate("VRS.ShowRate", 0, ECVarType::ConsoleAndLaunch);
-static ConsoleVariable ShowGrid("VRS.ShowGrid", 1, ECVarType::ConsoleAndLaunch);
+//static ConsoleVariable ShowGrid("VRS.ShowGrid", 1, ECVarType::ConsoleAndLaunch);
 IMPLEMENT_GLOBAL_SHADER(Shader_VRSResolve);
 Shader_VRSResolve::Shader_VRSResolve(DeviceContext * device) :Shader(device)
 	, DataInst()

@@ -274,7 +274,7 @@ void D3D12DeviceContext::CheckFeatures()
 	Caps_Data.SupportsDepthBoundsTest = FeatureData2.DepthBoundsTestSupported;
 	Caps_Data.SupportExecuteIndirect = true;//all D3D12 GPUs support draw indirect etc.
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
-	NVAPIManager::CheckSupport(m_Device);
+	CheckNVAPISupport();
 
 }
 
@@ -997,4 +997,16 @@ void D3D12GPUSyncEvent::Signal()
 void D3D12GPUSyncEvent::Wait()
 {
 	Point[Device->GetCpuFrameIndex()].Wait(WaitingQueue);
+}
+
+void D3D12DeviceContext::CheckNVAPISupport()
+{
+	NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS Par = {};
+	Par.version = NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS_VER1;
+	NvAPI_Status ret = NVAPI_OK;
+	ret = NvAPI_D3D12_QuerySinglePassStereoSupport(GetDevice(), &Par);
+	if (ret == NvAPI_Status::NVAPI_OK && Par.bSinglePassStereoSupported)
+	{
+		LogDeviceData("Supports single pass stereo");
+	}
 }

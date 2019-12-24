@@ -169,7 +169,7 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
-	m_DataBuffer->SetResourceState(d3dlist, D3D12Helpers::ConvertBufferResourceState(State),true);
+	m_DataBuffer->SetResourceState(d3dlist, D3D12Helpers::ConvertBufferResourceState(State));
 }
 
 void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
@@ -211,7 +211,7 @@ bool D3D12Buffer::CheckDevice(int index)
 	return false;
 }
 
-void D3D12Buffer::EnsureResouceInFinalState(ID3D12GraphicsCommandList * list)
+void D3D12Buffer::EnsureResouceInFinalState(D3D12CommandList * list)
 {
 	m_DataBuffer->SetResourceState(list, PostUploadState);
 }

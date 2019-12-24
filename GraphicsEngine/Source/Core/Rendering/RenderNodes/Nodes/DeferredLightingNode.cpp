@@ -11,6 +11,7 @@
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "Rendering/Shaders/Shader_Pair.h"
 #include "Rendering/Shaders/Shader_Skybox.h"
+#include "RHI/RHITimeManager.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -39,10 +40,11 @@ void DeferredLightingNode::OnExecute()
 	ensure(MainScene);
 	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.BufferMode);
 	List->ResetList();
-	List->StartTimer(EGPUTIMERS::DeferredLighting);
+	
 	SetBeginStates(List);
 	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
+		DECALRE_SCOPEDGPUCOUNTER(List, "VRR Stencil Write");
 		//write the depth stencil
 		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 		desc.InitOLD(false, false, false);
@@ -63,7 +65,7 @@ void DeferredLightingNode::OnExecute()
 		SceneRenderer::DrawScreenQuad(List);
 		List->EndRenderPass();
 	}
-
+	List->StartTimer(EGPUTIMERS::DeferredLighting);
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
@@ -99,11 +101,6 @@ void DeferredLightingNode::OnExecute()
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}
-
-	if (VRXImage != nullptr && VRXImage->IsValid())
-	{
-		//List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
-	}
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
 #if !TEST_VRR
@@ -111,11 +108,12 @@ void DeferredLightingNode::OnExecute()
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
 #endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
-	SetEndStates(List);
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		//StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->SetResourceState(List, EResourceState::UAV);
+		/*List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
+		List->ResolveVRXFramebuffer(MainBuffer);*/
 	}
+	SetEndStates(List);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 

@@ -153,6 +153,7 @@ public:
 	virtual void OnFrameStart() override;
 	bool IsPartOfNodeGroup();
 	int GetNodeCount();
+	void CheckNVAPISupport();
 	void CreateNodeDevice(ID3D12Device * dev, int nodemask, int index);
 	DXMemoryManager* GetMemoryManager();
 	DeviceMemoryData GetMemoryData();

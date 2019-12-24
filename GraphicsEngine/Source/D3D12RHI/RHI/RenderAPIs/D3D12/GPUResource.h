@@ -20,8 +20,8 @@ public:
 	bool IsResident();
 	EResourcePageState::Type GetState();
 	bool IsValidStateForList(D3D12CommandList * List);
-	void SetResourceState(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion = false);
-	void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion = false);
+	void SetResourceState(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode = EResourceTransitionMode::Direct);
+	//void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion = false);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
 	void Release() override;

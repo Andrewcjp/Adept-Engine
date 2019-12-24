@@ -109,13 +109,14 @@ public:
 	static HMD* GetHMD();
 	static HMDManager* GetHMDManager();
 	//is everything valid to render for vr?
-	static bool IsRenderingVR();
+	RHI_API static bool IsRenderingVR();
 	//checks
-	static bool UseAdditionalGPUs();
+	RHI_API static bool UseAdditionalGPUs();
 	static bool IsD3D12();
 	static bool IsVulkan();
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
+	RHI_API static bool AllowIHVAcceleration();
 	RHI_API static ERenderSystemType GetType();
 	static class RHIClass* GetRHIClass();
 	RHI_API static void WaitForGPU();
@@ -137,6 +138,7 @@ public:
 	static GPUPerformanceTestManager* GetTestManager();
 	static void RunGPUTests();
 	static void MakeSwapChainReady(RHICommandList* list);
+	
 private:
 	static void ValidateDevice(DeviceContext*& con);
 	static void ResizeFrameBuffer(FrameBuffer * target);

@@ -187,7 +187,7 @@ void RenderGraph::AddVRXSupport()
 	if (shadowmask != nullptr)
 	{
 		RateNode->GetInput(2)->SetLink(shadowmask->GetOutput(0));
-	}
+	}	
 }
 
 void RenderGraph::CreateDefGraphWithRT()

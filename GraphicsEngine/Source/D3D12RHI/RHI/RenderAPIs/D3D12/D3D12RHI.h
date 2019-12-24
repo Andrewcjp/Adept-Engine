@@ -44,7 +44,7 @@ class D3D12RHI : public RHIClass
 public:
 	D3D12RHI();
 	virtual ~D3D12RHI();
-	void SetScreenRenderTarget(ID3D12GraphicsCommandList * list);
+	void SetScreenRenderTarget(D3D12CommandList * list);
 	void RenderToScreen(ID3D12GraphicsCommandList * list);
 	void ClearRenderTarget(ID3D12GraphicsCommandList * MainList);
 	static D3D12RHI* Instance;
@@ -194,5 +194,5 @@ static inline void ThrowIfFailed(HRESULT hr)
 		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
-
+#define StateAssert(GPUR,state) if(GPUR->GetCurrentState() != state){checkMsgf(false," Resource state incorrect"); };
 

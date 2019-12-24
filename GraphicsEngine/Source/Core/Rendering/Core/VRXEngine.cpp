@@ -4,6 +4,8 @@
 #include "..\Shaders\VRX\Shader_VRRResolve.h"
 #include "..\Shaders\VRX\Shader_VRSResolve.h"
 #include "RHI\RHITimeManager.h"
+#include "..\Shaders\Shader_Pair.h"
+#include "SceneRenderer.h"
 
 
 VRXEngine::VRXEngine()
@@ -18,7 +20,27 @@ VRXEngine * VRXEngine::Get()
 	return nullptr;
 }
 
-void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,RHITexture* ShadingImage)
+void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
+{
+	if (Get()->ResolvePS == nullptr)
+	{
+		Get()->ResolvePS = new Shader_Pair(list->GetDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+	}
+	ensure(list->IsComputeList());
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->ResolvePS);
+	Desc.DepthStencilState.DepthEnable = false;
+	list->SetPipelineStateDesc(Desc);
+	if (ShadingImage != nullptr)
+	{
+		list->SetTexture2(ShadingImage, "RateImage");
+	}
+	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+	list->BeginRenderPass(RHIRenderPassDesc(Target));
+	SceneRenderer::DrawScreenQuad(list);
+	list->EndRenderPass();
+}
+
+void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
 	if (!RenderSettings::GetVRXSettings().EnableVRR)
 	{
@@ -29,6 +51,11 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		return;
 	}
 	DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve");
+	if (list->IsGraphicsList())
+	{
+		ResolveVRRFramebuffer_PS(list, Target, ShadingImage);
+		return;
+	}
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 	list->SetPipelineStateDesc(Desc);

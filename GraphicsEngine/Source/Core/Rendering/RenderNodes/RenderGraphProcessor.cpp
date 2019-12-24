@@ -15,8 +15,8 @@ RenderGraphProcessor::~RenderGraphProcessor()
 
 void RenderGraphProcessor::Process(RenderGraph * graph)
 {
-	BuildTimeLine(graph);
-	BuildTransitions(graph);
+	BuildTimeLine(graph);	
+	BuildTransitionsSplit(graph);
 	BuildScheduling(graph);
 	BuildAliasing(graph);
 }
@@ -133,6 +133,67 @@ void RenderGraphProcessor::BuildScheduling(RenderGraph * graph)
 	Log::LogMessage("Scheduling syncs count: " + std::to_string(count));
 }
 
+void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
+{
+	const bool LogTranstions = true;
+	int count = 0;
+	for (int line = 0; line < TimeLines.size(); line++)
+	{
+		ResourceTimeLine* timeline = TimeLines[line];
+		for (int i = 0; i < timeline->Frames.size(); i++)
+		{
+			ResourceTimelineFrame* frame = timeline->Frames[i];
+			if (i == 0)
+			{
+				StorageNode* store = timeline->Resource;
+				if (store == nullptr)
+				{
+					store = frame->TargetLink->GetStoreTarget();
+				}
+				FrameBufferStorageNode* FB = StorageNode::NodeCast<FrameBufferStorageNode>(store);
+				if (FB != nullptr)
+				{
+					FB->InitalResourceState = frame->State;
+				}
+				continue;
+			}
+			//todo: handle compute list transitions 
+			ResourceTransition T;
+			T.TransitonType = ResourceTransition::StateChange;
+			T.TargetState = frame->State;
+			T.Target = frame->TargetLink;
+			RenderNode* Targetnode = timeline->Frames[i - 1]->Node;
+			bool CanNodeTransition = EResourceState::IsStateValidForList(Targetnode->GetNodeQueueType(), frame->State);
+			if (!CanNodeTransition)
+			{
+				ensure(EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), frame->State));
+				frame->Node->AddBeginTransition(T);
+				if (LogTranstions)
+				{
+					std::string data = " Node " + frame->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
+						+ EResourceState::ToString(frame->State);
+					Log::LogMessage(data);
+				}
+			}
+			else
+			{ 
+				T.TransitionMode = EResourceTransitionMode::Start;
+				Targetnode->AddEndTransition(T);
+				T.TransitionMode = EResourceTransitionMode::End;
+				frame->Node->AddBeginTransition(T);
+				if (LogTranstions)
+				{
+					std::string data = " Node " + Targetnode->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
+						+ EResourceState::ToString(frame->State);
+					Log::LogMessage(data);
+				}
+			}
+			count++;
+		}
+	}
+	Log::LogMessage("Resource Transitions count: " + std::to_string(count));
+}
+
 void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 {
 	const bool LogTranstions = true;
@@ -170,7 +231,7 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 				frame->Node->AddBeginTransition(T);
 				if (LogTranstions)
 				{
-					std::string data = " Node " + frame->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: " 
+					std::string data = " Node " + frame->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
 						+ EResourceState::ToString(frame->State);
 					Log::LogMessage(data);
 				}
@@ -180,7 +241,7 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 				Targetnode->AddEndTransition(T);
 				if (LogTranstions)
 				{
-					std::string data = " Node " + Targetnode->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: " 
+					std::string data = " Node " + Targetnode->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
 						+ EResourceState::ToString(frame->State);
 					Log::LogMessage(data);
 				}
@@ -190,7 +251,6 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 	}
 	Log::LogMessage("Resource Transitions count: " + std::to_string(count));
 }
-
 ResourceTimeLine * RenderGraphProcessor::GetOrCreateTimeLine(StorageNode * node)
 {
 	for (int i = 0; i < TimeLines.size(); i++)

@@ -27,6 +27,7 @@ private:
 	void BuildScheduling(RenderGraph* graph);
 	void BuildTransitions(RenderGraph * graph);
 	std::vector<ResourceTimeLine*> TimeLines;
+	void BuildTransitionsSplit(RenderGraph * graph);
 	ResourceTimeLine* GetOrCreateTimeLine(StorageNode* node);
 };
 
