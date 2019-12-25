@@ -46,7 +46,6 @@ void D3D12HighLevelAccelerationStructure::Build(RHICommandList* list)
 	topLevelBuildDesc.Inputs.NumDescs = GetValidEntites();
 	AllocateSpace(buildFlags, GetValidEntites());
 	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetResource()->GetGPUVirtualAddress();
-
 	D3D12CommandList* DXList = D3D12RHI::DXConv(list);
 	DXList->GetCMDList4()->BuildRaytracingAccelerationStructure(&topLevelBuildDesc, 0, nullptr);
 

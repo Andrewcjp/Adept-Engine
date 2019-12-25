@@ -166,11 +166,13 @@ public:
 
 	RHI_API void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
 	RHI_API void SetVRRShadingRate(int RateIndex);
-	RHI_API void SetVRXShadingRateImage(RHITexture* Target);
+	void PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer * VRRTarget);
+	RHI_API void SetVRXShadingRateImage(RHITexture* RateImage);
 	RHI_API RHIPipeLineStateObject* GetCurrnetPSO();
 	RHI_API ECommandListType::Type GetListType() const;
 	//forces any queued barriers to be executed
 	RHI_API RHI_VIRTUAL void FlushBarriers();
+	RHITexture* GetShadingRateImage() const { return ShadingRateImage; }
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);

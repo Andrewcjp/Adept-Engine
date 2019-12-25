@@ -72,6 +72,11 @@ RHIPipeRenderTargetDesc RHIFrameBufferDesc::GetRTDesc()
 	return d;
 }
 
+bool RHIFrameBufferDesc::HasStencil() const
+{
+	return DepthFormat == FORMAT_D24_UNORM_S8_UINT || DepthFormat == FORMAT_D32_FLOAT_S8X24_UINT;
+}
+
 IRHIResourse::~IRHIResourse()
 {
 	//	DebugEnsure(IsReleased);

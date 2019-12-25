@@ -34,21 +34,14 @@ D3D12DeviceContext::D3D12DeviceContext()
 D3D12DeviceContext::~D3D12DeviceContext()
 {
 	DestoryDevice();
+	MemoryUtils::DeleteVector(Allocators);
 	SafeDelete(MemoryManager);
 	SafeRelease(m_MainCommandQueue);
-	for (int i = 0; i < RHI::CPUFrameCount; i++)
-	{
-		SafeRelease(m_GFXcommandAllocator[i]);
-		SafeRelease(m_SharedCopyCommandAllocator[i]);
-		SafeRelease(m_CopyCommandAllocator[i]);
-		SafeRelease(m_ComputeCommandAllocator[i]);
-	}
 	SafeDelete(TimeManager);
 	SafeRHIRelease(GPUCopyList);
 	SafeRHIRelease(InterGPUCopyList);
 	SafeDelete(TimeStampHeap);
 	SafeDelete(CopyTimeStampHeap);
-	SafeRelease(m_IntraCopyList);
 	SafeRelease(m_SharedCopyCommandQueue);
 	SafeRelease(m_ComputeCommandQueue);
 	SafeRelease(m_CopyCommandQueue);
@@ -59,7 +52,6 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
 	}*/
-
 }
 
 bool D3D12DeviceContext::DetectDriverDXR()
@@ -293,7 +285,6 @@ void D3D12DeviceContext::InitDevice(int index)
 	DeviceIndex = index;
 	//#SLI Mask needs to be set correctly to handle mixed SLI 
 	CheckFeatures();
-
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
@@ -304,24 +295,11 @@ void D3D12DeviceContext::InitDevice(int index)
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.NodeMask = GetNodeMask();
+
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_MainCommandQueue)));
 	DEVICE_NAME_OBJECT(m_MainCommandQueue);
-	for (int i = 0; i < RHI::CPUFrameCount; i++)
-	{
-		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_GFXcommandAllocator[i])));
-		DEVICE_NAME_OBJECT(m_GFXcommandAllocator[i]);
-
-		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&m_ComputeCommandAllocator[i])));
-		DEVICE_NAME_OBJECT(m_ComputeCommandAllocator[i]);
-
-		ThrowIfFailed(m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_CopyCommandAllocator[i])));
-		m_CopyCommandAllocator[i]->Reset();
-		DEVICE_NAME_OBJECT(m_CopyCommandAllocator[i]);
-
-	}
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
-
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
@@ -330,13 +308,6 @@ void D3D12DeviceContext::InitDevice(int index)
 	DEVICE_NAME_OBJECT(m_SharedCopyCommandQueue);
 	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
 	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
-
-	for (int i = 0; i < RHI::CPUFrameCount; i++)
-	{
-		ThrowIfFailed(m_Device->CreateCommandAllocator(queueDesc.Type, IID_PPV_ARGS(&m_SharedCopyCommandAllocator[i])));
-	}
-	ThrowIfFailed(m_Device->CreateCommandList(0, queueDesc.Type, m_SharedCopyCommandAllocator[0], nullptr, IID_PPV_ARGS(&m_IntraCopyList)));
-	m_IntraCopyList->Close();
 
 	GraphicsQueueSync.Init(GetDevice());
 	CopyQueueSync.Init(GetDevice());
@@ -488,40 +459,17 @@ ID3D12Device2* D3D12DeviceContext::GetDevice2()
 {
 	return m_Device2;
 }
-#if WIN10_1809
 
+#if WIN10_1809
 ID3D12Device5 * D3D12DeviceContext::GetDevice5()
 {
 	return m_Device5;
 }
 #endif
-ID3D12CommandAllocator* D3D12DeviceContext::GetCommandAllocator(ECommandListType::Type ListType /*= ECommandListType::Graphics*/)
-{
-	switch (ListType)
-	{
-	case ECommandListType::Graphics:
-		return m_GFXcommandAllocator[CurrentFrameIndex];
-	case ECommandListType::Compute:
-	case ECommandListType::RayTracing:
-		return m_ComputeCommandAllocator[CurrentFrameIndex];
-	case ECommandListType::Copy:
-		return m_CopyCommandAllocator[CurrentFrameIndex];
-	case ECommandListType::VideoEncode:
-	case ECommandListType::VideoDecode:
-	case ECommandListType::Limit:
-		return nullptr;
-	};
-	return nullptr;
-}
-
-ID3D12CommandAllocator * D3D12DeviceContext::GetSharedCommandAllocator()
-{
-	return m_SharedCopyCommandAllocator[CurrentFrameIndex];
-}
 
 ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
 {
-	return m_MainCommandQueue;
+	return GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
 }
 
 void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
@@ -544,22 +492,19 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	GetHeapManager()->ClearMainHeap();
 	DescriptorCacheManager->OnHeapClear();
 	//DescriptorCacheManager->Invalidate();
+	IncrementDeviceFrame();
 }
 
 void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	DeviceContext::ResetDeviceAtEndOfFrame();
 	HeapManager->EndOfFrame();
-	GetCommandAllocator()->Reset();
-	GetCommandAllocator(ECommandListType::Compute)->Reset();
-	GetCommandAllocator(ECommandListType::Copy)->Reset();
-	GetSharedCommandAllocator()->Reset();
 	ResetCopyEngine();
-	//compute work could run past the end of a frame?
 	if (RHI::GetFrameCount() == 1 || RHI::GetFrameCount() == 100)
 	{
 		GetMemoryManager()->LogMemoryReport();
 	}
+	//#dxmm: Trigger this post load
 	if (RHI::GetFrameCount() == 10)
 	{
 		GetMemoryManager()->Compact();
@@ -596,6 +541,9 @@ RHIClass::GPUMemoryData D3D12DeviceContext::GetMemoryReport()
 void D3D12DeviceContext::DestoryDevice()
 {
 	DeviceContext::DestoryDevice();
+	CopyEngineHasWork = true;
+	UpdateCopyEngine();
+	CPUWaitForAll();
 	RHI::FlushDeferredDeleteQueue();
 }
 
@@ -634,16 +582,6 @@ void D3D12DeviceContext::ReportData()
 ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
 {
 	return D3D12RHI::DXConv(GPUCopyList)->GetCommandList();
-}
-
-ID3D12GraphicsCommandList * D3D12DeviceContext::GetSharedCopyList()
-{
-	return m_IntraCopyList;
-}
-
-void D3D12DeviceContext::ResetSharingCopyList()
-{
-	ThrowIfFailed(m_IntraCopyList->Reset(GetSharedCommandAllocator(), nullptr));
 }
 
 void D3D12DeviceContext::NotifyWorkForCopyEngine()

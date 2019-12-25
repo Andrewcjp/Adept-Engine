@@ -15,18 +15,18 @@ RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* conte
 	std::string CopyListletter = "";
 	switch (ListType)
 	{
-		case ECommandListType::Graphics:
-			CopyListletter = "G";
-			break;
-		case ECommandListType::Compute:
-			CopyListletter = "C";
-			break;
-		case ECommandListType::Copy:
-			CopyListletter = "CPY";
-			break;
-		case ECommandListType::RayTracing:
-			CopyListletter = "RT";
-			break;
+	case ECommandListType::Graphics:
+		CopyListletter = "G";
+		break;
+	case ECommandListType::Compute:
+		CopyListletter = "C";
+		break;
+	case ECommandListType::Copy:
+		CopyListletter = "CPY";
+		break;
+	case ECommandListType::RayTracing:
+		CopyListletter = "RT";
+		break;
 	}
 	std::string data = "(CMDLIST-" + CopyListletter + " DEV:" + std::to_string(context->GetDeviceIndex()) + ")";
 	ObjectSufix = StringUtils::CopyStringToCharArray(data);
@@ -190,7 +190,7 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	//Native VRS does not require resolve
 	if (Target->GetDescription().VarRateSettings.BufferMode == FrameBufferVariableRateSettings::VRR)
 	{
-		VRXEngine::ResolveVRRFramebuffer(this, Target, ShadingRateImage);
+		VRXEngine::ResolveVRRFramebuffer(this, Target, GetShadingRateImage());
 	}
 	else
 	{
@@ -217,22 +217,39 @@ void RHICommandList::SetVRRShadingRate(int RateIndex)
 {
 	VRXEngine::Get()->SetVRRShadingRate(this, RateIndex);
 }
-
-void RHICommandList::SetVRXShadingRateImage(RHITexture * Target)
+void RHICommandList::PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer* VRRTarget)
 {
-	ShadingRateImage = Target;
+	ShadingRateImage = RateImage;
 	if (!IsGraphicsList())
 	{
 		return;
 	}
-	if (Device->GetCaps().VRSSupport == EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
+	if (Device->GetCaps().VRSSupport >= EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
 	{
-		SetVRSShadingRateImageNative(Target);
+		//VRS overrides VRR
+		return;
+	}
+	if (VRRTarget != nullptr)
+	{
+		VRXEngine::WriteVRRStencil(this, VRRTarget);
+	}
+}
+
+void RHICommandList::SetVRXShadingRateImage(RHITexture * RateImage)
+{
+	ShadingRateImage = RateImage;
+	if (!IsGraphicsList())
+	{
+		return;
+	}
+	if (Device->GetCaps().VRSSupport >= EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
+	{
+		SetVRSShadingRateImageNative(RateImage);
 	}
 	else
 	{
-		VRXEngine::Get()->SetVRXShadingRateImage(this, Target);
-	}
+		VRXEngine::Get()->SetVRXShadingRateImage(this, RateImage);
+	}	
 }
 
 RHIPipeLineStateObject * RHICommandList::GetCurrnetPSO()
@@ -247,7 +264,7 @@ ECommandListType::Type RHICommandList::GetListType() const
 
 void RHICommandList::FlushBarriers()
 {
-	
+
 }
 
 void RHICommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
@@ -270,19 +287,19 @@ RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
 	CurrentBufferType = type;
 	switch (CurrentBufferType)
 	{
-		case ERHIBufferType::Constant:
-			ObjectSufix = "(Constant Buffer)";
-			break;
-		case ERHIBufferType::Vertex:
-			ObjectSufix = "(VTX Buffer)";
-			break;
-		case ERHIBufferType::Index:
-			ObjectSufix = "(IDX Buffer)";
-			break;
-		case ERHIBufferType::GPU:
-			ObjectSufix = "(GPU Buffer)";
-		default:
-			break;
+	case ERHIBufferType::Constant:
+		ObjectSufix = "(Constant Buffer)";
+		break;
+	case ERHIBufferType::Vertex:
+		ObjectSufix = "(VTX Buffer)";
+		break;
+	case ERHIBufferType::Index:
+		ObjectSufix = "(IDX Buffer)";
+		break;
+	case ERHIBufferType::GPU:
+		ObjectSufix = "(GPU Buffer)";
+	default:
+		break;
 	}
 }
 

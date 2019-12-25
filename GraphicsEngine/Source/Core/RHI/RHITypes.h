@@ -664,6 +664,7 @@ public:
 
 	RHITexture* DepthStencil = nullptr;
 	RHITexture* RenderTargets[MRT_MAX] = {};
+	bool HasStencil()const;
 };
 
 class  IRHIResourse : public IRefCount
@@ -973,4 +974,17 @@ struct EResourceTransitionMode
 		End,
 		Limit
 	};
+};
+
+
+struct EShadingImageSetMode
+{
+	enum Type
+	{
+		SetOnly,
+		SetForResolve,
+		SetForRender,
+		Limit
+	};
+
 };

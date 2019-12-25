@@ -24,7 +24,10 @@ public:
 	static void AddVRRToRS(std::vector<ShaderParameter>& S, int lastindex = 0);
 	static void SetupVRSShader(Shader* S);
 	static void AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex = 0);
+	static void WriteVRRStencil(RHICommandList* List,FrameBuffer * MainBuffer);
 private:
 	Shader_Pair* ResolvePS = nullptr;
+	Shader_Pair* StencilWriteShader = nullptr;
+	static VRXEngine* Instance;
 };
 

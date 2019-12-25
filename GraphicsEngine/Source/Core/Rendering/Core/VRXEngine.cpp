@@ -6,10 +6,15 @@
 #include "RHI\RHITimeManager.h"
 #include "..\Shaders\Shader_Pair.h"
 #include "SceneRenderer.h"
-
+#include "Screen.h"
+VRXEngine* VRXEngine::Instance = nullptr;
 
 VRXEngine::VRXEngine()
-{}
+{
+	StencilWriteShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
+		{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
+	ResolvePS = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+}
 
 
 VRXEngine::~VRXEngine()
@@ -17,15 +22,15 @@ VRXEngine::~VRXEngine()
 
 VRXEngine * VRXEngine::Get()
 {
-	return nullptr;
+	if (Instance == nullptr)
+	{
+		Instance = new VRXEngine();
+	}
+	return Instance;
 }
 
 void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
-	if (Get()->ResolvePS == nullptr)
-	{
-		Get()->ResolvePS = new Shader_Pair(list->GetDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
-	}
 	ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->ResolvePS);
 	Desc.DepthStencilState.DepthEnable = false;
@@ -105,7 +110,7 @@ void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)
 void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Target)
 {
 	//#VRX: todo
-
+	//List->SetTexture2(List->GetShadingRateImage(), "VRSTexture");
 }
 
 void VRXEngine::SetupVRRShader(Shader* S, DeviceContext* device)
@@ -146,3 +151,33 @@ void VRXEngine::AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex /*=
 	Sp.Name = "VRSImage";
 	S.push_back(Sp);
 }
+
+
+void VRXEngine::WriteVRRStencil(RHICommandList* List, FrameBuffer* MainBuffer)
+{
+	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR && MainBuffer != nullptr && MainBuffer->GetDescription().HasStencil())
+	{
+		DECALRE_SCOPEDGPUCOUNTER(List, "VRR Stencil Write");
+		//write the depth stencil
+		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
+		desc.InitOLD(false, false, false);
+		desc.ShaderInUse = Get()->StencilWriteShader;
+		desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
+		desc.DepthStencilState.StencilEnable = true;
+		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+		desc.DepthStencilState.FrontFace.StencilFunc = COMPARISON_FUNC_EQUAL;
+		//looks like discard acts as a stencil pass
+		desc.DepthStencilState.FrontFace.StencilPassOp = STENCIL_OP_INCR;
+		desc.DepthStencilState.BackFace.StencilPassOp = STENCIL_OP_INCR;
+		List->SetPipelineStateDesc(desc);
+		List->SetTexture2(List->GetShadingRateImage(), "RateImage");
+		glm::ivec2 Resoloution = Screen::GetScaledRes();
+		List->SetRootConstant("ResData", 2, &Resoloution);
+		RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, ERenderPassLoadOp::Clear);
+		List->BeginRenderPass(D);
+		SceneRenderer::DrawScreenQuad(List);
+		List->EndRenderPass();
+	}
+}
+
+

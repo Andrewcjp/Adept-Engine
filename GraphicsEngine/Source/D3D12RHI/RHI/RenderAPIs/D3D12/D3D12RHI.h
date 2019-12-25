@@ -152,7 +152,6 @@ private:
 
 	ID3D12Device * GetDisplayDevice();
 	D3D12DeviceContext* DeviceContexts[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	ID3D12GraphicsCommandList* m_SetupCommandList = nullptr;
 	int m_width = 0;
 	int m_height = 0;
 	float m_aspectRatio = 0.0f;

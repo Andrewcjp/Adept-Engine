@@ -42,7 +42,7 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 };
-
+#include "VRX\VRRCommon.hlsl"
 #include "ReflectionEnviroment.hlsl"
 float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 {
@@ -55,9 +55,18 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 #endif
 	return GetReflectionColor(R, Roughness);
 }
+
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
+#if SHADER_SUPPORT_VRR 
+	if (!ShouldShadePixel(input.uv,Resolution))
+	{
+		//discard;
+		return float4(0, 0, 0, 0);
+	}
+#endif
+
 	float4 pos = PosTexture.Sample(defaultSampler, input.uv);
 	float4 Normalt = NormalTexture.Sample(defaultSampler, input.uv);
 	float3 Normal = normalize(Normalt.xyz);

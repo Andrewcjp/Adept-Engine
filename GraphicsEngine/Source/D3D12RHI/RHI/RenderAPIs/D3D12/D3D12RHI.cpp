@@ -194,7 +194,6 @@ void D3D12RHI::DestroyContext()
 	MemoryUtils::DeleteCArray(DeviceContexts, MAX_GPU_DEVICE_COUNT);
 	SafeRelease(m_rtvHeap);
 	SafeRelease(m_dsvHeap);
-	SafeRelease(m_SetupCommandList);
 	SafeRelease(factory);
 	SafeDelete(ScreenShotter);
 	ReportObjects();
@@ -587,7 +586,6 @@ void D3D12RHI::InitSwapChain()
 	CreateSwapChainRTs();
 
 	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0], true);
-	ThrowIfFailed(GetDisplayDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, GetPrimaryDevice()->GetCommandAllocator(), nullptr, IID_PPV_ARGS(&m_SetupCommandList)));
 	CreateDepthStencil(m_width, m_height);
 }
 
@@ -635,8 +633,6 @@ void D3D12RHI::UpdateAllCopyEngines()
 
 void D3D12RHI::ExecSetUpList()
 {
-	ThrowIfFailed(m_SetupCommandList->Close());
-	GetPrimaryDevice()->ExecuteCommandList(m_SetupCommandList);
 	UpdateAllCopyEngines();
 	WaitForAllGPUS();
 	ReleaseUploadHeaps();

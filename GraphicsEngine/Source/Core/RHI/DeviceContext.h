@@ -36,9 +36,9 @@ struct EVRSSupportType
 {
 	enum Type
 	{
+		None,
 		Hardware,
 		Hardware_Tier2,
-		None,
 		Limit
 	};
 };
@@ -72,7 +72,7 @@ struct CapabilityData
 	EVRSSupportType::Type VRSSupport = EVRSSupportType::None;
 	//If driver supports multiple SLI group this will fail to use the HW fully.
 	EMGPUConnectionMode::Type ConnectionMode = EMGPUConnectionMode::None;
-	bool SupportsDepthBoundsTest = true;
+	bool SupportsDepthBoundsTest = false;
 	EShaderSupportModel::Type HighestModel = EShaderSupportModel::SM5;
 	bool SupportExecuteIndirect = false;
 	int VRSTileSize = 16;
@@ -90,7 +90,6 @@ public:
 	RHI_API virtual void DestoryDevice() = 0;
 	RHI_API virtual void WaitForGpu() = 0;
 	RHI_API virtual void WaitForCopy() = 0;
-	RHI_API virtual void ResetSharingCopyList() = 0;
 	RHI_API virtual void NotifyWorkForCopyEngine() = 0;
 	RHI_API virtual void UpdateCopyEngine() = 0;
 	RHI_API virtual void ResetCopyEngine() = 0;
@@ -130,11 +129,10 @@ public:
 
 	//events
 	RHI_API virtual void OnFrameStart();
-	RHI_API virtual void OnFrameEnd_PreSubmit();
 
 	GPUTextureStreamer* GetStreamer();
-	void IncrementDeviceFrame();
-	int GetDeviceFrame()const;
+	RHI_API void IncrementDeviceFrame();
+	RHI_API int GetDeviceFrame()const;
 	void TickDeferredDeleteQueue();
 	bool SupportsIndirectExecute()const;
 	CommandListPool* GetListPool() { return &Pool; }

@@ -54,18 +54,19 @@ int GetShadingRateIDForPixel(float2 ScreenUV, int2 Res)
 	}
 	return D3D12_MAKE_COARSE_SHADING_RATE(RATE_4X, RATE_4X);
 }
+#if SHADER_SUPPORT_VRR
+Texture2D<uint> VRSTexture : register( t66 );
 bool ShouldShadePixel(float2 ScreenUV, int2 res)
 {
-	int Rate = GetShadingRateIDForPixel(ScreenUV, res);
 	int2 PixelPos = ScreenUV * res;
+	int Rate = VRSTexture[PixelPos.xy/16];
 	if (Rate == D3D12_MAKE_COARSE_SHADING_RATE(RATE_1X, RATE_1X))
 	{
 		return true;
 	}
 	return IsPixelSource(PixelPos, GetShadingRate(Rate));
 }
-
-#define VRS_INPUTBIND Texture2D<uint> VRSTexture : register( t66 );
+#endif
 #else
 #define VRS_INPUTBIND
 #endif

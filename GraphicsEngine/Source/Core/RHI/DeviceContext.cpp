@@ -221,20 +221,19 @@ EGPUType::Type DeviceContext::GetType()
 void DeviceContext::OnFrameStart()
 {}
 
-void DeviceContext::OnFrameEnd_PreSubmit()
-{}
-
 GPUTextureStreamer * DeviceContext::GetStreamer()
 {
 	return Streamer;
 }
 
 void DeviceContext::IncrementDeviceFrame()
-{}
+{
+	DeviceFrameNumber++;
+}
 
 int DeviceContext::GetDeviceFrame() const
 {
-	return 0;
+	return DeviceFrameNumber;
 }
 
 void DeviceContext::TickDeferredDeleteQueue()

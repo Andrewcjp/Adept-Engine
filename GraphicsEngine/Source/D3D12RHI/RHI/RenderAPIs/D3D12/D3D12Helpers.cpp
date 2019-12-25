@@ -718,12 +718,13 @@ ID3D12CommandAllocator* CommandAllocator::GetAllocator()
 
 void CommandAllocator::Reset()
 {
-	if (FrameReset == RHI::GetFrameCount())
+	//a device might run past the end of the CPU frame (or ahead)
+	if (FrameReset == Device->GetDeviceFrame())
 	{
 		return;
 	}
 	ThrowIfFailed(Allocators[Device->GetCpuFrameIndex()]->Reset());
-	FrameReset = RHI::GetFrameCount();
+	FrameReset = Device->GetDeviceFrame();
 }
 
 CommandAllocator::CommandAllocator(ECommandListType::Type Type, D3D12DeviceContext* D)
@@ -738,6 +739,7 @@ CommandAllocator::CommandAllocator(ECommandListType::Type Type, D3D12DeviceConte
 
 CommandAllocator::~CommandAllocator()
 {
+	ensure(User == nullptr);
 	MemoryUtils::DeleteReleaseableCArray(Allocators, RHI::CPUFrameCount);
 }
 

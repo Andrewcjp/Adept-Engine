@@ -104,6 +104,7 @@ void D3D12QueryHeap::CreateHeap()
 		D3D12_QUERY_HEAP_DESC timestampHeapDesc = {};
 		timestampHeapDesc.Type = HeapType;
 		timestampHeapDesc.Count = resultCount;
+		timestampHeapDesc.NodeMask = Device->GetNodeMask();
 		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 			D3D12_HEAP_FLAG_NONE,
@@ -126,6 +127,7 @@ void D3D12QueryHeap::CreateResultsBuffer()
 		D3D12_QUERY_HEAP_DESC timestampHeapDesc = {};
 		timestampHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
 		timestampHeapDesc.Count = resultCount;
+		timestampHeapDesc.NodeMask = Device->GetNodeMask();
 		ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 			D3D12_HEAP_FLAG_NONE,

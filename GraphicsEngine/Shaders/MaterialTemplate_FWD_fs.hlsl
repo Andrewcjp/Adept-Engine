@@ -87,7 +87,7 @@ float4 main(PSInput input) : SV_TARGET
 	int2 Res = int2(1,1);
 #endif
 	const float2 ScreenPos = input.position.xy / Res; //Compute Position  for this pixel in 0-1 space
-#if SUPPORT_VRR
+#if SHADER_SUPPORT_VRR
 	if (!ShouldShadePixel(ScreenPos, Res))
 	{
 		discard;

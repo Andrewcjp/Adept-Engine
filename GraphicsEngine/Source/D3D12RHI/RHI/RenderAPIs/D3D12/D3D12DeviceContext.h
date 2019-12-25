@@ -124,13 +124,8 @@ public:
 #if WIN10_1809
 	ID3D12Device5 *GetDevice5();
 #endif
-	ID3D12CommandAllocator* GetCommandAllocator(ECommandListType::Type ListType = ECommandListType::Graphics);
-
-	ID3D12CommandAllocator * GetSharedCommandAllocator();
 	ID3D12CommandQueue* GetCommandQueue();
 	ID3D12GraphicsCommandList* GetCopyList();
-	ID3D12GraphicsCommandList * GetSharedCopyList();
-	void ResetSharingCopyList();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
 	void ResetCopyEngine();
@@ -189,10 +184,6 @@ private:
 #if WIN10_1809
 	ID3D12Device5* m_Device5 = nullptr;
 #endif
-	ID3D12CommandAllocator* m_GFXcommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
-	ID3D12CommandAllocator* m_ComputeCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
-	ID3D12CommandAllocator* m_CopyCommandAllocator[RHI::CPUFrameCount] = { nullptr,nullptr };
-	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 
 	//device info
 	DeviceMemoryData MemoryData;
@@ -201,12 +192,11 @@ private:
 	size_t totalVRAM = 0;
 	DXGI_ADAPTER_DESC1 Adaptordesc;
 
-
+	ID3D12CommandQueue* m_MainCommandQueue = nullptr;
 	ID3D12CommandQueue* m_CopyCommandQueue = nullptr;
 	ID3D12CommandQueue* m_ComputeCommandQueue = nullptr;
-	ID3D12GraphicsCommandList* m_IntraCopyList = nullptr;
-	ID3D12CommandAllocator* m_SharedCopyCommandAllocator[RHI::CPUFrameCount] = { nullptr };
 	ID3D12CommandQueue* m_SharedCopyCommandQueue = nullptr;
+
 	//Sync controllers for each queue
 	GPUSyncPoint GraphicsQueueSync;
 	GPUSyncPoint CopyQueueSync;
