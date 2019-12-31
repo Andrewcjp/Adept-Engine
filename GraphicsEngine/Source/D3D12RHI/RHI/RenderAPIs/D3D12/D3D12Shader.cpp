@@ -216,12 +216,12 @@ std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
 
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
-	SCOPE_STARTUP_COUNTER("Shader Compile");
 #if !BUILD_SHIPPING
 	stats.TotalShaderCount++;
 #endif
 	if (TryLoadCachedShader(shadername, GetCurrentBlob(ShaderType), GetShaderInstanceHash(), ShaderType))
 	{
+		SCOPE_STARTUP_COUNTER("Shader Load");
 #if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
 #endif
@@ -231,6 +231,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		ShaderReflection::GatherRSBinds(mBlolbs.GetBlob(ShaderType), ShaderType, GeneratedParams, IsCompute, ShaderMetaData, this);
 		return EShaderError::SHADER_ERROR_NONE;
 	}
+	SCOPE_STARTUP_COUNTER("Shader Compile");
 #if BUILD_SHIPPING
 	ensureFatalMsgf(false, "Failed to load shader blob");
 #endif
@@ -425,6 +426,7 @@ void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 #endif
 bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob, const std::string & InstanceHash, EShaderType::Type type)
 {
+	SCOPE_STARTUP_COUNTER("Shader Read");
 	if (!CacheBlobs)
 	{
 		return false;
@@ -511,12 +513,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (PSODesc.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
 	{
-		if (context->GetDeviceIndex() == 0)
-		{
-			//Not fast raster, force consistent raster points 
-			//#Cull useful for render culling?
-			//psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
-		}
+		psoDesc.RasterizerState.ConservativeRaster = PSODesc.RasterizerState.ConservativeRaster ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 	}
 	psoDesc.RasterizerState.CullMode = PSODesc.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -582,7 +579,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		if (PSODesc.ViewInstancing.Active)
 		{
 			bool FallBack = true;
-			if (PSODesc.ViewInstancing.AllowIHVAcceleraton)
+			if (PSODesc.ViewInstancing.NV_UseSMP)
 			{
 				if (context->IsDeviceNVIDIA() && RHI::AllowIHVAcceleration())
 				{
@@ -591,7 +588,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 						//use SMT
 						LogEnsureMsgf(false, "Accleration possible using SMP");
 						//FallBack = false;
-						//NvAPI_D3D12_SetSinglePassStereoMode(nullptr,2,0,0);
+						////NvAPI_D3D12_SetSinglePassStereoMode(nullptr,2,0,0);
 					}
 				}
 			}
@@ -640,7 +637,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		//ext->ForceFastGS = true;
 		ext->baseVersion = NV_PSO_EXTENSION_DESC_VER;
 		Extentions.push_back(ext);
-		NvAPI_Status r =  NvAPI_D3D12_CreateGraphicsPipelineState(D3D12RHI::DXConv(context)->GetDevice(), &psoDesc, Extentions.size(), Extentions.data(), &output->PSO);
+		NvAPI_Status r = NvAPI_D3D12_CreateGraphicsPipelineState(D3D12RHI::DXConv(context)->GetDevice(), &psoDesc, Extentions.size(), Extentions.data(), &output->PSO);
 		check(r == NvAPI_Status::NVAPI_OK);
 	}
 }
@@ -746,7 +743,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-	}
+		}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
@@ -760,7 +757,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-}
+	}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);

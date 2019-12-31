@@ -21,7 +21,7 @@ public:
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List) override;
 
 	void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext) override;
-
+	DescriptorItemDesc GetItemDesc(const RHIViewDesc& desc)const;
 private:
 	GPUResource* Resource = nullptr;
 	D3D12DeviceContext* DContext = nullptr;

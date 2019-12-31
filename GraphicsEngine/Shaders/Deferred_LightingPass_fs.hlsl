@@ -53,9 +53,15 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 		return prefilteredColor.xyz;
 	}
 #endif
+
 	return GetReflectionColor(R, Roughness);
 }
-
+#define VOXEL_TRACE 1
+#if VOXEL_TRACE
+#include "Shading/ReflectionsTrace.hlsl"
+#include "Voxel/VoxelTrace_PS.hlsl"
+Texture3D<float4> voxelTex :  register(t50);
+#endif
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
@@ -73,13 +79,35 @@ float4 main(VS_OUTPUT input) : SV_Target
 	float4 AlbedoSpec = AlbedoTexture.Sample(defaultSampler, input.uv);
 	float Roughness = AlbedoSpec.a;
 	float Metallic = Normalt.a;
-
-	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
 	float3 ViewDir = normalize(CameraPos - pos.xyz);
+#if VOXEL_TRACE
+	float4 voxelSpec = float4(0, 0, 0,0);
+	if (Roughness > 0.8 /*&& Roughness < 0.8*/)
+	{
+		float aperture = tan(Roughness * 3.14 * 0.5f * 0.1f);
+		uint2 pixelindex = input.uv * Resolution;
+		uint seed = initRand(pixelindex.x + pixelindex.y*Resolution.x, 0);
+		float3 H = getGGXMicrofacet(seed, 1.0 - Roughness, Normal);
+		float3 V = ViewDir;
+		//float3 coneDirection = normalize(2.f * dot(V, H) * H - V);
+		float3 coneDirection = reflect(-ViewDir, Normal);
+		voxelSpec = ConeTrace_FixedMip(voxelTex, pos.xyz, Normal, coneDirection, aperture);
+		//exec lighting
+		return voxelSpec;
+	}
+#endif
+	float3 irData = DiffuseIrMap.Sample(defaultSampler, normalize(Normal)).rgb;
+
 
 	float3 R = reflect(-ViewDir, Normal);
 	float2 envBRDF = envBRDFTexture.Sample(defaultSampler, float2(max(dot(Normal, ViewDir), 0.0), Roughness)).rg;
 	float3 prefilteredColor = GetSpecular(input.uv,R, Roughness);
+#if VOXEL_TRACE
+	if (voxelSpec.a > 0.0f)
+	{
+		prefilteredColor = voxelSpec;
+	}
+#endif
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	[unroll(MAX_LIGHTS)]
 	for (int i = 0; i < LightCount; i++)

@@ -185,6 +185,7 @@ void RHIPipeLineStateDesc::CalulateHash()
 	}
 	HashUtils::hash_combine(UniqueHash, (int)RenderTargetDesc.DSVFormat);
 	HashUtils::hash_combine(UniqueHash, RenderPassDesc.GetHash());
+	HashUtils::hash_combine(UniqueHash, RasterizerState.ConservativeRaster);
 }
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const

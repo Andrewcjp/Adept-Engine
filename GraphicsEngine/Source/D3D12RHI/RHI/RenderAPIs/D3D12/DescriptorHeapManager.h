@@ -11,7 +11,7 @@ public:
 	void AllocateMainHeap(int size);
 	~DescriptorHeapManager();
 	DXDescriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
-	void CheckAndRealloc(int size);
+	void CheckAndRealloc(int size, D3D12CommandList * list);
 	void ClearMainHeap();
 	DescriptorHeap* GetMainHeap();
 	void BindHeap(D3D12CommandList* list);
@@ -21,7 +21,7 @@ public:
 	void EndOfFrame();
 private:
 	D3D12DeviceContext* Device = nullptr;
-	DescriptorHeap* MainHeap[RHI::CPUFrameCount] = { nullptr,nullptr };
+	DescriptorHeap* MainHeap = nullptr;
 	DescriptorHeap* SamplerHeap = nullptr;
 	bool DidJustResize = false;
 	const char* TimerName = "Descriptors Spent";

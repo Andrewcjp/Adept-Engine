@@ -51,7 +51,6 @@ Shader_Depth::~Shader_Depth()
 
 std::vector<ShaderParameter> Shader_Depth::GetShaderParameters()
 {
-	ChangeParamType("VIData", ShaderParamType::RootConstant);
 	return Shader::GetShaderParameters();
 }
 

@@ -181,7 +181,10 @@ const std::string AssetManager::GetShaderCacheDir()
 {
 	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
 }
-
+const std::string AssetManager::GetDriverShaderCacheDir()
+{
+	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
+}
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();

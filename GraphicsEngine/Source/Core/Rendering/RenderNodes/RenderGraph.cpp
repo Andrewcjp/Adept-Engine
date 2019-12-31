@@ -239,7 +239,7 @@ void RenderGraph::CreateDefTestgraph()
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode("Output Buffer"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	//if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
 	{
 		Desc.NeedsDepthStencil = true;
 		Desc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;

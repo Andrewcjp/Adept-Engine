@@ -118,48 +118,8 @@ GPUResource * D3D12RHITexture::GetResource() const
 
 void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIViewDesc& desc)
 {
-	if (desc.ViewType == EViewType::SRV)
-	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC d = {};
-		d.Format = D3D12Helpers::ConvertFormat(Desc.Format);
-		if (Desc.IsDepthStencil)
-		{
-			d.Format = DXGI_FORMAT_R32_FLOAT;
-		}
-		d.ViewDimension = D3D12Helpers::ConvertDimension(Desc.Dimension);
-		if (Desc.Depth > 1)
-		{
-			d.ViewDimension = D3D12Helpers::ConvertDimension(eTextureDimension::DIMENSION_TEXTURECUBE);
-		}
-		d.Texture2D.MipLevels = Desc.MipCount;
-		d.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		d.TextureCube.MostDetailedMip = desc.Mip;
-		d.TextureCube.MipLevels = Math::Min(desc.MipLevels, Desc.MipCount);
-		if (desc.Dimension != DIMENSION_UNKNOWN)
-		{
-			d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
-		}
-		d.Texture2DArray.ArraySize = Desc.Depth;
-		d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
-		Descriptor->CreateShaderResourceView(Resource->GetResource(), &d, desc.OffsetInDescriptor);
-	}
-	else
-	{
-		ensureMsgf(Desc.AllowUnorderedAccess, "Attempt to create a UAV on a framebuffer without AllowUnorderedAccess set");
-		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
-		destTextureUAVDesc.ViewDimension = D3D12Helpers::ConvertDimensionUAV(Desc.Dimension);
-		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().Format);
-		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
-		if (GetDescription().Depth > 1)
-		{
-			destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-			destTextureUAVDesc.Texture2DArray.ArraySize = Desc.Depth;
-			destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.ArraySlice;
-		}
-		Descriptor->CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, desc.OffsetInDescriptor);
-	}
+	Descriptor->SetItemDesc(GetItemDesc(desc));
 }
-
 
 void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
@@ -280,4 +240,51 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 
 	Resource->SetName(L"Texture");
 	textureUploadHeap->SetName(L"Upload");
+}
+
+DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & desc) const
+{
+	DescriptorItemDesc ItemDesc;
+	if (desc.ViewType == EViewType::SRV)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC d = {};
+		d.Format = D3D12Helpers::ConvertFormat(Desc.Format);
+		if (Desc.IsDepthStencil)
+		{
+			d.Format = DXGI_FORMAT_R32_FLOAT;
+		}
+		d.ViewDimension = D3D12Helpers::ConvertDimension(Desc.Dimension);
+		if (Desc.Depth > 1)
+		{
+			d.ViewDimension = D3D12Helpers::ConvertDimension(eTextureDimension::DIMENSION_TEXTURECUBE);
+		}
+		d.Texture2D.MipLevels = Desc.MipCount;
+		d.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		d.TextureCube.MostDetailedMip = desc.Mip;
+		d.TextureCube.MipLevels = Math::Min(desc.MipLevels, Desc.MipCount);
+		if (desc.Dimension != DIMENSION_UNKNOWN)
+		{
+			d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
+		}
+		d.Texture2DArray.ArraySize = Desc.Depth;
+		d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+		//Descriptor->CreateShaderResourceView(Resource->GetResource(), &d, desc.OffsetInDescriptor);
+		ItemDesc.CreateShaderResourceView(Resource->GetResource(), &d, desc.OffsetInDescriptor);
+	}
+	else
+	{
+		ensureMsgf(Desc.AllowUnorderedAccess, "Attempt to create a UAV on a framebuffer without AllowUnorderedAccess set");
+		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+		destTextureUAVDesc.ViewDimension = D3D12Helpers::ConvertDimensionUAV(Desc.Dimension);
+		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().Format);
+		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
+		if (GetDescription().Depth > 1 && GetDescription().Dimension != DIMENSION_TEXTURE3D)
+		{
+			destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+			destTextureUAVDesc.Texture2DArray.ArraySize = Desc.Depth;
+			destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+		}
+		ItemDesc.CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, desc.OffsetInDescriptor);
+	}
+	return ItemDesc;
 }

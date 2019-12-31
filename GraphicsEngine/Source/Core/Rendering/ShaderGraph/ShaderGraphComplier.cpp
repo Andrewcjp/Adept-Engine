@@ -96,6 +96,11 @@ bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::str
 	ShaderPath = "Gen\\" + Graph->GetGraphName().ToSString() + "_" + data.ToString();
 	std::string Path = AssetManager::GetShaderPath() + ShaderPath + ".hlsl";
 	PlatformApplication::TryCreateDirectory(AssetManager::GetShaderPath() + "Gen");
+	if (FileUtils::File_ExistsTest(Path))
+	{
+		//todo: proper checking for Diffs
+		return true;
+	}
 	return FileUtils::WriteToFile(Path, finaldata);
 #endif
 }

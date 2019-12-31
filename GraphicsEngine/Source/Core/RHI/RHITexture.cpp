@@ -8,7 +8,7 @@ RHITexture::RHITexture()
 RHITexture::~RHITexture()
 {}
 
-const RHITextureDesc2 & RHITexture::GetDescription()
+const RHITextureDesc2 & RHITexture::GetDescription()const
 {
 	return Desc;
 }

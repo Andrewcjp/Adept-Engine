@@ -11,6 +11,7 @@
 #include "D3D12Buffer.h"
 #include "Core\Utils\TypeUtils.h"
 #include "D3D12RHITexture.h"
+#include "D3D12Texture.h"
 
 #define ENABLE_CACHE 1
 
@@ -35,6 +36,7 @@ void DescriptorCache::Invalidate()
 	{
 		DescriptorMap[i].clear();
 	}
+	DescriptorsInHeap.clear();
 	CacheHeap->ClearHeap();
 }
 
@@ -64,43 +66,25 @@ void DescriptorCache::RemoveInvalidCaches()
 DescriptorCache::~DescriptorCache()
 {}
 
-
 uint64 DescriptorCache::GetHash(const RSBind* bind)
 {
 	uint64 hash = 0;
 	if (bind->BindType == ERSBindType::Texture2)
 	{
-		DXDescriptor* TMPDesc = new DXDescriptor();
-		TMPDesc->Init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, nullptr, 1);
-		D3D12RHI::DXConv(bind->Texture2)->WriteToDescriptor(TMPDesc,bind->View);
-		HashUtils::hash_combine(hash, TMPDesc->GetHash());
-		return hash;
+		HashUtils::hash_combine(hash, DXDescriptor::GetItemDescHash(D3D12RHI::DXConv(bind->Texture2)->GetItemDesc(bind->View)));
 	}
-	if (bind->BindType == ERSBindType::Texture)
+	else if (bind->BindType == ERSBindType::Texture)
 	{
-		std::string path = bind->Texture.Get()->TexturePath;
-		HashUtils::hash_combine(hash, path);
+		HashUtils::hash_combine(hash, DXDescriptor::GetItemDescHash(D3D12RHI::DXConv(bind->Texture.Get())->GetItemDesc(bind->View)));
 	}
-	HashUtils::hash_combine(hash, bind->Framebuffer);
-	if (bind->BindType == ERSBindType::FrameBuffer)
+	else if (bind->BindType == ERSBindType::FrameBuffer)
 	{
-		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Width);
-		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetDescription().Height);
-		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetInstanceHash());
+		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->Framebuffer)->GetViewHash(bind->View));
 	}
-	HashUtils::hash_combine(hash, bind->BufferTarget);
-	HashUtils::hash_combine(hash, bind->TextureArray);
-	if (bind->BindType == ERSBindType::TextureArray)
+	else if (bind->BindType == ERSBindType::TextureArray)
 	{
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->TextureArray)->GetHash());
 	}
-	HashUtils::hash_combine(hash, bind->View.Mip);
-	HashUtils::hash_combine(hash, bind->View.ArraySlice);
-	HashUtils::hash_combine(hash, bind->View.MipLevels);
-	HashUtils::hash_combine(hash, bind->View.ResourceIndex);
-	HashUtils::hash_combine(hash, bind->View.Dimension);
-	HashUtils::hash_combine(hash, bind->View.Offset);
-	HashUtils::hash_combine(hash, bind->Offset);
 	return hash;
 }
 
@@ -134,7 +118,8 @@ bool DescriptorCache::ShouldCache(const RSBind* bind)
 {
 	return false;
 	//todo: fix issue with caching framebuffer descriptors
-	return bind->BindType != ERSBindType::FrameBuffer;
+	//GPU hang :(
+	return true;// bind->BindType != ERSBindType::FrameBuffer;
 }
 
 DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
@@ -158,9 +143,13 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 		{
 			return D3D12RHI::DXConv(bind->Framebuffer)->GetDescriptor(bind->View, heap);
 		}
-		else
+		else if(bind->BufferTarget != nullptr)
 		{
 			return D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View, heap);
+		}
+		else if (bind->Texture2)
+		{
+			return D3D12RHI::DXConv(bind->Texture2)->GetDescriptor(bind->View, heap);
 		}
 	}
 	else if (bind->BindType == ERSBindType::TextureArray)

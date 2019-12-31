@@ -13,6 +13,7 @@ namespace ERenderPass
 		BasePass_Cubemap,
 		TransparentPass,
 		PreZ,
+		VoxelPass,
 		Limit
 	};
 	std::string ToString(ERenderPass::Type t);

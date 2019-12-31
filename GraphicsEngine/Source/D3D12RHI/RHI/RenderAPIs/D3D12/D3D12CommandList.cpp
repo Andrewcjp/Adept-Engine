@@ -48,7 +48,7 @@ bool D3D12CommandList::IsOpen()const
 
 void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
-//	ensure(IsOpen());
+	//	ensure(IsOpen());
 	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
 	{
 		return;
@@ -140,6 +140,10 @@ void D3D12CommandList::PushPrimitiveTopology()
 		{
 			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		}
+		else if (CurrentPSO->GetDesc().RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_POINT)
+		{
+			CurrentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+		}
 	}
 }
 #if WIN10_1903
@@ -227,18 +231,18 @@ void D3D12CommandList::PrepareforDraw()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("PrepareforDraw", "RHI");
 	FlushBarriers();
-	PushHeaps();
-	//ClearHeaps();
+	mDeviceContext->GetHeapManager()->CheckAndRealloc(RootSigniture.GetMaxDescriptorsNeeded(), this);
 	PushPrimitiveTopology();
-
+	PushHeaps();
 	for (int i = 0; i < RootSigniture.GetNumBinds(); i++)
 	{
 		const RSBind* bind = RootSigniture.GetBind(i);
 		DebugEnsure(bind->BindParm);
+		DXDescriptor* desc = nullptr;
 		//DebugEnsure(bind->IsBound());
 		if (bind->BindType == ERSBindType::Texture && bind->IsBound())
 		{
-			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
+			desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
@@ -250,7 +254,7 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::FrameBuffer && bind->IsBound())
 		{
-			DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
+			desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
 			if (IsGraphicsList())
 			{
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
@@ -263,8 +267,6 @@ void D3D12CommandList::PrepareforDraw()
 		else if (bind->BindType == ERSBindType::BufferSRV)
 		{
 			ensure(bind->View.ViewType != EViewType::Limit);
-			DXDescriptor* desc = nullptr;
-			//check(bind->IsBound());
 			if (bind->IsBound())
 			{
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
@@ -281,7 +283,6 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::TextureArray)
 		{
-			DXDescriptor* desc = nullptr;
 			if (bind->IsBound())
 			{
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
@@ -297,7 +298,6 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::UAV)
 		{
-			DXDescriptor* desc = nullptr;
 			if (bind->IsBound())
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);
@@ -314,7 +314,6 @@ void D3D12CommandList::PrepareforDraw()
 		}
 		else if (bind->BindType == ERSBindType::Texture2)
 		{
-			DXDescriptor* desc = nullptr;
 			if (bind->IsBound())
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);
@@ -461,7 +460,6 @@ void D3D12PipeLineStateObject::Complie()
 	int VertexDesc_ElementCount = 0;
 	D3D12Shader* target = D3D12RHI::DXConv(Desc.ShaderInUse->GetShaderProgram());
 	ensure(target != nullptr);
-	ensure((Desc.ShaderInUse->GetShaderParameters().size() > 0));
 	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
@@ -743,7 +741,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 	else
 	{
 		StateAssert(DBuffer, EResourceState::PixelShader);
-	}	
+	}
 	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{
 		return;
@@ -854,6 +852,15 @@ void D3D12CommandList::SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & v
 	CommandCount++;
 }
 
+void D3D12CommandList::SetUAV(RHITexture* buffer, int slot, const RHIViewDesc & view)
+{
+	FlushBarriers();
+	RHIViewDesc v = view;
+	v.ViewType = EViewType::UAV;
+	RootSigniture.SetUAV(slot, buffer, v);
+	CommandCount++;
+}
+
 void D3D12CommandList::SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view /*= RHIViewDesc()*/)
 {
 	FlushBarriers();
@@ -950,9 +957,16 @@ DXDescriptor * D3D12RHITextureArray::GetDescriptor(const RHIViewDesc & desc, Des
 uint64 D3D12RHITextureArray::GetHash()
 {
 	uint64 hash = 0;
+	HashUtils::hash_combine(hash, LinkedBuffers.size());
 	for (int i = 0; i < LinkedBuffers.size(); i++)
 	{
-		HashUtils::hash_combine(hash, LinkedBuffers[i]);
+		if (LinkedBuffers[i] == nullptr)
+		{
+			continue;
+		}
+		RHIViewDesc d = RHIViewDesc::DefaultSRV();
+		d.OffsetInDescriptor = i;
+		HashUtils::hash_combine(hash, LinkedBuffers[i]->GetViewHash(d));
 	}
 	return hash;
 }

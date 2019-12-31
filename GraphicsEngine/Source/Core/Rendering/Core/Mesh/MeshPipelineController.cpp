@@ -9,6 +9,7 @@
 #include "MeshInstanceBuffer.h"
 #include "RHI/RHITimeManager.h"
 #include "../Material.h"
+#include "VoxelPassMeshProcessor.h"
 
 
 MeshPipelineController::MeshPipelineController()
@@ -227,6 +228,7 @@ void MeshPipelineController::Init()
 	Processors[ERenderPass::PreZ] = new ZPrePassMeshProcessor();
 	Processors[ERenderPass::BasePass] = new BasePassMeshProcessor();
 	Processors[ERenderPass::BasePass_Cubemap] = new BasePassMeshProcessor(true);
+	Processors[ERenderPass::VoxelPass] = new VoxelPassMeshProcessor();
 }
 
 std::string ERenderPass::ToString(ERenderPass::Type t)
@@ -243,6 +245,8 @@ std::string ERenderPass::ToString(ERenderPass::Type t)
 			return "TransparentPass";;
 		case ERenderPass::PreZ:
 			return "PreZ";
+		case ERenderPass::VoxelPass:
+			return "VoxelPass";
 	}
 	return std::string();
 }

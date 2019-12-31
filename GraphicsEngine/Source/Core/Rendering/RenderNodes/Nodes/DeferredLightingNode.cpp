@@ -13,6 +13,7 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "RHI/RHITimeManager.h"
 #include "../../Core/VRXEngine.h"
+#include "../../RayTracing/VoxelTracingEngine.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -79,7 +80,9 @@ void DeferredLightingNode::OnExecute()
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBufferB(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
-
+#if 1
+	List->SetTexture2(VoxelTracingEngine::Get()->VoxelMap, DeferredLightingShaderRSBinds::VX);
+#endif
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);

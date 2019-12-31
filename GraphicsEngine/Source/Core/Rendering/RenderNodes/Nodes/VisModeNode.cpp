@@ -5,6 +5,7 @@
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/PostProcess/Shader_DebugOutput.h"
+#include "../../RayTracing/VoxelTracingEngine.h"
 
 VisModeNode::VisModeNode()
 {
@@ -20,6 +21,7 @@ void VisModeNode::OnExecute()
 	ERenderDebugOutput::Type mode = RHI::GetRenderSettings()->GetDebugRenderMode();
 	DebugList = Context->GetListPool()->GetCMDList();
 	SetBeginStates(DebugList);
+	FrameBuffer* FB = GetFrameBufferFromInput(0);
 	switch (mode)
 	{
 	case ERenderDebugOutput::Off:
@@ -36,6 +38,9 @@ void VisModeNode::OnExecute()
 	case ERenderDebugOutput::Scene_LightRange:
 	case ERenderDebugOutput::Scene_UVs:
 		RenderForwardMode(mode);
+		break;
+	case ERenderDebugOutput::Scene_Voxel:
+		VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB);
 		break;
 	}
 	SetEndStates(DebugList);

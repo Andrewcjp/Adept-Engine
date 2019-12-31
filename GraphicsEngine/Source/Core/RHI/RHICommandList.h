@@ -94,6 +94,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view) = 0;
+	RHI_API RHI_VIRTUAL void SetUAV(RHITexture* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) = 0;
 	RHI_API RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) = 0;
 	//view Creators
@@ -101,8 +102,9 @@ public:
 	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
 	RHI_API void SetUAV(RHIBuffer* uav, std::string slot);
 	RHI_API void SetUAV(FrameBuffer* uav, std::string slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
+	RHI_API void SetUAV(RHITexture* uav, std::string slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
 
-	RHI_API void SetBuffer(RHIBuffer* Buffer, int slot,int ElementOffset = 0);
+	RHI_API void SetBuffer(RHIBuffer* Buffer, int slot, int ElementOffset = 0);
 	RHI_API void SetBuffer(RHIBuffer* Buffer, std::string  slot, int ElementOffset = 0);
 
 	RHI_API void SetTexture(BaseTextureRef texture, int slot, int mip = 0);
@@ -112,10 +114,11 @@ public:
 
 	//string setters
 	RHI_API void SetConstantBufferView(RHIBuffer * buffer, int offset, std::string Slot);
-	RHI_API void SetTexture(BaseTextureRef texture, std::string slot,int mip = 0);
+	RHI_API void SetTexture(BaseTextureRef texture, std::string slot, int mip = 0);
 	RHI_API void SetFrameBufferTexture(FrameBuffer* buffer, std::string slot, int Resourceindex = 0);
 	RHI_API void SetRHIBufferReadOnly(RHIBuffer* buffer, std::string slot);
 	RHI_API void SetTexture2(RHITexture* buffer, std::string slot);
+	RHI_API void SetTexture2(RHITexture* buffer, int slot);
 
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;

@@ -19,6 +19,14 @@ PUSHCONST cbuffer PreSampleData : register(b3)
 
 float Get(float3 pos, int index)
 {
+	if (index == -1)
+	{
+		return 0.0f;
+	}
+	if (length(pos - lights[index].LPosition) > lights[index].Range)
+	{
+		return 0.0f;
+	}
 	return ShadowCalculationCube(pos, lights[index], g_Shadow_texture2[lights[index].ShadowID]);
 }
 

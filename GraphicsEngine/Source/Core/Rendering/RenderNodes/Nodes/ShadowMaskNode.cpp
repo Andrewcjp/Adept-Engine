@@ -31,7 +31,7 @@ void ShadowMaskNode::OnExecute()
 	RHIPipeLineStateDesc psodesc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShadowSample>(Context, 4), OutputBuffer);
 	psodesc.InitOLD(false, false, false);
 	List->SetPipelineStateDesc(psodesc);
-	int ShaderData[4] = { 0,1,2,3 };
+	int ShaderData[4] = { 0,-1,-1,-1 };
 	List->SetRootConstant("PreSampleData", 4, ShaderData, 0);
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(2);
 	List->SetFrameBufferTexture(GBuffer, "GBuffer_Pos");

@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI/BaseTexture.h"
+#include "DXDescriptor.h"
 class DeviceContext;
 class DescriptorHeap;
 class D3D12DeviceContext;
@@ -22,6 +23,7 @@ public:
 	int	MipLevelsReadyNow = 1;
 	bool CheckDevice(int index);
 	DXDescriptor* GetDescriptor(RHIViewDesc Desc, DescriptorHeap* heap = nullptr);
+	DescriptorItemDesc GetItemDesc(const RHIViewDesc& Desc)const;
 protected:
 	void Release() override;
 private:

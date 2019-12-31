@@ -64,6 +64,7 @@ public:
 	RHI_API void SetConstantBufferView(int slot, RHIBuffer* Target, int offset = 0, RHIViewDesc View = RHIViewDesc());
 	RHI_API void SetBufferReadOnly(int slot, RHIBuffer* Target, const RHIViewDesc & desc = RHIViewDesc());
 	RHI_API void SetUAV(int slot, FrameBuffer * target, const RHIViewDesc & view);
+	RHI_API void SetUAV(int slot, RHITexture * Target, const RHIViewDesc & view);
 	RHI_API void SetUAV(int slot, RHIBuffer* Target, const RHIViewDesc& view);
 	RHI_API void SetTexture2(int slot, RHITexture* Target, const RHIViewDesc& view);
 	void In_CreateUAV(RSBind &Bind, const RHIViewDesc& view, int slot);
@@ -76,6 +77,8 @@ public:
 	RHI_API void SetUpdated();
 	RHI_API void Invalidate();
 	RHI_API void ValidateAllBound();
+	//returns the worst case number of descriptors needed for this draw/disptach
+	RHI_API uint GetMaxDescriptorsNeeded()const;
 private:
 	void DefaultParams();
 	std::vector<ShaderParameter> Parms;

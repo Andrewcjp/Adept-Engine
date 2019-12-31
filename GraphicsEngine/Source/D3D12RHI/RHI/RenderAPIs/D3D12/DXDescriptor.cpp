@@ -16,7 +16,7 @@ void DXDescriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int 
 	Type = T;
 	ItemDesc.Data.resize(size);
 	Owner = heap;
-	DescriptorCount = size;
+	ItemDesc.DescriptorCount = size;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DXDescriptor::GetGPUAddress(int index)
@@ -36,17 +36,17 @@ D3D12_DESCRIPTOR_HEAP_TYPE DXDescriptor::GetType()
 
 int DXDescriptor::GetSize()
 {
-	return DescriptorCount;
+	return ItemDesc.DescriptorCount;
 }
 
 void DXDescriptor::Recreate()
 {
-	for (int i = 0; i < DescriptorCount; i++)
+	for (int i = 0; i < ItemDesc.DescriptorCount; i++)
 	{
 		DescData* Desc = &ItemDesc.Data[i];
 		if (Desc->NeedsUpdate)
 		{
-			if (DescriptorType == EDescriptorType::SRV)
+			if (ItemDesc.DescriptorType == EDescriptorType::SRV)
 			{
 				Desc->NeedsUpdate = false;
 				if (Desc->TargetResource != nullptr)
@@ -56,12 +56,12 @@ void DXDescriptor::Recreate()
 				}
 				Owner->GetDevice()->GetDevice()->CreateShaderResourceView(Desc->TargetResource, &Desc->SRVDesc, GetCPUAddress(Desc->OffsetInHeap));
 			}
-			else if (DescriptorType == EDescriptorType::UAV)
+			else if (ItemDesc.DescriptorType == EDescriptorType::UAV)
 			{
 				Desc->NeedsUpdate = false;
 				Owner->GetDevice()->GetDevice()->CreateUnorderedAccessView(Desc->TargetResource, Desc->UAVCounterResource, &Desc->UAVDesc, GetCPUAddress(Desc->OffsetInHeap));
 			}
-			else if (DescriptorType == EDescriptorType::CBV)
+			else if (ItemDesc.DescriptorType == EDescriptorType::CBV)
 			{
 				//unused for now
 			}
@@ -69,27 +69,52 @@ void DXDescriptor::Recreate()
 	}
 }
 
+void DXDescriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
+{
+	ItemDesc.CreateUnorderedAccessView(pResource, pCounterResource, pDesc, offset);
+}
+
 void DXDescriptor::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
 {
+	ItemDesc.CreateShaderResourceView(pResource, pDesc, offset);
+}
+
+void DescriptorItemDesc::CreateShaderResourceView(ID3D12Resource * pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC * pDesc, int offset)
+{
 	DescriptorType = EDescriptorType::SRV;
-	DescData* Desc = &ItemDesc.Data[offset];
+	if (Data.size() <= offset)
+	{
+		Data.resize(offset+1);
+	}
+	DescData* Desc = &Data[offset];
 	Desc->SRVDesc = *pDesc;
 	Desc->TargetResource = pResource;
 	Desc->OffsetInHeap = offset;
 	Desc->NeedsUpdate = true;
-	//Recreate();
 }
 
-void DXDescriptor::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
+void DescriptorItemDesc::CreateUnorderedAccessView(ID3D12Resource * pResource, ID3D12Resource * pCounterResource, const D3D12_UNORDERED_ACCESS_VIEW_DESC * pDesc, int offset)
 {
 	DescriptorType = EDescriptorType::UAV;
-	DescData* Desc = &ItemDesc.Data[offset];
+	if (Data.size() <= offset)
+	{
+		Data.resize(offset + 1);
+	}
+	DescData* Desc = &Data[offset];
 	Desc->UAVDesc = *pDesc;
 	Desc->TargetResource = pResource;
 	Desc->UAVCounterResource = pCounterResource;
 	Desc->OffsetInHeap = offset;
 	Desc->NeedsUpdate = true;
-	//Recreate();
+	if (Desc->UAVDesc.ViewDimension == D3D12_UAV_DIMENSION_TEXTURE3D)
+	{
+		Desc->UAVDesc.Texture3D.WSize = -1;
+	}
+}
+
+uint64 DescriptorItemDesc::GetHash()const 
+{
+	return DXDescriptor::GetItemDescHash(*this);
 }
 
 void DXDescriptor::Release()
@@ -115,12 +140,12 @@ bool DXDescriptor::IsTargetValid() const
 
 bool DXDescriptor::IsValid() const
 {
-	return DescriptorType != EDescriptorType::Limit;
+	return ItemDesc.DescriptorType != EDescriptorType::Limit;
 }
 
 void DXDescriptor::InitFromDesc(DXDescriptor * other)
 {
-	DescriptorType = other->DescriptorType;
+	ItemDesc.DescriptorType = other->ItemDesc.DescriptorType;
 	ItemDesc = ItemDesc;
 }
 
@@ -146,21 +171,35 @@ uint64 GetUAVHash(const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc)
 
 uint64 DXDescriptor::GetHash() const
 {
+	return GetItemDescHash(ItemDesc);
+}
+
+uint64 DXDescriptor::GetItemDescHash(const DescriptorItemDesc& descdesc)
+{
 	uint64 hash = 0;
-	HashUtils::hash_combine(hash, DescriptorCount);
-	for (int i = 0; i < DescriptorCount; i++)
+	HashUtils::hash_combine(hash, descdesc.DescriptorCount);
+	for (int i = 0; i < descdesc.DescriptorCount; i++)
 	{
-		HashUtils::hash_combine(hash, ItemDesc.Data[i].TargetResource);
-		if (DescriptorType == EDescriptorType::SRV)
+		HashUtils::hash_combine(hash, descdesc.Data[i].TargetResource);
+		if (descdesc.DescriptorType == EDescriptorType::SRV)
 		{
-			HashUtils::hash_combine(hash, GetSRVHash(ItemDesc.Data[i].SRVDesc));
+			HashUtils::hash_combine(hash, GetSRVHash(descdesc.Data[i].SRVDesc));
 		}
-		else if(DescriptorType == EDescriptorType::UAV)
+		else if (descdesc.DescriptorType == EDescriptorType::UAV)
 		{
-			HashUtils::hash_combine(hash, ItemDesc.Data[i].UAVCounterResource);
-			HashUtils::hash_combine(hash, GetUAVHash(ItemDesc.Data[i].UAVDesc));
+			HashUtils::hash_combine(hash, descdesc.Data[i].UAVCounterResource);
+			HashUtils::hash_combine(hash, GetUAVHash(descdesc.Data[i].UAVDesc));
 		}
 	}
 	return hash;
+}
+
+void DXDescriptor::SetItemDesc(DescriptorItemDesc itemdesc)
+{
+	if (ItemDesc.DescriptorCount != itemdesc.DescriptorCount)
+	{
+		itemdesc.DescriptorCount = ItemDesc.DescriptorCount;
+	}
+	ItemDesc = itemdesc;
 }
 

@@ -46,6 +46,7 @@ public:
 	virtual uint64 GetInstanceHash() const override;
 	static	D3D12_RESOURCE_STATES ConvertState(EResourceState::Type State);
 	void PopulateDescriptor(DXDescriptor* desc, int index, const RHIViewDesc& view);
+	uint64 GetViewHash(const RHIViewDesc& desc);
 private:
 	void SetState(RHICommandList* List, D3D12_RESOURCE_STATES state, bool depth, EResourceTransitionMode::Type TransitionMode);
 	D3D12DeviceContext * CurrentDevice = nullptr;

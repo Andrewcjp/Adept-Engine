@@ -153,7 +153,7 @@ void D3D12FrameBuffer::CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandLi
 		int offset = i;
 		CD3DX12_TEXTURE_COPY_LOCATION dest(OtherB->RenderTarget[0]->GetResource()->GetResource(), offset);
 		CD3DX12_TEXTURE_COPY_LOCATION src(RenderTarget[0]->GetResource()->GetResource(), offset);
-		CD3DX12_BOX box(0, 0, BufferDesc.Width , BufferDesc.Height);
+		CD3DX12_BOX box(0, 0, BufferDesc.Width, BufferDesc.Height);
 		CMdList->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
 	}
 }
@@ -171,35 +171,35 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
 		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), state, TransitionMode);
-	}	
+	}
 }
 
 D3D12_RESOURCE_STATES D3D12FrameBuffer::ConvertState(EResourceState::Type State)
 {
 	switch (State)
 	{
-		case EResourceState::Common:
-			return D3D12_RESOURCE_STATE_COMMON;
-		case EResourceState::ComputeUse:
-			return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-		case EResourceState::PixelShader:
-			return  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-		case EResourceState::RenderTarget:
-			return D3D12_RESOURCE_STATE_RENDER_TARGET;
-		case EResourceState::Non_PixelShader:
-			return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-		case EResourceState::UAV:
-			return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		case EResourceState::CopyDst:
-			return D3D12_RESOURCE_STATE_COPY_DEST;
-		case EResourceState::CopySrc:
-			return D3D12_RESOURCE_STATE_COPY_SOURCE;
+	case EResourceState::Common:
+		return D3D12_RESOURCE_STATE_COMMON;
+	case EResourceState::ComputeUse:
+		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	case EResourceState::PixelShader:
+		return  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	case EResourceState::RenderTarget:
+		return D3D12_RESOURCE_STATE_RENDER_TARGET;
+	case EResourceState::Non_PixelShader:
+		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	case EResourceState::UAV:
+		return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	case EResourceState::CopyDst:
+		return D3D12_RESOURCE_STATE_COPY_DEST;
+	case EResourceState::CopySrc:
+		return D3D12_RESOURCE_STATE_COPY_SOURCE;
 #if WIN10_1903
-		case EResourceState::ShadingRateImage:
-			return D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
+	case EResourceState::ShadingRateImage:
+		return D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
 #endif
-		default:
-			break;
+	default:
+		break;
 
 	}
 	return D3D12_RESOURCE_STATE_COMMON;
@@ -217,9 +217,23 @@ void D3D12FrameBuffer::PopulateDescriptor(DXDescriptor * desc, int index, const 
 	}
 }
 
+uint64 D3D12FrameBuffer::GetViewHash(const RHIViewDesc & desc)
+{
+	uint64 Hash = 0;
+	if (desc.ResourceIndex == -1 || RenderTarget[desc.ResourceIndex] == nullptr)
+	{
+		HashUtils::hash_combine(Hash, DepthStencil->GetItemDesc(desc).GetHash());
+	}
+	else
+	{
+		HashUtils::hash_combine(Hash, RenderTarget[desc.ResourceIndex]->GetItemDesc(desc).GetHash());
+	}
+	return Hash;
+}
+
 void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/, EResourceTransitionMode::Type TransitionMode /*= EResourceTransitionMode::Direct*/)
 {
-	SetState(List, D3D12FrameBuffer::ConvertState(State), ChangeDepth,TransitionMode);
+	SetState(List, D3D12FrameBuffer::ConvertState(State), ChangeDepth, TransitionMode);
 	CurrentState = State;
 }
 
@@ -449,7 +463,7 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 		{
 			if (RenderTarget[i] != nullptr)
 			{
-		//		RenderTarget[i]->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+				//		RenderTarget[i]->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 			}
 		}
 	}

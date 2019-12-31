@@ -80,6 +80,11 @@ DXDescriptor * D3D12Texture::GetDescriptor(RHIViewDesc Desc, DescriptorHeap* hea
 	return Cover->GetDescriptor(Desc, heap);
 }
 
+DescriptorItemDesc D3D12Texture::GetItemDesc(const RHIViewDesc& Desc) const
+{
+	return Cover->GetItemDesc(Desc);
+}
+
 void D3D12Texture::CreateAsNull()
 {
 

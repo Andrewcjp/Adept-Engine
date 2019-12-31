@@ -30,6 +30,7 @@ public:
 	std::string GetDebugName();
 	void AddDescriptor(DXDescriptor* desc, bool Create = true);
 	int GetNumberOfDescriptors();
+	int GetNumberOfDescriptorsForStats();
 	int GetMaxSize();
 	int GetNextFreeIndex();
 	void MoveAllToHeap(DescriptorHeap* heap, int offset = 0);
@@ -38,6 +39,7 @@ public:
 	void ClearHeap();
 	DXDescriptor* CopyToHeap(DXDescriptor* desc);
 	DXDescriptor* AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size = 1);
+	void SetFrameBound();
 private:
 	std::vector<DXDescriptor*> ContainedDescriptors;
 	ID3D12DescriptorHeap * mHeap = nullptr;
@@ -46,5 +48,7 @@ private:
 	EGPUMemoryPriority Priority = EGPUMemoryPriority::Critical;
 	D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
 	uint32 DescriptorCount = 0;
+	//Offset indicating the point at with CPU frame 1 starts.
+	uint32 FrameBoundEnd = 0;
 };
 

@@ -67,6 +67,7 @@ public:
 	CORE_API static const std::string DirectGetGeneratedDir();
 	CORE_API static const std::string GetSettingsDir();
 	CORE_API static const std::string GetShaderCacheDir();
+	const std::string GetDriverShaderCacheDir();
 	BaseAsset * CreateOrGetAsset(std::string path);
 	void TestAsset();
 	static const PlatformBuildSettings& GetSettings();

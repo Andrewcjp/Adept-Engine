@@ -440,6 +440,7 @@ struct RHIBlendState
 struct RHIRasterizerDesc
 {
 	bool Cull = false;
+	bool ConservativeRaster = false;
 };
 
 typedef
@@ -487,7 +488,7 @@ struct ViewInstancingMode
 {
 	bool Active = false;
 	uint32 Instances = 6;
-	bool AllowIHVAcceleraton = true;
+	bool NV_UseSMP = false;
 };
 
 struct  RHIPipeLineStateDesc
@@ -578,16 +579,18 @@ struct RHIViewDesc
 		D.ResourceIndex = Resource;
 		return D;
 	}
-	static RHIViewDesc DefaultUAV()
+	static RHIViewDesc DefaultUAV(eTextureDimension dimention = DIMENSION_UNKNOWN)
 	{
 		RHIViewDesc D;
 		D.ViewType = EViewType::UAV;
+		D.Dimension = dimention;
 		return D;
 	}
-	static RHIViewDesc DefaultSRV()
+	static RHIViewDesc DefaultSRV(eTextureDimension dimention = DIMENSION_UNKNOWN)
 	{
 		RHIViewDesc D;
 		D.ViewType = EViewType::SRV;
+		D.Dimension = dimention;
 		return D;
 	}
 	RHI_API bool operator==(const RHIViewDesc other)const;

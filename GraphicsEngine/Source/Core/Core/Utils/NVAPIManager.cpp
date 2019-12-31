@@ -20,6 +20,11 @@ NVAPIManager::NVAPIManager()
 		IsOnline = false;
 		return; // Initialization failed
 	}
+	NvU32 ver = 0;
+	NvAPI_ShortString DriverVerString;
+	NvAPI_SYS_GetDriverAndBranchVersion(&ver, DriverVerString);
+//	Log::LogMessage("Nvidia Driver Version: " + std::string(DriverVerString));
+
 
 	ret = NvAPI_EnumPhysicalGPUs(GPUHandles, &GPUCount);
 	if (ret != NVAPI_OK)
@@ -107,7 +112,6 @@ void NVAPIManager::SampleClocks()
 		return;
 	}
 	//KHZ
-	unsigned int CoreClock = 0;
 	SampleData = "";
 	if (GPUCount == 0)
 	{
@@ -121,6 +125,7 @@ void NVAPIManager::SampleClocks()
 	const bool ShowTemp = true;
 	NV_GPU_THERMAL_SETTINGS thermal = {};
 	thermal.version = NV_GPU_THERMAL_SETTINGS_VER;
+	unsigned int CoreClock = 0;
 	for (unsigned int i = 0; i < GPUCount; i++)
 	{
 		int index = StaticProps;
@@ -138,20 +143,18 @@ void NVAPIManager::SampleClocks()
 		ret = NvAPI_GPU_GetDynamicPstatesInfoEx(GPUHandles[i], &PstatesInfo);
 		if (ret == NVAPI_OK)
 		{
-			int Utilzieation = PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage;
-			float PC = (float)Utilzieation / 80.0f;
+			int Utilisation = PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage;
+			float PC = (float)Utilisation / 80.0f;
 			Colours[i] = glm::mix(glm::vec3(1, 0, 0), glm::vec3(1), PC);
 			Data = ("Graphics: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_GPU].percentage) + "%");
-			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_PC], (float)Utilzieation, 0);
+			PerfManager::Get()->UpdateStat(StatIds[i][Stats::GPU0_GRAPHICS_PC], (float)Utilisation, 0);
 		}
-#if 1
 		GpuData[i][index] = Data;
 		index++;
 		if (ret == NVAPI_OK)
 		{
 			Data = ("FrameBuffer: " + std::to_string(PstatesInfo.utilization[NVAPI_GPU_UTILIZATION_DOMAIN_FB].percentage) + "%");
 		}
-#endif
 		GpuData[i][index] = Data;
 		index++;
 		if (ret == NVAPI_OK)
@@ -170,6 +173,15 @@ void NVAPIManager::SampleClocks()
 			GpuData[i][index] = Data;
 			index++;
 		}
+		NVAPI_GPU_PERF_DECREASE resons = NVAPI_GPU_PERF_DECREASE::NV_GPU_PERF_DECREASE_NONE;
+		NvAPI_GPU_GetPerfDecreaseInfo(GPUHandles[i], (NvU32*)&resons);
+		GpuData[i][index] = "Limit reason: " + std::to_string(resons);
+		index++;
+		NvU32 Corecount = 0;
+		NvU32 Smcount = 0;
+		NvAPI_GPU_GetGpuCoreCount(GPUHandles[i], &Corecount);
+		NvAPI_GPU_GetShaderSubPipeCount(GPUHandles[i], &Smcount);
+		GpuData[i][index] = "CUDA Cores: " + std::to_string(Corecount) + " on " + std::to_string(Smcount) + "SM ";
 	}
 #else 
 	SampleData = "NVAPI Not Present";

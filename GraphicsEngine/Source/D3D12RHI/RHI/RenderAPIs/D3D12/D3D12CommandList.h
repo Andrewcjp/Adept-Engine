@@ -85,6 +85,7 @@ public:
 	RHI_VIRTUAL void SetBuffer(RHIBuffer* Buffer, int slot, const RHIViewDesc & desc) override;
 	RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) override;
 	RHI_VIRTUAL void SetUAV(RHIBuffer* buffer, int slot, const RHIViewDesc & view) override;
+	RHI_VIRTUAL void SetUAV(RHITexture * buffer, int slot, const RHIViewDesc & view) override;
 	RHI_VIRTUAL void SetUAV(FrameBuffer* buffer, int slot, const RHIViewDesc & view = RHIViewDesc()) override;
 	RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) override;
 	RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) override;

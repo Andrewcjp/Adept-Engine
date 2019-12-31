@@ -28,7 +28,7 @@ class RHITexture : public IRHIResourse
 public:
 	RHI_API RHITexture();
 	RHI_API virtual ~RHITexture();
-	RHI_API const RHITextureDesc2& GetDescription();
+	RHI_API const RHITextureDesc2& GetDescription()const;
 	RHI_API virtual void Create(const RHITextureDesc2& Desc, DeviceContext* Context = nullptr);
 
 	RHI_API virtual void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext);

@@ -1,0 +1,9 @@
+static const float3 VoxelGridCenter = float3(0, 0, 0);
+static const float VoxelSize = 0.5;
+static const float VoxelSize_INV = 1.0 / VoxelSize;
+static const float VoxelRes = 250;
+static const float VoxelRes_INV = 1.0/ VoxelRes;
+static const uint  VoxelConeMaxMIPs = 5;
+static const float VoxelRayStepDistance = 1;
+static const float SQRT2 = 1.41421356237309504880;
+static const float VoxelMaxDistance = 250;

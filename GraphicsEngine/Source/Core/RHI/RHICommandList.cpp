@@ -7,6 +7,7 @@
 #include "Rendering/Core/VRXEngine.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "RHITimeManager.h"
+#include "RHITexture.h"
 
 RHICommandList::RHICommandList(ECommandListType::Type type, DeviceContext* context)
 {
@@ -249,7 +250,7 @@ void RHICommandList::SetVRXShadingRateImage(RHITexture * RateImage)
 	else
 	{
 		VRXEngine::Get()->SetVRXShadingRateImage(this, RateImage);
-	}	
+	}
 }
 
 RHIPipeLineStateObject * RHICommandList::GetCurrnetPSO()
@@ -383,6 +384,11 @@ void RHICommandList::SetTexture2(RHITexture * buffer, std::string slot)
 	SetTexture2(buffer, index, RHIViewDesc::DefaultSRV());
 }
 
+void RHICommandList::SetTexture2(RHITexture * buffer, int slot)
+{
+	SetTexture2(buffer, slot, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
+}
+
 void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)
 {
 	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), RHIViewDesc::DefaultUAV());
@@ -396,6 +402,15 @@ void RHICommandList::SetUAV(RHIBuffer * uav, int slot)
 void RHICommandList::SetUAV(FrameBuffer * uav, std::string slot, int ResourceIndex, int Face, int MipSlice)
 {
 	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), ResourceIndex, Face, MipSlice);
+}
+
+void RHICommandList::SetUAV(RHITexture * uav, std::string slot, int ResourceIndex, int Face, int MipSlice)
+{
+	RHIViewDesc desc = RHIViewDesc::DefaultUAV();
+	desc.ArraySlice = Face;
+	desc.Mip = MipSlice;
+	desc.Dimension = uav->GetDescription().Dimension;
+	SetUAV(uav, CurrentPSO->GetDesc().ShaderInUse->GetSlotForName(slot), desc);
 }
 
 void RHICommandList::SetBuffer(RHIBuffer * Buffer, int slot, int ElementOffset)
@@ -427,6 +442,7 @@ void RHICommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, int R
 void RHICommandList::SetUAV(FrameBuffer * uav, int slot, int ResourceIndex, int Face, int MipSlice)
 {
 	RHIViewDesc view;
+	view.Dimension = DIMENSION_TEXTURE2D;
 	view.ArraySlice = Face;
 	view.Mip = MipSlice;
 	view.ResourceIndex = ResourceIndex;

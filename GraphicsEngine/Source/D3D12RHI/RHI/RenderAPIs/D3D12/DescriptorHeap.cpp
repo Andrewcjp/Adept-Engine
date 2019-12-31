@@ -75,6 +75,11 @@ int DescriptorHeap::GetNumberOfDescriptors()
 	return (int)ContainedDescriptors.size();
 }
 
+int DescriptorHeap::GetNumberOfDescriptorsForStats()
+{
+	return  (int)ContainedDescriptors.size() - FrameBoundEnd;
+}
+
 int DescriptorHeap::GetMaxSize()
 {
 	return HeapDesc.NumDescriptors;
@@ -127,6 +132,7 @@ void DescriptorHeap::ClearHeap()
 {
 	MemoryUtils::DeleteVector(ContainedDescriptors);
 	ContainedDescriptors.clear();
+	FrameBoundEnd = 0;
 }
 
 DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)
@@ -147,6 +153,11 @@ DXDescriptor* DescriptorHeap::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type
 	D->Init(type, this, size);
 	AddDescriptor(D, false);
 	return D;
+}
+
+void DescriptorHeap::SetFrameBound()
+{
+	FrameBoundEnd = ContainedDescriptors.size();
 }
 
 void DescriptorHeap::BindHeap(D3D12CommandList * list)

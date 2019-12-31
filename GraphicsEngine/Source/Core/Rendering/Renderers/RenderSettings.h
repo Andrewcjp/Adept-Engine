@@ -34,6 +34,7 @@ struct ERenderDebugOutput
 		Scene_LightRange,
 		Scene_UVs,
 		Scene_ShaderInstructionCount,
+		Scene_Voxel,
 		Limit
 	};
 };

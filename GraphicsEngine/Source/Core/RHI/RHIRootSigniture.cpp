@@ -192,6 +192,14 @@ void RHIRootSigniture::SetUAV(int slot, FrameBuffer* target, const RHIViewDesc& 
 	return In_CreateUAV(Bind, view, slot);
 }
 
+void RHIRootSigniture::SetUAV(int slot, RHITexture * Target, const RHIViewDesc& view)
+{
+	RSBind Bind = {};
+	Bind.BindType = ERSBindType::UAV;
+	Bind.Texture2 = Target;
+	return In_CreateUAV(Bind, view, slot);
+}
+
 void RHIRootSigniture::SetUAV(int slot, RHIBuffer * Target, const RHIViewDesc& view)
 {
 	RSBind Bind = {};
@@ -321,6 +329,16 @@ void RHIRootSigniture::ValidateAllBound()
 	}
 }
 
+uint RHIRootSigniture::GetMaxDescriptorsNeeded() const
+{
+	uint count = 0;
+	for (int i = 0; i < Parms.size(); i++)
+	{
+		count += Parms[i].NumDescriptors;
+	}
+	return count;
+}
+
 void RHIRootSigniture::DefaultParams()
 {
 	for (int i = 0; i < Parms.size(); i++)
@@ -339,7 +357,7 @@ bool RSBind::IsBound() const
 		case ERSBindType::FrameBuffer:
 			return Framebuffer != nullptr;
 		case ERSBindType::UAV:
-			return BufferTarget != nullptr || Framebuffer != nullptr;
+			return BufferTarget != nullptr || Framebuffer != nullptr || Texture2 != nullptr;
 		case ERSBindType::BufferSRV:		
 			return BufferTarget != nullptr;
 		case ERSBindType::CBV://direct in the root sig

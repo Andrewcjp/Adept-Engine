@@ -4,6 +4,7 @@
 #include "Rendering/Core/ShadowRenderer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
+#include "../../RayTracing/VoxelTracingEngine.h"
 
 ShadowUpdateNode::ShadowUpdateNode()
 {
@@ -26,6 +27,7 @@ void ShadowUpdateNode::OnExecute()
 	SetBeginStates(ShadowList);
 	ShadowRenderer::RenderPointShadows(ShadowList);
 	ShadowRenderer::RenderDirectionalShadows(ShadowList);
+	VoxelTracingEngine::Get()->VoxliseTest(ShadowList);
 	SetEndStates(ShadowList);
 	ShadowList->Execute();
 }
