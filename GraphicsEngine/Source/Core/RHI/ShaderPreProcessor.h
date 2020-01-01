@@ -19,8 +19,8 @@ public:
 	static void ProcessForDef(std::string & data, ShaderProgramBase::Shader_Define * Def);
 	RHI_API static bool PreProcessDefines(std::vector<ShaderProgramBase::Shader_Define> & defines, std::string & shaderData);
 	static bool CheckIncludeExists(const std::string& file);
-	RHI_API static std::string LoadShaderIncludeFile(std::string name, IncludeStack* Stack = nullptr);
-	
+	RHI_API static  std::string LoadShaderIncludeFile(std::string name, IncludeStack * Stack = nullptr, uint32 * LineCount = nullptr);
+		
 	RHI_API static bool CheckCSOValid(std::string Name, const  std::string & ShaderNameHash);
 	static void FindRootConstants(ShaderSourceFile* file);
 private:

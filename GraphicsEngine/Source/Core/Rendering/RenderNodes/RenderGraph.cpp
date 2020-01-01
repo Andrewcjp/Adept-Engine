@@ -31,6 +31,7 @@
 #include "Nodes/LightCullingNode.h"
 #include "Nodes/VRXShadingRateNode.h"
 #include "Nodes/ShadowMaskNode.h"
+#include "Nodes/VoxelReflectionsNode.h"
 
 RenderGraph::RenderGraph()
 {}
@@ -227,6 +228,44 @@ void RenderGraph::CreateDefGraphWithRT()
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
 }
 
+void RenderGraph::CreateDefGraphWithVoxelRT()
+{
+	//RequiresRT = true;
+	CreateDefTestgraph();
+	GraphName += "(Voxel)";
+	//find nodes
+	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
+	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
+	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
+	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
+
+	//then insert
+	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode("RTX Buffer"));
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.LinkToBackBufferScaleFactor = 1.0f;
+	Desc.AllowUnorderedAccess = true;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	RTXBuffer->SetFrameBufferDesc(Desc);
+	//UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
+
+	VoxelReflectionsNode* RTNode = new VoxelReflectionsNode();
+	LinkNode(UpdateProbesNode, RTNode);
+	//LinkNode(UpdateAcceleration, RTNode);
+	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(1)->SetLink(gbuffer->GetOutput(0));
+	//RTNode->GetInput(2)->SetStore(ShadowDataNode);
+	ExposeItem(RTNode, StandardSettings::UseRaytrace);
+
+	LightNode->UseScreenSpaceReflection = true;
+
+	//LightNode->UpdateSettings();
+	ExposeNodeOption(LightNode, StandardSettings::UseSSR, &LightNode->UseScreenSpaceReflection, true);
+	LinkNode(RTNode, LightNode);
+	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
+	
+}
+
 void RenderGraph::CreateDefTestgraph()
 {
 	GraphName = "Deferred Renderer";
@@ -239,7 +278,7 @@ void RenderGraph::CreateDefTestgraph()
 	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode("Output Buffer"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	//if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	//if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		Desc.NeedsDepthStencil = true;
 		Desc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
@@ -342,7 +381,7 @@ void RenderGraph::CreateDefTestgraph()
 	VisNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 
-	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		AddVRXSupport();
 	}

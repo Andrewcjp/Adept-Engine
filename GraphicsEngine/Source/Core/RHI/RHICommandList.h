@@ -167,7 +167,7 @@ public:
 	//Used to resolve a framebuffer that is using VRX tech (VRS or VRR)
 	RHI_API void ResolveVRXFramebuffer(FrameBuffer* Target);
 
-	RHI_API void SetVRSShadingRate(VRS_SHADING_RATE::type Rate);
+	RHI_API void SetVRSShadingRate(VRX_SHADING_RATE::type Rate);
 	RHI_API void SetVRRShadingRate(int RateIndex);
 	void PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer * VRRTarget);
 	RHI_API void SetVRXShadingRateImage(RHITexture* RateImage);
@@ -177,7 +177,7 @@ public:
 	RHI_API RHI_VIRTUAL void FlushBarriers();
 	RHITexture* GetShadingRateImage() const { return ShadingRateImage; }
 protected:
-	RHI_API virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate);
+	RHI_API virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);
 
 	RHIPipeLineStateObject* CurrentPSO = nullptr;

@@ -177,7 +177,7 @@ bool PhysxEngine::RayCastScene(glm::vec3 startpos, glm::vec3 direction, float di
 	fd.flags |= PxQueryFlag::ePREFILTER; // note the OR with the default value
 	FPxQueryFilterCallback* filter = new FPxQueryFilterCallback();
 	filter->IgnoredBodies = IgnoredActors;
-	bool result = GetCurrnetScene()->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT), fd, filter);
+	GetCurrnetScene()->raycast(GLMtoPXvec3(startpos), GLMtoPXvec3(direction), distance, hit, PxHitFlags(PxHitFlag::eDEFAULT), fd, filter);
 	SafeDelete(filter);
 	if (hit.hasBlock)
 	{

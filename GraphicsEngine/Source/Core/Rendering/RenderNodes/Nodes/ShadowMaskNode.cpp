@@ -1,19 +1,20 @@
 #include "ShadowMaskNode.h"
-#include "../StorageNodeFormats.h"
-#include "RHI/RHITimeManager.h"
-#include "../../Shaders/Shader_Pair.h"
-#include "../../Core/ShadowRenderer.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "../../Shaders/MultiGPU/Shader_ShadowSample.h"
-#include "../../Core/SceneRenderer.h"
-#include "../StoreNodes/ShadowAtlasStorageNode.h"
-#include "../../Core/LightCulling/LightCullingEngine.h"
-#include "../NodeLink.h"
-#include "../../Core/FrameBuffer.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/ShadowRenderer.h"
+#include "Rendering/RenderNodes/NodeLink.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
+#include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
+#include "Rendering/Shaders/Shader_Pair.h"
+#include "RHI/RHITimeManager.h"
 
 ShadowMaskNode::ShadowMaskNode()
 {
 	OnNodeSettingChange();
+	SetNodeActive(RHI::GetRenderSettings()->GetVRXSettings().UseVRX());
 }
 
 ShadowMaskNode::~ShadowMaskNode()

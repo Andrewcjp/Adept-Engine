@@ -133,7 +133,7 @@ private:
 	uint DrawDispatchCount = 0;
 protected:
 #if WIN10_1903
-	virtual void SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate) override;
+	virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate) override;
 	virtual void SetVRSShadingRateImageNative(RHITexture* Target) override;
 #endif
 };

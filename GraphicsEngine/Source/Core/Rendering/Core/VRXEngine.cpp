@@ -2,7 +2,6 @@
 #include "RHI\Shader.h"
 #include "FrameBuffer.h"
 #include "..\Shaders\VRX\Shader_VRRResolve.h"
-#include "..\Shaders\VRX\Shader_VRSResolve.h"
 #include "RHI\RHITimeManager.h"
 #include "..\Shaders\Shader_Pair.h"
 #include "SceneRenderer.h"
@@ -11,9 +10,12 @@ VRXEngine* VRXEngine::Instance = nullptr;
 
 VRXEngine::VRXEngine()
 {
-	StencilWriteShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
-		{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
-	ResolvePS = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR(RHI::GetDefaultDevice()))
+	{
+		StencilWriteShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
+			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
+		ResolvePS = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+	}
 }
 
 
@@ -47,7 +49,7 @@ void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Targ
 
 void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
-	if (!RenderSettings::GetVRXSettings().EnableVRR)
+	if (!RenderSettings::GetVRXSettings().UseVRR())
 	{
 		return;
 	}
@@ -70,52 +72,30 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		list->SetTexture2(ShadingImage, "RateImage");
 	}
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
-	const int TileSize = 16;
 	list->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);
 	list->UAVBarrier(Target);
-}
-
-void VRXEngine::ResolveVRSFramebuffer(RHICommandList* list, FrameBuffer* Target)
-{
-	if (!RenderSettings::GetVRXSettings().EnableVRS)
-	{
-		return;
-	}
-	if (Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::VRS)
-	{
-		return;
-	}
-	DECALRE_SCOPEDGPUCOUNTER(list, "VRS Resolve");
-	ensure(list->IsComputeList());
-	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRSResolve>());
-	list->SetPipelineStateDesc(Desc);
-	list->SetUAV(Target, "DstTexture");
-	ShaderComplier::GetShader<Shader_VRSResolve>()->BindBuffer(list);
-	list->Dispatch(glm::ceil(Target->GetWidth() / 4), Target->GetHeight() / 4, 1);
-	list->UAVBarrier(Target);
-}
-
-void VRXEngine::SetVRSShadingRate(RHICommandList * List, VRS_SHADING_RATE::type Rate)
-{
-	//#VRX: todo
 }
 
 void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)
 {
 	//#VRX: todo
-	int slot = 13;// List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("VRRData");
-	List->SetSingleRootConstant(slot, FactorIndex);
 }
 
 void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Target)
 {
-	//#VRX: todo
-	//List->SetTexture2(List->GetShadingRateImage(), "VRSTexture");
+	if (List->GetCurrnetPSO() != nullptr && List->GetCurrnetPSO()->GetDesc().ShaderInUse != nullptr)
+	{
+		const std::string TextureName = "VRSTexture";
+		if (List->GetCurrnetPSO()->GetDesc().ShaderInUse->FindParam(TextureName) != nullptr)
+		{
+			List->SetTexture2(List->GetShadingRateImage(), TextureName);
+		}
+	}
 }
 
 void VRXEngine::SetupVRRShader(Shader* S, DeviceContext* device)
 {
-	if (RenderSettings::GetVRXSettings().EnableVRR)
+	if (RenderSettings::GetVRXSettings().UseVRR())
 	{
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SUPPORT_VRR", "1"));
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(device->GetCaps().VRSTileSize)));
@@ -124,26 +104,7 @@ void VRXEngine::SetupVRRShader(Shader* S, DeviceContext* device)
 
 void VRXEngine::AddVRRToRS(std::vector<ShaderParameter>& S, int lastindex /*= 0*/)
 {
-	if (!RenderSettings::GetVRXSettings().EnableVRR)
-	{
-		return;
-	}
-	ShaderParameter Sp = ShaderParameter(ShaderParamType::RootConstant, lastindex, 65);
-	Sp.Name = "VRRData";
-	S.push_back(Sp);
-}
-
-void VRXEngine::SetupVRSShader(Shader * S)
-{
-	if (RenderSettings::GetVRXSettings().EnableVRS)
-	{
-		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SUPPORT_VRS", "1"));
-	}
-}
-
-void VRXEngine::AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex /*= 0*/)
-{
-	if (!RenderSettings::GetVRXSettings().EnableVRS)
+	if (!RenderSettings::GetVRXSettings().UseVRR())
 	{
 		return;
 	}
@@ -152,10 +113,9 @@ void VRXEngine::AddVRSToRS(std::vector<ShaderParameter>& S, uint64 lastindex /*=
 	S.push_back(Sp);
 }
 
-
 void VRXEngine::WriteVRRStencil(RHICommandList* List, FrameBuffer* MainBuffer)
 {
-	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR && MainBuffer != nullptr && MainBuffer->GetDescription().HasStencil())
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR() && MainBuffer != nullptr && MainBuffer->GetDescription().HasStencil())
 	{
 		DECALRE_SCOPEDGPUCOUNTER(List, "VRR Stencil Write");
 		//write the depth stencil

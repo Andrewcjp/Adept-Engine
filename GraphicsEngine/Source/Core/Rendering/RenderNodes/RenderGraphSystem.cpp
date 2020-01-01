@@ -73,6 +73,9 @@ void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraph
 		case EBuiltinRenderGraphs::DeferredRenderer_RT:
 			Graph->CreateDefGraphWithRT();
 			break;
+		case EBuiltinRenderGraphs::DeferredRenderer_VX_RT:
+			Graph->CreateDefGraphWithVoxelRT();
+			break;
 		case EBuiltinRenderGraphs::VRForwardRenderer:
 			Graph->CreateVRFWDGraph();
 			break;

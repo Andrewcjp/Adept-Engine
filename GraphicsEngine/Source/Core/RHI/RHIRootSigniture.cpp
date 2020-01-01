@@ -1,5 +1,5 @@
 #include "RHIRootSigniture.h"
-#if 0
+#if 1
 #define VD_ASSERT(a,b) LogEnsureMsgf(a,b)
 #else
 #define VD_ASSERT(a,b) ensureMsgf(a,b)
@@ -169,7 +169,7 @@ void RHIRootSigniture::SetBufferReadOnly(int slot, RHIBuffer * Target, const RHI
 #if USE_VALIDATION
 	if (RSSlot == nullptr)
 	{
-		VD_ASSERT(false, "Failed to find slot");
+//		VD_ASSERT(false, "Failed to find slot");
 		return;
 	}
 	if (!ValidateType(RSSlot, Bind.BindType))

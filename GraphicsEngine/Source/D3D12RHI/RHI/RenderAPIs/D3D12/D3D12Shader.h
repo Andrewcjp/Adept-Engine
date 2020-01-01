@@ -9,6 +9,7 @@
 #endif
 class D3D12PipeLineStateObject;
 struct DxcDefine;
+struct ShaderSourceFile;
 struct RootSignitureCreateInfo
 {
 	bool IsLocalSig = false;
@@ -80,6 +81,8 @@ private:
 	static std::wstring GetShaderModelString(D3D_SHADER_MODEL Clamp = D3D_SHADER_MODEL_6_1);
 #endif
 	static std::wstring GetComplieTarget(EShaderType::Type t);
+
+	void ReportStats(ShaderSourceFile * ShaderData);
 
 	static const std::string GetUniqueName(std::vector<ShaderParameter>& Params);
 	static D3D12_STATIC_SAMPLER_DESC * ConvertSamplers(std::vector<RHISamplerDesc>& samplers);

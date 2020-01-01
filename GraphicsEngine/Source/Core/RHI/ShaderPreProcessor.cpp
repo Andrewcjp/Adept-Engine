@@ -36,7 +36,7 @@ bool ShaderPreProcessor::CheckIncludeExists(const std::string& file)
 	return FileUtils::File_ExistsTest(AssetManager::GetShaderPath() + file);
 }
 
-std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeStack* Stack)
+std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeStack* Stack, uint32* LineCount)
 {
 	const char * includeText = "#include";
 	const int MaxIncludeTreeLength = 10;
@@ -101,7 +101,7 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeS
 						if (!Stack->HasSeenInclude(RelativeFilePath))
 						{
 							Stack->IncludeList.push_back(RelativeFilePath);
-							data = LoadShaderIncludeFile(RelativeFilePath.c_str(), Stack);
+							data = LoadShaderIncludeFile(RelativeFilePath.c_str(), Stack, LineCount);
 						}
 					}
 					if (data.length() == 0 && CheckIncludeExists(line))
@@ -109,7 +109,7 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeS
 						if (!Stack->HasSeenInclude(line))
 						{
 							Stack->IncludeList.push_back(line);
-							data = LoadShaderIncludeFile(line.c_str(), Stack);
+							data = LoadShaderIncludeFile(line.c_str(), Stack, LineCount);
 						}
 					}
 					file.append(data);
@@ -122,6 +122,10 @@ std::string ShaderPreProcessor::LoadShaderIncludeFile(std::string name, IncludeS
 			else
 			{
 				file.append(line);
+			}
+			if (LineCount != nullptr)
+			{
+				(*LineCount)++;
 			}
 			file.append(" \n");
 		}

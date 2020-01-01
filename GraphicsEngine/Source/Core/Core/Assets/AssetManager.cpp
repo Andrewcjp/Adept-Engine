@@ -274,7 +274,7 @@ ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
 		output = new ShaderSourceFile();
-		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0);
+		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0,&output->LineCount);
 		ShaderPreProcessor::FindRootConstants(output);
 		ShaderSourceMap.emplace(name, output);
 	}

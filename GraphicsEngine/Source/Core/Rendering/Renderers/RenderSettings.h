@@ -42,6 +42,10 @@ struct RayTracingSettings
 {
 	bool Enabled = false;
 };
+struct VoxelSettings
+{
+	bool Enabled = false;
+};
 struct ShadowMappingSettings
 {
 	bool UseGeometryShaderForShadows = false;
@@ -91,9 +95,13 @@ namespace EVRSMode
 }
 struct VRXSettings
 {
-	bool EnableVRR = false;
-	bool EnableVRS = false;
-	EVRSMode::Type VRSMode = EVRSMode::HardwareAndSoftware;
+	bool EnableVRX = false;
+	EVRSMode::Type VRXMode = EVRSMode::HardwareAndSoftware;
+	bool SupportPerDrawRateOnVRR = false;	//not yet supported
+	int VRRTileSize = 16;
+	bool UseVRX(DeviceContext* con = nullptr)const;
+	bool UseVRR(DeviceContext* con = nullptr)const;
+	bool UseVRS(DeviceContext* con = nullptr)const;
 };
 //Props Are Set in the Constructor 
 struct RenderSettings
@@ -126,11 +134,11 @@ public:
 	RendererSettings& GetSettingsForRender();
 	EVRHMDMode::Type VRHMDMode = EVRHMDMode::Disabled;
 	void ValidateSettings();
-	bool AllowNativeVRS = true;
 	bool InitSceneDataOnAllGPUs = true;
-	static const VRXSettings& GetVRXSettings();
+	RHI_API static const VRXSettings& GetVRXSettings();
 	void MaxSupportedCaps(CapabilityData& MaxData);
 	bool ShouldRunGPUTests = false;
+	VoxelSettings& GetVoxelSet();
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;
@@ -140,6 +148,7 @@ private:
 	ERenderDebugOutput::Type CurrentDebug = ERenderDebugOutput::Off;
 	SFRSettings CurrnetSFRSettings;
 	VRXSettings VRXSet;
+	VoxelSettings VoxelSet;
 
 
 };

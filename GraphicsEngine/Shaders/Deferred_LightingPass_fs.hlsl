@@ -11,7 +11,7 @@ TextureCube SpecularBlurMap[MAX_CUBEMAPS]: register(t11);
 Texture2D envBRDFTexture: register(t12);
 
 Texture2D PerSampledShadow: register(t13);
-#if WITHRT
+#if 1//WITHRT
 Texture2D ScreenSpaceSpec: register(t14);
 #endif
 #if !VULKAN
@@ -46,8 +46,8 @@ struct VS_OUTPUT
 #include "ReflectionEnviroment.hlsl"
 float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 {
-#if WITHRT
-	float4 prefilteredColor = ScreenSpaceSpec.Sample(g_Clampsampler, ScreenPos);
+#if 1//WITHRT
+	float4 prefilteredColor = ScreenSpaceSpec.Sample(g_Clampsampler, ScreenPos.xy);
 	if (prefilteredColor.a > 0.0)
 	{
 		return prefilteredColor.xyz;
@@ -56,11 +56,11 @@ float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
 
 	return GetReflectionColor(R, Roughness);
 }
-#define VOXEL_TRACE 1
+#define VOXEL_TRACE 0
 #if VOXEL_TRACE
 #include "Shading/ReflectionsTrace.hlsl"
 #include "Voxel/VoxelTrace_PS.hlsl"
-Texture3D<float4> voxelTex :  register(t50);
+Texture3D<uint4> voxelTex :  register(t50);
 #endif
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target

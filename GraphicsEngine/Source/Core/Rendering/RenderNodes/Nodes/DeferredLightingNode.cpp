@@ -18,6 +18,7 @@
 DeferredLightingNode::DeferredLightingNode()
 {
 	ViewMode = EViewMode::PerView;
+	UseScreenSpaceReflection = true;
 	OnNodeSettingChange();
 }
 
@@ -53,7 +54,7 @@ void DeferredLightingNode::OnExecute()
 	desc.InitOLD(false, false, false);
 	desc.ShaderInUse = DeferredShader;
 	desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
-	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		desc.DepthStencilState.StencilEnable = true;
 		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
@@ -61,12 +62,12 @@ void DeferredLightingNode::OnExecute()
 	}
 	List->SetPipelineStateDesc(desc);
 
-	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().EnableVRR ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
+	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().UseVRR() ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	List->BeginRenderPass(D);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-	if (UseScreenSpaceReflection)
+	if (UseScreenSpaceReflection && GetInput(4)->IsValid())
 	{
 		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(4);
 		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
@@ -80,9 +81,6 @@ void DeferredLightingNode::OnExecute()
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBufferB(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
-#if 1
-	List->SetTexture2(VoxelTracingEngine::Get()->VoxelMap, DeferredLightingShaderRSBinds::VX);
-#endif
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
 		GetShadowDataFromInput(3)->BindPointArray(List, 6);
@@ -111,7 +109,7 @@ void DeferredLightingNode::OnNodeSettingChange()
 	{
 		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ScreenReflectionData, "SSR Data");
 	}
-	if (RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ShadingImage, "VRX Image");
 	}

@@ -36,6 +36,7 @@ public:
 	void ApplyEditorToGraph();
 	void AddVRXSupport();
 	void CreateDefGraphWithRT();
+	void CreateDefGraphWithVoxelRT();
 	void CreateDefTestgraph();
 
 	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());

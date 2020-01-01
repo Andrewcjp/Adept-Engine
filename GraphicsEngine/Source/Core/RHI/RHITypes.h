@@ -548,7 +548,7 @@ namespace EFrameBufferSizeMode
 		Fixed,//Resize is handled explicitly 
 		LinkedToRenderScale, //the Scale of the renderer
 		LinkedToScreenSize, //Linked to the screen size
-		LinkedToRenderScale_TileSize,
+		LinkedToRenderScale_TileSize,//size based on the render scale split into VRS tiles
 		Limit
 	};
 };
@@ -596,21 +596,17 @@ struct RHIViewDesc
 	RHI_API bool operator==(const RHIViewDesc other)const;
 	uint32 OffsetInDescriptor = 0;
 };
-#define MAX_VARIABLE_RATE_FACTORS 6
+
 struct FrameBufferVariableRateSettings
 {
 	enum VRateMode
 	{
 		None,
 		VRR,//Raster at coarse rate
-		VRS,//Shade at coarse rate
-		VRS_Decoupled,//Shade at coarse rate, 2nd pass at full rate.
 		Limit
 	};
-	int ResolutionSlices = 2;
-	float DisplayResFactors[MAX_VARIABLE_RATE_FACTORS] = { 1.0f,0.9f,0.7f,0.6f,0.5f,0.1f };
 	FrameBufferVariableRateSettings::VRateMode BufferMode = FrameBufferVariableRateSettings::None;
-	bool UsesVRS()const;
+	bool UsesVRR()const;
 };
 struct RHIFrameBufferDesc
 {
@@ -855,7 +851,7 @@ namespace EDeviceIndex
 	};
 };
 
-namespace VRS_SHADING_RATE
+namespace VRX_SHADING_RATE
 {
 	enum type
 	{

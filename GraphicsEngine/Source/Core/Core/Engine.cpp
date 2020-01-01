@@ -69,6 +69,9 @@ Engine::Engine(EnginePersistentData* epd) :
 	Log::OutS << "Running with TDSim" << Log::OutS;
 #endif
 	ModuleManager::Get()->PreLoadModules();
+#if !BUILD_SHIPPING
+	TestArea();
+#endif
 }
 
 Engine::~Engine()
@@ -187,7 +190,7 @@ void Engine::CreateApplication()
 #else
 		RHI::InitRHI(RenderSystemD3D12);
 #endif
-}
+	}
 	else
 	{
 		RHI::InitRHI(ForcedRenderSystem);
@@ -302,7 +305,32 @@ Cooker * Engine::GetCookContext()
 {
 	return Get()->CookContext;
 }
-
+#if !BUILD_SHIPPING
+uint EncodeC(glm::vec3 color)
+{
+	float hdr = glm::length(color);
+	color /= hdr;
+	glm::ivec3 iColor = glm::ivec3(color.rgb * 255.0f);
+	uint colorMask = (iColor.r << 16u) | (iColor.g << 8u) | iColor.b;
+	return colorMask;
+}
+glm::vec3 DecodeColour(uint packed)
+{
+	glm::vec3 color = glm::vec3();
+	color.r = (packed >> 16u) & 0x000000ff;
+	color.g = (packed >> 8u) & 0x000000ff;
+	color.b = packed & 0x000000ff;
+	color /= 255.0f;
+	return color;
+}
+void Engine::TestArea()
+{
+	glm::vec3 col = glm::vec3(1, 0, 1);
+	uint ColourData = EncodeC(col); 
+	glm::vec3 output = DecodeColour(ColourData);
+	//__debugbreak();
+}
+#endif
 
 void Engine::HandleInput(unsigned int key)
 {

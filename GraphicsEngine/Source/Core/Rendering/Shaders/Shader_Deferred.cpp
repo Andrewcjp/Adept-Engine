@@ -6,8 +6,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Deferred);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_0, Shader_Deferred, int, 0, nullptr);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_1, Shader_Deferred, int, FrameBufferVariableRateSettings::VRR, nullptr);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_2, Shader_Deferred, int, FrameBufferVariableRateSettings::VRS, nullptr);
-DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Deferred_3, Shader_Deferred, int, FrameBufferVariableRateSettings::VRS_Decoupled, nullptr);
 Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 {
 	//Initialize shader
@@ -16,11 +14,7 @@ Shader_Deferred::Shader_Deferred(DeviceContext* dev, int VRSMODE) :Shader(dev)
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("LIGHTCULLING_TILE_SIZE", std::to_string(RHI::GetRenderConstants()->LIGHTCULLING_TILE_SIZE)));
 
-	if (VRSMODE == FrameBufferVariableRateSettings::VRS && RHI::GetRenderSettings()->GetVRXSettings().EnableVRS)
-	{
-		VRXEngine::SetupVRSShader(this);
-	}
-	else if (VRSMODE == FrameBufferVariableRateSettings::VRR && RHI::GetRenderSettings()->GetVRXSettings().EnableVRR)
+	if (VRSMODE == FrameBufferVariableRateSettings::VRR && RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		VRXEngine::SetupVRRShader(this, dev);
 	}

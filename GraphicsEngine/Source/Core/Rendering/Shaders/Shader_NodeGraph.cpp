@@ -46,7 +46,6 @@ std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 #else
 	std::vector<ShaderParameter> Params = Shader::GetShaderParameters();
 #endif
-	VRXEngine::AddVRSToRS(Params, Params.size() - 1);
 	return Params;
 }
 

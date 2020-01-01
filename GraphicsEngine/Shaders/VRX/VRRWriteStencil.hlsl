@@ -14,7 +14,7 @@ PUSHCONST cbuffer ResData : register(b1)
 float4 main(VS_OUTPUT input) : SV_Target
 {
 	int2 pos = input.uv.xy *(float2)Resolution.xy;
-	int ShadingRate = RateImage[pos.xy/16];
+	int ShadingRate = RateImage[pos.xy/ VRS_TILE_SIZE];
 	int2 Rate =  GetShadingRate(ShadingRate);
 	if (IsPixelSource(pos.xy, Rate))
 	{

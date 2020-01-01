@@ -9,7 +9,10 @@ VoxelTracingEngine* VoxelTracingEngine::Instance = nullptr;
 
 void VoxelTracingEngine::VoxliseTest(RHICommandList * list)
 {
-	DECALRE_SCOPEDGPUCOUNTER(list,"Voxelise");
+	if (!RHI::GetRenderSettings()->GetVoxelSet().Enabled)
+	{
+		return;
+	}
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(voxeliseShader);
 	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterizerState.ConservativeRaster = true;
@@ -28,6 +31,10 @@ void VoxelTracingEngine::VoxliseTest(RHICommandList * list)
 
 void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buffer)
 {
+	if (!RHI::GetRenderSettings()->GetVoxelSet().Enabled)
+	{
+		return;
+	}
 	DECALRE_SCOPEDGPUCOUNTER(list,"RenderVoxelDebug");
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(DebugvoxeliseShader, buffer);
 	desc.RasterizerState.Cull = false;
@@ -35,7 +42,7 @@ void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buf
 	desc.DepthStencilState.DepthEnable = true;
 	desc.Cull = false;
 	list->SetPipelineStateDesc(desc);
-	list->BeginRenderPass(RHIRenderPassDesc(buffer));
+	list->BeginRenderPass(RHIRenderPassDesc(buffer,ERenderPassLoadOp::Clear));
 	RHIViewDesc d = RHIViewDesc::DefaultSRV();
 	d.Dimension = DIMENSION_TEXTURE3D;
 	list->SetTexture2(VoxelMap, 0, d);
@@ -46,6 +53,10 @@ void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buf
 
 VoxelTracingEngine::VoxelTracingEngine()
 {
+	if (!RHI::GetRenderSettings()->GetVoxelSet().Enabled)
+	{
+		return;
+	}
 	voxeliseShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Voxel\\Voxelise_VS","Voxel\\Voxelise_GS","Voxel\\Voxelise_PS" },
 		{ EShaderType::SHADER_VERTEX,EShaderType::SHADER_GEOMETRY,EShaderType::SHADER_FRAGMENT }, { ShaderProgramBase::Shader_Define("MAX_INSTANCES", std::to_string(RHI::GetRenderConstants()->MAX_MESH_INSTANCES)) });
 	DebugvoxeliseShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Voxel\\VoxelDebugOut_VS","Voxel\\VoxelDebugOut_GS","Voxel\\VoxelDebugOut_PS" },
@@ -58,7 +69,7 @@ VoxelTracingEngine::VoxelTracingEngine()
 	Desc.Depth = size;
 	Desc.AllowUnorderedAccess = true;
 	Desc.Dimension = DIMENSION_TEXTURE3D;
-	Desc.Format = FORMAT_R32G32B32A32_FLOAT;
+	Desc.Format = FORMAT_R32G32B32A32_UINT;
 	Desc.Name = "Voxel Struct";
 	VoxelMap->Create(Desc);
 }

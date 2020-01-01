@@ -42,6 +42,7 @@ struct ShaderSourceFile
 {
 	std::string Source;
 	std::vector<std::string> RootConstants;
+	uint32 LineCount = 0;
 };
 class AssetManager
 {

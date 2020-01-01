@@ -22,21 +22,22 @@ RenderSettings::RenderSettings()
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	VRXSet.EnableVRS = false;
-	//VRXSet.EnableVRR = true;
+	VRXSet.EnableVRX = true;
+	VRXSet.VRRTileSize = 32;
 	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
 	}
+	//VoxelSet.Enabled = true;
 }
- 
+
 void RenderSettings::ValidateSettings()
 {
 	if (VRHMDMode != EVRHMDMode::Disabled)
-	{ 
-		RTSettings.Enabled = false; 
+	{
+		RTSettings.Enabled = false;
 	}
 #if !RHI_SUPPORTS_RT
 	//until software version is ready.
@@ -58,6 +59,11 @@ void RenderSettings::MaxSupportedCaps(CapabilityData& MaxData)
 		MaxData.VRSSupport = Math::Max(MaxData.VRSSupport, Data.VRSSupport);
 		MaxData.SupportsViewInstancing = Math::Max(MaxData.SupportsViewInstancing, Data.SupportsViewInstancing);
 	}
+}
+
+VoxelSettings& RenderSettings::GetVoxelSet()
+{
+	return VoxelSet;
 }
 
 void RenderSettings::ValidateForAPI(ERenderSystemType system)
@@ -84,21 +90,21 @@ void RenderSettings::SetRes(BBTestMode::Type Mode)
 	LockBackBuffer = true;
 	switch (Mode)
 	{
-		case BBTestMode::HD:
-			LockedWidth = 1920;
-			LockedHeight = 1080;
-			break;
-		case BBTestMode::QHD:
-			LockedWidth = 2560;
-			LockedHeight = 1440;
-			break;
-		case BBTestMode::UHD:
-			LockedWidth = 3840;
-			LockedHeight = 2160;
-			break;
-		case BBTestMode::Limit:
-			LockBackBuffer = false;
-			break;
+	case BBTestMode::HD:
+		LockedWidth = 1920;
+		LockedHeight = 1080;
+		break;
+	case BBTestMode::QHD:
+		LockedWidth = 2560;
+		LockedHeight = 1440;
+		break;
+	case BBTestMode::UHD:
+		LockedWidth = 3840;
+		LockedHeight = 2160;
+		break;
+	case BBTestMode::Limit:
+		LockBackBuffer = false;
+		break;
 	}
 }
 
@@ -117,12 +123,12 @@ std::string RenderSettings::ToString(BBTestMode::Type t)
 {
 	switch (t)
 	{
-		case BBTestMode::HD:
-			return "HD 1080P";
-		case BBTestMode::QHD:
-			return "QHD 1440P";
-		case BBTestMode::UHD:
-			return "UHD 2160P";
+	case BBTestMode::HD:
+		return "HD 1080P";
+	case BBTestMode::QHD:
+		return "QHD 1440P";
+	case BBTestMode::UHD:
+		return "UHD 2160P";
 	}
 	return "?";
 }
@@ -177,4 +183,39 @@ ShadowMappingSettings & RenderSettings::GetShadowSettings()
 DynamicResolutionSettings & RenderSettings::GetDynamicResolutionSettings()
 {
 	return DRSSettings;
+}
+
+bool VRXSettings::UseVRX(DeviceContext* con)const
+{
+	return UseVRS(con) || UseVRR(con);
+}
+
+bool VRXSettings::UseVRR(DeviceContext* con) const
+{
+	if (VRXMode == EVRSMode::HardwareOnly || !EnableVRX)
+	{
+		return false;
+	}
+	if (UseVRS(con))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool VRXSettings::UseVRS(DeviceContext* con) const
+{
+	if (VRXMode == EVRSMode::ForceSoftwareOnly || !EnableVRX)
+	{
+		return false;
+	}
+	if (con == nullptr)
+	{
+		con = RHI::GetDefaultDevice();
+	}
+	if (con->GetCaps().VRSSupport >= EVRSSupportType::Hardware)
+	{
+		return true;
+	}
+	return false;
 }

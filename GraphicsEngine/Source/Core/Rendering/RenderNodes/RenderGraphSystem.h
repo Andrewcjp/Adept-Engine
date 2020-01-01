@@ -6,6 +6,7 @@ namespace EBuiltinRenderGraphs
 		Fallback,//in the event of error this graph is used
 		DeferredRenderer,
 		DeferredRenderer_RT,
+		DeferredRenderer_VX_RT,
 		ForwardRenderer,
 		VRForwardRenderer,
 		Pathtracing,

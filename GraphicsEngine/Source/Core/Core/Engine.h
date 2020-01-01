@@ -58,6 +58,9 @@ public:
 	static void						ImmediateExit(int code = 0);
 	CORE_API static void			AssertExit(int code = -1);
 	static Cooker*					GetCookContext();
+#if !BUILD_SHIPPING
+	void							TestArea();
+#endif
 private:
 	EnginePersistentData*			EPD = nullptr;
 

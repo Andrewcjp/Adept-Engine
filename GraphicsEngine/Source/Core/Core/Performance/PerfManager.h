@@ -122,7 +122,7 @@ public:
 	void FlushSingleActionTimers();
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
-	void FlushSingleActionTimer(std::string name);
+	CORE_API void FlushSingleActionTimer(std::string name);
 	void WriteLogStreams(bool UseRaw);
 	std::vector<TimerData*> GetAllGPUTimers(std::string group);
 	CORE_API static void StartBenchMark(std::string name = std::string());

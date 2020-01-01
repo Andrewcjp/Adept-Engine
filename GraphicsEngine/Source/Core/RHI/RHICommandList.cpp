@@ -193,24 +193,13 @@ void RHICommandList::ResolveVRXFramebuffer(FrameBuffer * Target)
 	{
 		VRXEngine::ResolveVRRFramebuffer(this, Target, GetShadingRateImage());
 	}
-	else
-	{
-		if (Device->GetCaps().VRSSupport == EVRSSupportType::None || !RHI::GetRenderSettings()->AllowNativeVRS)
-		{
-			VRXEngine::Get()->ResolveVRSFramebuffer(this, Target);
-		}
-	}
 }
 
-void RHICommandList::SetVRSShadingRate(VRS_SHADING_RATE::type Rate)
+void RHICommandList::SetVRSShadingRate(VRX_SHADING_RATE::type Rate)
 {
-	if (Device->GetCaps().VRSSupport != EVRSSupportType::None && RHI::GetRenderSettings()->AllowNativeVRS)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRS(GetDevice()))
 	{
 		SetVRSShadingRateNative(Rate);
-	}
-	else
-	{
-		VRXEngine::Get()->SetVRSShadingRate(this, Rate);
 	}
 }
 
@@ -218,6 +207,7 @@ void RHICommandList::SetVRRShadingRate(int RateIndex)
 {
 	VRXEngine::Get()->SetVRRShadingRate(this, RateIndex);
 }
+
 void RHICommandList::PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer* VRRTarget)
 {
 	ShadingRateImage = RateImage;
@@ -225,7 +215,7 @@ void RHICommandList::PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffe
 	{
 		return;
 	}
-	if (Device->GetCaps().VRSSupport >= EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRS(Device))
 	{
 		//VRS overrides VRR
 		return;
@@ -243,11 +233,11 @@ void RHICommandList::SetVRXShadingRateImage(RHITexture * RateImage)
 	{
 		return;
 	}
-	if (Device->GetCaps().VRSSupport >= EVRSSupportType::Hardware &&  RHI::GetRenderSettings()->AllowNativeVRS)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRS(Device))
 	{
 		SetVRSShadingRateImageNative(RateImage);
 	}
-	else
+	else if(RHI::GetRenderSettings()->GetVRXSettings().UseVRR(Device))
 	{
 		VRXEngine::Get()->SetVRXShadingRateImage(this, RateImage);
 	}
@@ -264,11 +254,9 @@ ECommandListType::Type RHICommandList::GetListType() const
 }
 
 void RHICommandList::FlushBarriers()
-{
+{}
 
-}
-
-void RHICommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
+void RHICommandList::SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate)
 {
 	NOAPIIMP(SetVRSShadingRateNative);
 }
@@ -280,8 +268,6 @@ void RHICommandList::SetVRSShadingRateImageNative(RHITexture * Target)
 
 void RHIBuffer::Release()
 {}
-
-
 
 RHIBuffer::RHIBuffer(ERHIBufferType::Type type)
 {
@@ -309,8 +295,6 @@ RHITextureArray::RHITextureArray(DeviceContext * device, int inNumEntries)
 	NumEntries = inNumEntries;
 	ObjectSufix = "(TexArray)";
 }
-
-
 
 RHIRenderPass::RHIRenderPass(const RHIRenderPassDesc & desc)
 {

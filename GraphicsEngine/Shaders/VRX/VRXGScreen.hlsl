@@ -10,8 +10,7 @@ Texture2D<float4> ShadowMask : register(t1);
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-	int ShadingRate = D3D12_MAKE_COARSE_SHADING_RATE(RATE_1X, RATE_1X);
-
+	int ShadingRate = SHADING_RATE_1X1;
 	bool Hit = false;
 	int2 Origin = DTid.xy*VRS_TILE_SIZE;
 	for (int x = 0; x < VRS_TILE_SIZE; x++)
@@ -33,7 +32,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	}
 	if (!Hit)
 	{
-		ShadingRate = D3D12_MAKE_COARSE_SHADING_RATE(RATE_2X, RATE_2X);
+		ShadingRate = SHADING_RATE_2X2;
 	}
 	RateData[DTid.xy] = ShadingRate;
 }

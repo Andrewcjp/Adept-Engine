@@ -147,7 +147,7 @@ void D3D12CommandList::PushPrimitiveTopology()
 	}
 }
 #if WIN10_1903
-void D3D12CommandList::SetVRSShadingRateNative(VRS_SHADING_RATE::type Rate)
+void D3D12CommandList::SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate)
 {
 	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
 	ensure(CmdList5 != nullptr);

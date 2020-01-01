@@ -237,11 +237,11 @@ void D3D12DeviceContext::CheckFeatures()
 		}
 	}
 	else
+#endif
 	{
 		Caps_Data.VRSSupport = EVRSSupportType::None;
-		Caps_Data.VRSTileSize = 16;
+		Caps_Data.VRSTileSize = RHI::GetRenderSettings()->GetVRXSettings().VRRTileSize;
 	}
-#endif
 	if (options.CrossNodeSharingTier != D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED)
 	{
 		switch (options.CrossNodeSharingTier)

@@ -14,11 +14,13 @@
 
 
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
+static ConsoleVariable ShaderCompileStats("ShaderStats", 0, ECVarType::LaunchOnly);
 #if !BUILD_SHIPPING
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 #endif
 D3D12Shader::D3D12Shader(DeviceContext* Device)
 {
+	ShaderCompileStats.SetValue(true);
 	CurrentDevice = D3D12RHI::DXConv(Device);
 	//	NoShaderCache.SetValue(true);
 	CacheBlobs = !NoShaderCache.GetBoolValue();
@@ -213,7 +215,22 @@ std::wstring D3D12Shader::GetComplieTarget(EShaderType::Type t)
 	}
 	return L"";
 }
-
+void D3D12Shader::ReportStats(ShaderSourceFile* ShaderData)
+{
+	if (ShaderCompileStats.GetBoolValue())
+	{
+		std::string Msg = "Shader compile Stats\n";
+		float time = PerfManager::Get()->EndSingleActionTimer("D3D12Shader::AttachAndCompileShaderFromFile");
+		PerfManager::Get()->FlushSingleActionTimer("D3D12Shader::AttachAndCompileShaderFromFile");
+		Msg += "Took: " + StringUtils::ToString(time) + "ms\n";
+		if (ShaderData != nullptr)
+		{
+			Msg += "Lines: " + std::to_string(ShaderData->LineCount) + " (Length: " + std::to_string(ShaderData->Source.length()) + ")\n";
+		}
+		Msg += "Instruction Count: " + std::to_string(InstructionCount) + "";
+		Log::LogMessage(Msg);
+	}
+}
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
 #if !BUILD_SHIPPING
@@ -232,6 +249,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		return EShaderError::SHADER_ERROR_NONE;
 	}
 	SCOPE_STARTUP_COUNTER("Shader Compile");
+	PerfManager::Get()->StartSingleActionTimer("D3D12Shader::AttachAndCompileShaderFromFile");
 #if BUILD_SHIPPING
 	ensureFatalMsgf(false, "Failed to load shader blob");
 #endif
@@ -357,8 +375,9 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
 #endif
+	ReportStats(ShaderData);
 	return EShaderError::SHADER_ERROR_NONE;
-}
+	}
 
 bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName)
 {
@@ -414,7 +433,7 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 #endif
 	OutputName += ".cso";
 	return OutputName;
-}
+	}
 #if WIN10_1809
 void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 {
@@ -439,7 +458,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 	if (*Blob == nullptr)
 	{
 		return false;
-	}
+}
 	return true;
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && ShaderPreProcessor::CheckCSOValid(Name, FullShaderName))
@@ -450,11 +469,11 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #endif
 		return true;
-	}
+}
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
-}
+	}
 
 void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)
 {
@@ -466,7 +485,7 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 #else
 		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(AssetManager::GetShaderCacheDir() + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 #endif
-	}
+}
 }
 
 D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(ShaderBlob* b)
@@ -752,12 +771,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
 		}
-	}
+}
 	//#RHI: Samplers
 
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);

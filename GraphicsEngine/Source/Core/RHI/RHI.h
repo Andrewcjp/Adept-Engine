@@ -8,7 +8,7 @@
 #include "Rendering\RayTracing\RHIStateObject.h"
 #include "Core\Module\ModuleInterface.h"
 #include "RHI_inc_fwd.h"
-#define USE_FLAT_COMPUTE 0
+#define USE_FLAT_COMPUTE 1
 #if USE_FLAT_COMPUTE
 #define FLAT_COMPUTE_START(device) device->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 #define FLAT_COMPUTE_END(device) device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);

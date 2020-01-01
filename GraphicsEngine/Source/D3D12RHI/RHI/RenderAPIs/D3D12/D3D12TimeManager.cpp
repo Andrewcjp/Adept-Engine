@@ -201,6 +201,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	}
 	ensure(index > -1);
 	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
+	List->FlushBarriers();
 	EndTimer(List, index, List->IsCopyList());
 #if PIX_ENABLED
 	PIXEndEvent(List->GetCommandList());

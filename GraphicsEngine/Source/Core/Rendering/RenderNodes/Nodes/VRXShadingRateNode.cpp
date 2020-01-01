@@ -43,7 +43,7 @@ void VRXShadingRateNode::OnExecute()
 
 bool VRXShadingRateNode::IsNodeSupported(const RenderSettings& settings)
 {
-	return settings.GetVRXSettings().EnableVRR || settings.GetVRXSettings().EnableVRS;
+	return settings.GetVRXSettings().UseVRR() ;
 }
 
 void VRXShadingRateNode::OnNodeSettingChange()

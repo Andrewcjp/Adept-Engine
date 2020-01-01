@@ -478,9 +478,9 @@ bool RHIViewDesc::operator==(const RHIViewDesc other) const
 		Dimension == other.Dimension;
 }
 
-bool FrameBufferVariableRateSettings::UsesVRS() const
+bool FrameBufferVariableRateSettings::UsesVRR() const
 {
-	return BufferMode == VRS && RHI::GetRenderSettings()->GetVRXSettings().EnableVRS;
+	return BufferMode == VRR && RHI::GetRenderSettings()->GetVRXSettings().UseVRR();
 }
 
 AccelerationStructureDesc::AccelerationStructureDesc()
