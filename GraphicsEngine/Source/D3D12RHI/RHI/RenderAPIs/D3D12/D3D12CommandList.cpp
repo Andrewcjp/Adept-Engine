@@ -402,7 +402,7 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 	}
 	m_IsOpen = false;
 	CommandAlloc->SetUser(nullptr);
-	if (RHI::GetFrameCount() % 100 == 0)
+	if (RHI::GetFrameCount() % 100 == 0 && false)
 	{
 		if (ListType != ECommandListType::Copy)
 		{

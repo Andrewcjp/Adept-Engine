@@ -21,7 +21,7 @@ void DXDescriptor::Init(D3D12_DESCRIPTOR_HEAP_TYPE T, DescriptorHeap* heap, int 
 
 D3D12_GPU_DESCRIPTOR_HANDLE DXDescriptor::GetGPUAddress(int index)
 {
-	return Owner->GetGpuAddress(indexInHeap + index);
+	return Owner->GetGPUAddress(indexInHeap + index);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DXDescriptor::GetCPUAddress(int index)

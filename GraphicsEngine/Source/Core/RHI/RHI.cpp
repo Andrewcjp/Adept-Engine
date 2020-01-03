@@ -41,24 +41,24 @@ RHI::RHI(ERenderSystemType system)
 	switch (CurrentSystem)
 	{
 #if BUILD_D3D12
-		case ERenderSystemType::RenderSystemD3D12:
-			Log::LogMessage("Loading DirectX 12 RHI");
-			RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
-			ensure(RHImodule);
-			CurrentRHI = RHImodule->GetRHIClass();
-			break;
+	case ERenderSystemType::RenderSystemD3D12:
+		Log::LogMessage("Loading DirectX 12 RHI");
+		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
+		ensure(RHImodule);
+		CurrentRHI = RHImodule->GetRHIClass();
+		break;
 #endif
 #if BUILD_VULKAN
-		case ERenderSystemType::RenderSystemVulkan:
-			Log::LogMessage("Loading Vulkan RHI");
-			RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
-			ensure(RHImodule);
-			CurrentRHI = RHImodule->GetRHIClass();
-			break;
+	case ERenderSystemType::RenderSystemVulkan:
+		Log::LogMessage("Loading Vulkan RHI");
+		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("VulkanRHI");
+		ensure(RHImodule);
+		CurrentRHI = RHImodule->GetRHIClass();
+		break;
 #endif
-		default:
-			ensureFatalMsgf(false, "Selected RHI not Avalable");
-			break;
+	default:
+		ensureFatalMsgf(false, "Selected RHI not Avalable");
+		break;
 	}
 	ensureFatalMsgf(CurrentRHI, "RHI load failed");
 }
@@ -622,7 +622,10 @@ void RHI::ResizeSwapChain(int width, int height)
 
 void RHI::DestoryContext()
 {
-	SafeDelete(Get()->RenderSystem);
+	if (Get())
+	{
+		SafeDelete(Get()->RenderSystem);
+	}
 	Defaults::Shutdown();
 	if (GetRHIClass())
 	{
@@ -686,8 +689,8 @@ RHIPipeLineStateObject* PipelineStateObjectCache::GetFromCache(RHIPipeLineStateD
 		if (PSOMap[i]->GetDesc() == desc)
 		{
 			return PSOMap[i];
-		}
 	}
+}
 	return RHI::CreatePipelineStateObject(desc, Device);
 #endif
 }
@@ -707,7 +710,7 @@ void PipelineStateObjectCache::Destory()
 	for (auto itor = PSOMap.begin(); itor != PSOMap.end(); itor++)
 	{
 		SafeRelease(itor->second);
-	}
+}
 #else
 	MemoryUtils::DeleteReleaseableVector(PSOMap);
 #endif

@@ -65,7 +65,11 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 #else
 	for (int i = 0; i < target->GetMeshObjects().size(); i++)
 	{
-		GameObject* CurrentObj = target->GetMeshObjects()[i];		
+		GameObject* CurrentObj = target->GetMeshObjects()[i];	
+		if (!CurrentObj->GetIsActive())
+		{
+			continue;
+		}
 		ProcessObject(CurrentObj, maincam, cullcount);
 	}
 #endif
@@ -74,6 +78,11 @@ void CullingManager::UpdateMainPassFrustumCulling(Camera * maincam, Scene * targ
 
 void CullingManager::ProcessObject(GameObject* CurrentObj, Camera * maincam, int& cullcount)
 {
+	if (CurrentObj->DisableCulling)
+	{
+		CurrentObj->SetCulledState(ECullingPass::MainPass, false);
+		return;
+	}
 	if (CurrentObj->GetMesh() != nullptr)
 	{
 		if (!CurrentObj->IsOnLayer(maincam->RenderMask))
@@ -88,7 +97,6 @@ void CullingManager::ProcessObject(GameObject* CurrentObj, Camera * maincam, int
 		}
 		CurrentObj->SetCulledState(ECullingPass::MainPass, culled);
 	}	
-	return;
 }
 
 void CullingManager::UpdateCullingForShadowLight(Light* light, Scene* target)

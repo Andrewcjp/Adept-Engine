@@ -42,21 +42,24 @@ float4 SampleCoursePixel(uint2 Fullpos)
 	}
 	return DstTexture[Fullpos.xy];
 }
-
+#define VRR_BLEND 1
+#define BUILD_SHIPPING 0
 #ifndef PS_RESOLVE
+
 [numthreads(16, 16, 1)]
-void main(uint3 DTid : SV_DispatchThreadID)
+void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 {
 	const int2 ShadingRateImageXY = (DTid.xy / VRS_TILE_SIZE);
 	const int ShadingRate = RateImage[ShadingRateImageXY.xy];
 	uint2 Rate = GetShadingRate(ShadingRate);
+
 	[branch]
 	if (!IsPixelSource(DTid.xy, Rate))
 	{
 		//find the corse pixel for this pixel
 		const int2 DeltaToMain = DTid.xy % Rate.xy;
 		const int2 SourcePixel = DTid.xy - DeltaToMain;
-#if 1
+#if VRR_BLEND
 		[branch]
 		if (LerpBlend > 0.0f)
 		{
@@ -74,6 +77,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 		}
 		//todo: use other corse pixels to smooth output
 	}
+#if !BUILD_SHIPPING
 	if (DebugShow)
 	{
 		DstTexture[DTid.xy] += GetColourForRate(ShadingRate)*0.5f;
@@ -85,6 +89,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 			DstTexture[DTid.xy] += float4(1, 0, 0, 1)*0.5f;
 		}
 	}
+#endif
 }
 #endif
 

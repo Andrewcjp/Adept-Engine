@@ -36,7 +36,7 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 	else
 	{
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
-		RelfectShader(REF, iscompute, shaderbinds, Type,shader);
+		RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 	}
 #endif
 	ApplyRootConstantPatch(REF, shaderbinds, Sourcefile);
@@ -75,9 +75,9 @@ void ShaderReflection::ApplyRootConstantPatch(ID3D12ShaderReflection* REF, std::
 					if (!FAILED(VCB->GetDesc(&d)))
 					{
 						int RawSize = 0;// all CBs are aligned to 16 bytes
-						for (int i = 0; i < d.Variables; i++)
+						for (uint vindex = 0; vindex < d.Variables; vindex++)
 						{
-							vr = VCB->GetVariableByIndex(i);
+							vr = VCB->GetVariableByIndex(vindex);
 							D3D12_SHADER_VARIABLE_DESC VR_desc = {};
 							if (!FAILED(vr->GetDesc(&VR_desc)))
 							{
@@ -93,7 +93,6 @@ void ShaderReflection::ApplyRootConstantPatch(ID3D12ShaderReflection* REF, std::
 		}
 	}
 }
-
 
 void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::vector<ShaderParameter> & shaderbinds)
 {
@@ -111,7 +110,28 @@ void ShaderReflection::RelfectShaderFromLib(ID3D12FunctionReflection* REF, std::
 		}
 	}
 }
-
+RHI_SHADER_VISIBILITY GetVisForShader(EShaderType::Type Type)
+{
+	switch (Type)
+	{
+	case EShaderType::SHADER_VERTEX:
+		return SHADER_VISIBILITY_VERTEX;
+	case EShaderType::SHADER_FRAGMENT:
+		return SHADER_VISIBILITY_PIXEL;
+		break;
+	case EShaderType::SHADER_GEOMETRY:
+		return SHADER_VISIBILITY_GEOMETRY;
+	case EShaderType::SHADER_COMPUTE:
+		return SHADER_VISIBILITY_ALL;
+	case EShaderType::SHADER_HULL:
+		break;
+	case EShaderType::SHADER_DOMAIN:
+		break;
+	case EShaderType::SHADER_RT_LIB:
+		break;
+	}
+	return SHADER_VISIBILITY_ALL;
+}
 void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscompute, std::vector<ShaderParameter> & shaderbinds, EShaderType::Type Type, D3D12Shader* shader)
 {
 	if (REF == nullptr)
@@ -120,16 +140,15 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 	}
 	D3D12_SHADER_DESC desc;
 	REF->GetDesc(&desc);
-	int ProgramTYpe = (desc.Version & 0xFFFF0000) >> 16;
-	if (ProgramTYpe == D3D12_SHADER_VERSION_TYPE::D3D12_SHVER_COMPUTE_SHADER)
+	int ProgramType = (desc.Version & 0xFFFF0000) >> 16;
+	if (ProgramType == D3D12_SHADER_VERSION_TYPE::D3D12_SHVER_COMPUTE_SHADER)
 	{
 		iscompute = true;
 	}
-	for (unsigned int i = 0; i < desc.BoundResources; i++)
+	for (uint i = 0; i < desc.BoundResources; i++)
 	{
 		D3D12_SHADER_INPUT_BIND_DESC TMPdesc;
 		REF->GetResourceBindingDesc(i, &TMPdesc);
-		//todo: restrict visibility and then detect duplicates and adjust visibility
 		ShaderParameter p = ConvertParm(TMPdesc);
 		if (Type == EShaderType::SHADER_FRAGMENT && p.Type == ShaderParamType::SRV)
 		{
@@ -143,16 +162,8 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 	if (iscompute)
 	{
 		uint x, y, z = 0;
-		uint ThreadCount = REF->GetThreadGroupSize(&x, &y, &z);
+		REF->GetThreadGroupSize(&x, &y, &z);
 		shader->ComputeThreadSize = glm::ivec3(x, y, z);
-		if (ThreadCount < 32)
-		{
-			AD_WARN("Low Thread count on Compute shader(" + std::to_string(ThreadCount) + ") this will cause under utilization on NVidia hardware(32)");
-		}
-		else if (ThreadCount < 64)
-		{
-			AD_WARN("Low Thread count on Compute shader(" + std::to_string(ThreadCount) + ") this will cause under utilization on AMD hardware(64)");
-		}
 	}
 	shader->InstructionCount = desc.InstructionCount;
 }
@@ -164,32 +175,33 @@ ShaderParameter ShaderReflection::ConvertParm(D3D12_SHADER_INPUT_BIND_DESC& desc
 	S.RegisterSlot = desc.BindPoint;
 	S.RegisterSpace = desc.Space;
 	S.Name = desc.Name;
+	S.Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL;
 	switch (desc.Type)
 	{
-		case D3D_SIT_CBUFFER:
-			S.Type = ShaderParamType::CBV;
-			break;
-		case D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_CONSUME_STRUCTURED:
-		case D3D_SHADER_INPUT_TYPE::D3D11_SIT_STRUCTURED:
-		case D3D_SHADER_INPUT_TYPE::D3D11_SIT_BYTEADDRESS:
-		case D3D_SIT_TEXTURE:
-			S.Type = ShaderParamType::SRV;
-			break;
-		case D3D11_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-		case D3D_SIT_UAV_RWSTRUCTURED:
-		case D3D11_SIT_UAV_RWTYPED:
-		case D3D_SIT_UAV_RWBYTEADDRESS:
-			S.Type = ShaderParamType::UAV;
-			break;
-		case D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER:
-			S.Type = ShaderParamType::Sampler;
-			break;
-		case 12://RaytracingAccelerationStructure
-			S.Type = ShaderParamType::AccelerationStructure;
-			break;
-		default:
-			__debugbreak();
-			break;
+	case D3D_SIT_CBUFFER:
+		S.Type = ShaderParamType::CBV;
+		break;
+	case D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_CONSUME_STRUCTURED:
+	case D3D_SHADER_INPUT_TYPE::D3D11_SIT_STRUCTURED:
+	case D3D_SHADER_INPUT_TYPE::D3D11_SIT_BYTEADDRESS:
+	case D3D_SIT_TEXTURE:
+		S.Type = ShaderParamType::SRV;
+		break;
+	case D3D11_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+	case D3D_SIT_UAV_RWSTRUCTURED:
+	case D3D11_SIT_UAV_RWTYPED:
+	case D3D_SIT_UAV_RWBYTEADDRESS:
+		S.Type = ShaderParamType::UAV;
+		break;
+	case D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER:
+		S.Type = ShaderParamType::Sampler;
+		break;
+	case 12://RaytracingAccelerationStructure
+		S.Type = ShaderParamType::AccelerationStructure;
+		break;
+	default:
+		__debugbreak();
+		break;
 
 	}
 	return S;

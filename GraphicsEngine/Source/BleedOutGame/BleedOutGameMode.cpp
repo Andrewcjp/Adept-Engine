@@ -202,6 +202,7 @@ void BleedOutGameMode::SpawnPlayer(glm::vec3 Pos, Scene* Scene)
 	GameObject* Cam = new GameObject("PlayerCamera");
 	AudioEngine::Get()->MakeDefaultListener(Cam);
 	Cam->SetParent(go);
+	Cam->DisableCulling = true;
 	player->CameraObject = Cam;
 	WeaponManager* manager = go->AttachComponent(new WeaponManager());
 	manager->Weapons[Weapon::WeaponType::Rifle] = go->AttachComponent(new Weapon(Weapon::WeaponType::Rifle, Scene, player));

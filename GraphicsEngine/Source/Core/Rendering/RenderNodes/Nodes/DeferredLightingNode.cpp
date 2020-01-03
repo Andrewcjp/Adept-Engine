@@ -14,6 +14,7 @@
 #include "RHI/RHITimeManager.h"
 #include "../../Core/VRXEngine.h"
 #include "../../RayTracing/VoxelTracingEngine.h"
+#include "../../Renderers/Terrain/TerrainRenderer.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {

@@ -8,10 +8,10 @@
 #include "Core/Transform.h"
 #include "Core/Components/Component.h"
 #include "Core/Components/ComponentRegistry.h"
-#define SERAL_VERSION_NUMBER 1
+
 
 #define IN_ArchiveProp(Property) LinkProperty(Property,#Property);
-Archive::Archive(std::string FilePath, bool Write):
+Archive::Archive(std::string FilePath, bool Write) :
 	FileName(FilePath),
 	IsAchiveReading(!Write)
 {
@@ -118,7 +118,7 @@ void Archive::LinkProperty(std::string & Value, const char * PropName)
 			check(key == PropName);
 			CurrentReadHead++;
 			return;
-		}		
+		}
 		ensure(CurrentReadHead->value.IsString());
 		Value = CurrentReadHead->value.GetString();
 		CurrentReadHead++;
@@ -139,7 +139,7 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 		{
 			Component* newc = nullptr;
 			rapidjson::Value*  cv = &t[i];
-			
+
 			for (auto cit = cv->MemberBegin(); cit != cv->MemberEnd(); cit++)
 			{
 				//read the first part of the object for the components ID
@@ -175,9 +175,9 @@ void Archive::LinkProperty(std::vector<Component*> & Value, const char * PropNam
 	}
 }
 
-void Archive::HandleArchiveBody(std::string Name)
+void Archive::HandleArchiveBody(std::string Name, int VersionNum)
 {
-	int VersionNumber = SERAL_VERSION_NUMBER;
+	int VersionNumber = VersionNum;
 	if (IsReading())
 	{
 		CurrentReadHead = doc.MemberBegin();
@@ -189,10 +189,10 @@ void Archive::HandleArchiveBody(std::string Name)
 		IN_ArchiveProp(VersionNumber);
 	}
 	else
-	{		
+	{
 		CurrentReadHead = CurrentReadHead->value.MemberBegin();
 		IN_ArchiveProp(VersionNumber);
-		ensureFatalMsgf(SERAL_VERSION_NUMBER == VersionNumber, "Incorrect Version from file");		
+		ensureFatalMsgf(VersionNum == VersionNumber, "Incorrect Version from file");
 	}
 }
 void Archive::EndHeaderWrite(std::string Name)

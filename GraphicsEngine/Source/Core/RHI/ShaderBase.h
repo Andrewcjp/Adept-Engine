@@ -70,7 +70,7 @@ struct ShaderParameter
 		}
 	}
 	ShaderParamType::Type Type = ShaderParamType::Limit;
-	RHI_SHADER_VISIBILITY Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL;
+	int Visiblity = RHI_SHADER_VISIBILITY::SHADER_VISIBILITY_ALL;
 	int SignitureSlot = 0;
 	int RegisterSlot = 0;
 	int NumDescriptors = 1;

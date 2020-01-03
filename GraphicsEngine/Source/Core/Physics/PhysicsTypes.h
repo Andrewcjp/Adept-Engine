@@ -10,6 +10,7 @@ namespace EShapeType
 		eBOX,
 		eCONVEXMESH,
 		eTRIANGLEMESH,
+		eHeightField,
 		eLimit
 	};
 }

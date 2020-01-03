@@ -88,16 +88,20 @@ UINT64 D3D12QueryHeap::GetHeapTypeSize()
 	{
 		return sizeof(UINT64);
 	}
-	if (HeapType == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS)
+	else if (HeapType == D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS)
 	{
 		return sizeof(D3D12_QUERY_DATA_PIPELINE_STATISTICS);
+	}
+	else if (HeapType == D3D12_QUERY_HEAP_TYPE_OCCLUSION)
+	{
+		return sizeof(UINT64);
 	}
 	return 1;
 }
 void D3D12QueryHeap::CreateHeap()
 {
 	const UINT resultCount = HeapSize;//sync with count;
-	const UINT resultBufferSize = resultCount * GetHeapTypeSize();
+	const UINT64 resultBufferSize = resultCount * GetHeapTypeSize();
 
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
@@ -121,7 +125,7 @@ void D3D12QueryHeap::CreateHeap()
 void D3D12QueryHeap::CreateResultsBuffer()
 {
 	const UINT resultCount = HeapSize;//sync with count;
-	const UINT resultBufferSize = resultCount * GetHeapTypeSize();
+	const UINT64 resultBufferSize = resultCount * GetHeapTypeSize();
 	for (int i = 0; i < RHI::CPUFrameCount; i++)
 	{
 		D3D12_QUERY_HEAP_DESC timestampHeapDesc = {};

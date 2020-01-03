@@ -91,7 +91,11 @@ public:
 	bool IsOnLayer(SceneLayerMask Mask)const;
 
 	uint GetLastMovedFrame();
+	bool DisableCulling = false;
+	bool GetIsActive() const { return IsActive; }
+	void SetIsActive(bool val) { IsActive = val; }
 private:
+	bool IsActive = true;
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);
 	//all object created from scene will have id 

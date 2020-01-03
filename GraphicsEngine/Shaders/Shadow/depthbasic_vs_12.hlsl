@@ -1,5 +1,4 @@
 #include "Core\Common.hlsl"
-#include "VKInterOp.hlsl"
 #if WITH_INSTANCING
 cbuffer GOConstantBuffer : register(b0)
 {
@@ -21,7 +20,7 @@ cbuffer SceneconstantBuffer : register(b2)
 	row_major matrix Projection;
 	float3 LightPos;
 };
-PUSHCONSTANT cbuffer VIData : register(b3)
+PUSHCONST cbuffer VIData : register(b3)
 {
 	int Offset;
 }

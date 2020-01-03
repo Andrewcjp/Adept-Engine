@@ -28,6 +28,7 @@ public:
 	CORE_API virtual void SceneInitComponent() override;
 	CORE_API virtual void OnTransformUpdate() override;
 	LowLevelAccelerationStructure* GetAccelerationStructure()const;
+
 private:
 	std::vector<LowLevelAccelerationStructure*> MeshAcclerations = { nullptr };
 	Mesh* m_mesh = nullptr;

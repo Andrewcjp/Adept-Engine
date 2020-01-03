@@ -26,7 +26,7 @@ size_t ParmeterBindSet::GetSize()
 {
 	size_t total = 0;
 	std::map<std::string, MaterialShaderParameter>::const_iterator it;
-	for (it = BindMap.begin(); it != BindMap.end(); it++)
+	for (it = BindMap.begin(); it != BindMap.end(); ++it)
 	{
 		total += it->second.GetSize();
 	}

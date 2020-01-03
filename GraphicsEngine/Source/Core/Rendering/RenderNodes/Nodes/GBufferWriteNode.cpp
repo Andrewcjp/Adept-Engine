@@ -8,6 +8,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
 #include "RHI/RHITimeManager.h"
+#include "../../Renderers/Terrain/TerrainRenderer.h"
 
 
 GBufferWriteNode::GBufferWriteNode()
@@ -51,7 +52,7 @@ void GBufferWriteNode::OnExecute()
 	Args.ReadDepth = UsePreZPass;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 	CommandList->EndRenderPass();
-
+	TerrainRenderer::Get()->RenderTerrainGBuffer(GBuffer, CommandList, GBuffer);
 	SetEndStates(CommandList);
 	CommandList->EndTimer(EGPUTIMERS::DeferredWrite);
 	CommandList->Execute();

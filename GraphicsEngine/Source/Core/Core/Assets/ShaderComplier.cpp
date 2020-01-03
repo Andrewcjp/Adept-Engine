@@ -30,11 +30,8 @@ ShaderComplier * ShaderComplier::Get()
 
 void ShaderComplier::ComplieAllGlobalShaders()
 {
-#if BASIC_RENDER_ONLY
-	return;
-#endif
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
-	int CurrnetCount = 0;
+	int CurrentCount = 0;
 	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMapDefinitions.begin(); it != GlobalShaderMapDefinitions.end(); ++it)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
@@ -43,10 +40,9 @@ void ShaderComplier::ComplieAllGlobalShaders()
 			ComplieShader(NewShader, RHI::GetDeviceContext(i));
 			GetShaderMap(RHI::GetDeviceContext(i))->emplace(it->first, NewShader);
 		}
-		CurrnetCount++;
-		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrnetCount) + "/" + std::to_string(GetShaderMap()->size()));
+		CurrentCount++;
+		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size()));
 	}
-
 }
 
 void ShaderComplier::FreeAllGlobalShaders()

@@ -41,13 +41,13 @@ DescriptorHeap::~DescriptorHeap()
 	}
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGpuAddress(int index)
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUAddress(uint index)
 {
 	ensure(index < DescriptorCount);
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(mHeap->GetGPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUAddress(int index)
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUAddress(uint index)
 {
 	ensure(index < DescriptorCount);
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(mHeap->GetCPUDescriptorHandleForHeapStart(), index, DescriptorOffsetSize);
@@ -70,32 +70,32 @@ void DescriptorHeap::AddDescriptor(DXDescriptor* desc, bool Create /*= true*/)
 	ContainedDescriptors.push_back(desc);
 }
 
-int DescriptorHeap::GetNumberOfDescriptors()
+uint64 DescriptorHeap::GetNumberOfDescriptors()
 {
-	return (int)ContainedDescriptors.size();
+	return ContainedDescriptors.size();
 }
 
-int DescriptorHeap::GetNumberOfDescriptorsForStats()
+uint64 DescriptorHeap::GetNumberOfDescriptorsForStats()
 {
-	return  (int)ContainedDescriptors.size() - FrameBoundEnd;
+	return  ContainedDescriptors.size() - FrameBoundEnd;
 }
 
-int DescriptorHeap::GetMaxSize()
+UINT DescriptorHeap::GetMaxSize()
 {
 	return HeapDesc.NumDescriptors;
 }
 
-int DescriptorHeap::GetNextFreeIndex()
+uint DescriptorHeap::GetNextFreeIndex()
 {
-	int Count = 0;
-	for (int i = 0; i < ContainedDescriptors.size(); i++)
+	uint Count = 0;
+	for (uint i = 0; i < ContainedDescriptors.size(); i++)
 	{
 		Count += ContainedDescriptors[i]->GetSize();
 	}
 	return Count;
 }
 
-void DescriptorHeap::MoveAllToHeap(DescriptorHeap * heap, int offset)
+void DescriptorHeap::CopyToHeap(DescriptorHeap * heap)
 {
 	for (int i = 0; i < ContainedDescriptors.size(); i++)
 	{
@@ -155,7 +155,7 @@ DXDescriptor* DescriptorHeap::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type
 	return D;
 }
 
-void DescriptorHeap::SetFrameBound()
+void DescriptorHeap::SetFrameGuardBound()
 {
 	FrameBoundEnd = ContainedDescriptors.size();
 }
@@ -176,11 +176,6 @@ void DescriptorHeap::Release()
 		RemoveCheckerRef(DescriptorHeap, this);
 		SafeRelease(mHeap);
 	}
-}
-
-void DescriptorHeap::SetPriority(EGPUMemoryPriority NewPriority)
-{
-	Priority = NewPriority;
 }
 
 ID3D12DescriptorHeap * DescriptorHeap::GetHeap()

@@ -236,7 +236,7 @@ void RenderGraph::CreateDefGraphWithVoxelRT()
 	//find nodes
 	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
 	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
-	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
+	//ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
 	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
 
 	//then insert

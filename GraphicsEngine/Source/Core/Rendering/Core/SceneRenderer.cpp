@@ -21,6 +21,7 @@
 #include "../RayTracing/RayTracingEngine.h"
 #include "Screen.h"
 #include "ShadowRenderer.h"
+#include "../Renderers/Terrain/TerrainRenderer.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -61,6 +62,7 @@ SceneRenderer::SceneRenderer()
 	QuadBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDefaultDevice());
 	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
 	QuadBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
+	TerrainRenderer::Get();
 }
 
 

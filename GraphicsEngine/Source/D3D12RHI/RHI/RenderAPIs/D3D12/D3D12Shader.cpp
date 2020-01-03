@@ -376,16 +376,21 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	stats.ShaderComplieCount++;
 #endif
 	ReportStats(ShaderData);
-	return EShaderError::SHADER_ERROR_NONE;
+	if (ShaderType == EShaderType::SHADER_COMPUTE)
+	{
+		uint ThreadCount = ComputeThreadSize.x + ComputeThreadSize.y + ComputeThreadSize.z;
+		if (ThreadCount < 32)
+		{
+			AD_WARN("'" + path + "' Has Low Thread count (" + std::to_string(ThreadCount) + ") this will cause under utilization on NVidia hardware(32)");
+		}
+		else if (ThreadCount < 64)
+		{
+			AD_WARN("'" + path + "' Has Low Thread count  (" + std::to_string(ThreadCount) + ") this will cause under utilization on AMD hardware(64)");
+		}
 	}
-
-bool D3D12Shader::CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName)
-{
-	std::string ShaderSRCPath = AssetManager::GetShaderPath() + ShaderName + ".hlsl";
-	std::string ShaderCSOPath = AssetManager::GetDDCPath() + "Shaders\\" + FullShaderName;
-	//if the source is newer than the CSO recompile
-	return PlatformApplication::CheckFileSrcNewer(ShaderSRCPath, ShaderCSOPath);
+	return EShaderError::SHADER_ERROR_NONE;
 }
+
 #if WIN10_1809
 void WriteBlobToHandle(_In_opt_ IDxcBlob *pBlob, _In_ HANDLE hFile, _In_opt_ LPCWSTR pFileName)
 {
@@ -433,7 +438,7 @@ const std::string D3D12Shader::GetShaderNamestr(const std::string & Shadername, 
 #endif
 	OutputName += ".cso";
 	return OutputName;
-	}
+}
 #if WIN10_1809
 void ReadFileIntoBlob(LPCWSTR pFileName, IDxcBlobEncoding **ppBlobEncoding)
 {
@@ -458,7 +463,7 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 	if (*Blob == nullptr)
 	{
 		return false;
-}
+	}
 	return true;
 #else	
 	if (FileUtils::File_ExistsTest(ShaderPath) && ShaderPreProcessor::CheckCSOValid(Name, FullShaderName))
@@ -469,11 +474,11 @@ bool D3D12Shader::TryLoadCachedShader(const std::string& Name, ShaderBlob** Blob
 		ThrowIfFailed(D3DReadFileToBlob(StringUtils::ConvertStringToWide(ShaderPath).c_str(), Blob));
 #endif
 		return true;
-}
+	}
 	Log::LogMessage("Recompile triggered for " + Name);
 	return false;
 #endif
-	}
+}
 
 void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type type)
 {
@@ -485,7 +490,7 @@ void D3D12Shader::WriteBlobs(const std::string & shadername, EShaderType::Type t
 #else
 		ThrowIfFailed(D3DWriteBlobToFile(*GetCurrentBlob(type), StringUtils::ConvertStringToWide(AssetManager::GetShaderCacheDir() + GetShaderNamestr(shadername, GetShaderInstanceHash(), type)).c_str(), true));
 #endif
-}
+	}
 }
 
 D3D12_SHADER_BYTECODE D3D12Shader::GetByteCode(ShaderBlob* b)
@@ -502,7 +507,6 @@ void D3D12Shader::CreateComputePipelineShader(D3D12PipeLineStateObject* output, 
 	computePsoDesc.CS = GetByteCode(blobs->csBlob);
 	computePsoDesc.NodeMask = context->GetNodeMask();
 	ThrowIfFailed(D3D12RHI::DXConv(context)->GetDevice()->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&output->PSO)));
-
 }
 
 void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC* inputDisc, int DescCount, ShaderBlobs* blobs, const RHIPipeLineStateDesc& PSODesc,
@@ -738,11 +742,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		}
 #endif
 	}
-	D3D12_SHADER_VISIBILITY BaseSRVVis = D3D12_SHADER_VISIBILITY_ALL;
-	if (compute)
-	{
-		BaseSRVVis = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
-	}
+
 	CD3DX12_DESCRIPTOR_RANGE1* ranges = nullptr;
 	if (RangeNumber > 0)
 	{
@@ -750,37 +750,37 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 	}
 	for (int i = 0; i < Params.size(); i++)
 	{
+		D3D12_SHADER_VISIBILITY ShaderVisible = (D3D12_SHADER_VISIBILITY)Params[i].Visiblity;
 		if (Params[i].Type == ShaderParamType::SRV || Params[i].Type == ShaderParamType::Buffer)
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
-			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], compute ? BaseSRVVis : (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
+			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], ShaderVisible);
 		}
 		else if (Params[i].Type == ShaderParamType::CBV || Params[i].Type == ShaderParamType::Buffer)
 		{
-			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, ShaderVisible);
 		}
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
-			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, ShaderVisible);
 		}
 		else if (Params[i].Type == ShaderParamType::UAV)
 		{
 #if !UAVRANGES
-			rootParameters[Params[i].SignitureSlot].InitAsUnorderedAccessView(Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+			rootParameters[Params[i].SignitureSlot].InitAsUnorderedAccessView(Params[i].RegisterSlot, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, ShaderVisible);
 #else
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
-			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], D3D12_SHADER_VISIBILITY_ALL);
+			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], ShaderVisible);
 #endif
-	}
+		}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
-			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, (D3D12_SHADER_VISIBILITY)Params[i].Visiblity);
+			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, ShaderVisible);
 		}
-}
-	//#RHI: Samplers
-
+	}
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
 	D3D12_ROOT_SIGNATURE_FLAGS RsFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
 #if WIN10_1809
 	if (Info.IsLocalSig)
 	{

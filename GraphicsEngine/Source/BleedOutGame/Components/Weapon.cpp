@@ -58,6 +58,7 @@ Weapon::Weapon(Weapon::WeaponType T, Scene* scene, BleedOutPlayer* player, GameO
 void Weapon::CreateModel(Scene* s, GameObject* cameraobj)
 {
 	GameObject* go = new GameObject("Gun Test");
+	go->DisableCulling = true;
 	Material* mat = Material::CreateDefaultMaterialInstance();
 	go->GetTransform()->SetPos(glm::vec3(0, 2, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -204,6 +205,7 @@ void Weapon::SetState(bool state)
 	if (WeaponModel != nullptr && WeaponModel->GetMeshRenderer() != nullptr)
 	{
 		WeaponModel->GetMeshRenderer()->SetVisiblity(state);
+		WeaponModel->SetIsActive(state);
 	}
 }
 

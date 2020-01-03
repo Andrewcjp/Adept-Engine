@@ -66,7 +66,7 @@ void DescriptorHeapManager::ClearMainHeap()
 	}
 	else
 	{
-		GetMainHeap()->SetFrameBound();
+		GetMainHeap()->SetFrameGuardBound();
 	}
 }
 

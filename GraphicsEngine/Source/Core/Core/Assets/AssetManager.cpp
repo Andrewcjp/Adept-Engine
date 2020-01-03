@@ -150,12 +150,12 @@ std::string AssetManager::GetPlatformDirName()
 void AssetManager::WriteShaderMetaFile(ShaderSourceFile * file, std::string path)
 {
 	if (file->RootConstants.size() == 0)
-	{		
+	{
 		return;
 	}
 	std::string Metapath = GetShaderCacheDir() + path + ".meta";
 	Archive* File = new Archive(Metapath, true);
-	File->HandleArchiveBody("ShaderData");
+	File->HandleArchiveBody("ShaderData", ShaderSourceFile::VersionNum);
 	File->LinkStringArray(file->RootConstants, "RootConstants");
 	File->EndHeaderWrite("ShaderData");
 	File->Write();
@@ -171,7 +171,7 @@ bool AssetManager::LoadShaderMetaFile(std::string CSOpath, ShaderSourceFile** fi
 	ShaderSourceFile* MetaData = new ShaderSourceFile();
 	*file = MetaData;
 	Archive* File = new Archive(Metapath);
-	File->HandleArchiveBody("ShaderData");
+	File->HandleArchiveBody("ShaderData", ShaderSourceFile::VersionNum);
 	File->LinkStringArray(MetaData->RootConstants, "RootConstants");
 	SafeDelete(File);
 	return true;
@@ -181,10 +181,12 @@ const std::string AssetManager::GetShaderCacheDir()
 {
 	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
 }
+
 const std::string AssetManager::GetDriverShaderCacheDir()
 {
 	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
 }
+
 void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
@@ -243,16 +245,16 @@ void AssetManager::InitAssetSettings(EPlatforms::Type Platform)
 {
 	switch (Platform)
 	{
-		case EPlatforms::Windows:
-		case EPlatforms::Linux:
-			PlatformSettings.ClampTextures = false;
-			PlatformSettings.MaxHeight = 8192;
-			PlatformSettings.MaxWidth = 8192;
-			break;
-		case EPlatforms::Android:
-			PlatformSettings.MaxHeight = 128;
-			PlatformSettings.MaxWidth = 128;
-			break;
+	case EPlatforms::Windows:
+	case EPlatforms::Linux:
+		PlatformSettings.ClampTextures = false;
+		PlatformSettings.MaxHeight = 8192;
+		PlatformSettings.MaxWidth = 8192;
+		break;
+	case EPlatforms::Android:
+		PlatformSettings.MaxHeight = 128;
+		PlatformSettings.MaxWidth = 128;
+		break;
 	}
 }
 
@@ -274,7 +276,7 @@ ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
 		output = new ShaderSourceFile();
-		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0,&output->LineCount);
+		output->Source = ShaderPreProcessor::LoadShaderIncludeFile(name, 0, &output->LineCount);
 		ShaderPreProcessor::FindRootConstants(output);
 		ShaderSourceMap.emplace(name, output);
 	}
@@ -332,7 +334,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	{
 		Fileref.IsDDC = true;
 		return RHI::CreateTexture(Fileref, Device, Desc);
-}
+	}
 	else
 	{
 		//File is not a DDS
@@ -374,24 +376,24 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 #endif
 	}
 	return ImageIO::GetDefaultTexture();
-	}
+}
 
 std::string TextureImportSettings::GetTypeString()
 {
 	switch (Compression)
 	{
-		case ECompressionSetting::None:
-			return " FP32 ";
-			break;
-		case ECompressionSetting::FP16:
-			return " FP16 ";
-		case ECompressionSetting::BRGA:
-			return " BGRA ";
-		case ECompressionSetting::BC1:
-			return " BC1_UNORM ";
-			break;
-		case ECompressionSetting::Limit:
-			break;
+	case ECompressionSetting::None:
+		return " FP32 ";
+		break;
+	case ECompressionSetting::FP16:
+		return " FP16 ";
+	case ECompressionSetting::BRGA:
+		return " BGRA ";
+	case ECompressionSetting::BC1:
+		return " BC1_UNORM ";
+		break;
+	case ECompressionSetting::Limit:
+		break;
 	}
 	return "  ";
 }

@@ -2,6 +2,7 @@
 #include "rapidjson\document.h"
 #include <functional>
 #include "SerialHelpers.h"
+#define SERAL_VERSION_NUMBER 1
 class Archive
 {
 public:
@@ -17,7 +18,7 @@ public:
 	CORE_API void LinkProperty(glm::vec2 & value, const char* PropName);
 	//Complex Core Types
 	CORE_API void LinkProperty(std::vector<class Component*>& Value, const char * PropName);
-	void HandleArchiveBody(std::string Name);
+	void HandleArchiveBody(std::string Name,int Version = SERAL_VERSION_NUMBER);
 	void EndHeaderWrite(std::string Name);
 	CORE_API void LinkProperty(class Transform * Value, const char * PropName);
 	CORE_API void LinkProperty(class Scene * Value, const char * PropName);

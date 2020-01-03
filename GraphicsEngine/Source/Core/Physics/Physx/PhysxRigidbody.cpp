@@ -164,44 +164,48 @@ void PhysxRigidbody::AttachCollider(Collider * col)
 		}
 		switch (Shape->GetType())
 		{
-			case EShapeType::eBOX:
-			{
-				BoxElem* BoxShape = (BoxElem*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(PhysxEngine::GLMtoPXvec3(BoxShape->Extents)), *PMaterial, UseExclusiveShapes);
-				break;
-			}
-			case EShapeType::eSPHERE:
-			{
-				SphereElem* SphereShape = (SphereElem*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial, UseExclusiveShapes);
-				break;
-			}
-			case EShapeType::eCAPSULE:
-			{
-				CapsuleElm* SphereShape = (CapsuleElm*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxCapsuleGeometry(SphereShape->raduis, SphereShape->height), *PMaterial, UseExclusiveShapes);
-				newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(PxHalfPi, PxVec3(0, 0, 1))));
-				break;
-			}
-			case EShapeType::ePLANE:
-			{
-				//PlaneElm* SphereShape = (PlaneElm*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial, UseExclusiveShapes);
-				newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
-				break;
-			}
-			case EShapeType::eCONVEXMESH:
-			{
-				ConvexMeshElm* SphereShape = (ConvexMeshElm*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxConvexMeshGeometry(GenerateConvexMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, UseExclusiveShapes);
-				break;
-			}
-			case EShapeType::eTRIANGLEMESH:
-			{
-				TriMeshElm* SphereShape = (TriMeshElm*)Shape;
-				newShape = PhysxEngine::GetGPhysics()->createShape(PxTriangleMeshGeometry(GenerateTriangleMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, UseExclusiveShapes);
-				break;
-			}
+		case EShapeType::eBOX:
+		{
+			BoxElem* BoxShape = (BoxElem*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxBoxGeometry(PhysxEngine::GLMtoPXvec3(BoxShape->Extents)), *PMaterial, UseExclusiveShapes);
+			break;
+		}
+		case EShapeType::eSPHERE:
+		{
+			SphereElem* SphereShape = (SphereElem*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxSphereGeometry(SphereShape->raduis), *PMaterial, UseExclusiveShapes);
+			break;
+		}
+		case EShapeType::eCAPSULE:
+		{
+			CapsuleElm* SphereShape = (CapsuleElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxCapsuleGeometry(SphereShape->raduis, SphereShape->height), *PMaterial, UseExclusiveShapes);
+			newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(PxHalfPi, PxVec3(0, 0, 1))));
+			break;
+		}
+		case EShapeType::ePLANE:
+		{
+			//PlaneElm* SphereShape = (PlaneElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxPlaneGeometry(), *PMaterial, UseExclusiveShapes);
+			newShape->setLocalPose(PxTransform(PhysxEngine::GLMtoPXvec3(glm::vec3(0, 0, 0)), PxQuat(0, 1, 0, 0)));
+			break;
+		}
+		case EShapeType::eCONVEXMESH:
+		{
+			ConvexMeshElm* SphereShape = (ConvexMeshElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxConvexMeshGeometry(GenerateConvexMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, UseExclusiveShapes);
+			break;
+		}
+		case EShapeType::eTRIANGLEMESH:
+		{
+			TriMeshElm* SphereShape = (TriMeshElm*)Shape;
+			newShape = PhysxEngine::GetGPhysics()->createShape(PxTriangleMeshGeometry(GenerateTriangleMesh(SphereShape->MeshAssetName, SphereShape->Scale)), *PMaterial, UseExclusiveShapes);
+			break;
+		}
+		case EShapeType::eHeightField:
+		{
+			break;
+		}
 		}
 		ensure(newShape);
 		newShape->userData = col;
