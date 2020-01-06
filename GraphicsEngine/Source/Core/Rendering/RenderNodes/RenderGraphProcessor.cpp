@@ -164,13 +164,13 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 			T.Target = frame->TargetLink;
 			RenderNode* Targetnode = timeline->Frames[i - 1]->Node;
 			bool CanNodeTransition = EResourceState::IsStateValidForList(Targetnode->GetNodeQueueType(), frame->State);
-			if (!CanNodeTransition)
+			if (!CanNodeTransition )
 			{
 				ensure(EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), frame->State));
 				frame->Node->AddBeginTransition(T);
 				if (LogTranstions)
 				{
-					std::string data = " Node " + frame->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
+					std::string data = "Node " + frame->Node->GetName() + " Direct Transitions resource " + timeline->Resource->Name + " to state: "
 						+ EResourceState::ToString(frame->State);
 					Log::LogMessage(data);
 				}

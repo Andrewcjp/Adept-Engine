@@ -156,10 +156,13 @@ void D3D12CommandList::SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate)
 
 void D3D12CommandList::SetVRSShadingRateImageNative(RHITexture* Target)
 {
+	D3D12_SHADING_RATE_COMBINER combiner[D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT] = {};
+	combiner[1] = D3D12_SHADING_RATE_COMBINER::D3D12_SHADING_RATE_COMBINER_OVERRIDE;
+	CmdList5->RSSetShadingRate(D3D12_SHADING_RATE::D3D12_SHADING_RATE_1X1, combiner);
 	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
 	ensure(CmdList5 != nullptr);
 	GPUResource* Resource = D3D12RHI::DXConv(Target)->GetResource();
-	Resource->SetResourceState(GetCMDList4(), D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
+	Resource->SetResourceState(this, D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
 	ensure(Resource->GetCurrentState() == D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE);
 	CmdList5->RSSetShadingRateImage(Resource->GetResource());
 }
@@ -746,6 +749,7 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 	{
 		return;
 	}
+	DBuffer->ValidateState();
 	ensure(DBuffer->CheckDevice(Device->GetDeviceIndex()));
 	RootSigniture.SetFrameBufferTexture(slot, buffer, desc);
 	CommandCount++;

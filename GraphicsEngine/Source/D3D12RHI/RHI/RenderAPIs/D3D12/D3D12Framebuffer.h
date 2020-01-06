@@ -31,6 +31,7 @@ public:
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);
 	void							HandleResize() override;
+	void ValidateState();
 	bool							IsReadyForCompute()const;
 	virtual const RHIPipeRenderTargetDesc& GetPiplineRenderDesc();
 

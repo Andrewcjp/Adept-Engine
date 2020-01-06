@@ -172,14 +172,17 @@ void RenderGraph::AddVRXSupport()
 	NodeLink* link = LightingNode->GetInputLinkByName("VRX Image");
 	if (link != nullptr)
 	{
-		link->SetLink(RateNode->GetInput(0));
+		link->SetLink(RateNode->GetInput(0));	
 	}
-	RenderNode* pp = FindFirstOf(PostProcessNode::GetNodeName());
-	if (pp != nullptr)
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
-		pp->GetInput(1)->SetStore(VRXShadingRateImage);
+		RenderNode* pp = FindFirstOf(PostProcessNode::GetNodeName());
+		if (pp != nullptr)
+		{
+			pp->GetInput(1)->SetStore(VRXShadingRateImage);
+		}
 	}
-	RenderNode* gbufferwrite = FindFirstOf(GBufferWriteNode::GetNodeName());
+		RenderNode* gbufferwrite = FindFirstOf(GBufferWriteNode::GetNodeName());
 	if (gbufferwrite != nullptr)
 	{
 		RateNode->GetInput(1)->SetLink(gbufferwrite->GetOutput(0));
@@ -381,7 +384,7 @@ void RenderGraph::CreateDefTestgraph()
 	VisNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 
-	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
 	{
 		AddVRXSupport();
 	}

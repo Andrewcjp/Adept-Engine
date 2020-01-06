@@ -76,7 +76,13 @@ void D3D12FrameBuffer::HandleResize()
 	}
 	Init();
 }
-
+void D3D12FrameBuffer::ValidateState()
+{
+	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+	{
+		ensure(!D3D12RHI::DXConv(BufferDesc.RenderTargets[i])->GetResource()->IsTransitioning());
+	}
+}
 bool D3D12FrameBuffer::IsReadyForCompute() const
 {
 	if (GetResource(0) != nullptr)

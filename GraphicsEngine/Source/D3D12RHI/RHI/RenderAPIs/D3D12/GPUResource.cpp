@@ -176,6 +176,7 @@ void GPUResource::UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate)
 
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
+	ensure(!IsTransitioning());
 	return CurrentResourceState;
 }
 

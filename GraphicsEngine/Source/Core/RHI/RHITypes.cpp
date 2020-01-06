@@ -515,6 +515,8 @@ std::string EResourceState::ToString(EResourceState::Type state)
 		return "CopySrc";
 	case EResourceState::CopyDst:
 		return "CopyDst";
+	case EResourceState::Non_PixelShader:
+		return "Non_PixelShader";
 	case EResourceState::Undefined:
 	case EResourceState::Limit:
 		break;

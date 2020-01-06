@@ -23,6 +23,7 @@ RenderSettings::RenderSettings()
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRX = true;
+	VRXSet.VRXMode = EVRSMode::ForceSoftwareOnly;
 	VRXSet.VRRTileSize = 32;
 	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;

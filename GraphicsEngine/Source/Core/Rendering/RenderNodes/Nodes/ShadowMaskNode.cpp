@@ -41,7 +41,7 @@ void ShadowMaskNode::OnExecute()
 	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "lights");
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
-	OutputBuffer->SetResourceState(List, EResourceState::Non_PixelShader);
+	//OutputBuffer->SetResourceState(List, EResourceState::Non_PixelShader);
 	SetEndStates(List);
 	List->EndTimer(EGPUTIMERS::ShadowPreSample);
 	List->Execute();
