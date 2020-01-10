@@ -20,7 +20,7 @@ public:
 
 	void OnFirstFrame();
 
-	void BuildStructures();
+	void BuildStructures(RHICommandList* AsyncbuildList);
 	static RayTracingCommandList* CreateRTList(DeviceContext* Device);
 
 	void UpdateFromScene(Scene* S);
@@ -32,7 +32,7 @@ private:
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;
-	RHICommandList* AsyncbuildList = nullptr;
+	
 	bool Build = false;
 	bool UseTlasUpdate = false;
 

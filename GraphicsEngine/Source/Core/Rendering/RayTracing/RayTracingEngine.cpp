@@ -16,7 +16,7 @@
 
 RayTracingEngine::RayTracingEngine()
 {
-	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
+//	AsyncbuildList = RHI::CreateCommandList(ECommandListType::Compute);
 	//UseTlasUpdate = true;
 }
 
@@ -92,16 +92,16 @@ void RayTracingEngine::OnFirstFrame()
 	
 }
 
-void RayTracingEngine::BuildStructures()
+void RayTracingEngine::BuildStructures(RHICommandList* AsyncbuildList)
 {
 	if (!Build)
 	{
 		CurrnetHL->InitialBuild();
 	}
-	AsyncbuildList->ResetList();
+
 
 	BuildForFrame(AsyncbuildList);
-	AsyncbuildList->Execute();
+//	AsyncbuildList->Execute();
 	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 

@@ -6,6 +6,7 @@
 #include "..\Shaders\Shader_Pair.h"
 #include "SceneRenderer.h"
 #include "Screen.h"
+#include "RHI\RHITexture.h"
 VRXEngine* VRXEngine::Instance = nullptr;
 
 VRXEngine::VRXEngine()
@@ -15,6 +16,31 @@ VRXEngine::VRXEngine()
 		StencilWriteShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
 			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
 		ResolvePS = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+		VRRClassifyShader = new Shader_Pair(RHI::GetDefaultDevice(), { "VRX/VRR_Classifycs" }, { EShaderType::SHADER_COMPUTE });
+		VRRLaunchShader = new Shader_Pair(RHI::GetDefaultDevice(), { "VRX/VRR_LaunchJobs" }, { EShaderType::SHADER_COMPUTE });
+		TileData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
+		RHIBufferDesc d;
+		d.AllowUnorderedAccess = true;
+		d.Accesstype = EBufferAccessType::GPUOnly;
+		d.Stride = 8;
+		d.ElementCount = 1;
+		TileData->CreateBuffer(d);
+
+		VARTileList = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
+		d.Stride = sizeof(uint) * 4;
+		d.ElementCount = Screen::GetWindowRes().x *Screen::GetWindowRes().y;
+		VARTileList->CreateBuffer(d);
+
+		IndirectCommandBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
+		d.Stride = sizeof(IndirectDispatchArgs);
+		d.ElementCount = 1;
+		d.Accesstype = EBufferAccessType::Static;
+		IndirectCommandBuffer->CreateBuffer(d);
+		IndirectDispatchArgs Data;
+		Data.ThreadGroupCountY = 1;
+		Data.ThreadGroupCountZ = 1;
+		Data.ThreadGroupCountX = 1;
+		IndirectCommandBuffer->UpdateBufferData(&Data, sizeof(IndirectDispatchArgs), EBufferResourceState::UnorderedAccess);
 	}
 }
 
@@ -64,15 +90,41 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		return;
 	}
 	ensure(list->IsComputeList());
-	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
+
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->VRRClassifyShader);
 	list->SetPipelineStateDesc(Desc);
+	list->SetTexture2(ShadingImage, "RateImage");
+	list->SetUAV(Get()->TileData, "TileData");
+	list->SetUAV(Get()->VARTileList, "TileList_VAR");
+	list->DispatchSized(ShadingImage->GetDescription().Width, ShadingImage->GetDescription().Height, 1);
+	list->UAVBarrier(Get()->TileData);
+	list->UAVBarrier(Get()->VARTileList);
+
+	Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);
+	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->VRRLaunchShader));
+	list->SetUAV(Get()->IndirectCommandBuffer,"IndirectCommandBuffer_VAR");
+	list->SetUAV(Get()->TileData, "TileData");
+	list->Dispatch(1, 1, 1);
+	list->UAVBarrier(Get()->IndirectCommandBuffer);
+	list->UAVBarrier(Get()->TileData);
+	Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::IndirectArgs);
+
+
+	Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
+	list->SetPipelineStateDesc(Desc);
+	RHICommandSignitureDescription SigDesc;
+	INDIRECT_ARGUMENT_DESC DispatchDesc;
+	DispatchDesc.Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DISPATCH;
+	SigDesc.ArgumentDescs.push_back(DispatchDesc);
+	SigDesc.IsCompute = true;
+	SigDesc.CommandBufferStide = sizeof(IndirectDispatchArgs);
+	list->SetCommandSigniture(SigDesc);
+
 	list->SetUAV(Target, "DstTexture");
-	if (ShadingImage != nullptr)
-	{
-		list->SetTexture2(ShadingImage, "RateImage");
-	}
+	list->SetTexture2(ShadingImage, "RateImage");
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
-	list->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);
+	list->SetBuffer(Get()->VARTileList, "TileList");
+	list->ExecuteIndiect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);	
 	list->UAVBarrier(Target);
 }
 

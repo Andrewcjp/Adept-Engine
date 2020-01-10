@@ -110,7 +110,7 @@ void Camera::GetRayAtScreenPos(float  screenX, float  screenY, glm::vec3&  outra
 	// don't forget to normalize the vector at some point
 	ray_wor = glm::normalize(ray_wor);
 
-	outrayDirection = ray_wor;
+	outrayDirection = -ray_wor;
 	outRayorign = GetPosition();
 }
 

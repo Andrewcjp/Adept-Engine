@@ -16,6 +16,7 @@
 RayTraceReflectionsNode::RayTraceReflectionsNode()
 {
 	OnNodeSettingChange();
+	NodeEngineType = ECommandListType::Compute;
 }
 
 
@@ -38,6 +39,7 @@ void RayTraceReflectionsNode::OnExecute()
 	CBV->UpdateConstantBuffer(&Data, 0);
 
 	RTList->ResetList();
+	SetBeginStates(RTList->GetRHIList());
 	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 3, 1);
@@ -54,6 +56,7 @@ void RayTraceReflectionsNode::OnExecute()
 	raydesc.PushRayArgs = true;
 	RTList->TraceRays(raydesc);
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
+	SetEndStates(RTList->GetRHIList());
 	RTList->Execute();
 
 	FLAT_COMPUTE_END(RTList->GetRHIList()->GetDevice());
@@ -75,10 +78,11 @@ bool RayTraceReflectionsNode::IsNodeSupported(const RenderSettings& settings)
 
 void RayTraceReflectionsNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::DefaultFormat, "OutputBuffer");
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "OutputBuffer");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
+	LinkThough(0);
 }
 
 void RayTraceReflectionsNode::OnSetupNode()

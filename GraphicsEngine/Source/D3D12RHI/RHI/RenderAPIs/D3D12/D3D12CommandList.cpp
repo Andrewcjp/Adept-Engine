@@ -157,6 +157,7 @@ void D3D12CommandList::SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate)
 void D3D12CommandList::SetVRSShadingRateImageNative(RHITexture* Target)
 {
 	D3D12_SHADING_RATE_COMBINER combiner[D3D12_RS_SET_SHADING_RATE_COMBINER_COUNT] = {};
+	combiner[0] = D3D12_SHADING_RATE_COMBINER::D3D12_SHADING_RATE_COMBINER_PASSTHROUGH;
 	combiner[1] = D3D12_SHADING_RATE_COMBINER::D3D12_SHADING_RATE_COMBINER_OVERRIDE;
 	CmdList5->RSSetShadingRate(D3D12_SHADING_RATE::D3D12_SHADING_RATE_1X1, combiner);
 	ensure(mDeviceContext->GetCaps().VRSSupport != EVRSSupportType::None);
@@ -361,6 +362,7 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 	ensure(ListType == ECommandListType::Graphics);
 	CD3DX12_VIEWPORT m_viewport = CD3DX12_VIEWPORT((FLOAT)MinX, (FLOAT)MinY, (FLOAT)MaxX, (FLOAT)MaxY);
 	CurrentCommandList->RSSetViewports(1, &m_viewport);
+	CurrentCommandList->RSSetScissorRects(0, nullptr);
 }
 
 void D3D12CommandList::Execute(DeviceContextQueue::Type Target)

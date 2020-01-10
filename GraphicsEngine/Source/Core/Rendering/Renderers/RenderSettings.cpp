@@ -24,7 +24,7 @@ RenderSettings::RenderSettings()
 	CurrentDebug = ERenderDebugOutput::Off;
 	VRXSet.EnableVRX = true;
 	VRXSet.VRXMode = EVRSMode::ForceSoftwareOnly;
-	VRXSet.VRRTileSize = 32;
+	VRXSet.VRRTileSize = 16;
 	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)

@@ -23,6 +23,11 @@ public:
 private:
 	Shader_Pair* ResolvePS = nullptr;
 	Shader_Pair* StencilWriteShader = nullptr;
+	Shader_Pair* VRRClassifyShader = nullptr;
+	Shader_Pair* VRRLaunchShader = nullptr;
+	RHIBuffer* VARTileList = nullptr;
+	RHIBuffer* TileData = nullptr;
+	RHIBuffer* IndirectCommandBuffer;
 	static VRXEngine* Instance;
 };
 

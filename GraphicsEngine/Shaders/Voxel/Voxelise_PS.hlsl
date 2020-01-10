@@ -28,14 +28,16 @@ void main(PSInput input)
 	uint3 writecoord = floor(uvw * VoxelRes);
 	float3 samplec = BaseTex.Sample(defaultSampler, input.uv.xy).rgb;
 #if 0
-	samplec = max(samplec, GetPackedCol(voxelTex[writecoord]));
-	float3 SmoothNormal = max(input.Normal, GetPackedNormal(voxelTex[writecoord]));
-	voxelTex[writecoord] = EncodeSample(samplec, SmoothNormal);
-#else
+	//samplec = max(samplec, GetPackedCol(voxelTex[writecoord]));
+	//float3 SmoothNormal = max(input.Normal, GetPackedNormal(voxelTex[writecoord]));
+	//voxelTex[writecoord] = EncodeSample(samplec, SmoothNormal);
+#endif
+
+
 	if (voxelTex[writecoord].a > 0.0f)
 	{
 		return;
 	}
-	voxelTex[writecoord] = EncodeSample(samplec, input.Normal);
-#endif
+	uint4 output = EncodeSample(samplec, input.Normal);
+	voxelTex[writecoord] = output;
 }

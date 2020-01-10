@@ -38,6 +38,7 @@ void ReflectionsBindingTable::InitTable()
 	GlobalRootSig.Params.push_back(s);
 	s = ShaderParameter(ShaderParamType::RootConstant, 8, 2);
 	s.NumDescriptors = 2;
+	s.NumVariablesContained = 2;
 	GlobalRootSig.Params.push_back(s);
 }
 

@@ -225,7 +225,7 @@ void RenderGraph::CreateDefGraphWithRT()
 
 	LightNode->UseScreenSpaceReflection = true;
 
-	LightNode->OnNodeSettingChange();
+	//LightNode->UpdateSettings();
 	ExposeNodeOption(LightNode, StandardSettings::UseSSR, &LightNode->UseScreenSpaceReflection, true);
 	LinkNode(RTNode, LightNode);
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));

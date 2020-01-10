@@ -14,6 +14,7 @@
 #include "DescriptorCache.h"
 #include "Core/Maths/Math.h"
 #include "GPUResource.h"
+
 #if NAME_RHI_PRIMS
 #define DEVICE_NAME_OBJECT(x) NameObject(x,L#x, this->GetDeviceIndex())
 void NameObject(ID3D12Object* pObject, std::wstring name, int id)
@@ -105,39 +106,37 @@ void D3D12DeviceContext::CheckFeatures()
 #endif
 
 	ReportData();
-	D3D12_FEATURE_DATA_D3D12_OPTIONS  FeatureData;
-	ZeroMemory(&FeatureData, sizeof(FeatureData));
-	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &FeatureData, sizeof(FeatureData));
+
+	ZeroMemory(&DeviceFeatureData.FeatureData, sizeof(DeviceFeatureData.FeatureData));
+	HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &DeviceFeatureData.FeatureData, sizeof(DeviceFeatureData.FeatureData));
 	if (SUCCEEDED(hr) && LogDeviceDebug)
 	{
-		LogTierData("Resource Binding", FeatureData.ResourceBindingTier);
-		LogTierData("Resource Heap", FeatureData.ResourceHeapTier);
-		LogTierData("Cross Node Sharing", FeatureData.CrossNodeSharingTier);
+		LogTierData("Resource Binding", DeviceFeatureData.FeatureData.ResourceBindingTier);
+		LogTierData("Resource Heap", DeviceFeatureData.FeatureData.ResourceHeapTier);
+		LogTierData("Cross Node Sharing", DeviceFeatureData.FeatureData.CrossNodeSharingTier);
 		LogTierData("Min Precision Support", options.MinPrecisionSupport);
 	}
-	D3D12_FEATURE_DATA_D3D12_OPTIONS1  FeatureData1;
-	ZeroMemory(&FeatureData1, sizeof(FeatureData1));
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS1, &FeatureData1, sizeof(FeatureData1));
+	Caps_Data.SupportsConservativeRaster = DeviceFeatureData.FeatureData.ConservativeRasterizationTier >= D3D12_CONSERVATIVE_RASTERIZATION_TIER_1;
+	ZeroMemory(&DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS1, &DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
 	if (SUCCEEDED(hr) && LogDeviceDebug)
 	{
-		LogDeviceData("Threads Per warp count: " + std::to_string(FeatureData1.WaveLaneCountMin));
-	}
-	D3D12_FEATURE_DATA_D3D12_OPTIONS2  FeatureData2;
-	ZeroMemory(&FeatureData2, sizeof(FeatureData2));
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &FeatureData2, sizeof(FeatureData2));
+		LogDeviceData("Threads Per warp count: " + std::to_string(DeviceFeatureData.FeatureData1.WaveLaneCountMin));
+	}	
+	ZeroMemory(&DeviceFeatureData.FeatureData2, sizeof(DeviceFeatureData.FeatureData2));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &DeviceFeatureData.FeatureData2, sizeof(DeviceFeatureData.FeatureData2));
 #if WIN10_1809
-	D3D12_FEATURE_DATA_D3D12_OPTIONS5 FeatureData5;
-	ZeroMemory(&FeatureData5, sizeof(FeatureData5));
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &FeatureData5, sizeof(FeatureData5));
+	ZeroMemory(&DeviceFeatureData.FeatureData5, sizeof(DeviceFeatureData.FeatureData5));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &DeviceFeatureData.FeatureData5, sizeof(DeviceFeatureData.FeatureData5));
 	if (SUCCEEDED(hr))
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("DXR", FeatureData5.RaytracingTier);
-			LogTierData("Render Pass Driver", FeatureData5.RenderPassesTier);
+			LogTierData("DXR", DeviceFeatureData.FeatureData5.RaytracingTier);
+			LogTierData("Render Pass Driver", DeviceFeatureData.FeatureData5.RenderPassesTier);
 		}
 		//#DXR Detect driver RT
-		if (FeatureData5.RaytracingTier)
+		if (DeviceFeatureData.FeatureData5.RaytracingTier)
 		{
 			Caps_Data.RTSupport = ERayTracingSupportType::Hardware;
 			if (DetectDriverDXR())
@@ -160,17 +159,16 @@ void D3D12DeviceContext::CheckFeatures()
 		SupportsCmdsList4 = false;
 	}
 
-	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData3;
-	ZeroMemory(&FeatureData3, sizeof(FeatureData3));
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &FeatureData3, sizeof(FeatureData3));
+	ZeroMemory(&DeviceFeatureData.FeatureData3, sizeof(DeviceFeatureData.FeatureData3));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS3, &DeviceFeatureData.FeatureData3, sizeof(DeviceFeatureData.FeatureData3));
 	if (SUCCEEDED(hr))
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("VIEW INSTANCING", FeatureData3.ViewInstancingTier);
+			LogTierData("VIEW INSTANCING", DeviceFeatureData.FeatureData3.ViewInstancingTier);
 		}
-		Caps_Data.SupportsCopyTimeStamps = FeatureData3.CopyQueueTimestampQueriesSupported;
-		Caps_Data.SupportsViewInstancing = (FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
+		Caps_Data.SupportsCopyTimeStamps = DeviceFeatureData.FeatureData3.CopyQueueTimestampQueriesSupported;
+		Caps_Data.SupportsViewInstancing = (DeviceFeatureData.FeatureData3.ViewInstancingTier > D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED);
 	}
 
 #if WIN10_1809
@@ -217,23 +215,22 @@ void D3D12DeviceContext::CheckFeatures()
 	}
 
 #if WIN10_1903
-	D3D12_FEATURE_DATA_D3D12_OPTIONS6 FeatureData6;
-	ZeroMemory(&FeatureData6, sizeof(FeatureData6));
-	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &FeatureData6, sizeof(FeatureData3));
+	ZeroMemory(&DeviceFeatureData.FeatureData6, sizeof(DeviceFeatureData.FeatureData6));
+	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &DeviceFeatureData.FeatureData6, sizeof(DeviceFeatureData.FeatureData3));
 	if (SUCCEEDED(hr))
 	{
 		if (LogDeviceDebug)
 		{
-			LogTierData("VRS Support", FeatureData6.VariableShadingRateTier, "(Tile size " + std::to_string(FeatureData6.ShadingRateImageTileSize) + ")");
+			LogTierData("VRS Support", DeviceFeatureData.FeatureData6.VariableShadingRateTier, "(Tile size " + std::to_string(DeviceFeatureData.FeatureData6.ShadingRateImageTileSize) + ")");
 		}
-		Caps_Data.VRSSupport = FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
-		if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_1)
+		Caps_Data.VRSSupport = DeviceFeatureData.FeatureData6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED ? EVRSSupportType::Hardware : EVRSSupportType::None;
+		if (DeviceFeatureData.FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_1)
 		{
-			if (FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
+			if (DeviceFeatureData.FeatureData6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2)
 			{
 				Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
 			}
-			Caps_Data.VRSTileSize = FeatureData6.ShadingRateImageTileSize;
+			Caps_Data.VRSTileSize = DeviceFeatureData.FeatureData6.ShadingRateImageTileSize;
 		}
 	}
 	else
@@ -263,7 +260,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		Caps_Data.ConnectionMode = EMGPUConnectionMode::None;
 	}
-	Caps_Data.SupportsDepthBoundsTest = FeatureData2.DepthBoundsTestSupported;
+	Caps_Data.SupportsDepthBoundsTest = DeviceFeatureData.FeatureData2.DepthBoundsTestSupported;
 	Caps_Data.SupportExecuteIndirect = true;//all D3D12 GPUs support draw indirect etc.
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	CheckNVAPISupport();
@@ -387,6 +384,11 @@ CommandAllocator * D3D12DeviceContext::GetAllocator(D3D12CommandList * list)
 	CommandAllocator* Alloc = new CommandAllocator(list->GetListType(), this);
 	Allocators.push_back(Alloc);
 	return Alloc;
+}
+
+const DXFeatureData & D3D12DeviceContext::GetFeatureData() const
+{
+	return DeviceFeatureData;
 }
 
 void D3D12DeviceContext::FlushUploadQueue()

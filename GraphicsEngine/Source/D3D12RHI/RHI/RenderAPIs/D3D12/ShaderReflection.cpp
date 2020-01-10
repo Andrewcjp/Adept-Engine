@@ -156,7 +156,7 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 		}
 		if (p.Type != ShaderParamType::Limit && p.Type != ShaderParamType::Sampler)//#todo: handle dynamic samplers
 		{
-			VectorUtils::AddUnique(shaderbinds, p);
+			VectorUtils::AddUnique(shaderbinds, p); 
 		}
 	}
 	if (iscompute)

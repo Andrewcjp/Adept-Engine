@@ -81,7 +81,18 @@ struct DeviceMemoryData
 	UINT64 HostSegment_TotalBytes = 0;
 	UINT64 Local_Usage = 0;
 };
-
+struct DXFeatureData
+{
+	D3D12_FEATURE_DATA_D3D12_OPTIONS  FeatureData;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS1  FeatureData1;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS2  FeatureData2;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData3;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS4  FeatureData4;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
+#if WIN10_1903
+	D3D12_FEATURE_DATA_D3D12_OPTIONS6  FeatureData6;
+#endif
+};
 struct GPUUploadRequest
 {
 	std::vector<D3D12_SUBRESOURCE_DATA> SubResourceDesc;
@@ -157,7 +168,9 @@ public:
 
 	void EnqueueUploadRequest(const GPUUploadRequest & request);
 	CommandAllocator* GetAllocator(D3D12CommandList* list);
+	const DXFeatureData& GetFeatureData()const;
 private:
+	DXFeatureData DeviceFeatureData;
 	void FlushUploadQueue();
 	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
 	DXMemoryManager* MemoryManager = nullptr;

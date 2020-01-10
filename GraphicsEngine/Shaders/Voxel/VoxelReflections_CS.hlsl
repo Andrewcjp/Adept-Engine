@@ -25,7 +25,7 @@ float3 LaunchSample(float3 origin, uint seed, float SmoothNess, float3 normal, f
 	float3 H = getGGXMicrofacet(seed, 1.0 - SmoothNess, normal);
 	float3 coneDirection = normalize(2.f * dot(V, H) * H - V);
 	//coneDirection = reflect(-V, normal);
-	TracePayload payload = ConeTrace_FixedMip(voxelTex, origin, normalize(normal), coneDirection);
+	TracePayload payload = ConeTrace_FixedMip_Loop2(voxelTex, origin, normalize(normal), coneDirection);
 	if (payload.alpha == 0.0f)
 	{
 		return SpecularBlurMap.SampleLevel(Textures, payload.Normal, SmoothNess * (MAX_REFLECTION_LOD)).rgb;
@@ -50,12 +50,12 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float2 dims = float2(Res.xy);
 	float2 NrmPos = crd / dims;
 	const float Roughness = GBUFFER_BaseSpec.SampleLevel(defaultSampler, NrmPos, 0).w;
-	if (Roughness > 0.7 /*&& Roughness < 0.9*/)
+	if (Roughness >= 0.2 /*&& Roughness < 0.9*/)
 	{
 		float3 Pos = GBUFFER_Pos.SampleLevel(defaultSampler, NrmPos, 0).xyz;
 		float3 Normal = GBUFFER_Normal.SampleLevel(defaultSampler, NrmPos, 0).xyz;		
 		float3 ViewDir = normalize(CameraPos-Pos);
-		int SampleCount = 50;
+		int SampleCount = 5;
 		if (Roughness > 0.9)
 		{
 			SampleCount = 1;

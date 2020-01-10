@@ -4,6 +4,7 @@
 
 UpdateAccelerationStructuresNode::UpdateAccelerationStructuresNode()
 {
+	NodeEngineType = ECommandListType::Compute;
 	OnNodeSettingChange();
 }
 
@@ -12,7 +13,12 @@ UpdateAccelerationStructuresNode::~UpdateAccelerationStructuresNode()
 
 void UpdateAccelerationStructuresNode::OnExecute()
 {
-	RayTracingEngine::Get()->BuildStructures();
+	RHICommandList* list = Context->GetListPool()->GetCMDList(ECommandListType::Compute);
+	SetBeginStates(list);
+	RayTracingEngine::Get()->BuildStructures(list);
+	SetEndStates(list);
+	Context->GetListPool()->Flush();
+	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void UpdateAccelerationStructuresNode::OnNodeSettingChange()

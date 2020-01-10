@@ -3,7 +3,7 @@
 Texture2D<uint> RateImage: register(t0);
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
-StructuredBuffer<uint4> TileList : register(t2) ;
+
 cbuffer Data : register(b1)
 {
 	int2 Resolution;
@@ -11,8 +11,9 @@ cbuffer Data : register(b1)
 	bool DebugShow;
 	bool DebugShowLines;
 };
-float4 GetColourForRate(uint2 rate)
+float4 GetColourForRate(int r)
 {
+	const int2 rate = GetShadingRate(r);
 	const int totalrate = max(rate.x, rate.y);
 	if (totalrate == 1)
 	{
@@ -87,48 +88,53 @@ bool DetectEdgeAtPX(uint2 px)
 {
 	return (IsEdge(px) > 0.0);
 }
-[numthreads(VRS_TILE_SIZE, VRS_TILE_SIZE, 1)]
-void main(uint3 DTid : SV_GroupThreadID, uint3 groupIndex : SV_GroupID)
+[numthreads(16, 16, 1)]
+void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 {
-	uint2 Pixel = TileList[groupIndex.x].xy * VRS_TILE_SIZE;
-	uint2 Rate = TileList[groupIndex.x].zw;
-
-	Pixel += DTid.xy;
+	const int2 ShadingRateImageXY = (DTid.xy / VRS_TILE_SIZE);
+	const int ShadingRate = RateImage[ShadingRateImageXY.xy];
+	uint2 Rate = GetShadingRate(ShadingRate);
 
 	[branch]
-	if (!IsPixelSource(Pixel.xy, Rate))
+	if (!IsPixelSource(DTid.xy, Rate))
 	{
 		//find the corse pixel for this pixel
-		const int2 DeltaToMain = Pixel.xy % Rate.xy;
-		const int2 SourcePixel = Pixel.xy - DeltaToMain;
+		const int2 DeltaToMain = DTid.xy % Rate.xy;
+		const int2 SourcePixel = DTid.xy - DeltaToMain;
 #if VRR_BLEND
 		[branch]
 		if (LerpBlend > 0.0f)
 		{
-			float4 AVg = SampleCoursePixel(Pixel.xy + int2(Rate.x, 0));
-			AVg += SampleCoursePixel(Pixel.xy + int2(0, Rate.y));
-			AVg += SampleCoursePixel(Pixel.xy - int2(Rate.x, 0));
-			AVg += SampleCoursePixel(Pixel.xy + int2(0, -Rate.y));
+			float4 AVg = SampleCoursePixel(DTid.xy + int2(Rate.x, 0));
+			AVg += SampleCoursePixel(DTid.xy + int2(0, Rate.y));
+			AVg += SampleCoursePixel(DTid.xy - int2(Rate.x, 0));
+			AVg += SampleCoursePixel(DTid.xy + int2(0, -Rate.y));
 			AVg /= 4;
-			DstTexture[Pixel.xy] = lerp(DstTexture[SourcePixel], AVg, LerpBlend);
+			DstTexture[DTid.xy] = lerp(DstTexture[SourcePixel], AVg, LerpBlend);
 		}
 		else
 #endif
 		{
-			DstTexture[Pixel.xy] = DstTexture[SourcePixel];
+			DstTexture[DTid.xy] = DstTexture[SourcePixel];
 		}
+		//todo: use other corse pixels to smooth output
 	}
 
+#if 0
+	float4 outt = float4(0, 0, 0, 0);// DstTexture[DTid.xy];
+	outt.r = IsEdge(DTid.xy);
+	DstTexture[DTid.xy] = outt;
+#endif
 #if !BUILD_SHIPPING
 	if (DebugShow)
 	{
-		DstTexture[Pixel.xy] += GetColourForRate(Rate)*0.5f;
+		DstTexture[DTid.xy] += GetColourForRate(ShadingRate)*0.5f;
 	}
 	if (DebugShowLines)
 	{
-		if ((Pixel.x % VRS_TILE_SIZE == 0) || (Pixel.y % VRS_TILE_SIZE == 0))
+		if ((DTid.x % VRS_TILE_SIZE == 0) || (DTid.y % VRS_TILE_SIZE == 0))
 		{
-			DstTexture[Pixel.xy] += float4(1, 0, 0, 1)*0.5f;
+			DstTexture[DTid.xy] += float4(1, 0, 0, 1)*0.5f;
 		}
 	}
 #endif

@@ -536,7 +536,17 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (PSODesc.RasterMode == PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
 	{
+		//if (D3D12RHI::DXConv(context)->GetFeatureData().FeatureData.TypedUAVLoadAdditionalFormats)
+
 		psoDesc.RasterizerState.ConservativeRaster = PSODesc.RasterizerState.ConservativeRaster ? D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		if (psoDesc.RasterizerState.ConservativeRaster)
+		{
+			if (!context->GetCaps().SupportsConservativeRaster)
+			{
+				LogEnsure_Always("Device does not support Conservative Raster, Feature Disabled");
+				psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+			}
+		}
 	}
 	psoDesc.RasterizerState.CullMode = PSODesc.Cull ? D3D12_CULL_MODE_BACK : D3D12_CULL_MODE_NONE;
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -751,6 +761,10 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 	for (int i = 0; i < Params.size(); i++)
 	{
 		D3D12_SHADER_VISIBILITY ShaderVisible = (D3D12_SHADER_VISIBILITY)Params[i].Visiblity;
+		if (compute)
+		{
+			ShaderVisible = D3D12_SHADER_VISIBILITY_ALL;
+		}
 		if (Params[i].Type == ShaderParamType::SRV || Params[i].Type == ShaderParamType::Buffer)
 		{
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, Params[i].NumDescriptors, Params[i].RegisterSlot, Params[i].RegisterSpace, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
@@ -759,7 +773,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		else if (Params[i].Type == ShaderParamType::CBV || Params[i].Type == ShaderParamType::Buffer)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstantBufferView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, ShaderVisible);
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootSRV)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsShaderResourceView(Params[i].RegisterSlot, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, ShaderVisible);
@@ -777,7 +791,7 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, ShaderVisible);
 		}
-	}
+}
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
 	D3D12_ROOT_SIGNATURE_FLAGS RsFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 

@@ -1,5 +1,7 @@
 #if SUPPORT_VRR
 #include "VRX/VRXCommon.hlsl"
+static const uint TILE_HEADER_OFFSET_NOP = 0;
+static const uint TILE_HEADER_OFFSET_VARTILES = 4;
 int2 GetShadingRate(int ID)
 {	
 	int2 decoded = int2(D3D12_GET_COARSE_SHADING_RATE_X_AXIS(ID), D3D12_GET_COARSE_SHADING_RATE_Y_AXIS(ID));
