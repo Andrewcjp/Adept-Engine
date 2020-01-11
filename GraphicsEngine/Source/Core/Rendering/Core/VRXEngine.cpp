@@ -140,7 +140,7 @@ void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Targe
 		const std::string TextureName = "VRSTexture";
 		if (List->GetCurrnetPSO()->GetDesc().ShaderInUse->FindParam(TextureName) != nullptr)
 		{
-			List->SetTexture2(List->GetShadingRateImage(), TextureName);
+//			List->SetTexture2(List->GetShadingRateImage(), TextureName);
 		}
 	}
 }

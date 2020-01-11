@@ -47,7 +47,7 @@ void DeferredLightingNode::OnExecute()
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
 		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
-		List->PrepareFramebufferForVRR(List->GetShadingRateImage(), MainBuffer);
+		//List->PrepareFramebufferForVRR(List->GetShadingRateImage(), MainBuffer);
 	}
 	List->StartTimer(EGPUTIMERS::DeferredLighting);
 
@@ -64,7 +64,9 @@ void DeferredLightingNode::OnExecute()
 	List->SetPipelineStateDesc(desc);
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
-		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
+		RHITexture* Text = StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture();
+		List->SetVRXShadingRateImage(Text);
+		List->SetTexture2(Text, DeferredLightingShaderRSBinds::RateImage);
 	}
 	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().UseVRR() ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	List->BeginRenderPass(D);

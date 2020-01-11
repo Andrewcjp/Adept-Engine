@@ -370,7 +370,7 @@ void RHICommandList::SetTexture2(RHITexture * buffer, std::string slot)
 
 void RHICommandList::SetTexture2(RHITexture * buffer, int slot)
 {
-	SetTexture2(buffer, slot, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
+	SetTexture2(buffer, slot, RHIViewDesc::DefaultSRV(buffer->GetDescription().Dimension));
 }
 
 void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)

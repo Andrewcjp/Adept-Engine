@@ -22,7 +22,7 @@ RenderSettings::RenderSettings()
 	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	VRXSet.EnableVRX = true;
+	//VRXSet.EnableVRX = true;
 	VRXSet.VRXMode = EVRSMode::ForceSoftwareOnly;
 	VRXSet.VRRTileSize = 16;
 	AllowMeshInstancing = true;

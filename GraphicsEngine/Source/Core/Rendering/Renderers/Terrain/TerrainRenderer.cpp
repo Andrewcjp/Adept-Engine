@@ -3,6 +3,7 @@
 #include "Rendering/Shaders/Shader_Pair.h"
 #include "Core/Assets/AssetManager.h"
 #include "../../Core/FrameBuffer.h"
+#include "../../Core/SceneRenderer.h"
 
 TerrainRenderer* TerrainRenderer::Instance = nullptr;
 TerrainRenderer::TerrainRenderer()
@@ -39,6 +40,7 @@ void TerrainRenderer::RenderTerrainGBuffer(FrameBuffer * Buffer, RHICommandList*
 	list->SetPipelineStateDesc(State);
 	list->SetTexture(HeightMap, "HeightMap");
 	list->SetTexture(BaseTex, "BaseTex");
+	SceneRenderer::Get()->BindMvBuffer(list);
 	RHIRenderPassDesc info(Buffer, ERenderPassLoadOp::Load);
 	info.DepthSourceBuffer = DepthSource;
 	list->BeginRenderPass(info);

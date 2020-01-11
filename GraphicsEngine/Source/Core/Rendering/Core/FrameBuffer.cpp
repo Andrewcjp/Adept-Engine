@@ -44,7 +44,8 @@ void FrameBuffer::HandleInit()
 void FrameBuffer::PostInit()
 {
 	if (BufferDesc.AllowUnorderedAccess)
-	{}
+	{
+	}
 }
 
 FrameBuffer::~FrameBuffer()
@@ -146,7 +147,7 @@ void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type St
 
 void FrameBuffer::Release()
 {
-	
+
 }
 
 size_t FrameBuffer::GetSizeOnGPU()
@@ -167,7 +168,7 @@ size_t FrameBuffer::GetSizeOnGPU()
 }
 
 
-void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
+void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc, DeviceContext* Device)
 {
 	if (BufferDesc.SizeMode == EFrameBufferSizeMode::Fixed)
 	{
@@ -179,18 +180,21 @@ void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc)
 	{
 		BufferDesc.Height = glm::iround(Screen::GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
 		BufferDesc.Width = glm::iround(Screen::GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
-		//Resize(Width, Height);
 	}
 	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
 	{
 		BufferDesc.Height = glm::iround(Screen::GetWindowHeight()*BufferDesc.LinkToBackBufferScaleFactor);
 		BufferDesc.Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
-		//Resize(Width, Height);
 	}
 	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale_TileSize)
 	{
-		BufferDesc.Height = glm::iround(glm::ceil(Screen::GetWindowHeight()/BufferDesc.LinkToBackBufferScaleFactor));
-		BufferDesc.Width = glm::iround(glm::ceil(Screen::GetWindowWidth()/BufferDesc.LinkToBackBufferScaleFactor));
+		uint TileSize = BufferDesc.LinkToBackBufferScaleFactor;
+		if (Device != nullptr)
+		{
+			TileSize = RHI::GetRenderSettings()->GetVRXSettings().VRRTileSize;
+		}
+		BufferDesc.Height = glm::iround(glm::ceil(Screen::GetScaledHeight() / TileSize));
+		BufferDesc.Width = glm::iround(glm::ceil(Screen::GetScaledWidth() / TileSize));
 	}
 }
 
@@ -201,24 +205,8 @@ void FrameBuffer::AutoResize()
 		Log::LogMessage("AutoResize Called on fixed size buffer this is invalid", Log::Error);
 		return;
 	}
-	if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale)
-	{
-		const int Height = glm::iround(Screen::GetScaledHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		const int Width = glm::iround(Screen::GetScaledWidth()*BufferDesc.LinkToBackBufferScaleFactor);
-		Resize(Width, Height);
-	}
-	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToScreenSize)
-	{
-		const int Height = glm::iround(Screen::GetWindowHeight()*BufferDesc.LinkToBackBufferScaleFactor);
-		const int Width = glm::iround(Screen::GetWindowWidth()*BufferDesc.LinkToBackBufferScaleFactor);
-		Resize(Width, Height);
-	}
-	else if (BufferDesc.SizeMode == EFrameBufferSizeMode::LinkedToRenderScale_TileSize)
-	{
-		const int Height = glm::iround(glm::ceil(Screen::GetWindowHeight() / BufferDesc.LinkToBackBufferScaleFactor));
-		const int Width = glm::iround(glm::ceil(Screen::GetWindowWidth() / BufferDesc.LinkToBackBufferScaleFactor));
-		Resize(Width, Height);
-	}
+	AutoUpdateSize(BufferDesc, Device);
+	Resize(BufferDesc.Width, BufferDesc.Height);
 }
 
 void FrameBuffer::CopyHelper(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ/* = DeviceContextQueue::Copy*/)

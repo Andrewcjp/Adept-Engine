@@ -18,6 +18,7 @@ namespace DeferredLightingShaderRSBinds
 		ScreenSpecular,
 		LightDataBuffer,
 		VX,
+		RateImage,
 		Limit
 	};
 }

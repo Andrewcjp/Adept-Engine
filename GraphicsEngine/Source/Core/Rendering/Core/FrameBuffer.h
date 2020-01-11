@@ -34,7 +34,7 @@ public:
 
 
 	RHI_API virtual size_t GetSizeOnGPU() override;
-	static void AutoUpdateSize(RHIFrameBufferDesc & desc);
+	static void AutoUpdateSize(RHIFrameBufferDesc & desc, DeviceContext* Device = nullptr);
 	//Helper that uses the SizeMode in the desc to resize FB
 	void AutoResize();
 

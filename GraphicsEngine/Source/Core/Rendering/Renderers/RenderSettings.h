@@ -99,6 +99,7 @@ struct VRXSettings
 	EVRSMode::Type VRXMode = EVRSMode::HardwareAndSoftware;
 	bool SupportPerDrawRateOnVRR = false;	//not yet supported
 	int VRRTileSize = 16;
+	bool EnableVarableRateSuperSampling = false;
 	bool UseVRX(DeviceContext* con = nullptr)const;
 	bool UseVRR(DeviceContext* con = nullptr)const;
 	bool UseVRS(DeviceContext* con = nullptr)const;

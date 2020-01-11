@@ -51,33 +51,40 @@ bool DetectEdgeAtPX(uint2 px)
 {	
 	return (IsEdge(px) >  0.0);
 }
-[numthreads(16, 16, 1)]
-void main(uint3 DTid : SV_DispatchThreadID)
+uint DetmineRate(uint2 Origin)
 {
-	int ShadingRate = SHADING_RATE_1X1;
-	bool Hit = false;
-	int2 Origin = DTid.xy*VRS_TILE_SIZE;
-	for (int x = 0; x < VRS_TILE_SIZE; x++)
+	bool SampleHit = false;
+	for (int x = 0; x < VRS_TILE_SIZE; x += VRS_TILE_SIZE - 1)
 	{
-		for (int y = 0; y < VRS_TILE_SIZE; y++)
+		for (int y = 0; y < VRS_TILE_SIZE; y += VRS_TILE_SIZE - 1)
 		{
 			int2 samplepos = Origin + int2(x, y);
 			if (samplepos.x >= Resolution.x || samplepos.y >= Resolution.y)
 			{
 				continue;
 			}
-			float z = ShadowMask[samplepos].x;
-			if (z == 0 || DetectEdgeAtPX(samplepos))
+			float z = ShadowMask[samplepos].x;	
+			/*if (DetectEdgeAtPX(samplepos))
 			{
-				Hit = true;
-				break;
-			}
+				SampleHit = true;
+			}*/
+			if (z == 0)
+			{
+				return SHADING_RATE_1X1;
+			}			
 		}
 	}
-	if (!Hit)
+	if (SampleHit)
 	{
-		ShadingRate = SHADING_RATE_2X2;
+		return SHADING_RATE_2X2;
 	}
-	RateData[DTid.xy] = ShadingRate;
+	return SHADING_RATE_4X4;
+}
+
+[numthreads(16, 16, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+	uint2 Origin = DTid.xy*VRS_TILE_SIZE;	
+	RateData[DTid.xy] = DetmineRate(Origin);
 }
 
