@@ -587,6 +587,7 @@ void RenderGraph::CreateVRFWDGraph()
 	Desc.AllowUnorderedAccess = true;
 	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
 	MainBuffer->SetFrameBufferDesc(Desc);
+	MainBuffer->Name = "Main Buffer";
 	MainBuffer->IsVRFramebuffer = true;
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;

@@ -12,5 +12,6 @@ public:
 	int height;
 	int xoff;
 	int yoff;
+	void DebugRender();
 };
 

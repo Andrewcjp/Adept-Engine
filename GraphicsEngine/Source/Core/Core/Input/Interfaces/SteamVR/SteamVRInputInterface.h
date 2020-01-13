@@ -24,8 +24,8 @@ public:
 	glm::vec3 Getpos(glm::mat4 matMVP);
 	vr::IVRSystem* GetSystem();
 	ViveHMD* HMD = nullptr;
-private:
-	
+//private:
+//	
 	glm::mat4 poses[vr::k_unMaxTrackedDeviceCount];
 	glm::mat4 HMDPose;
 	glm::quat Rot;

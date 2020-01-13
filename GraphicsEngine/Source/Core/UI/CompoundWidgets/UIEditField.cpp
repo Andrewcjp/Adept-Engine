@@ -94,12 +94,11 @@ void UIEditField::MouseMove(int x, int y)
 		Toggle->MouseMove(x, y);
 		return;
 	}
-	if (Rect.Contains(x, y))
+	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
 		UIManager::UpdateBatches();
 		WasSelected = true;
 		PlatformWindow::SetCursorType(GenericWindow::CursorType::IBeam);
-
 	}
 	else
 	{
@@ -134,7 +133,7 @@ bool UIEditField::MouseClick(int x, int y)
 		Toggle->MouseClick(x, y);
 		return false;
 	}
-	if (Rect.Contains(x, y))
+	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
 		UIManager::SetCurrentcontext(this);
 		nextext = Textlabel->GetText();
@@ -196,30 +195,6 @@ void UIEditField::Render()
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
 	}
-}
-
-void UIEditField::ResizeView(int w, int h, int x, int y)
-{
-	//UIBox::ResizeView(w, h, x, y);
-	Namelabel->TextScale = 0.3f;
-	Textlabel->TextScale = 0.3f;
-	Namelabel->ResizeView(w / 3, h / 2, x, y);
-	int gap = 25;
-	Textlabel->ResizeView(((w / 3) * 2) - gap, h / 2, x + (w / 3) + gap, y);
-	if (FilterType == EditValueType::Bool)
-	{
-		Toggle->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
-	}
-	if (TextBox != nullptr && FilterType != EditValueType::Label)
-	{
-		TextBox->ResizeView(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
-	}
-	else
-	{
-		Enabled = false;
-	}
-	Rect = CollisionRect(((w / 3) * 2) - gap, h, x + (w / 3) + gap, y);
-	ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
 }
 
 void UIEditField::SendValue()
@@ -361,4 +336,32 @@ bool UIEditField::CheckValidInput(char c)
 
 	}
 	return false;
+}
+
+void UIEditField::UpdateScaled()
+{
+	UIBox::UpdateScaled();
+	int w = GetTransfrom()->GetSizeRootSpace().x;
+	int h = GetTransfrom()->GetSizeRootSpace().y;
+
+	//UIBox::ResizeView(w, h, x, y);
+	Namelabel->TextScale = 0.3f;
+	Textlabel->TextScale = 0.3f;
+	Namelabel->SetRootSpaceSize(w, h, 0, 0);
+	int gap = 25;
+	Textlabel->SetRootSpaceSize(((w / 3) * 2) - gap, h / 2, (w / 3) + gap, 0);
+	if (FilterType == EditValueType::Bool)
+	{
+		Toggle->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
+	}
+	if (TextBox != nullptr && FilterType != EditValueType::Label)
+	{
+		TextBox->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
+	}
+	else
+	{
+		Enabled = false;
+	}
+	Rect = CollisionRect(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
+	//ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
 }

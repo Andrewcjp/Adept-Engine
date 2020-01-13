@@ -63,6 +63,7 @@ void ForwardRenderNode::OnExecute()
 	Args.UseDeferredShaders = false;
 	Args.ReadDepth = UsePreZPass;
 	Args.PassData = this;
+	Args.Eye = GetEye();
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 
 	CommandList->EndRenderPass();

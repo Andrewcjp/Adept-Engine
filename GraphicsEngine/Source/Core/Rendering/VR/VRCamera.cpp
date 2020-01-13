@@ -27,7 +27,7 @@ void VRCamera::UpdateDebugTracking()
 	Pos += transfrom.GetRight() * RHI::GetVrSettings()->EyeDistance;
 	Cameras[EEye::Left]->SetPos(Pos);
 	Cameras[EEye::Left]->SetUpAndForward(transfrom.GetForward(), transfrom.GetUp());
-
+	
 	Pos = transfrom.GetPos();
 	Pos -= transfrom.GetRight() * RHI::GetVrSettings()->EyeDistance;
 	Cameras[EEye::Right]->SetPos(Pos);

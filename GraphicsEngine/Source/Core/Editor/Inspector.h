@@ -2,11 +2,12 @@
 #include "UI/Core/UIWidget.h"
 #include <functional>
 #include "Editor/EditorTypes.h"
+#include "UI/CompoundWidgets/UITab.h"
 #if WITH_EDITOR
 class IEdtiorInspectable;
 class UIBox;
 struct InspectorProperyGroup;
-class Inspector : public UIWidget
+class Inspector : public UITab
 {
 public:
 
@@ -75,22 +76,20 @@ public:
 	void Refresh();
 	static InspectorPropery CreateProperty(std::string name, EditValueType::Type type, void* Valueptr, bool EditorEffect = false);
 	static InspectorProperyGroup CreatePropertyGroup(std::string name);
-	// Inherited via UIWidget
-	void Render() override;
-	void ResizeView(int, int, int, int);
 	void MouseMove(int x, int y);
 	bool MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
 	void AddComponent();
 	static void AddComponentCallback(int i);
+
+	void UpdateScaled() override;
+
 private:
 	static Inspector* Instance;
 	void CreateEditor();
-	float ItemHeight = 0.02f;
+	float ItemHeight = 0.01f;
 	IEdtiorInspectable* target = nullptr;
 	class UIButton* button;
-	std::vector<UIWidget*> SubWidgets;
-	UIBox* Backgroundbox;
 };
 struct InspectorProperyGroup
 {

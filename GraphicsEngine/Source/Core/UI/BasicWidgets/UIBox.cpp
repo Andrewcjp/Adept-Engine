@@ -29,6 +29,7 @@ UIBox::~UIBox()
 
 void UIBox::MouseMove(int x, int y)
 {
+	UIWidget::MouseMove(x, y);
 	if (Resizeable)
 	{
 		if (RightRect.Contains(x, y))
@@ -45,6 +46,7 @@ void UIBox::MouseMove(int x, int y)
 
 bool UIBox::MouseClick(int x, int y)
 {
+	UIWidget::MouseClick(x, y);
 	if (Resizeable)
 	{
 		if (RightRect.Contains(x, y))

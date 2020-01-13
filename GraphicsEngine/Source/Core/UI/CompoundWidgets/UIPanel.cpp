@@ -5,10 +5,11 @@
 UIPanel::UIPanel(int w, int  h, int  x, int y) :UIBox(w, h, x, y)
 {
 	title = new UILabel("title", w, 30, x, y);
-	TextHeight = 15;
+	TextHeight = 50;
 	AligmentStruct.SizeMax = 0.05f;
 	title->TextScale = 0.3f;
-	AddChild(title);
+	title->SetRootSpaceScaled(w, TextHeight, 0, TextHeight);
+	title->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
 	BatchMode = EWidgetBatchMode::On;
 	IgnoreboundsCheck = true;
 }
@@ -22,52 +23,32 @@ void UIPanel::AddSubWidget(UIWidget * w)
 	AligmentStruct.SizeMax += w->AligmentStruct.SizeMax;
 	SubWidgets.push_back(w);
 	w->IgnoreboundsCheck = true;
+	w->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
 	AddChild(w);
-}
-
-void UIPanel::ResizeView(int w, int h, int x, int y)
-{
-	UIBox::ResizeView(w, h, x, y);
-	title->ResizeView(w, TextHeight, x + (w / 4), y + h - TextHeight * 2);
-	UIUtils::ArrangeHorizontal(w, h - TextHeight, x, y - TextHeight, SubWidgets);
-}
-
-void UIPanel::MouseMove(int x, int y)
-{
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->MouseMove(x, y);
-	}
-}
-
-bool UIPanel::MouseClick(int x, int y)
-{
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->MouseClick(x, y);
-	}
-	return true;
-}
-
-void UIPanel::MouseClickUp(int x, int y)
-{
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->MouseClickUp(x, y);
-	}
-}
-
-void UIPanel::Render()
-{
-	UIBox::Render();
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->Render();
-	}
-	title->Render();
 }
 
 void UIPanel::SetTitle(std::string m)
 {
 	title->SetText(m);
+	if (!UseTitle)
+	{
+		AddChild(title);
+		UseTitle = true;
+	}
+}
+
+void UIPanel::UpdateScaled()
+{
+	UIBox::UpdateScaled();
+	if (!UseTitle)
+	{
+		TextHeight = 0;
+	}
+	else
+	{
+		TextHeight = 30;
+		title->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+		title->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, TextHeight, 0, TextHeight/3);
+	}
+	UIUtils::ArrangeHorizontal(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y - TextHeight, 0, TextHeight, SubWidgets, -1, 0);
 }

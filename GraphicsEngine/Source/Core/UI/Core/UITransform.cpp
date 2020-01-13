@@ -1,6 +1,7 @@
 #include "UITransform.h"
 #include "UIWidgetContext.h"
 #include "UI\UIManager.h"
+#include "Rendering\Core\Screen.h"
 
 
 void UITransform::Set(int width, int height, int x, int y, EWidetSizeSpace::Type SpaceMode)
@@ -19,9 +20,15 @@ void UITransform::SetSize(IntPoint val)
 {
 	Size = val;
 }
+
 glm::vec2 UITransform::GetPositionForWidgetRootSpace()
 {
 	glm::vec2 AnchouredPos = glm::vec2(Pos.x, Pos.y);
+	glm::ivec2 ParentMax = GetSizeRootSpace();
+	if (Widget->Parent != nullptr)
+	{
+		ParentMax = Widget->Parent->GetTransfrom()->GetSizeRootSpace();
+	}
 	if (ScalingMode == EWidetSizeSpace::RootSpaceScaled)
 	{
 		const float ItemScale = Context->RootSpaceWidgetScale;
@@ -37,17 +44,15 @@ glm::vec2 UITransform::GetPositionForWidgetRootSpace()
 	}
 	if (AnchourPoint == EAnchorPoint::Top)
 	{
-		//todo:  root space align
-		AnchouredPos.y = GetHeightScaled(1.0f) - AnchouredPos.y;
+		AnchouredPos.y = ParentMax.y - AnchouredPos.y - GetSizeRootSpace().y;
 	}
 	else if (AnchourPoint == EAnchorPoint::Right)
 	{
-		AnchouredPos.x = GetWidthScaled(1.0f) - AnchouredPos.x;
+		AnchouredPos.x = ParentMax.x - AnchouredPos.x;
 	}
-	else if (AnchourPoint == EAnchorPoint::Bottom && Widget != nullptr && Widget->Parent != nullptr)
+	if (Widget->Parent != nullptr)
 	{
-		float ParentMinY = Widget->Parent->GetTransfrom()->GetPositionForWidgetRootSpace().y;
-		AnchouredPos.y = ParentMinY - AnchouredPos.y;
+		AnchouredPos += Widget->Parent->GetTransfrom()->GetPositionForWidgetRootSpace();
 	}
 	return AnchouredPos;
 }
@@ -63,7 +68,7 @@ glm::vec2 UITransform::GetPositionForWidget()
 	else if (ScalingMode == EWidetSizeSpace::RootSpace || ScalingMode == EWidetSizeSpace::RootSpaceScaled)
 	{
 		glm::vec2 rootPos = Context->ConvertToNormalSpace(AnchouredPos);
-		return glm::vec2(UIManager::GetScaledWidth(rootPos.x), UIManager::GetScaledHeight(rootPos.y));
+		return glm::vec2(rootPos*glm::vec2(Screen::GetWindowRes()));
 	}
 	return glm::vec2();
 }
@@ -85,8 +90,14 @@ int UITransform::GetHeightScaled(float v)
 	}
 	return UIManager::GetScaledHeight(v);
 }
+
 glm::vec2 UITransform::GetSizeRootSpace()
 {
+	glm::ivec2 ParentMax = glm::ivec2(0, 0);
+	if (Widget->Parent != nullptr)
+	{
+		ParentMax = Widget->Parent->GetTransfrom()->GetSizeRootSpace();
+	}
 	glm::vec2 RawSize = glm::vec2(Size.x, Size.y);
 	if (ScalingMode == EWidetSizeSpace::RootSpaceScaled)
 	{
@@ -104,14 +115,15 @@ glm::vec2 UITransform::GetSizeRootSpace()
 	if (StretchMode == EAxisStretch::Width || StretchMode == EAxisStretch::ALL)
 	{
 		//todo: more control over scaling scale?
-		RawSize.x = GetWidthScaled(1.0f);
+		RawSize.x = ParentMax.x;
 	}
 	if (StretchMode == EAxisStretch::Height || StretchMode == EAxisStretch::ALL)
 	{
-		RawSize.y = GetHeightScaled(1.0f);
+		RawSize.y = ParentMax.y;
 	}
 	return RawSize;
 }
+
 glm::vec2 UITransform::GetTransfromedSize()
 {
 	glm::vec2 RawSize = GetSizeRootSpace();

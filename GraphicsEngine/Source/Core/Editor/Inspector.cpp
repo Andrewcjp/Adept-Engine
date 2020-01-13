@@ -11,20 +11,18 @@
 #include "Core/Components/ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
+#include <vector>
 #if WITH_EDITOR
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
-	:UIWidget(w, h, x, y)
+	:UITab()
 {
-	Backgroundbox = new UIBox(w, h, x, y);
-	//Backgroundbox->BackgoundColour = glm::vec3(0);
 	CreateEditor();
 	ensure(Instance == nullptr);
-	AddChild(Backgroundbox);
+	//AddChild(Backgroundbox);
 	Instance = this;
-
+	SetName("Inspector");
 }
-
 
 Inspector::~Inspector()
 {
@@ -61,49 +59,21 @@ InspectorProperyGroup Inspector::CreatePropertyGroup(std::string name)
 	return NameProp;
 }
 
-void Inspector::Render()
-{
-	Backgroundbox->Render();
-	if (SubWidgets.size() != 0)
-	{
-		for (int i = 0; i < SubWidgets.size(); i++)
-		{
-			SubWidgets[i]->Render();
-		}
-	}
-}
-void Inspector::ResizeView(int w, int h, int x, int y)
-{
-	UIWidget::ResizeView(w, h, x, y);
-	Backgroundbox->ResizeView(w, h, x, y);
-	UIUtils::ArrangeHorizontal(w, h, x, y, SubWidgets);
-}
 void Inspector::MouseMove(int x, int y)
 {
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->MouseMove(x, y);
-	}
+	UITab::MouseMove(x, y);
 }
 
 bool Inspector::MouseClick(int x, int y)
 {
-	bool Returnvalue = false;
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		Returnvalue |= SubWidgets[i]->MouseClick(x, y);
-
-	}
-	return Returnvalue;
+	UITab::MouseClick(x, y);
+	return false;
 }
 void Inspector::MouseClickUp(int x, int y)
 {
-	for (int i = 0; i < SubWidgets.size(); i++)
-	{
-		SubWidgets[i]->MouseClickUp(x, y);
-
-	}
+	UITab::MouseClickUp(x, y);
 }
+
 void Inspector::AddComponent()
 {
 	//__debugbreak();
@@ -114,7 +84,7 @@ void Inspector::AddComponent()
 	}
 
 	using std::placeholders::_1;
-	UIManager::instance->CreateDropDown(ops,GetTransfrom()->GetSizeRootSpace().x, 200, GetTransfrom()->GetPositionForWidgetRootSpace().x, GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
+	UIManager::instance->CreateDropDown(ops, GetTransfrom()->GetSizeRootSpace().x, 200, GetTransfrom()->GetPositionForWidgetRootSpace().x, GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
 }
 
 void Inspector::AddComponentCallback(int i)
@@ -140,16 +110,23 @@ void Inspector::AddComponentCallback(int i)
 	}
 	UIManager::CloseDropDown();
 }
+
+void Inspector::UpdateScaled()
+{
+	glm::ivec2 Space = TabPanelArea->GetTransfrom()->GetSizeRootSpace();
+	UIUtils::ArrangeHorizontal(Space.x, Space.y, 0, 0, TabPanelArea->Children,0,20);
+	UITab::UpdateScaled();
+}
+
 void Inspector::CreateEditor()
 {
-	if (SubWidgets.size() != 0)
+	
+	if (TabPanelArea->Children.size() != 0)
 	{
-		for (int i = 0; i < SubWidgets.size(); i++)
+		for (int i = 0; i < TabPanelArea->Children.size(); i++)
 		{
-			RemoveChild(SubWidgets[i]);
-			delete SubWidgets[i];
+			TabPanelArea->RemoveChild(TabPanelArea->Children[i]);
 		}
-		SubWidgets.clear();
 	}
 	if (target != nullptr)
 	{
@@ -175,22 +152,24 @@ void Inspector::CreateEditor()
 				}
 				if (newwidget != nullptr)
 				{
-					newwidget->AligmentStruct.SizeMax = ItemHeight;
+					newwidget->AligmentStruct.SizeMax = 40;
 					Panel->AddSubWidget(newwidget);
 				}
 			}
 			Panel->SetTitle(Fields[i].name);
-			SubWidgets.push_back(Panel);
-			AddChild(Panel);
+			Panel->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+			//Panel->AligmentStruct.SizeMax = 40;
+			TabPanelArea->AddChild(Panel);
 		}
 		button = new UIButton(mwidth, 30, 0, 0);
-		button->SetRootSpaceSize(250, 30, 0, 0);
+		button->SetRootSpaceSize(250, 50, 0, 0);
 		button->SetText("Add Component");
+		button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
 		button->BindTarget(std::bind(&Inspector::AddComponent, this));
-		AddChild(button);
-		SubWidgets.push_back(button);
+		button->AligmentStruct.SizeMax = 50;
+		TabPanelArea->AddChild(button);
 	}
-	ResizeView(mwidth, mheight, X, Y);
+	//ResizeView(mwidth, mheight, X, Y);
 	UIManager::UpdateBatches();
 }
 #endif

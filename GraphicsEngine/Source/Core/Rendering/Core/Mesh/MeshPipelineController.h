@@ -26,6 +26,7 @@ struct MeshPassRenderArgs
 	bool UseShadows = false;
 	bool ReadDepth = false;
 	void* PassData = nullptr;
+	EEye::Type Eye = EEye::Left;
 };
 namespace EBatchFilter
 {

@@ -10,6 +10,8 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 	Priority = 2;//buttons need to draw on top of panels
 	Label->Priority = Priority;
 	AddChild(Label);
+	Label->GetTransfrom()->SetStretchMode(EAxisStretch::ALL);
+	Label->SetRootSpaceSize(w, h / 2, 0, 0);
 }
 UIButton::~UIButton()
 {}
@@ -61,10 +63,10 @@ bool UIButton::MouseClick(int x, int y)
 void UIButton::ResizeView(int w, int h, int x, int y)
 {
 	UIBox::ResizeView(w, h, x, y);
-	if (Label != nullptr)
+	/*if (Label != nullptr)
 	{
 		Label->ResizeView(w, h / 2, x, y);
-	}
+	}*/
 
 	Rect = CollisionRect(w, h, x, y);
 }

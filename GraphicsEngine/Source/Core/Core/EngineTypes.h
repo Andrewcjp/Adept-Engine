@@ -18,6 +18,12 @@ struct IntPoint
 		x = X;
 		y = Y;
 	}
+	IntPoint operator+(const IntPoint&rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+		return *this;
+	}
 };
 
 struct IntRect

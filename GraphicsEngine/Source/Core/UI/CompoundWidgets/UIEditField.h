@@ -20,12 +20,14 @@ public:
 	void MouseClickUp(int x, int y) override;
 	// Inherited via UIWidget
 	void Render() override;
-	void ResizeView(int w, int h, int x, int y) override;
 #ifdef PLATFORM_WINDOWS
 	void ProcessKeyDown(UINT_PTR key)override;
 #endif
 	void SendValue();
 	bool CheckValidInput(char c);
+
+
+	void UpdateScaled() override;
 
 private:
 	UILabel* Namelabel = nullptr;

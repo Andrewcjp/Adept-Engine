@@ -68,7 +68,7 @@ int Screen::GetWindowHeight()
 
 glm::ivec2 Screen::GetWindowRes()
 {
-	return glm::ivec2(GetScaledWidth(), GetWindowHeight());
+	return glm::ivec2(GetWindowWidth(), GetWindowHeight());
 }
 
 bool Screen::IsValidForRender()

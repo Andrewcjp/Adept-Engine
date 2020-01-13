@@ -12,17 +12,16 @@ namespace UIUtils
 		UNUSED_PARAM(MinHeight);
 		if (widgets.size() > 0)
 		{
-			int Currenty = (y)+h;
+			int Currenty = y;
 			for (int i = 0; i < widgets.size(); i++)
 			{
-				int height = UIManager::GetScaledHeight(widgets[i]->AligmentStruct.SizeMax);
+				int height = (widgets[i]->AligmentStruct.SizeMax);
 				if (MaxHeight != -1 && height > MaxHeight)
 				{
 					height = MaxHeight;
 				}
-				Currenty -= height + Gap;
-				widgets[i]->SetAbsoluteSize(w, height, x, Currenty);
-
+				widgets[i]->SetRootSpaceSize(w, height, x, Currenty);
+				Currenty += height + Gap;
 			}
 		}
 	}

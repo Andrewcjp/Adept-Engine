@@ -28,6 +28,7 @@ public:
 	Aligment AligmentStruct;
 	static glm::vec3 DefaultColour;
 	CORE_API UIWidget(int w, int h, int x = 0, int y = 0);
+	CORE_API UIWidget();
 	virtual ~UIWidget();
 	virtual void Render(){};
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0);
@@ -38,7 +39,7 @@ public:
 
 	void SetOwner(UIWidgetContext* wc);
 	glm::vec3 Colour;
-
+	bool ContainsPoint(glm::ivec2 Point);
 	virtual void MouseMove(int x, int y);
 	virtual bool MouseClick(int x, int y);
 	virtual void MouseClickUp(int x, int y);
@@ -82,6 +83,8 @@ public:
 	UIWidgetContext* GetOwningContext() const { return OwningContext; }
 	void SetOwningContext(UIWidgetContext* val);
 	UITransform* GetTransfrom();
+	void DebugRenderBounds();
+	bool RenderWidgetBounds = false;
 protected:
 	UITransform Transform;
 	EWidgetBatchMode::Type BatchMode = EWidgetBatchMode::Auto;
@@ -90,9 +93,10 @@ protected:
 	bool IsActive = true;
 	bool TransfromDirty = false;
 	virtual void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr);
+	glm::ivec2 ConvertScreenToRootSpace(glm::ivec2 In);
 private:
 	IntRect RootSpaceRect = IntRect();
 	EWidetSizeSpace::Type ScaleMode = EWidetSizeSpace::Limit;
-
+	glm::vec3 DebugColour = glm::vec3(1, 1, 1);
 };
 

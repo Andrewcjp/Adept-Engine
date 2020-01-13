@@ -40,7 +40,7 @@ void BasePassMeshProcessor::AddBatch(MeshBatch* Batch)
 	Process(Batch);
 }
 
-void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command,  const MeshPassRenderArgs& args)
+void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawCommand* Command, const MeshPassRenderArgs& args)
 {
 	if (Command->TargetMaterial != nullptr)
 	{
@@ -55,5 +55,6 @@ void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComma
 		//todo: move this 
 		List->SetConstantBufferView(Command->MaterialInstanceBuffer, 0, "MateralConstantBuffer");
 	}
-	SceneRenderer::Get()->BindMvBuffer(List, "", 0);
+
+	SceneRenderer::Get()->BindMvBuffer(List, "", args.Eye);
 }

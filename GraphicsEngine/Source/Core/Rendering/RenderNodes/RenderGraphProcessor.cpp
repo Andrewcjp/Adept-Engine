@@ -16,7 +16,7 @@ RenderGraphProcessor::~RenderGraphProcessor()
 void RenderGraphProcessor::Process(RenderGraph * graph)
 {
 	BuildTimeLine(graph);	
-	BuildTransitionsSplit(graph);
+	BuildTransitions(graph);
 	BuildScheduling(graph);
 	BuildAliasing(graph);
 }

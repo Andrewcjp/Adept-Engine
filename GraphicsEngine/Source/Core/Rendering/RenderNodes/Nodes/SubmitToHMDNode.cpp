@@ -5,6 +5,7 @@
 SubmitToHMDNode::SubmitToHMDNode()
 {
 	OnNodeSettingChange();
+	NodeEngineType = ECommandListType::Compute;
 }
 
 SubmitToHMDNode::~SubmitToHMDNode()
@@ -12,6 +13,8 @@ SubmitToHMDNode::~SubmitToHMDNode()
 
 void SubmitToHMDNode::OnExecute()
 {
+	HasRunBegin = true;
+	HasRunEnd = true;
 	if (RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::SteamVR)
 	{
 		RHI::SubmitToVRComposter(GetFrameBufferFromInput(0), VRBranchContext->GetCurrentEye());

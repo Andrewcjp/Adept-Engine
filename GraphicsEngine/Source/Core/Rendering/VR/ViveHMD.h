@@ -18,6 +18,12 @@ public:
 	static bool CanCreate();
 	void Init();
 
+	glm::mat4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
+
+
+	glm::mat4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
+
+	glm::mat4 getRaw(vr::Hmd_Eye nEye);
 
 	virtual void Update() override;
 

@@ -15,6 +15,9 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "BasicWidgets/UIImage.h"
 #include "Core/Assets/AssetManager.h"
+#include "CompoundWidgets/UIWindow.h"
+#include "CompoundWidgets/UITab.h"
+#include "EditorUI/UILayoutManager.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -61,7 +64,7 @@ void UIManager::InitEditorUI()
 	AddWidget(EditUI->ViewPortImage);
 	EditUI->SetViewPortSize();
 	//return;
-
+#if 0
 	BottomHeight = 0.25f;
 	TOP = new UIBox(m_width, GetScaledHeight(0.2f), 0, 0);
 	TOP->SetScaled(1.0f, TopHeight, 0.0f, 1.0f - TopHeight);
@@ -71,12 +74,7 @@ void UIManager::InitEditorUI()
 	TOP->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
 	AddWidget(TOP);
 
-	inspector = new Inspector(m_width, GetScaledHeight(0.2f), 0, 0);
-	inspector->SetRootSpaceScaled(400, 960, 400, 0);
-	inspector->GetTransfrom()->SetStretchMode(EAxisStretch::HeightRootSpace);
-	inspector->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Right);
-	inspector->UpdateScaled();
-	AddWidget(inspector);
+
 
 	TOP->IgnoreboundsCheck = true;
 
@@ -101,12 +99,48 @@ void UIManager::InitEditorUI()
 	button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Bottom);
 	TOP->AddChild(button);
 	AddWidget(button);
-
-
 	AssetMan = new UIAssetManager();
 	AssetMan->SetRootSpaceSize(1920, 200, 0, 0);
 	AddWidget(AssetMan);
-	ViewportArea = glm::ivec4(1920 - GetScaledWidth(0.2f) - 400, 1080 - AssetMan->GetTransfrom()->GetSizeRootSpace().y - TOP->GetTransfrom()->GetSizeRootSpace().y, GetScaledWidth(0.2f), AssetMan->GetTransfrom()->GetSizeRootSpace().y);
+#endif
+
+	EditorLayout = new UILayoutManager();
+	UIWindow* WindoTest = new UIWindow();
+	WindoTest->GetTransfrom()->SetScalingMode(EWidetSizeSpace::RootSpace);
+	WindoTest->GetTransfrom()->SetPos(IntPoint(500, 200));
+	WindoTest->GetTransfrom()->SetSize(IntPoint(500, 800));
+	WindoTest->UpdateSize();
+	AddWidget(WindoTest);
+
+	UITab* tab = new UITab();
+	WindoTest->AddTab(tab);
+	tab = new UITab();
+
+	UIWindow* RightWin = new UIWindow();
+	RightWin->AddTab(new UITab());
+	RightWin->AddTab(new UITab());
+	AddWidget(RightWin);
+	UIWindow* Bottomw = new UIWindow();
+	Bottomw->AddTab(new UITab());
+	Bottomw->AddTab(new UITab());
+	AddWidget(Bottomw);
+
+	UIWindow* TopWin = new UIWindow();
+	TopWin->AddTab(new UITab());
+	AddWidget(TopWin);
+
+	EditorLayout->SetWidget(UILayoutManager::Left, WindoTest);
+	EditorLayout->SetWidget(UILayoutManager::Right, RightWin);
+	EditorLayout->SetWidget(UILayoutManager::Bottom, Bottomw);
+	EditorLayout->SetWidget(UILayoutManager::Top, TopWin);
+	EditorLayout->SetWidget(UILayoutManager::Centre, EditUI->ViewPortImage);
+
+
+	inspector = new Inspector(0, 0, 0, 0);
+	inspector->SetRootSpaceScaled(0, 0, 0, 0);
+	WindoTest->AddTab(inspector);
+	const int Small = GetScaledWidth(0.2);
+	ViewportArea = glm::ivec4(1920 - Small, 1080 - Small, GetScaledWidth(0.2f), Small);
 	ViewportRect = CollisionRect(ViewportArea.x, ViewportArea.x, ViewportArea.z, ViewportArea.w);
 	UpdateBatches();
 }
@@ -236,6 +270,7 @@ void UIManager::UpdateBatches()
 
 void UIManager::UpdateWidgets()
 {
+	EditorLayout->Update();
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->UpdateWidgets();
@@ -326,6 +361,10 @@ void UIManager::RefreshGameObjectList()
 		if (GetInspector())
 		{
 			GetInspector()->Refresh();
+		}
+		if ((*GameObjectsPtr).size())
+		{
+			SelectedCallback(2);
 		}
 		UpdateBatches();
 	}

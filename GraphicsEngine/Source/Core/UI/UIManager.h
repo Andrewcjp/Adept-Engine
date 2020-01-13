@@ -19,6 +19,7 @@ class UIWidgetContext;
 class UIDropDown;
 class UIImage;
 class EditorUI;
+class UILayoutManager;
 class UIManager
 {
 public:
@@ -97,7 +98,8 @@ private:
 	UIAssetManager* AssetMan;
 	bool Blocking = false;
 	Inspector* inspector = nullptr;
-	std::vector<GameObject*>* GameObjectsPtr;	
+	std::vector<GameObject*>* GameObjectsPtr;
 	bool FullScreen = false;
+	UILayoutManager* EditorLayout = nullptr;
 };
 

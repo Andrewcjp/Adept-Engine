@@ -23,5 +23,5 @@
 #else
 #define USE_DIXL 0
 #endif
-#define SUPPORT_OPENVR 0
+#define SUPPORT_OPENVR 1
 class GPUResource;
