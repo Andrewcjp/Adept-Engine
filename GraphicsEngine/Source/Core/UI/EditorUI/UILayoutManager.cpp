@@ -40,8 +40,6 @@ void UILayoutManager::Update()
 	Slots[Centre].Pos.y = Slots[Bottom].GetSize().y;
 	Slots[Centre].Size.x = Context->RootSpaceViewport.Max.x - Slots[Right].GetSize().x - Slots[Left].GetSize().x;
 	Slots[Centre].Size.y = Context->RootSpaceViewport.Max.y - Slots[Top].GetSize().y - Slots[Bottom].GetSize().y;
-
-
 	PushToSlots();
 }
 

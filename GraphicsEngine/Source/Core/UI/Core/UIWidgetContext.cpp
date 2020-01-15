@@ -89,6 +89,7 @@ int UIWidgetContext::GetScaledHeight(float PC)
 
 void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset)
 {
+	SCOPE_CYCLE_COUNTER_GROUP("Layout Update", "UI");
 	RootSpaceWidgetScale = glm::clamp(1080.0f / (float)height, 0.3f, 1.0f);
 	LineBatcher->OnResize(width, height);
 	DrawBatcher->ClearVertArray();
@@ -107,10 +108,13 @@ void UIWidgetContext::UpdateSize(int width, int height, int Xoffset, int yoffset
 
 	std::sort(widgets.begin(), widgets.end(), less_than_key());
 
-	for (int i = (int)widgets.size() - 1; i >= 0; i--)
 	{
-		widgets[i]->UpdateScaled();
+		SCOPE_CYCLE_COUNTER_GROUP("Layout Update", "UI");
+		for (int i = (int)widgets.size() - 1; i >= 0; i--)
+		{
+			widgets[i]->UpdateScaled();
 
+		}
 	}
 	{
 		SCOPE_CYCLE_COUNTER_GROUP("Gather batches", "UI");

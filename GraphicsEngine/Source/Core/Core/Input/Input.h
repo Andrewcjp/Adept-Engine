@@ -47,6 +47,7 @@ public:
 	int MouseSampleCount = 0;
 	bool DidJustPause = false;
 	static InputManager* GetInputManager();
+	float GetMouseWheelAxis() const { return MouseWheelDelta; }
 private:
 	InputManager* IManager = nullptr;
 	static Input* instance;
@@ -63,6 +64,7 @@ private:
 	int CurrentFrame = 0;
 	bool MouseWheelUpThisFrame = false;
 	bool MouseWheelDownThisFrame = false;
+	float MouseWheelDelta = 0;
 };
 
 

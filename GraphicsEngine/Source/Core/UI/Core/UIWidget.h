@@ -23,6 +23,7 @@ public:
 	{
 		float SizeMax = 0.05f;
 		//float SizeMin = 0.05f;
+		int Gap = 0;
 	};
 
 	Aligment AligmentStruct;

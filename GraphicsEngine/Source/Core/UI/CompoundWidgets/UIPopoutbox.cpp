@@ -52,5 +52,4 @@ void UIPopoutbox::CloseBox()
 {
 	OkayButton->SetEnabled(false);
 	SetEnabled(false);
-	UIManager::UpdateBatches();
 }

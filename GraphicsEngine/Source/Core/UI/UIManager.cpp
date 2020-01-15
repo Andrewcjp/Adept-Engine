@@ -18,6 +18,8 @@
 #include "CompoundWidgets/UIWindow.h"
 #include "CompoundWidgets/UITab.h"
 #include "EditorUI/UILayoutManager.h"
+#include "EditorUI/EditorOutliner.h"
+#include "Core/Performance/PerfManager.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -105,16 +107,19 @@ void UIManager::InitEditorUI()
 #endif
 
 	EditorLayout = new UILayoutManager();
-	UIWindow* WindoTest = new UIWindow();
-	WindoTest->GetTransfrom()->SetScalingMode(EWidetSizeSpace::RootSpace);
-	WindoTest->GetTransfrom()->SetPos(IntPoint(500, 200));
-	WindoTest->GetTransfrom()->SetSize(IntPoint(500, 800));
-	WindoTest->UpdateSize();
-	AddWidget(WindoTest);
+	UIWindow* LeftWindow = new UIWindow();
+	LeftWindow->GetTransfrom()->SetScalingMode(EWidetSizeSpace::RootSpace);
+	LeftWindow->GetTransfrom()->SetPos(IntPoint(500, 200));
+	LeftWindow->GetTransfrom()->SetSize(IntPoint(500, 800));
+	LeftWindow->UpdateSize();
+	AddWidget(LeftWindow);
 
+
+	 OutLiner = new EditorOutliner();
+	LeftWindow->AddTab(OutLiner);
+
+	
 	UITab* tab = new UITab();
-	WindoTest->AddTab(tab);
-	tab = new UITab();
 
 	UIWindow* RightWin = new UIWindow();
 	RightWin->AddTab(new UITab());
@@ -129,7 +134,7 @@ void UIManager::InitEditorUI()
 	TopWin->AddTab(new UITab());
 	AddWidget(TopWin);
 
-	EditorLayout->SetWidget(UILayoutManager::Left, WindoTest);
+	EditorLayout->SetWidget(UILayoutManager::Left, LeftWindow);
 	EditorLayout->SetWidget(UILayoutManager::Right, RightWin);
 	EditorLayout->SetWidget(UILayoutManager::Bottom, Bottomw);
 	EditorLayout->SetWidget(UILayoutManager::Top, TopWin);
@@ -138,11 +143,10 @@ void UIManager::InitEditorUI()
 
 	inspector = new Inspector(0, 0, 0, 0);
 	inspector->SetRootSpaceScaled(0, 0, 0, 0);
-	WindoTest->AddTab(inspector);
+	RightWin->AddTab(inspector);
 	const int Small = GetScaledWidth(0.2);
 	ViewportArea = glm::ivec4(1920 - Small, 1080 - Small, GetScaledWidth(0.2f), Small);
 	ViewportRect = CollisionRect(ViewportArea.x, ViewportArea.x, ViewportArea.z, ViewportArea.w);
-	UpdateBatches();
 }
 
 void UIManager::SetFullscreen(bool state)
@@ -185,7 +189,6 @@ void UIManager::AlertBox(std::string MSg)
 	testboxx->SetScaled(RightWidth, TopHeight * 2, 0.5f - (RightWidth / 2), 0.5f - (TopHeight * 2 / 2));
 	testboxx->SetText(MSg);
 	AddWidget(testboxx);
-	UIManager::UpdateBatches();
 }
 
 UIManager::~UIManager()
@@ -269,8 +272,8 @@ void UIManager::UpdateBatches()
 }
 
 void UIManager::UpdateWidgets()
-{
-	EditorLayout->Update();
+{	
+	SCOPE_CYCLE_COUNTER_GROUP("Update Widgets", "UI");
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->UpdateWidgets();
@@ -279,6 +282,7 @@ void UIManager::UpdateWidgets()
 
 void UIManager::RenderWidgets()
 {
+	EditorLayout->Update();
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->RenderWidgets();
@@ -323,8 +327,6 @@ void UIManager::InitGameobjectList(std::vector<GameObject*>& gos)
 {
 #if EDITORUI
 	GameObjectsPtr = &gos;
-	box = new UIListBox(GetScaledWidth(0.15f), GetScaledHeight(.8f), 0, GetScaledHeight(0.2f));
-	AddWidget(box);
 	RefreshGameObjectList();
 #endif
 }
@@ -347,26 +349,18 @@ void UIManager::SelectedCallback(int i)
 void UIManager::RefreshGameObjectList()
 {
 #if EDITORUI
-	if (box != nullptr && GameObjectsPtr != nullptr)
+	if (GameObjectsPtr != nullptr)
 	{
-		box->RemoveAll();
-		box->SetScaled(LeftWidth, 1.0f - (BottomHeight + TopHeight), 0.0, BottomHeight);
-		using std::placeholders::_1;
-		box->SelectionChanged = std::bind(&UIManager::SelectedCallback, _1);
-		for (int i = 0; i < (*(GameObjectsPtr)).size(); i++)
-		{
-			(*GameObjectsPtr)[i]->PostChangeProperties();
-			box->AddItem((*(GameObjectsPtr))[i]->GetName().c_str());
-		}
+		OutLiner->SetGameObjects((*GameObjectsPtr));
+	
 		if (GetInspector())
 		{
 			GetInspector()->Refresh();
 		}
-		if ((*GameObjectsPtr).size())
+		/*if ((*GameObjectsPtr).size())
 		{
 			SelectedCallback(2);
-		}
-		UpdateBatches();
+		}*/
 	}
 #endif
 }

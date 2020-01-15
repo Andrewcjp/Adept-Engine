@@ -3,6 +3,7 @@
 #include "../BasicWidgets/UILabel.h"
 #include "../Core/UIWidget.h"
 #include "../Core/Layout.h"
+#include "Core/Input/Input.h"
 UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
 
@@ -11,6 +12,8 @@ UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 	TitleLabel = new UILabel("List Box", w, 20, x, y + mheight - 20);
 	AddChild(Background);
 	AddChild(TitleLabel);
+	MaskedPanel = new UIWidget();
+	AddChild(MaskedPanel);
 	BatchMode = EWidgetBatchMode::On;
 }
 
@@ -54,23 +57,23 @@ void UIListBox::MouseClickUp(int x, int y)
 		Background->MouseClickUp(x, y);
 	}
 }
-void UIListBox::ResizeView(int w, int h, int x, int y)
-{
-	UIWidget::ResizeView(w, h, x, y);
-	Background->ResizeView(w, h, X, Y);
-
-	TitleLabel->ResizeView(w, 10, X, Y + mheight - 20);
-	UIUtils::ArrangeHorizontal(w - Edgespace, h - 40, x + Edgespace / 2, y, items, 0.05f, 0, 20);
-	//UIUtils::ArrangeGrid(w, h - 40, x, y, items, 5);
-}
 void UIListBox::UpdateScaled()
 {
 	UIWidget::UpdateScaled();
-	for (int i = 0; i < items.size(); i++)
-	{
-		items[i]->UpdateScaled();
-	}
+	int w = GetTransfrom()->GetSizeRootSpace().x;
+	int h = GetTransfrom()->GetSizeRootSpace().y;
+	Background->SetRootSpaceSize(w, h, 0, 0);
+
+	TitleLabel->SetRootSpaceSize(w, 10, 0, mheight - 20);
+	const int EdgeOffset = 40;
+	const int RealHeight = h - EdgeOffset * 2;
+	MaskedPanel->SetRootSpaceSize(w - Edgespace, RealHeight, Edgespace / 2, EdgeOffset);
+	Scorll -= Input::Get()->GetMouseWheelAxis()*2;
+	float ItemsLength = ItemSize * items.size();
+	Scorll = glm::clamp(Scorll,0.0f, (float)(ItemsLength - RealHeight));
+	UIUtils::ArrangeHorizontal(w - Edgespace, h - 40, Edgespace / 2, -Scorll, items, 0.05f, 0, 20);
 }
+
 void UIListBox::RemoveAll()
 {
 	for (int i = 0; i < items.size(); i++)
@@ -80,6 +83,7 @@ void UIListBox::RemoveAll()
 	CurrentCount = 0;
 	items.clear();
 }
+
 void UIListBox::Select(int index)
 {
 	SelectedCurrent = index;
@@ -92,17 +96,19 @@ void UIListBox::Select(int index)
 		items[i]->SetSelected(i == SelectedCurrent);
 	}
 }
+
 void UIListBox::AddItem(std::string name)
 {
 	UIButton* button = new UIButton(mwidth - Edgespace, ItemHeight, Edgespace / 2, (Y + mheight) - (TitleHeight + (CurrentCount + 1) * Spacing));
 	//button->GetLabel()->TextScale = 0.3f;
 	button->SetText(name);
-	button->AligmentStruct.SizeMax = 0.03f;
+	button->AligmentStruct.SizeMax = ItemSize;
 	button->BindTarget(std::bind(&UIListBox::Select, this, CurrentCount));
 	button->BackgoundColour = Background->Colour;
+	button->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
 	items.push_back(button);
 	CurrentCount++;
-	AddChild(button);
+	MaskedPanel->AddChild(button);
 }
 
 void UIListBox::SetTitle(std::string name)

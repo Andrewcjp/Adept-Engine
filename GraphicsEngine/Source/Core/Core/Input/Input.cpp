@@ -49,6 +49,7 @@ void Input::Clear()
 	MouseWheelUpThisFrame = false;
 	MouseWheelDownThisFrame = false;
 	DidJustPause = false;
+	MouseWheelDelta = 0;
 }
 
 void Input::ForceClear()
@@ -172,6 +173,7 @@ bool Input::ProcessKeyUp(unsigned int key)
 
 void Input::ProcessMouseWheel(float Delta)
 {
+	MouseWheelDelta = Delta;
 	const float DeltaMin = 0.5f;
 	if (Delta > DeltaMin)
 	{

@@ -11,7 +11,7 @@ UIButton::UIButton(int w, int h, int x, int y) : UIBox(w, h, x, y)
 	Label->Priority = Priority;
 	AddChild(Label);
 	Label->GetTransfrom()->SetStretchMode(EAxisStretch::ALL);
-	Label->SetRootSpaceSize(w, h / 2, 0, 0);
+	Label->SetRootSpaceSize(w, h, 0, 0);
 }
 UIButton::~UIButton()
 {}
@@ -29,7 +29,6 @@ void UIButton::MouseMove(int x, int y)
 	if (Rect.Contains(x, y))
 	{
 		WasSelected = true;
-		UIManager::UpdateBatches();
 		Colour = Hovercolour;
 	}
 	else
@@ -37,7 +36,6 @@ void UIButton::MouseMove(int x, int y)
 		Colour = IsActiveSelect ? SelectedColour : NormalColour;
 		if (WasSelected)
 		{
-			UIManager::UpdateBatches();
 			WasSelected = false;
 		}
 	}
@@ -73,6 +71,7 @@ void UIButton::ResizeView(int w, int h, int x, int y)
 void UIButton::UpdateScaled()
 {
 	UIBox::UpdateScaled();
+	Label->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y, 0, 0);
 }
 
 void UIButton::SetText(std::string  t)
@@ -85,7 +84,6 @@ void UIButton::SetSelected(bool t)
 {
 	IsActiveSelect = t;
 	Colour = IsActiveSelect ? SelectedColour : NormalColour;
-	UIManager::UpdateBatches();
 }
 
 void UIButton::OnOwnerSet(UIWidgetContext * wc)

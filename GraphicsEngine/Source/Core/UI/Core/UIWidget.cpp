@@ -43,19 +43,18 @@ void UIWidget::SetRootSpaceSize(int w, int h, int x, int y)
 {
 	Transform.Set(w, h, x, y, EWidetSizeSpace::RootSpace);
 	ScaleMode = EWidetSizeSpace::RootSpace;
-	UpdateScaled();
 }
+
 void UIWidget::SetRootSpaceScaled(int w, int h, int x, int y)
 {
 	Transform.Set(w, h, x, y, EWidetSizeSpace::RootSpaceScaled);
 	ScaleMode = EWidetSizeSpace::RootSpace;
-	UpdateScaled();
 }
+
 void UIWidget::SetAbsoluteSize(int w, int h, int x, int y)
 {
 	Transform.Set(w, h, x, y, EWidetSizeSpace::ABS);
 	ScaleMode = EWidetSizeSpace::ABS;
-	UpdateScaled();
 }
 
 void UIWidget::SetScaled(float Width, float height, float xoff, float yoff)
@@ -76,7 +75,6 @@ void UIWidget::UpdateScaled()
 	{
 		Children[i]->UpdateScaled();
 	}
-
 	DebugRenderBounds();
 }
 
@@ -140,7 +138,6 @@ void UIWidget::ProcessKeyUp(UINT_PTR)
 {}
 void UIWidget::SetEnabled(bool state)
 {
-	UIManager::UpdateBatches();
 	IsActive = state;
 }
 bool UIWidget::operator<(UIWidget* that) const
@@ -164,7 +161,7 @@ void UIWidget::GatherBatches(UIRenderBatch* BatchPtr)
 	}
 	if (!IsWithinParentBounds())
 	{
-		//return;
+		return;
 	}
 	if (BatchMode == EWidgetBatchMode::On)
 	{

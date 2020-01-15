@@ -96,7 +96,6 @@ void UIEditField::MouseMove(int x, int y)
 	}
 	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
-		UIManager::UpdateBatches();
 		WasSelected = true;
 		PlatformWindow::SetCursorType(GenericWindow::CursorType::IBeam);
 	}
@@ -105,8 +104,7 @@ void UIEditField::MouseMove(int x, int y)
 
 		if (WasSelected)
 		{
-			//works currently but might leak resources;
-			UIManager::UpdateBatches();
+			//works currently but might leak resources;			
 			PlatformWindow::SetCursorType(GenericWindow::CursorType::Normal);
 			WasSelected = false;
 		}

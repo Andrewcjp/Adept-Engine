@@ -114,13 +114,15 @@ void Inspector::AddComponentCallback(int i)
 void Inspector::UpdateScaled()
 {
 	glm::ivec2 Space = TabPanelArea->GetTransfrom()->GetSizeRootSpace();
-	UIUtils::ArrangeHorizontal(Space.x, Space.y, 0, 0, TabPanelArea->Children,0,20);
+	UIUtils::ArrangeHorizontal(Space.x - TabPanelArea->EdgeShrink * 2, Space.y, TabPanelArea->EdgeShrink, TabPanelArea->TopAlignGap, TabPanelArea->Children, 0, TabPanelArea->AlignGap);
 	UITab::UpdateScaled();
 }
 
 void Inspector::CreateEditor()
 {
-	
+	TabPanelArea->AlignGap = 40;
+	TabPanelArea->TopAlignGap = 20;
+	TabPanelArea->EdgeShrink = 10;
 	if (TabPanelArea->Children.size() != 0)
 	{
 		for (int i = 0; i < TabPanelArea->Children.size(); i++)
@@ -134,6 +136,9 @@ void Inspector::CreateEditor()
 		for (int i = 0; i < Fields.size(); i++)
 		{
 			UIPanel* Panel = new UIPanel(0, 0, 0, 0);
+			Panel->AlignGap = 10;
+			Panel->TopAlignGap = 0;
+			Panel->EdgeShrink = 2;
 			for (int j = 0; j < Fields[i].SubProps.size(); j++)
 			{
 				UIWidget* newwidget = nullptr;
@@ -152,7 +157,7 @@ void Inspector::CreateEditor()
 				}
 				if (newwidget != nullptr)
 				{
-					newwidget->AligmentStruct.SizeMax = 40;
+					newwidget->AligmentStruct.SizeMax = 30;
 					Panel->AddSubWidget(newwidget);
 				}
 			}
@@ -169,7 +174,5 @@ void Inspector::CreateEditor()
 		button->AligmentStruct.SizeMax = 50;
 		TabPanelArea->AddChild(button);
 	}
-	//ResizeView(mwidth, mheight, X, Y);
-	UIManager::UpdateBatches();
 }
 #endif

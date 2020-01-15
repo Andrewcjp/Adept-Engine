@@ -12,7 +12,9 @@ public:
 	void SetTitle(std::string m);
 
 	void UpdateScaled() override;
-
+	int AlignGap = 0;
+	int TopAlignGap = 0;
+	int EdgeShrink = 0;
 private:
 	std::vector<UIWidget*> SubWidgets;
 	class UILabel* title;

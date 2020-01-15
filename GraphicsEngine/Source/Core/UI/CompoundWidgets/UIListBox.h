@@ -15,7 +15,6 @@ public:
 	void MouseMove(int x, int y)override;
 	bool MouseClick(int x, int y)override;
 	void MouseClickUp(int x, int y)override;
-	virtual void ResizeView(int w, int h, int x = 0, int y = 0) override;
 	void UpdateScaled()override;
 	void RemoveAll();
 	void Select(int i);
@@ -23,7 +22,7 @@ public:
 	void SetTitle(std::string name);
 	std::function<void(int t)> SelectionChanged;
 private:
-
+	UIWidget* MaskedPanel = nullptr;
 	std::vector<UIButton*> items;
 	int SelectedCurrent = 0;
 	int CurrentCount = 0;
@@ -35,5 +34,7 @@ private:
 	bool ShowScrollBar = false;
 	UIBox* Background;
 	UILabel* TitleLabel;
+	float Scorll = 0;
+	int ItemSize = 20;
 };
 

@@ -12,6 +12,7 @@ public:
 	virtual void ResizeView(int w, int h, int x = 0, int y = 0) override;
 	CORE_API void SetText(const std::string& text);
 	CORE_API std::string GetText();
+	glm::ivec2 CalulateTextSize();
 	float TextScale = 0.5f;
 
 	virtual void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr) override;

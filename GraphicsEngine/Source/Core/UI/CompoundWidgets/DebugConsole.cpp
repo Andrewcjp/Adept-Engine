@@ -50,7 +50,6 @@ void DebugConsole::Open()
 
 	nextext = ">";
 	EditField->SetEnabled(IsOpen);
-	UIManager::UpdateBatches();
 	SetEnabled(true);
 }
 
@@ -86,7 +85,6 @@ void DebugConsole::Close()
 {
 	IsOpen = false;
 	EditField->SetEnabled(false);
-	UIManager::UpdateBatches();
 	ClearInput();
 	Textlabel->SetText(nextext);
 

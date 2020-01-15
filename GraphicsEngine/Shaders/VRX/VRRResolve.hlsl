@@ -3,7 +3,7 @@
 Texture2D<uint> RateImage: register(t0);
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
-StructuredBuffer<uint4> TileList : register(t2) ;
+StructuredBuffer<uint4> TileList : register(t2);
 cbuffer Data : register(b1)
 {
 	int2 Resolution;
@@ -13,16 +13,24 @@ cbuffer Data : register(b1)
 };
 float4 GetColourForRate(uint2 rate)
 {
-	const int totalrate = max(rate.x, rate.y);
-	if (totalrate == 1)
+	const int totalrate = rate.x + rate.y;
+	if (totalrate == 2)
 	{
 		return float4(1, 0, 0, 0);
 	}
-	else if (totalrate == 2)
+	else if (totalrate == 3)
+	{
+		return float4(1, 1, 0, 0);
+	}
+	else if (totalrate == 4)
 	{
 		return float4(0, 1, 0, 0);
 	}
-	else if (totalrate == 4)
+	else if (totalrate == 6)
+	{
+		return float4(1, 0, 1, 0);
+	}
+	else if (totalrate == 8)
 	{
 		return float4(0, 0, 1, 0);
 	}
@@ -81,7 +89,7 @@ float IsEdge(uint2 coords)
 		abs(pix[2] - pix[6])
 		) / 4.;
 
-	return threshold(0.0,1.0,clamp(delta, 0.0, 1.0));
+	return threshold(0.0, 1.0, clamp(delta, 0.0, 1.0));
 }
 bool DetectEdgeAtPX(uint2 px)
 {

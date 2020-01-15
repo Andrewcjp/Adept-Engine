@@ -20,6 +20,7 @@ class UIDropDown;
 class UIImage;
 class EditorUI;
 class UILayoutManager;
+class EditorOutliner;
 class UIManager
 {
 public:
@@ -88,7 +89,6 @@ private:
 	int m_width = 0;
 	int m_height = 0;
 	UIBox* bottom = nullptr;
-	UIListBox* box = nullptr;
 	float LastHeight = 0;
 	float YHeight = 25;
 	float XSpacing = 25;
@@ -101,5 +101,6 @@ private:
 	std::vector<GameObject*>* GameObjectsPtr;
 	bool FullScreen = false;
 	UILayoutManager* EditorLayout = nullptr;
+	EditorOutliner* OutLiner = nullptr;
 };
 
