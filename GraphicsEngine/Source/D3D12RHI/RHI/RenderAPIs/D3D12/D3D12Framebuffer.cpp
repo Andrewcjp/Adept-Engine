@@ -525,7 +525,26 @@ void D3D12FrameBuffer::ClearBuffer(D3D12CommandList * list)
 		}
 	}
 }
-
+void D3D12FrameBuffer::ClearUAV(D3D12CommandList * list)
+{
+	if (BufferDesc.RenderTargetCount > 0)
+	{
+		if (!BufferDesc.CubeMapAddressAsOne)
+		{
+			for (int i = 0; i < BufferDesc.TextureDepth; i++)
+			{
+				//list->GetCommandList()->ClearUnorderedAccessViewFloat(RTVHeap->GetCPUAddress(i),);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
+			{
+				//list->GetCommandList()->ClearUnorderedAccessViewFloat(RTVHeap->GetCPUAddress(i), &BufferDesc.clearcolour[0], 0, nullptr);
+			}
+		}
+	}
+}
 const RHIPipeRenderTargetDesc& D3D12FrameBuffer::GetPiplineRenderDesc()
 {
 	return RenderTargetDesc;

@@ -10,6 +10,9 @@ public:
 	virtual void OnExecute() override;
 	virtual std::string GetName() const override;
 	bool ClearBuffer = false;
+
+	void RefreshNode() override;
+
 private:
 	RHICommandList* CommandList = nullptr;
 protected:

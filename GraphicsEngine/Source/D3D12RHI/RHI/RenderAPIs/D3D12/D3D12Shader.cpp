@@ -671,7 +671,7 @@ void D3D12Shader::CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_I
 		ext->baseVersion = NV_PSO_EXTENSION_DESC_VER;
 		Extentions.push_back(ext);
 		NvAPI_Status r = NvAPI_D3D12_CreateGraphicsPipelineState(D3D12RHI::DXConv(context)->GetDevice(), &psoDesc, Extentions.size(), Extentions.data(), &output->PSO);
-		check(r == NvAPI_Status::NVAPI_OK);
+		AD_Assert(r == NvAPI_Status::NVAPI_OK);
 	}
 }
 

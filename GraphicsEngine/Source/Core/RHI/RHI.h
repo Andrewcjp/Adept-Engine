@@ -46,6 +46,7 @@ class RHIBuffer;
 
 class RHICommandList;
 class RHITexture;
+class DynamicQualityEngine;
 
 //RHI defines
 #define RHI_SUPPORTS_VR 1
@@ -56,7 +57,7 @@ class RHITexture;
 #define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 #ifdef PLATFORM_RT
-#define RHI_SUPPORTS_RT 0
+#define RHI_SUPPORTS_RT 1
 #else
 #define RHI_SUPPORTS_RT 0
 #endif
@@ -168,6 +169,8 @@ private:
 	RenderGraphSystem* RenderSystem = nullptr;
 	GPUPerformanceTestManager* TestManager = nullptr;
 	FrameCountingVector<IRHIResourse>* GlobalDeleteQueue= nullptr;
+	DynamicQualityEngine* QualityEngine = nullptr;
+	friend DynamicQualityEngine;
 };
 
 class RHI_API RHIClass

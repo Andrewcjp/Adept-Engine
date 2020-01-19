@@ -25,6 +25,7 @@ public:
 	void FlushDebugLines();
 	CORE_API static DebugLineDrawer* Get();
 	CORE_API static DebugLineDrawer* Get2();
+	bool HasWork()const;
 private:
 	void ReallocBuffer(int NewSize);
 

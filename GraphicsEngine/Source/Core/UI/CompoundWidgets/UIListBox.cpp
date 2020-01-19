@@ -17,7 +17,6 @@ UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 	BatchMode = EWidgetBatchMode::On;
 }
 
-
 UIListBox::~UIListBox()
 {}
 
@@ -30,6 +29,7 @@ void UIListBox::Render()
 		items[i]->Render();
 	}
 }
+
 void UIListBox::MouseMove(int x, int y)
 {
 	for (int i = 0; i < items.size(); i++)
@@ -49,6 +49,7 @@ bool UIListBox::MouseClick(int x, int y)
 	}
 	return ReturnValue;
 }
+
 void UIListBox::MouseClickUp(int x, int y)
 {
 	for (int i = 0; i < items.size(); i++)
@@ -57,6 +58,7 @@ void UIListBox::MouseClickUp(int x, int y)
 		Background->MouseClickUp(x, y);
 	}
 }
+
 void UIListBox::UpdateScaled()
 {
 	UIWidget::UpdateScaled();

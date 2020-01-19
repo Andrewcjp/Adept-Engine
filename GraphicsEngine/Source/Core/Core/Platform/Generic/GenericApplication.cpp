@@ -62,6 +62,11 @@ void GenericApplication::DisplayMessageBox(std::string title, std::string messag
 
 }
 
+void GenericApplication::DisplayAssertBox(std::string title, std::string message)
+{
+	
+}
+
 bool GenericApplication::DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData)
 {
 	return false;

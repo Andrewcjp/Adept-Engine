@@ -27,6 +27,7 @@ public:
 	virtual void					BindBufferAsRenderTarget(D3D12CommandList * list, int SubResourceIndex);
 	void							UnBind(ID3D12GraphicsCommandList * list);
 	virtual void					ClearBuffer(D3D12CommandList * list = nullptr);
+	void ClearUAV(D3D12CommandList * list);
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex);
 	static D3D12_SHADER_RESOURCE_VIEW_DESC GetSrvDesc(int RenderTargetIndex, const RHIFrameBufferDesc & desc);
 	bool							CheckDevice(int index);

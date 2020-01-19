@@ -16,6 +16,7 @@ public:
 	CORE_API static bool TryCreateDirectory(const std::string & name);
 	CORE_API static bool IsDebuggerPresent();
 	static CORE_API void DisplayMessageBox(std::string title, std::string message);
+	static CORE_API void DisplayAssertBox(std::string title, std::string message);
 	static bool DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData);
 	static bool DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData);
 	static bool CopyFileToTarget(std::string Target, std::string Dest);

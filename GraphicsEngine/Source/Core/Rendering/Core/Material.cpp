@@ -14,7 +14,7 @@ void Material::UpdateShaderData()
 	{
 		MaterialDataBuffer->UpdateConstantBuffer(ParmbindSet.GetDataPtr());
 	}
-	ShaderInterface->SetShader(MaterialCData);
+	ShaderInterface->SetShader(MaterialCData);//buffer overrun?>
 }
 
 Material::Material(Asset_Shader * shader)

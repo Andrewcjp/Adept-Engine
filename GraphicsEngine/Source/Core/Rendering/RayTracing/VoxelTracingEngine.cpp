@@ -67,6 +67,7 @@ VoxelTracingEngine::VoxelTracingEngine()
 	Desc.Width = size;
 	Desc.Height = size;
 	Desc.Depth = size;
+	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
 	Desc.AllowUnorderedAccess = true;
 	Desc.Dimension = DIMENSION_TEXTURE3D;
 	Desc.Format = FORMAT_R32G32B32A32_UINT;

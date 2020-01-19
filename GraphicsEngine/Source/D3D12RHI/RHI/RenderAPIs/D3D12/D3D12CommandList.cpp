@@ -49,9 +49,12 @@ bool D3D12CommandList::IsOpen()const
 void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
 	//	ensure(IsOpen());
-	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
+	if (ListType != ECommandListType::RayTracing)
 	{
-		return;
+		if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
+		{
+			return;
+		}
 	}
 	RHIPipeLineStateDesc TDesc = Desc;
 	if (CurrentRenderTarget != nullptr)
@@ -362,7 +365,8 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 	ensure(ListType == ECommandListType::Graphics);
 	CD3DX12_VIEWPORT m_viewport = CD3DX12_VIEWPORT((FLOAT)MinX, (FLOAT)MinY, (FLOAT)MaxX, (FLOAT)MaxY);
 	CurrentCommandList->RSSetViewports(1, &m_viewport);
-	CurrentCommandList->RSSetScissorRects(0, nullptr);
+	CD3DX12_RECT ScissorR = CD3DX12_RECT(MinX, MinY, MaxX, MaxY);
+	CurrentCommandList->RSSetScissorRects(1, &ScissorR);
 }
 
 void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
@@ -576,7 +580,7 @@ void D3D12CommandList::CreateCommandList()
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
 	PrepareforDraw();
-	ensure(ListType == ECommandListType::Compute);
+	ensure(ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
 	CurrentCommandList->Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
 }
 
@@ -659,6 +663,16 @@ void D3D12CommandList::FlushBarriers()
 void D3D12CommandList::AddTransition(D3D12_RESOURCE_BARRIER transition)
 {
 	QueuedBarriers.push_back(transition);
+}
+
+ void D3D12CommandList::ClearUAVFloat(RHIBuffer* buffer)
+{
+//	CmdList5->ClearUnorderedAccessViewFloat()
+}
+
+void D3D12CommandList::ClearUAVUint(RHIBuffer* buffer)
+{
+	
 }
 
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

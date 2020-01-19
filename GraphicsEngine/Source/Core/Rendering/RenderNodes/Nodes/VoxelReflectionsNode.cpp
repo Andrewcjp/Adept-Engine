@@ -10,6 +10,7 @@
 #include "../../Core/LightCulling/LightCullingEngine.h"
 #include "RHI/RHICommandList.h"
 #include "Core/Assets/Scene.h"
+#include "../../Core/DynamicQualityEngine.h"
 
 VoxelReflectionsNode::VoxelReflectionsNode()
 {
@@ -40,6 +41,7 @@ void VoxelReflectionsNode::OnExecute()
 		SceneRenderer::Get()->BindLightsBuffer(List, "LightBuffer");
 		List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "LightList");
 		List->SetUAV(Target, "gOutput");
+		DynamicQualityEngine::Get()->BindRTBuffer(List, "RTBufferData");
 		int index = List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("voxelTex");
 		List->SetTexture2(VoxelTracingEngine::Get()->VoxelMap, index, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
 		List->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);

@@ -19,6 +19,25 @@ private:
 	BranchNode* Branch = nullptr;
 	RenderNode* ToggleNode = nullptr;
 };
+struct RG_PatchMarker
+{
+	std::vector<NodeLink*> Inputs;
+	std::vector<RenderNode*> OutputTargets;
+	RenderNode* ExecuteIn = nullptr;
+	RenderNode* ExecuteOut = nullptr;
+};
+struct RG_PatchSet
+{
+	std::vector<RG_PatchMarker*> Markers;
+	std::vector<EBuiltInRenderGraphPatch::Type> SupportedPatches;
+	bool SupportsPatchType(EBuiltInRenderGraphPatch::Type type);
+	void AddPatchMarker(RG_PatchMarker* patch, EBuiltInRenderGraphPatch::Type type);
+};
+struct RG_PatchMarkerCollection
+{	
+	std::vector<RG_PatchSet*> Sets;
+	void AddPatchSet(RG_PatchSet* patch);
+};
 class RenderGraph
 {
 public:
@@ -30,13 +49,18 @@ public:
 	void DebugOutput();
 	void Resize();
 	void ResetForFrame();
+	void RefreshNodes();
 	void Update();
 	//calls the setup node on each node in execution order.
 	void BuildGraph();
 	void ApplyEditorToGraph();
 	void AddVRXSupport();
 	void CreateDefGraphWithRT();
+	void CreateDefGraphWithRT_VOXEL();
 	void CreateDefGraphWithVoxelRT();
+
+	FrameBufferStorageNode* CreateRTXBuffer();
+
 	void CreateDefTestgraph();
 
 	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
@@ -74,6 +98,8 @@ public:
 
 	std::vector<StorageNode*> GetNodesOfType(EStorageType::Type type);
 
+	RG_PatchSet * FindMarker(EBuiltInRenderGraphPatch::Type type);
+
 
 	struct ValidateArgs
 	{
@@ -99,10 +125,11 @@ public:
 	bool RequiresMGPU = false;
 	bool RequiresRT = false;
 	int TotalResourceSize = 0;
+	void InvalidateGraph();
 private:
 	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";
-
+	bool GraphNeedsProcess = false;
 	int NodeCount = 0;
 	int ActiveNodeCount = 0;
 	void ExposeItem(RenderNode* N, std::string name, bool Defaultstate = true);
@@ -110,6 +137,7 @@ private:
 	void ExposeNodeOption(RenderNode * N, std::string name, bool * data, bool Defaultstate);
 	RenderGraphDrawer Drawer;
 	RenderGraphProcessor Processor;
+	RG_PatchMarkerCollection Markers;
 };
 
 namespace StandardSettings

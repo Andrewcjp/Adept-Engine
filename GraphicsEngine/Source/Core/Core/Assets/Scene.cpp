@@ -362,7 +362,7 @@ void Scene::LoadExampleScene()
 
 void Scene::PadUntil(int target)
 {
-	for (int y = GetMeshObjects().size(); y < target; y++)
+	for (uint64 y = GetMeshObjects().size(); y < target; y++)
 	{
 		GameObject* go = new GameObject("Water");
 		//go->SetMoblity(GameObject::Dynamic);

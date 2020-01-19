@@ -224,12 +224,12 @@ void BaseWindow::Render()
 	RHI::RHIRunFirstFrame();
 	RHI::GetRenderSystem()->Update();
 	SceneRenderer::Get()->PrepareSceneForRender();
+	GPUPerfGraph->Render();
 	RHI::GetRenderSystem()->Render();
 
 #if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
-	GPUPerfGraph->Render();
 	if (UI != nullptr)
 	{
 		UI->UpdateWidgets();

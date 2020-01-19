@@ -243,6 +243,10 @@ DebugLineDrawer * DebugLineDrawer::Get2()
 {
 	return twodinstance;
 }
+bool DebugLineDrawer::HasWork() const
+{
+	return Lines.size() > 0;
+}
 #if _DEBUG
 #pragma auto_inline( off ) 
 #pragma runtime_checks( "", restore ) 

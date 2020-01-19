@@ -5,7 +5,7 @@
 DebugUINode::DebugUINode()
 {
 	OnNodeSettingChange();
-	if (RHI::IsVulkan() && RHI::GetRenderSettings()->SelectedGraph != EBuiltinRenderGraphs::Fallback)
+//	if (RHI::IsVulkan() && RHI::GetRenderSettings()->SelectedGraph != EBuiltinRenderGraphs::Fallback)
 	{
 		SetNodeActive(false);
 	}
@@ -33,6 +33,11 @@ void DebugUINode::OnExecute()
 std::string DebugUINode::GetName() const
 {
 	return "Debug UI";
+}
+
+void DebugUINode::RefreshNode()
+{
+	SetNodeActive(DebugLineDrawer::Get()->HasWork() || DebugLineDrawer::Get2()->HasWork());
 }
 
 void DebugUINode::OnNodeSettingChange()

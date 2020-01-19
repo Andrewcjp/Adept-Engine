@@ -92,40 +92,44 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	ensure(list->IsComputeList());
 
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->VRRClassifyShader);
-	list->SetPipelineStateDesc(Desc);
-	list->SetTexture2(ShadingImage, "RateImage");
-	list->SetUAV(Get()->TileData, "TileData");
-	list->SetUAV(Get()->VARTileList, "TileList_VAR");
-	list->DispatchSized(ShadingImage->GetDescription().Width, ShadingImage->GetDescription().Height, 1);
-	list->UAVBarrier(Get()->TileData);
-	list->UAVBarrier(Get()->VARTileList);
+	{
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Classify");
+		list->SetPipelineStateDesc(Desc);
+		list->SetTexture2(ShadingImage, "RateImage");
+		list->SetUAV(Get()->TileData, "TileData");
+		list->SetUAV(Get()->VARTileList, "TileList_VAR");
+		list->DispatchSized(ShadingImage->GetDescription().Width, ShadingImage->GetDescription().Height, 1);
+		list->UAVBarrier(Get()->TileData);
+		list->UAVBarrier(Get()->VARTileList);
 
-	Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);
-	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->VRRLaunchShader));
-	list->SetUAV(Get()->IndirectCommandBuffer,"IndirectCommandBuffer_VAR");
-	list->SetUAV(Get()->TileData, "TileData");
-	list->Dispatch(1, 1, 1);
-	list->UAVBarrier(Get()->IndirectCommandBuffer);
-	list->UAVBarrier(Get()->TileData);
-	Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::IndirectArgs);
+		Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);
+		list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->VRRLaunchShader));
+		list->SetUAV(Get()->IndirectCommandBuffer, "IndirectCommandBuffer_VAR");
+		list->SetUAV(Get()->TileData, "TileData");
+		list->Dispatch(1, 1, 1);
+		list->UAVBarrier(Get()->IndirectCommandBuffer);
+		list->UAVBarrier(Get()->TileData);
+		Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::IndirectArgs);
+	}
+	{
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Varable Write");
+		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
+		list->SetPipelineStateDesc(Desc);
+		RHICommandSignitureDescription SigDesc;
+		INDIRECT_ARGUMENT_DESC DispatchDesc;
+		DispatchDesc.Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DISPATCH;
+		SigDesc.ArgumentDescs.push_back(DispatchDesc);
+		SigDesc.IsCompute = true;
+		SigDesc.CommandBufferStide = sizeof(IndirectDispatchArgs);
+		list->SetCommandSigniture(SigDesc);
 
-
-	Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
-	list->SetPipelineStateDesc(Desc);
-	RHICommandSignitureDescription SigDesc;
-	INDIRECT_ARGUMENT_DESC DispatchDesc;
-	DispatchDesc.Type = INDIRECT_ARGUMENT_TYPE::INDIRECT_ARGUMENT_TYPE_DISPATCH;
-	SigDesc.ArgumentDescs.push_back(DispatchDesc);
-	SigDesc.IsCompute = true;
-	SigDesc.CommandBufferStide = sizeof(IndirectDispatchArgs);
-	list->SetCommandSigniture(SigDesc);
-
-	list->SetUAV(Target, "DstTexture");
-	list->SetTexture2(ShadingImage, "RateImage");
-	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
-	list->SetBuffer(Get()->VARTileList, "TileList");
-	list->ExecuteIndiect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);	
-	list->UAVBarrier(Target);
+		list->SetUAV(Target, "DstTexture");
+		list->SetTexture2(ShadingImage, "RateImage");
+		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		list->SetBuffer(Get()->VARTileList, "TileList");
+		list->ExecuteIndiect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);
+		list->UAVBarrier(Target);
+	}
 }
 
 void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)

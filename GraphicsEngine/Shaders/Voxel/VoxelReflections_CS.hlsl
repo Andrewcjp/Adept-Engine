@@ -15,6 +15,17 @@ cbuffer ConstData: register(b0)
 	int2 Res;
 	int FrameCount;
 }
+cbuffer RTBufferData : register(b2)
+{
+	float RT_RoughnessThreshold;
+	float VX_MaxRoughness;
+	float VX_MinRoughness;
+	float VX_RT_BlendStart;
+	float VX_RT_BlendEnd;
+	float VX_RT_BlendFactor;
+	int Max_VXRayCount;
+	int Max_RTRayCount;
+};
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
@@ -50,12 +61,12 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float2 dims = float2(Res.xy);
 	float2 NrmPos = crd / dims;
 	const float Roughness = GBUFFER_BaseSpec.SampleLevel(defaultSampler, NrmPos, 0).w;
-	if (Roughness >= 0.2 /*&& Roughness < 0.9*/)
+	if (Roughness >= VX_MinRoughness && Roughness < VX_MaxRoughness)
 	{
 		float3 Pos = GBUFFER_Pos.SampleLevel(defaultSampler, NrmPos, 0).xyz;
 		float3 Normal = GBUFFER_Normal.SampleLevel(defaultSampler, NrmPos, 0).xyz;		
 		float3 ViewDir = normalize(CameraPos-Pos);
-		int SampleCount = 5;
+		int SampleCount = Max_VXRayCount;
 		if (Roughness > 0.9)
 		{
 			SampleCount = 1;

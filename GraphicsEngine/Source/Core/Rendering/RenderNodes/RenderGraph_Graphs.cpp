@@ -27,6 +27,8 @@
 #include "Nodes/SubmitToHMDNode.h"
 #include "StoreNodes/InterGPUStorageNode.h"
 #include "Nodes/InterGPUCopyNode.h"
+#include "RenderGraphPatchLibrary.h"
+#include "Nodes/RTFilterNode.h"
 
 void RenderGraph::ApplyEditorToGraph()
 {
@@ -54,7 +56,15 @@ void RenderGraph::AddVRXSupport()
 	Desc.AllowUnorderedAccess = true;
 	Desc.LinkToBackBufferScaleFactor = RHI::GetDefaultDevice()->GetCaps().VRSTileSize;
 	VRXShadingRateImage->SetFrameBufferDesc(Desc);
-	RenderNode* LightingNode = FindFirstOf(DeferredLightingNode::GetNodeName());
+
+	RG_PatchMarker* marker = FindMarker(EBuiltInRenderGraphPatch::VRX)->Markers[0];
+	if (marker == nullptr)
+	{
+		return;
+	}
+	RenderNode* LightingNode = marker->ExecuteOut;
+	RenderNode* pp = marker->OutputTargets[0];
+
 	VRXShadingRateNode* RateNode = new VRXShadingRateNode();
 	RateNode->GetInput(0)->SetStore(VRXShadingRateImage);
 	LightingNode->GetLastNode()->LinkToNode(RateNode);
@@ -62,101 +72,116 @@ void RenderGraph::AddVRXSupport()
 	NodeLink* link = LightingNode->GetInputLinkByName("VRX Image");
 	if (link != nullptr)
 	{
-		link->SetLink(RateNode->GetInput(0));	
+		link->SetLink(RateNode->GetInput(0));
 	}
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
-		RenderNode* pp = FindFirstOf(PostProcessNode::GetNodeName());
 		if (pp != nullptr)
 		{
 			pp->GetInput(1)->SetStore(VRXShadingRateImage);
 		}
 	}
-		RenderNode* gbufferwrite = FindFirstOf(GBufferWriteNode::GetNodeName());
-	if (gbufferwrite != nullptr)
-	{
-		RateNode->GetInput(1)->SetLink(gbufferwrite->GetOutput(0));
-	}
-	RenderNode* shadowmask = FindFirstOf(ShadowMaskNode::GetNodeName());
-	if (shadowmask != nullptr)
-	{
-		RateNode->GetInput(2)->SetLink(shadowmask->GetOutput(0));
-	}	
+	RateNode->GetInput(1)->SetLink(marker->Inputs[0]);
+	RateNode->GetInput(2)->SetLink(marker->Inputs[1]);
+
 }
 
 void RenderGraph::CreateDefGraphWithRT()
 {
 	RequiresRT = true;
-	CreateDefTestgraph();
 	GraphName += "(RT)";
+	RG_PatchSet* Patch = FindMarker(EBuiltInRenderGraphPatch::RT_Reflections);
 	//find nodes
-	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
-	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
+	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(Patch->Markers[0]->ExecuteOut);
+
 	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
+
+	FrameBufferStorageNode* RTXBuffer = CreateRTXBuffer();
 	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
-
-	//then insert
-	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode("RTX Buffer"));
-	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	//Desc.LinkToBackBufferScaleFactor = 2.0f;
-	Desc.AllowUnorderedAccess = true;
-	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	RTXBuffer->SetFrameBufferDesc(Desc);
 	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
-
 	LinkNode(UpdateProbesNode, UpdateAcceleration);
+
 	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
 	LinkNode(UpdateAcceleration, RTNode);
+
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
-	RTNode->GetInput(1)->SetLink(gbuffer->GetOutput(0));
+	RTNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
 	RTNode->GetInput(2)->SetStore(ShadowDataNode);
-	ExposeItem(RTNode, StandardSettings::UseRaytrace);
 
 	LightNode->UseScreenSpaceReflection = true;
-
-	//LightNode->UpdateSettings();
-	ExposeNodeOption(LightNode, StandardSettings::UseSSR, &LightNode->UseScreenSpaceReflection, true);
 	LinkNode(RTNode, LightNode);
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
 }
 
-void RenderGraph::CreateDefGraphWithVoxelRT()
+void RenderGraph::CreateDefGraphWithRT_VOXEL()
 {
-	//RequiresRT = true;
-	CreateDefTestgraph();
-	GraphName += "(Voxel)";
-	//find nodes
-	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(FindFirstOf(DeferredLightingNode::GetNodeName()));
-	GBufferWriteNode* gbuffer = RenderNode::NodeCast<GBufferWriteNode>(FindFirstOf(GBufferWriteNode::GetNodeName()));
-	//ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
-	RenderNode* UpdateProbesNode = FindFirstOf(ParticleSimulateNode::GetNodeName());
+	GraphName += "(Voxel)RT";
+	RG_PatchSet* Patch = FindMarker(EBuiltInRenderGraphPatch::RT_Reflections);
+	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(Patch->Markers[0]->ExecuteOut);
+	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
 
-	//then insert
-	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode("RTX Buffer"));
+	FrameBufferStorageNode* RTXBuffer = CreateRTXBuffer();
+	FrameBufferStorageNode* VXBuffer = CreateRTXBuffer();
+	FrameBufferStorageNode* LastFrameBuffer = CreateRTXBuffer();
+	FrameBufferStorageNode* SPPList = AddStoreNode(new FrameBufferStorageNode("SSP Buffer"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16_UINT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.LinkToBackBufferScaleFactor = 1.0f;
 	Desc.AllowUnorderedAccess = true;
-	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	RTXBuffer->SetFrameBufferDesc(Desc);
-	//UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNORDERED_ACCESS;
+	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
+	SPPList->SetFrameBufferDesc(Desc);
 
-	VoxelReflectionsNode* RTNode = new VoxelReflectionsNode();
-	LinkNode(UpdateProbesNode, RTNode);
-	//LinkNode(UpdateAcceleration, RTNode);
-	RTNode->GetInput(0)->SetStore(RTXBuffer);
-	RTNode->GetInput(1)->SetLink(gbuffer->GetOutput(0));
-	//RTNode->GetInput(2)->SetStore(ShadowDataNode);
-	ExposeItem(RTNode, StandardSettings::UseRaytrace);
+	
 
+	RenderNode* UpdateProbesNode = Patch->Markers[0]->ExecuteIn;
+	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
+	LinkNode(UpdateProbesNode, UpdateAcceleration);
+
+	VoxelReflectionsNode* VXNode = new VoxelReflectionsNode();
+	LinkNode(UpdateAcceleration, VXNode);
+	VXNode->GetInput(0)->SetStore(VXBuffer);
+	VXNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
 	LightNode->UseScreenSpaceReflection = true;
 
-	//LightNode->UpdateSettings();
-	ExposeNodeOption(LightNode, StandardSettings::UseSSR, &LightNode->UseScreenSpaceReflection, true);
+	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();
+	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
+	RTNode->GetInput(2)->SetStore(ShadowDataNode);
+
+	//tmp: RT node merge results
+	RTFilterNode* FilterNode = new RTFilterNode();
+	FilterNode->GetInput(0)->SetStore(RTXBuffer);
+	FilterNode->GetInput(1)->SetStore(VXBuffer);
+	FilterNode->GetInput(2)->SetStore(LastFrameBuffer);
+	FilterNode->GetInput(3)->SetStore(SPPList);
+
+	LightNode->UseScreenSpaceReflection = true;
+	LinkNode(VXNode, RTNode);
+	LinkNode(RTNode, FilterNode);
+	LinkNode(FilterNode, LightNode);
+	LightNode->GetInput(4)->SetLink(FilterNode->GetOutput(0));
+}
+
+void RenderGraph::CreateDefGraphWithVoxelRT()
+{
+	GraphName += "(Voxel)";
+	RG_PatchSet* Patch = FindMarker(EBuiltInRenderGraphPatch::RT_Reflections);
+
+	//find nodes
+	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(Patch->Markers[0]->ExecuteOut);
+	FrameBufferStorageNode* RTXBuffer = CreateRTXBuffer();
+
+	RenderNode* UpdateProbesNode = Patch->Markers[0]->ExecuteIn;
+	VoxelReflectionsNode* RTNode = new VoxelReflectionsNode();
+	LinkNode(UpdateProbesNode, RTNode);
+	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
+	LightNode->UseScreenSpaceReflection = true;	
 	LinkNode(RTNode, LightNode);
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
-	
+
 }
 
 void RenderGraph::CreateDefTestgraph()
@@ -274,10 +299,34 @@ void RenderGraph::CreateDefTestgraph()
 	VisNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 
-	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
-	{
-		AddVRXSupport();
-	}
+	//VRS
+	RG_PatchMarker* VRXMarker = new RG_PatchMarker();
+	VRXMarker->ExecuteIn = ParticleSimNode;
+	VRXMarker->ExecuteOut = LightNode;
+	VRXMarker->Inputs.push_back(WriteNode->GetOutput(0));
+	VRXMarker->Inputs.push_back(MaskNode->GetOutput(0));
+	VRXMarker->OutputTargets.push_back(PPNode);
+	VRXMarker->OutputTargets.push_back(LightNode);
+	RG_PatchSet* VRXset = new RG_PatchSet();
+	VRXset->AddPatchMarker(VRXMarker, EBuiltInRenderGraphPatch::VRX);
+	Markers.AddPatchSet(VRXset);
+
+	//RTX + VX
+	RG_PatchMarker* RTMarker = new RG_PatchMarker();
+	RTMarker->ExecuteIn = ParticleSimNode;
+	RTMarker->ExecuteOut = LightNode;
+	RTMarker->Inputs.resize(ERG_Patch_Reflections::In_Limit);
+	RTMarker->Inputs[ERG_Patch_Reflections::In_GBuffer] = WriteNode->GetOutput(0);
+	RTMarker->Inputs[ERG_Patch_Reflections::In_ShadowData] = ShadowUpdate->GetOutput(0);
+
+	RG_PatchMarker* UpdateMarker = new RG_PatchMarker();
+	UpdateMarker->ExecuteIn = UpdateProbesNode;
+	UpdateMarker->ExecuteOut = ParticleSimNode;
+	RG_PatchSet* Rtset = new RG_PatchSet();
+
+	Rtset->AddPatchMarker(RTMarker, EBuiltInRenderGraphPatch::RT_Reflections);
+	Rtset->AddPatchMarker(UpdateMarker, EBuiltInRenderGraphPatch::RT_Reflections);
+	Markers.AddPatchSet(Rtset);
 }
 
 void RenderGraph::CreateFWDGraph()

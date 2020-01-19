@@ -97,6 +97,12 @@ public:
 	RHI_VIRTUAL void SetStencilRef(uint value) override;
 	RHI_VIRTUAL void FlushBarriers() override;
 	void AddTransition(D3D12_RESOURCE_BARRIER transition);
+
+	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) override;
+
+
+	RHI_API RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) override;
+
 private:
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();

@@ -16,9 +16,14 @@ RenderGraphProcessor::~RenderGraphProcessor()
 void RenderGraphProcessor::Process(RenderGraph * graph)
 {
 	BuildTimeLine(graph);	
-	BuildTransitions(graph);
+	BuildTransitionsSplit(graph);
 	BuildScheduling(graph);
 	BuildAliasing(graph);
+}
+
+void RenderGraphProcessor::Reset()
+{
+	MemoryUtils::DeleteVector(TimeLines);
 }
 
 void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
@@ -188,6 +193,14 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 					Log::LogMessage(data);
 				}
 			}
+			if (i == timeline->Frames.size() - 1)
+			{
+				T.TargetState = timeline->Frames[0]->State;
+				T.Target = timeline->Frames[0]->TargetLink;
+				T.TransitionMode = EResourceTransitionMode::Direct;
+				//add a transition for the next graph run
+				frame->Node->AddEndTransition(T);
+			}
 			count++;
 		}
 	}
@@ -264,4 +277,9 @@ ResourceTimeLine * RenderGraphProcessor::GetOrCreateTimeLine(StorageNode * node)
 	newline->Resource = node;
 	TimeLines.push_back(newline);
 	return newline;
+}
+
+ResourceTimeLine::~ResourceTimeLine()
+{
+	MemoryUtils::DeleteVector(Frames);
 }

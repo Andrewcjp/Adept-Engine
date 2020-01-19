@@ -12,7 +12,7 @@ Shader_VRRResolve::Shader_VRRResolve(DeviceContext * device) : Shader(device)
 	DataBuffer->SetDebugName("Shader_VRSResolve DataBuffer");
 	DataBuffer->CreateConstantBuffer(sizeof(VRSData), 1);
 	DataInst = {};
-	DebugRateVRR.SetValue(true);
+	//DebugRateVRR.SetValue(true);
 }
 
 Shader_VRRResolve::~Shader_VRRResolve()

@@ -26,6 +26,7 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Rendering/Performance/GPUPerformanceTestManager.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/DynamicQualityEngine.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -266,6 +267,7 @@ void RHI::FlushDeferredDeleteQueue()
 
 void RHI::Tick()
 {
+	Get()->QualityEngine->Update();
 	instance->SFR_Controller->Tick();
 }
 
@@ -499,6 +501,7 @@ void RHI::InitialiseContext()
 	{
 		instance->RTE = new RayTracingEngine();
 	}
+	Get()->QualityEngine = new DynamicQualityEngine();
 	Get()->RenderSystem = new RenderGraphSystem();
 	Get()->TestManager = new GPUPerformanceTestManager();
 	Get()->TestManager->Init();

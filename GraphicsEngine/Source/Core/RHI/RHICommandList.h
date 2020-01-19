@@ -57,6 +57,7 @@ public:
 	RHI_API virtual void Release() override;
 
 	int StructSize = 0;
+	int RawStructSize = 0;
 protected:
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
@@ -97,6 +98,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetUAV(RHITexture* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) = 0;
 	RHI_API RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) = 0;
+	
 	//view Creators
 	RHI_API void SetUAV(RHIBuffer* uav, int slot);
 	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);
@@ -123,6 +125,9 @@ public:
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) = 0;
+
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	RHI_API void DispatchSized(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ);
 	//Indirect

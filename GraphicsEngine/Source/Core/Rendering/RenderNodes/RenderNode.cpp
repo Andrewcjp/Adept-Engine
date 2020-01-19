@@ -180,6 +180,11 @@ bool RenderNode::IsNodeActive() const
 
 void RenderNode::SetNodeActive(bool val)
 {
+	if (val != NodeActive && RHI::GetRenderSystem()->GetCurrentGraph() !=  nullptr)
+	{
+		//todo: issue if multiple graphs used
+		RHI::GetRenderSystem()->GetCurrentGraph()->InvalidateGraph();
+	}
 	NodeActive = val;
 }
 

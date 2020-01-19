@@ -14,6 +14,9 @@ public:
 
 	NameNode("View Modes");
 
+
+	void RefreshNode() override;
+
 protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;

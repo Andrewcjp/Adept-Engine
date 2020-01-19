@@ -6,6 +6,7 @@ class RHIStateObject;
 class RayTracingCommandList;
 class ShaderBindingTable;
 class RHIBuffer;
+class Shader_Pair;
 class RayTraceReflectionsNode : public RenderNode
 {
 public:

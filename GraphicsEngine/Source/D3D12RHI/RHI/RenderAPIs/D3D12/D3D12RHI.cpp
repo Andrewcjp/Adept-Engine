@@ -391,7 +391,7 @@ void D3D12RHI::LoadPipeLine()
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-					infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
+				//	infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
 					infoqueue[i]->Release();
 				}
 			}
@@ -408,7 +408,7 @@ void D3D12RHI::HandleDeviceFailure()
 	ensure(Instance);
 	HRESULT HR;
 	HR = Instance->GetPrimaryDevice()->GetDevice()->GetDeviceRemovedReason();
-	ensureMsgf(HR == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(HR));
+	ensureMsgf(HR == S_OK, (std::string)D3D12Helpers::DXErrorCodeToString(HR));
 #if DRED
 	D3D12RHI::Get()->RunDred();
 #endif

@@ -47,11 +47,12 @@ void D3D12Buffer::CreateConstantBuffer(int iStructSize, int iElementcount, bool 
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 {
 	ensure((offset*StructSize) + StructSize <= TotalByteSize);
-	memcpy(m_pCbvDataBegin + (offset * StructSize), data, StructSize);
+	memcpy(m_pCbvDataBegin + (offset * StructSize), data, RawStructSize);
 }
 
 void D3D12Buffer::InitCBV(int iStructSize, int Elementcount)
 {
+	RawStructSize = iStructSize;
 	StructSize = (iStructSize + 255) & ~255;
 	TotalByteSize = StructSize * Elementcount;
 	AllocDesc desc = {};

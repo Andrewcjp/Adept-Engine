@@ -80,7 +80,7 @@ void Archive::LinkProperty(float & Value, const char * PropName)
 		std::string key = (CurrentReadHead->name.GetString());
 		if (key != PropName)
 		{
-			check(key == PropName);
+			ensure(key == PropName);
 			CurrentReadHead++;
 			return;
 		}
@@ -115,7 +115,7 @@ void Archive::LinkProperty(std::string & Value, const char * PropName)
 		const std::string key = (CurrentReadHead->name.GetString());
 		if (key != PropName)
 		{
-			check(key == PropName);
+			ensure(key == PropName);
 			CurrentReadHead++;
 			return;
 		}

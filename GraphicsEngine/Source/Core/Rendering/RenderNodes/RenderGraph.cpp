@@ -70,6 +70,22 @@ void RenderGraph::ResetForFrame()
 	}
 }
 
+void RenderGraph::RefreshNodes()
+{
+	RenderNode* Node = RootNode;
+	while (Node != nullptr)
+	{		
+		Node->RefreshNode();
+		Node = Node->GetNextNode();
+	}
+	if (GraphNeedsProcess)
+	{
+		Processor.Reset();
+		Processor.Process(this);
+		GraphNeedsProcess = false;
+	}
+}
+
 void RenderGraph::Update()
 {
 	for (StorageNode* N : StoreNodes)
@@ -82,6 +98,7 @@ void RenderGraph::Update()
 		Drawer.WriteGraphViz(this);
 	}
 	Drawer.Draw(this);
+	RefreshNodes();
 }
 
 void RenderGraph::BuildGraph()
@@ -93,6 +110,7 @@ void RenderGraph::BuildGraph()
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
 	Processor.Process(this);
+	GraphNeedsProcess = false;
 	for (StorageNode* N : StoreNodes)
 	{
 		N->CreateNode();
@@ -115,6 +133,19 @@ void RenderGraph::BuildGraph()
 	ListNodes();
 }
 
+
+FrameBufferStorageNode* RenderGraph::CreateRTXBuffer()
+{
+	FrameBufferStorageNode* RTXBuffer = AddStoreNode(new FrameBufferStorageNode("RTX Buffer"));
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.LinkToBackBufferScaleFactor = 1.0f;
+	Desc.AllowUnorderedAccess = true;
+	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
+	RTXBuffer->SetFrameBufferDesc(Desc);
+	return RTXBuffer;
+}
 
 BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
 {
@@ -350,6 +381,11 @@ void RenderGraph::RunTests()
 #endif
 }
 
+void RenderGraph::InvalidateGraph()
+{
+	GraphNeedsProcess = true;
+}
+
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
@@ -453,4 +489,32 @@ std::vector<StorageNode*> RenderGraph::GetNodesOfType(EStorageType::Type type)
 		}
 	}
 	return Out;
+}
+
+void RG_PatchMarkerCollection::AddPatchSet(RG_PatchSet * patch)
+{
+	Sets.push_back(patch);
+}
+
+RG_PatchSet* RenderGraph::FindMarker(EBuiltInRenderGraphPatch::Type type)
+{
+	for (int i = 0; i < Markers.Sets.size(); i++)
+	{
+		if (Markers.Sets[i]->SupportsPatchType(type))
+		{
+			return Markers.Sets[i];
+		}
+	}
+	return nullptr;
+}
+
+bool RG_PatchSet::SupportsPatchType(EBuiltInRenderGraphPatch::Type type)
+{
+	return VectorUtils::Contains(SupportedPatches, type);
+}
+
+void RG_PatchSet::AddPatchMarker(RG_PatchMarker * patch, EBuiltInRenderGraphPatch::Type type)
+{
+	Markers.push_back(patch);
+	SupportedPatches.push_back(type);
 }

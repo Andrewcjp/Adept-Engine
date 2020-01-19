@@ -25,6 +25,7 @@ public:
 	CORE_API static bool IsDebuggerPresent();
 	static std::string GetExecutablePath();
 	static EPlatforms::Type GetPlatform();
+	static CORE_API void DisplayAssertBox(std::string title, std::string message);
 private:
 	static double SecondsPerCycle;
 	static void ValidateWindows();

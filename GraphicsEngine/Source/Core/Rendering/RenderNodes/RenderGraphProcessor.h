@@ -14,6 +14,7 @@ struct ResourceTimeLine
 {
 	std::vector<ResourceTimelineFrame*> Frames;
 	StorageNode* Resource = nullptr;
+	~ResourceTimeLine();
 };
 class RenderGraphProcessor
 {
@@ -21,6 +22,7 @@ public:
 	RenderGraphProcessor();
 	~RenderGraphProcessor();
 	 void Process(RenderGraph* graph);
+	 void Reset();
 private:
 	void BuildAliasing(RenderGraph * graph);
 	void BuildTimeLine(RenderGraph * graph);

@@ -1,17 +1,20 @@
 #include "RenderGraphSystem.h"
-#include "RenderGraph.h"
 #include "Core/Input/Input.h"
+#include "RenderGraph.h"
+#include "RenderGraphPatchLibrary.h"
+#include "Rendering/Performance/GPUPerformanceTestManager.h"
+#include "Rendering/Renderers/RenderSettings.h"
 #include "RenderNode.h"
-#include "../Renderers/RenderSettings.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHI.h"
-#include "../Performance/GPUPerformanceTestManager.h"
+
 
 RenderGraphSystem::RenderGraphSystem()
 {
 	//UseRGISSystem = true;
 	CurrentSet = new RenderGraphInstanceSet();
 	CurrentSet->Init();
+	PatchLib = new RenderGraphPatchLibrary();
 }
 
 RenderGraphSystem::~RenderGraphSystem()
@@ -29,15 +32,37 @@ void RenderGraphSystem::InitGraph()
 	else
 	{
 		//during dev this is easier to use.
-		CurrentGraph = CreateGraph(RHI::GetRenderSettings()->SelectedGraph, EBuiltInRenderGraphPatch::NONE);
+		CurrentGraph = CreateGraph(new RenderGraphInstance(RHI::GetRenderSettings()->SelectedGraph, EBuiltInRenderGraphPatch::NONE));
 	}
 }
 
-RenderGraph* RenderGraphSystem::CreateGraph(EBuiltinRenderGraphs::Type GraphBaseType, EBuiltInRenderGraphPatch::Type Patch)
+RenderGraph* RenderGraphSystem::CreateGraph(RenderGraphInstance* instance)
 {
 	RenderGraph* Graph = new RenderGraph();
-	InitDefaultGraph(Graph, GraphBaseType);
-	PatchGraph(Graph, Patch);
+	instance->Instance = Graph;
+#if !BUILD_SHIPPING
+	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
+	{
+		instance->Patches.push_back(EBuiltInRenderGraphPatch::VRX);
+	}
+	if (instance->GraphBaseType == EBuiltinRenderGraphs::DeferredRenderer_RT)
+	{
+		instance->Patches.push_back(EBuiltInRenderGraphPatch::RT_Reflections);
+		instance->GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
+	}
+	if (instance->GraphBaseType == EBuiltinRenderGraphs::DeferredRenderer_VX)
+	{
+		instance->Patches.push_back(EBuiltInRenderGraphPatch::Voxel_Reflections);
+		instance->GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
+	}
+	if (instance->GraphBaseType == EBuiltinRenderGraphs::DeferredRenderer_VX_RT)
+	{
+		instance->Patches.push_back(EBuiltInRenderGraphPatch::RT_Voxel_Reflections);
+		instance->GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
+	}
+#endif
+	InitDefaultGraph(Graph, instance->GraphBaseType);
+	PatchGraph(instance);
 	CheckGraph(Graph);
 
 	Graph->BuildGraph();
@@ -61,57 +86,44 @@ void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraph
 {
 	switch (SelectedGraph)
 	{
-		case EBuiltinRenderGraphs::Fallback:
-			Graph->CreateFallbackGraph();
-			break;
-		case EBuiltinRenderGraphs::ForwardRenderer:
-			Graph->CreateFWDGraph();
-			break;
-		case EBuiltinRenderGraphs::DeferredRenderer:
-			Graph->CreateDefTestgraph();
-			break;
-		case EBuiltinRenderGraphs::DeferredRenderer_RT:
-			Graph->CreateDefGraphWithRT();
-			break;
-		case EBuiltinRenderGraphs::DeferredRenderer_VX_RT:
-			Graph->CreateDefGraphWithVoxelRT();
-			break;
-		case EBuiltinRenderGraphs::VRForwardRenderer:
-			Graph->CreateVRFWDGraph();
-			break;
-		case EBuiltinRenderGraphs::Pathtracing:
-			Graph->CreatePathTracedGraph();
-			break;
-		case EBuiltinRenderGraphs::TEST_MGPU:
-			Graph->CreateMGPU_TESTGRAPH();
-			break;
+	case EBuiltinRenderGraphs::Fallback:
+		Graph->CreateFallbackGraph();
+		break;
+	case EBuiltinRenderGraphs::ForwardRenderer:
+		Graph->CreateFWDGraph();
+		break;
+	case EBuiltinRenderGraphs::DeferredRenderer:
+		Graph->CreateDefTestgraph();
+		break;
+	case EBuiltinRenderGraphs::DeferredRenderer_RT:
+		Graph->CreateDefGraphWithRT();
+		break;
+	case EBuiltinRenderGraphs::DeferredRenderer_VX_RT:
+		Graph->CreateDefGraphWithVoxelRT();
+		break;
+	case EBuiltinRenderGraphs::VRForwardRenderer:
+		Graph->CreateVRFWDGraph();
+		break;
+	case EBuiltinRenderGraphs::Pathtracing:
+		Graph->CreatePathTracedGraph();
+		break;
+	case EBuiltinRenderGraphs::TEST_MGPU:
+		Graph->CreateMGPU_TESTGRAPH();
+		break;
 	}
 }
 
-void RenderGraphSystem::PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch::Type patch)
+void RenderGraphSystem::PatchGraph(RenderGraphInstance* Instance)
 {
-	switch (RHI::GetRenderSettings()->SelectedPatch)
+	for (int i = 0; i < Instance->Patches.size(); i++)
 	{
-		case EBuiltInRenderGraphPatch::NONE:
-			return;
-		case EBuiltInRenderGraphPatch::MainFramebufferSFR:
-			break;
-		case EBuiltInRenderGraphPatch::PostProccessOnSecondGPU:
-			break;
-		case EBuiltInRenderGraphPatch::MGPU_ShadowMapping:
-			break;
-		case EBuiltInRenderGraphPatch::Async_MGPU_ShadowMapping:
-			break;
-		case EBuiltInRenderGraphPatch::VR_GPUPerEye:
-			break;
-		case EBuiltInRenderGraphPatch::VR_GPUSFRPerEye:
-			break;
+		AD_Assert(PatchLib->ApplyPatch(Instance->Patches[i], Instance->Instance),"Failed to apply patch");
 	}
 }
 
 void RenderGraphSystem::Render()
-{	
-	const int frmae = 1; 
+{
+	const int frmae = 1;
 	if (RHI::GetFrameCount() < frmae + 3)
 	{
 		RHI::RunGPUTests();
@@ -165,7 +177,7 @@ void RenderGraphSystem::SwitchGraph(RenderGraph* NewGraph)
 
 RenderGraphInstance* RenderGraphSystem::BuildInstance(RenderGraphInstance* Inst)
 {
-	Inst->Instance = CreateGraph(Inst->GraphBaseType, Inst->Patch);
+	Inst->Instance = CreateGraph(Inst);
 	return Inst;
 }
 

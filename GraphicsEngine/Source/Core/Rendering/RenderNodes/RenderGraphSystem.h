@@ -6,6 +6,7 @@ namespace EBuiltinRenderGraphs
 		Fallback,//in the event of error this graph is used
 		DeferredRenderer,
 		DeferredRenderer_RT,
+		DeferredRenderer_VX,
 		DeferredRenderer_VX_RT,
 		ForwardRenderer,
 		VRForwardRenderer,
@@ -34,6 +35,13 @@ namespace EBuiltInRenderGraphPatch
 		RT_Shadows,
 		RT_Transparency,
 		RT_Realtime_GI,
+		//VRR
+		VRX,
+
+		Voxel_Reflections,
+		Voxel_GI,
+
+		RT_Voxel_Reflections,
 
 		Custom,
 		Limit,
@@ -41,6 +49,7 @@ namespace EBuiltInRenderGraphPatch
 }
 class RenderGraph;
 struct RenderSettings;
+class RenderGraphPatchLibrary;
 //defines a created graph instance.
 struct RenderGraphInstance
 {
@@ -48,9 +57,9 @@ struct RenderGraphInstance
 	RenderGraphInstance(EBuiltinRenderGraphs::Type base, EBuiltInRenderGraphPatch::Type patch = EBuiltInRenderGraphPatch::NONE)
 	{
 		GraphBaseType = base;
-		Patch = patch;
+		Patches.push_back(patch);
 	}
-	EBuiltInRenderGraphPatch::Type Patch = EBuiltInRenderGraphPatch::NONE;
+	std::vector<EBuiltInRenderGraphPatch::Type> Patches;
 	EBuiltinRenderGraphs::Type GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
 	RenderGraph* Instance = nullptr;
 };
@@ -89,12 +98,14 @@ public:
 	RenderGraphInstance* BuildInstance(RenderGraphInstance* Inst);
 
 	RenderGraph* GetCurrentGraph();
-	void PatchGraph(RenderGraph* Graph, EBuiltInRenderGraphPatch::Type patch);
+	void PatchGraph(RenderGraphInstance* Graph);
 	bool UseRGISSystem = false;
 private:
 	RenderGraphInstanceSet* CurrentSet = nullptr;
 	RenderGraph* CurrentGraph = nullptr;
 	RenderGraphInstance* CurrentInstance = nullptr;
-	RenderGraph* CreateGraph(EBuiltinRenderGraphs::Type GraphBaseType, EBuiltInRenderGraphPatch::Type Patch);
+	RenderGraph* CreateGraph(RenderGraphInstance* instance);
+
+	RenderGraphPatchLibrary* PatchLib = nullptr;
 };
 

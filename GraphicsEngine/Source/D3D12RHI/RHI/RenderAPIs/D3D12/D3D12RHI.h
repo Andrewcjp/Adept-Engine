@@ -190,8 +190,8 @@ static inline void ThrowIfFailed(HRESULT hr)
 		{
 			D3D12RHI::HandleDeviceFailure();
 		}
-		ensureFatalMsgf(hr == S_OK, +(std::string)D3D12Helpers::DXErrorCodeToString(hr));
+		ensureFatalMsgf(hr == S_OK, (std::string)D3D12Helpers::DXErrorCodeToString(hr));
 	}
 }
-#define StateAssert(GPUR,state) if(GPUR->GetCurrentState() != state){checkMsgf(false," Resource state incorrect"); };
+#define StateAssert(GPUR,state) if(GPUR->GetCurrentState() != state){AD_Assert_Always(" Resource state incorrect"); };
 

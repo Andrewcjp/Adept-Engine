@@ -9,6 +9,7 @@
 
 VisModeNode::VisModeNode()
 {
+	SetNodeActive(false);
 	OnNodeSettingChange();
 }
 
@@ -46,6 +47,11 @@ void VisModeNode::OnExecute()
 	SetEndStates(DebugList);
 }
 
+
+void VisModeNode::RefreshNode()
+{
+	SetNodeActive(RHI::GetRenderSettings()->GetDebugRenderMode());
+}
 
 void VisModeNode::OnNodeSettingChange()
 {

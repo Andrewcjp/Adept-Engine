@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 	//EnableGPUParticles = false;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -31,7 +31,7 @@ RenderSettings::RenderSettings()
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
 	}
-	//VoxelSet.Enabled = true;
+	VoxelSet.Enabled = true;
 }
 
 void RenderSettings::ValidateSettings()

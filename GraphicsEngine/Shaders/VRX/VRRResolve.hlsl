@@ -37,17 +37,17 @@ float4 GetColourForRate(uint2 rate)
 	return float4(1, 1, 1, 0);
 }
 
-float4 SampleCoursePixel(uint2 Fullpos)
+uint2 GetCoursePixelPos(uint2 Fullpos)
 {
-	const int ShadingRate = RateImage[Fullpos.xy / VRS_TILE_SIZE];
-	const int2 Rate = GetShadingRate(ShadingRate);
+	const uint ShadingRate = RateImage[Fullpos.xy / VRS_TILE_SIZE];
+	const uint2 Rate = GetShadingRate(ShadingRate);
 	if (!IsPixelSource(Fullpos.xy, Rate))
 	{
 		const int2 DeltaToMain = Fullpos % Rate.xy;
 		const int2 SourcePixel = Fullpos - DeltaToMain;
-		return DstTexture[SourcePixel];
+		return SourcePixel;
 	}
-	return DstTexture[Fullpos.xy];
+	return Fullpos.xy;
 }
 #define VRR_BLEND 1
 #define BUILD_SHIPPING 0
@@ -98,8 +98,9 @@ bool DetectEdgeAtPX(uint2 px)
 [numthreads(VRS_TILE_SIZE, VRS_TILE_SIZE, 1)]
 void main(uint3 DTid : SV_GroupThreadID, uint3 groupIndex : SV_GroupID)
 {
-	uint2 Pixel = TileList[groupIndex.x].xy * VRS_TILE_SIZE;
-	uint2 Rate = TileList[groupIndex.x].zw;
+	const uint4 TileData = TileList[groupIndex.x];
+	uint2 Pixel = TileData.xy * VRS_TILE_SIZE;
+	const uint2 Rate = TileData.zw;
 
 	Pixel += DTid.xy;
 
@@ -113,11 +114,11 @@ void main(uint3 DTid : SV_GroupThreadID, uint3 groupIndex : SV_GroupID)
 		[branch]
 		if (LerpBlend > 0.0f)
 		{
-			float4 AVg = SampleCoursePixel(Pixel.xy + int2(Rate.x, 0));
-			AVg += SampleCoursePixel(Pixel.xy + int2(0, Rate.y));
-			AVg += SampleCoursePixel(Pixel.xy - int2(Rate.x, 0));
-			AVg += SampleCoursePixel(Pixel.xy + int2(0, -Rate.y));
-			AVg /= 4;
+			const float4 Sample1 = DstTexture[GetCoursePixelPos(Pixel.xy + int2(Rate.x, 0))];
+			const float4 Sample2 = DstTexture[GetCoursePixelPos(Pixel.xy + int2(0, Rate.y))];
+			const float4 Sample3 = DstTexture[GetCoursePixelPos(Pixel.xy - int2(Rate.x, 0))];
+			const float4 Sample4 = DstTexture[GetCoursePixelPos(Pixel.xy + int2(0, -Rate.y))];
+			const float4 AVg = (Sample1 + Sample2 + Sample3 + Sample4) / 4;
 			DstTexture[Pixel.xy] = lerp(DstTexture[SourcePixel], AVg, LerpBlend);
 		}
 		else

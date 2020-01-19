@@ -253,4 +253,22 @@ void WindowsApplication::ValidateWindows()
 		exit(-1);
 	}
 }
+
+void WindowsApplication::DisplayAssertBox(std::string title, std::string message)
+{
+	int Option = MessageBox(
+		NULL,
+		StringUtils::ConvertStringToWide(message).c_str(),
+		StringUtils::ConvertStringToWide(title).c_str(),
+		MB_ABORTRETRYIGNORE | MB_ICONERROR
+	);
+	if (Option == IDABORT)
+	{
+		Engine::AssertExit(-1);
+	}
+	else if (Option == IDIGNORE)
+	{
+		//todo: disable assert
+	}
+}
 #endif

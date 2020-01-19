@@ -12,6 +12,9 @@
 #include "Core/BaseWindow.h"
 #include "Core/EngineTypes.h"
 #include "../../Core/FrameBuffer.h"
+#include "../NodeLink.h"
+#include "../../Shaders/Shader_Pair.h"
+#include "../../Core/DynamicQualityEngine.h"
 
 RayTraceReflectionsNode::RayTraceReflectionsNode()
 {
@@ -28,7 +31,7 @@ void RayTraceReflectionsNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	FrameBuffer* Gbuffer = GetFrameBufferFromInput(1);
 
-	
+
 	StateObject->RebuildShaderTable();
 
 	FLAT_COMPUTE_START(RTList->GetRHIList()->GetDevice());
@@ -44,10 +47,11 @@ void RayTraceReflectionsNode::OnExecute()
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 4, 0);
+	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 9, 2);
 	SceneRenderer::Get()->BindLightsBufferB(RTList->GetRHIList(), 5);
 	SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->BindBufferReadOnly(RTList->GetRHIList(), 6);
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
-
+	DynamicQualityEngine::Get()->BindRTBuffer(RTList->GetRHIList(), 10);
 	GetShadowDataFromInput(2)->BindPointArray(RTList->GetRHIList(), 7);
 
 	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
@@ -56,6 +60,7 @@ void RayTraceReflectionsNode::OnExecute()
 	raydesc.PushRayArgs = true;
 	RTList->TraceRays(raydesc);
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
+
 	SetEndStates(RTList->GetRHIList());
 	RTList->Execute();
 
@@ -81,6 +86,7 @@ void RayTraceReflectionsNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "OutputBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
+
 	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
 	LinkThough(0);
 }
@@ -99,6 +105,7 @@ void RayTraceReflectionsNode::OnSetupNode()
 	RayTracingEngine::Get()->AddHitTable(BindingTable);
 	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);
+	
 }
 
 void RayTraceReflectionsNode::OnValidateNode(RenderGraph::ValidateArgs & args)

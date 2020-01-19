@@ -5,6 +5,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 RWTexture2D<float4> gOutput : register(u0);
 Texture2D<float4> Normals : register(t5);
 Texture2D<float4> Pos : register(t6);
+Texture2D<float4> GBUFFER_BaseSpec : register(t66);
 SamplerState g_sampler : register(s0);
 SamplerState g_Clampsampler : register(s1);
 TextureCube g_Shadow_texture2[MAX_POINT_SHADOWS] : register(t5, space2);
@@ -18,7 +19,18 @@ float3 linearToSrgb(float3 c)
 	float3 srgb = 0.662002687 * sq1 + 0.684122060 * sq2 - 0.323583601 * sq3 - 0.0225411470 * c;
 	return srgb;
 }
-
+cbuffer RTBufferData : register(b3)
+{
+	float RT_RoughnessThreshold;
+	float VX_MaxRoughness;
+	float VX_MinRoughness;
+	float VX_RT_BlendStart;
+	float VX_RT_BlendEnd;
+	float VX_RT_BlendFactor;
+	int Max_VXRayCount;
+	int Max_RTRayCount;
+	int Framecount;
+};
 cbuffer CameraData: register(b0)
 {
 	float4x4 viewI;
@@ -78,18 +90,18 @@ void rayGen()
 	float2 NrmPos = crd / dims;
 	float2 d = ((crd / dims) * 2.f - 1.f);
 	float aspectRatio = dims.x / dims.y;
-	const float SmoothNess = Normals.SampleLevel(g_sampler, NrmPos, 0).w;
+	const float SmoothNess = GBUFFER_BaseSpec.SampleLevel(g_sampler, NrmPos, 0).w;
 
-	if (SmoothNess < 0.2)
+	if (SmoothNess <= RT_RoughnessThreshold)
 	{
 		gOutput[launchIndex.xy] = float4(0, 0, 0, 0);
 		return;
 	}
-	const float Metalic = Pos.SampleLevel(g_sampler, NrmPos, 0).w;
+	//const float Metalic = Pos.SampleLevel(g_sampler, NrmPos, 0).w;
 	float3 pos = Pos.SampleLevel(g_sampler, NrmPos, 0).xyz;
 	float3 ViewDir = normalize(pos - CameraPos);
 	float3 normal = Normals.SampleLevel(g_sampler, NrmPos, 0).xyz;
-	int SampleCount = 5;
+	int SampleCount = Max_RTRayCount;
 	if (SmoothNess >= 0.95f)
 	{
 		SampleCount = 1;
@@ -97,7 +109,7 @@ void rayGen()
 	float3 AccumColour = float3(0, 0, 0);
 	for (int i = 0; i < SampleCount; i++)
 	{
-		uint seed = initRand(launchIndex.x + launchIndex.y * launchDim.x, i);
+		uint seed = initRand(launchIndex.x + launchIndex.y * launchDim.x, Framecount+i);
 		AccumColour += LaunchSample(pos, seed, SmoothNess, normal, -ViewDir);
 	}
 	AccumColour /= SampleCount;

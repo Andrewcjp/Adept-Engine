@@ -3,7 +3,8 @@
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "../NodeLink.h"
 #include "../StoreNodes/FrameBufferStorageNode.h"
-
+#include "RHI/RHICommandList.h"
+#include "Rendering/Core/FrameBuffer.h"
 
 PostProcessNode::PostProcessNode()
 {
