@@ -171,7 +171,7 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 			bool CanNodeTransition = EResourceState::IsStateValidForList(Targetnode->GetNodeQueueType(), frame->State);
 			if (!CanNodeTransition )
 			{
-				ensure(EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), frame->State));
+				//ensure(EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), frame->State));
 				frame->Node->AddBeginTransition(T);
 				if (LogTranstions)
 				{

@@ -572,6 +572,7 @@ struct RHIViewDesc
 	uint FirstElement = 0;
 	EViewType::Type ViewType = EViewType::Limit;
 	eTextureDimension Dimension = DIMENSION_UNKNOWN;
+	bool UseResourceFormat = true;
 	static RHIViewDesc CreateUAV(int Resource)
 	{
 		RHIViewDesc D;

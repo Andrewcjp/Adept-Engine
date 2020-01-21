@@ -32,6 +32,8 @@ void D3D12Buffer::Release()
 	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
 	SafeRelease(m_DataBuffer);
+	SafeRelease(m_DataBufferDouble[0]);
+	SafeRelease(m_DataBufferDouble[1]);
 }
 
 D3D12Buffer::~D3D12Buffer()
@@ -47,7 +49,11 @@ void D3D12Buffer::CreateConstantBuffer(int iStructSize, int iElementcount, bool 
 void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
 {
 	ensure((offset*StructSize) + StructSize <= TotalByteSize);
-	memcpy(m_pCbvDataBegin + (offset * StructSize), data, RawStructSize);
+	memcpy(m_pCbvDataBegin[Context->GetCpuFrameIndex()] + (offset * StructSize), data, RawStructSize);
+	if (RHI::GetFrameCount() == 0)
+	{
+		memcpy(m_pCbvDataBegin[1] + (offset * StructSize), data, RawStructSize);
+	}
 }
 
 void D3D12Buffer::InitCBV(int iStructSize, int Elementcount)
@@ -59,23 +65,25 @@ void D3D12Buffer::InitCBV(int iStructSize, int Elementcount)
 	desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
 
 	desc.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_DataBuffer);
+	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_DataBufferDouble[0]);
+	Device->GetMemoryManager()->AllocUploadTemporary(desc, &m_DataBufferDouble[1]);
 
 	// Map and initialize the constant buffer. We don't unmap this until the
 	// app closes. Keeping things mapped for the lifetime of the resource is okay.
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
-	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin)));
+	ThrowIfFailed(m_DataBufferDouble[0]->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin[0])));
+	ThrowIfFailed(m_DataBufferDouble[1]->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_pCbvDataBegin[1])));
 }
 
 void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* list, int Slot, bool  IsCompute, int Deviceindex)
 {
 	if (IsCompute)
 	{
-		list->SetComputeRootConstantBufferView(Slot, m_DataBuffer->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
+		list->SetComputeRootConstantBufferView(Slot, GetDoubleBuffer()->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
 	}
 	else
 	{
-		list->SetGraphicsRootConstantBufferView(Slot, m_DataBuffer->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
+		list->SetGraphicsRootConstantBufferView(Slot, GetDoubleBuffer()->GetResource()->GetGPUVirtualAddress() + (offset * StructSize));
 	}
 }
 
@@ -308,6 +316,11 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 	ElementCount = TotalByteSize / Stride;
 	ElementSize = Stride;
+}
+
+GPUResource * D3D12Buffer::GetDoubleBuffer()
+{
+	return m_DataBufferDouble[Context->GetCpuFrameIndex()];
 }
 
 void D3D12Buffer::MapBuffer(void ** Data)

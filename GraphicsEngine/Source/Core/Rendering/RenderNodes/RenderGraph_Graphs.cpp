@@ -143,6 +143,7 @@ void RenderGraph::CreateDefGraphWithRT_VOXEL()
 	LinkNode(UpdateAcceleration, VXNode);
 	VXNode->GetInput(0)->SetStore(VXBuffer);
 	VXNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
+	VXNode->GetInput(2)->SetStore(ShadowDataNode);
 	LightNode->UseScreenSpaceReflection = true;
 
 	RayTraceReflectionsNode* RTNode = new RayTraceReflectionsNode();

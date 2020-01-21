@@ -25,6 +25,7 @@ protected:
 	struct DenoiserParams
 	{
 		int Debugmode = 0;
+		int Clear = 0;
 	};
 	DenoiserParams Params;
 
@@ -32,7 +33,7 @@ protected:
 	Shader_Pair* BilateralFilter;
 	struct FilterParams
 	{
-			glm::ivec2 Res;
+		glm::ivec2 Res;
 	};
 	FilterParams BFilterParams;
 };

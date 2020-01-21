@@ -5,9 +5,12 @@ RWTexture2D<float4> gOutput : register(u0);
 Texture2D<float4> GBUFFER_Normal : register(t5);
 Texture2D<float4> GBUFFER_Pos : register(t6);
 Texture2D<float4> GBUFFER_BaseSpec : register(t7);
-SamplerState defaultSampler : register (s1);
 TextureCube SpecularBlurMap: register(t11);
 SamplerState Textures : register (s0);
+TextureCube ShadowData[MAX_POINT_SHADOWS] : register(t12, space2);
+//SamplerState defaultSampler : register(s1);
+SamplerState g_Clampsampler : register(s1);
+#include "../Shadow.hlsl"
 #include "Voxel/VoxelTrace_PS.hlsl"
 cbuffer ConstData: register(b0)
 {
@@ -48,7 +51,7 @@ float3 LaunchSample(float3 origin, uint seed, float SmoothNess, float3 normal, f
 		float3 LightColour = CalcColorFromLight(LightList[i], payload.color, payload.pos, payload.Normal, CameraPos, 0.0f, 0.0f);
 		if (LightList[i].HasShadow && LightList[i].type == 1)
 		{
-			//LightColour *= 1.0 - ShadowCalculationCube(payload.Pos.xyz, LightList[i], g_Shadow_texture2[LightList[i].ShadowID]);
+			LightColour *= 1.0 - ShadowCalculationCube(payload.pos.xyz, LightList[i], ShadowData[LightList[i].ShadowID]);
 		}
 		OutColor += LightColour;
 	}
@@ -60,11 +63,11 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	float2 crd = float2(DTid.xy);
 	float2 dims = float2(Res.xy);
 	float2 NrmPos = crd / dims;
-	const float Roughness = GBUFFER_BaseSpec.SampleLevel(defaultSampler, NrmPos, 0).w;
+	const float Roughness = GBUFFER_BaseSpec.SampleLevel(g_Clampsampler, NrmPos, 0).w;
 	if (Roughness >= VX_MinRoughness && Roughness < VX_MaxRoughness)
 	{
-		float3 Pos = GBUFFER_Pos.SampleLevel(defaultSampler, NrmPos, 0).xyz;
-		float3 Normal = GBUFFER_Normal.SampleLevel(defaultSampler, NrmPos, 0).xyz;		
+		float3 Pos = GBUFFER_Pos.SampleLevel(g_Clampsampler, NrmPos, 0).xyz;
+		float3 Normal = GBUFFER_Normal.SampleLevel(g_Clampsampler, NrmPos, 0).xyz;
 		float3 ViewDir = normalize(CameraPos-Pos);
 		int SampleCount = Max_VXRayCount;
 		if (Roughness > 0.9)

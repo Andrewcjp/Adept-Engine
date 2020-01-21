@@ -19,6 +19,7 @@ static ConsoleVariable ShaderCompileStats("ShaderStats", 0, ECVarType::LaunchOnl
 D3D12Shader::ShaderStats D3D12Shader::stats = D3D12Shader::ShaderStats();
 #endif
 D3D12Shader::D3D12Shader(DeviceContext* Device)
+	:ShaderProgramBase(Device)
 {
 	ShaderCompileStats.SetValue(true);
 	CurrentDevice = D3D12RHI::DXConv(Device);
@@ -73,9 +74,6 @@ LPCWSTR GetCopyStr(std::string data)
 	Data[t.size()] = L'\0';
 	return Data;
 }
-
-
-
 
 DxcDefine* D3D12Shader::ParseDefines()
 {

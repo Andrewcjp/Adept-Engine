@@ -42,9 +42,9 @@ struct VS_OUTPUT
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 };
-//#define VRS_TILE_SIZE 16
-//#define SUPPORT_VRR 1
-//#define SHADER_SUPPORT_VRR 1
+#define VRS_TILE_SIZE 16
+#define SUPPORT_VRR 1
+#define SHADER_SUPPORT_VRR 1
 #include "VRX\VRRCommon.hlsl"
 #include "ReflectionEnviroment.hlsl"
 float3 GetSpecular(float2 ScreenPos, float3 R, float Roughness)
@@ -68,7 +68,7 @@ Texture3D<uint4> voxelTex :  register(t50);
 #define SHOW_SHADOW 0
 float4 main(VS_OUTPUT input) : SV_Target
 {
-#if SHADER_SUPPORT_VRR 
+#if 0// SHADER_SUPPORT_VRR 
 	if (!ShouldShadePixel(input.uv,Resolution))
 	{
 		//discard;

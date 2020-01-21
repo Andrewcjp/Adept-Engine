@@ -27,7 +27,7 @@ inline float4 ConeTrace(in Texture3D<float4> voxels, in float3 P, in float3 N, i
 		if (!is_saturated(tc) /*|| mip >= (float)VoxelRadianceDataMIPs*/)
 			break;
 
-		float4 sam = voxels.SampleLevel(defaultSampler, tc, 0);
+		float4 sam = voxels.SampleLevel(g_Clampsampler, tc, 0);
 
 		// this is the correct blending to avoid black-staircase artifact (ray stepped front-to back, so blend front to back):
 		float a = 1 - alpha;
@@ -110,6 +110,8 @@ inline TracePayload ConeTrace_FixedMip_Loop2(in Texture3D<uint4> voxels, in floa
 	float3 startPos = P + N * VoxelSize * 2 * SQRT2; // sqrt2 is diagonal voxel half-extent
 	int hitcount = 0;
 	TracePayload PayLoad;
+	PayLoad.Normal = coneDirection;
+	PayLoad.alpha = 0.0f;
 	// We will break off the loop if the sampling distance is too far for performance reasons:
 
 	while (dist < VoxelMaxDistance)
@@ -164,7 +166,7 @@ inline TracePayload ConeTrace_FixedMip_Var(in Texture3D<uint4> voxels, in float3
 	int hitcount = 0;
 	TracePayload PayLoad;
 	// We will break off the loop if the sampling distance is too far for performance reasons:
-	const int LoopCount = 6;
+	const int LoopCount = 4;
 	while (dist < VoxelMaxDistance)
 	{
 		// Because we do the ray-marching in world space, we need to remap into 3d texture space before sampling:

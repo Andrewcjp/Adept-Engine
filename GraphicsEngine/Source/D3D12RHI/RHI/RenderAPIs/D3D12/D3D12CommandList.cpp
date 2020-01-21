@@ -13,6 +13,7 @@
 #include "D3D12Buffer.h"
 #include "DescriptorCache.h"
 #include "RHI/RHITexture.h"
+#include "D3D12RHITexture.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -673,6 +674,28 @@ void D3D12CommandList::AddTransition(D3D12_RESOURCE_BARRIER transition)
 void D3D12CommandList::ClearUAVUint(RHIBuffer* buffer)
 {
 	
+}
+
+void D3D12CommandList::CopyResource(RHITexture * Source, RHITexture * Dest)
+{
+
+	D3D12RHITexture* DSource = D3D12RHI::DXConv(Source);
+	D3D12RHITexture* DDest = D3D12RHI::DXConv(Dest);
+	D3D12_RESOURCE_STATES StartState = DSource->GetResource()->GetCurrentState();
+
+	DDest->GetResource()->SetResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+	DSource->GetResource()->SetResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	FlushBarriers();
+	for (int i = 0; i < DSource->GetDescription().Depth; i++)
+	{
+		int offset = i;
+		CD3DX12_TEXTURE_COPY_LOCATION dest(DDest->GetResource()->GetResource(), i);
+		CD3DX12_TEXTURE_COPY_LOCATION src(DSource->GetResource()->GetResource(), i);
+		CD3DX12_BOX box(0, 0, DSource->GetDescription().Width, DSource->GetDescription().Height);
+		GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
+	DSource->GetResource()->SetResourceState(this, StartState);	
+	FlushBarriers();
 }
 
 void D3D12CommandList::ExecuteIndiect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

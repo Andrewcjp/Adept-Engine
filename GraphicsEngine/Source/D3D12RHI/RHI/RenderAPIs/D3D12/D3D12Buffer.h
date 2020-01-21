@@ -29,6 +29,7 @@ protected:
 
 	friend class D3D12RHIUAV;
 private:
+	GPUResource* GetDoubleBuffer();
 	void MapBuffer(void** Data);
 	void UnMap();
 	void CreateStaticBuffer(int ByteSize);
@@ -36,11 +37,12 @@ private:
 	EBufferAccessType::Type BufferAccesstype;
 	GPUResource * m_UploadBuffer = nullptr;
 	GPUResource* m_DataBuffer = nullptr;
+	GPUResource* m_DataBufferDouble[2] = {  };
 	int ElementCount = 0;
 	int ElementSize = 0;
 	bool UploadComplete = false;
 	D3D12DeviceContext* Device = nullptr;
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
-	UINT8* m_pCbvDataBegin;
+	UINT8* m_pCbvDataBegin[2];
 };
 CreateChecker(D3D12Buffer);

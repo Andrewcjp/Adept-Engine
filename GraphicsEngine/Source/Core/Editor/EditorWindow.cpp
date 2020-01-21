@@ -54,7 +54,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 {
 	ShowHud = true;
 	ShowText = true;
-	//SetFrameRateLimit(20);
+//	SetFrameRateLimit(185);
 	Log::OutS << "Loading Editor" << Log::OutS;
 	CurrentScene = new Scene(true); 
 	EditorCamera = new Editor_Camera();
@@ -319,11 +319,11 @@ void EditorWindow::Update()
 		}
 		if (Input::GetKeyDown(219))
 		{
-			RHI::GetVrSettings()->EyeDistance -= 0.1f;
+			RHI::GetVrSettings()->EyeDistance -= 1.0f;
 		}
 		if (Input::GetKeyDown(221))
 		{
-			RHI::GetVrSettings()->EyeDistance += 0.1f;
+			RHI::GetVrSettings()->EyeDistance += 1.0f;
 		}
 	}
 }

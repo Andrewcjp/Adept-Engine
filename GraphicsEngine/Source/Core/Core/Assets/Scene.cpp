@@ -268,6 +268,16 @@ void Scene::LoadExampleScene()
 	Asset_Shader* ColourMat = new Asset_Shader();
 	ColourMat->SetupSingleColour();
 
+	go = new GameObject("Wall ");
+	mat = Material::CreateDefaultMaterialInstance();
+	mat->SetFloat("Roughness",0.99);
+	mat->SetFloat("Metallic", 1.0f);
+	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+	set = MeshLoader::FMeshLoadingSettings();
+	MeshRendererComponent* m = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\WallBox.Obj", set), mat));
+	m->SetMaterial(mat, 0);
+	go->GetTransform()->SetPos(glm::vec3(-20, 10, 0));
+	AddGameobjectToScene(go);
 
 
 	go = new GameObject("spawn");

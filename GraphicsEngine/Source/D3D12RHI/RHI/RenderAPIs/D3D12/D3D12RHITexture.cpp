@@ -288,3 +288,10 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & desc) const
 	}
 	return ItemDesc;
 }
+
+void D3D12RHITexture::SetState(RHICommandList* list,EResourceState::Type State)
+{
+	GetResource()->SetResourceState(D3D12RHI::DXConv(list),D3D12FrameBuffer::ConvertState(State));
+}
+
+

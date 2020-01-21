@@ -27,7 +27,7 @@ void VRXShadingRateNode::OnExecute()
 		List->SetPipelineStateDesc(PSODesc);
 		FrameBuffer* UAV = GetFrameBufferFromInput(0);
 		FrameBuffer* gBuffer = GetFrameBufferFromInput(1);
-		List->SetFrameBufferTexture(gBuffer, "GBuffer_Tex", 2);
+		//List->SetFrameBufferTexture(gBuffer, "GBuffer_Tex", 2);
 		List->SetFrameBufferTexture(GetFrameBufferFromInput(2), "ShadowMask");
 
 		//#VRX todo: use inputs from scene for this (Gbuffer, PreZ pass)

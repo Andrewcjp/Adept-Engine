@@ -1,14 +1,16 @@
 #include "ShaderProgramBase.h"
 #include <set>
 
-ShaderProgramBase::ShaderProgramBase()
+ShaderProgramBase::ShaderProgramBase(DeviceContext* context)
 {
+	Context = context;
 	if (!RHI::IsVulkan())
 	{
 		//the vulkan to HLSL complier defines this for us
 		ModifyCompileEnviroment(Shader_Define("VULKAN", std::to_string(RHI::IsVulkan())));
 	}
 	ModifyCompileEnviroment(Shader_Define("DX12", std::to_string(RHI::IsD3D12())));
+	ModifyCompileEnviroment(Shader_Define("FULL_UAV_LOAD", std::to_string(context->GetCaps().SupportTypedUAVLoads)));
 }
 
 ShaderProgramBase::~ShaderProgramBase()

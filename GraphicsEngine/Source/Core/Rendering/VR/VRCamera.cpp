@@ -19,17 +19,17 @@ VRCamera::VRCamera()
 VRCamera::~VRCamera()
 {}
 
-void VRCamera::UpdateDebugTracking()
+void VRCamera::UpdateDebugTracking(float IPD)
 {
-	RHI::GetVrSettings()->EyeDistance = glm::max(-1.0f, RHI::GetVrSettings()->EyeDistance);
+	//RHI::GetVrSettings()->EyeDistance = glm::max(-1.0f, RHI::GetVrSettings()->EyeDistance);
 
 	glm::vec3 Pos = transfrom.GetPos();
-	Pos += transfrom.GetRight() * RHI::GetVrSettings()->EyeDistance;
+	Pos -= transfrom.GetRight() * IPD;
 	Cameras[EEye::Left]->SetPos(Pos);
 	Cameras[EEye::Left]->SetUpAndForward(transfrom.GetForward(), transfrom.GetUp());
 	
 	Pos = transfrom.GetPos();
-	Pos -= transfrom.GetRight() * RHI::GetVrSettings()->EyeDistance;
+	Pos += transfrom.GetRight() * IPD;
 	Cameras[EEye::Right]->SetPos(Pos);
 	Cameras[EEye::Right]->SetUpAndForward(transfrom.GetForward(), transfrom.GetUp());
 }

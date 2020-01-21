@@ -11,6 +11,7 @@
 #include "RHI/RHICommandList.h"
 #include "Core/Assets/Scene.h"
 #include "../../Core/DynamicQualityEngine.h"
+#include "../StoreNodes/ShadowAtlasStorageNode.h"
 
 VoxelReflectionsNode::VoxelReflectionsNode()
 {
@@ -37,6 +38,7 @@ void VoxelReflectionsNode::OnExecute()
 		List->SetFrameBufferTexture(Gbuffer, "GBUFFER_Normal", 1);
 		List->SetFrameBufferTexture(Gbuffer, "GBUFFER_BaseSpec", 2);
 		List->SetConstantBufferView(CBV, 0, "ConstData");
+		GetShadowDataFromInput(2)->BindPointArray(List,"ShadowData");
 		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
 		SceneRenderer::Get()->BindLightsBuffer(List, "LightBuffer");
 		List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "LightList");
@@ -63,7 +65,7 @@ void VoxelReflectionsNode::OnNodeSettingChange()
 
 void VoxelReflectionsNode::OnSetupNode()
 {
-	Traceshader = new Shader_Pair(Context, { "Voxel\\VoxelReflections_CS" }, { EShaderType::SHADER_COMPUTE });
+	Traceshader = new Shader_Pair(Context, { "Voxel\\VoxelReflections_CS" }, { EShaderType::SHADER_COMPUTE }, { ShaderProgramBase::Shader_Define("MAX_POINT_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_POINT_SHADOWS, 1))) });
 	List = RHI::CreateCommandList(ECommandListType::Compute, Context);
 	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(ShaderData), 1);

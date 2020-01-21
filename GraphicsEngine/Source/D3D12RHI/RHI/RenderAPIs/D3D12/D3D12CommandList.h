@@ -98,10 +98,12 @@ public:
 	RHI_VIRTUAL void FlushBarriers() override;
 	void AddTransition(D3D12_RESOURCE_BARRIER transition);
 
-	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) override;
+	RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) override;
 
 
-	RHI_API RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) override;
+	RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) override;
+
+	void CopyResource(RHITexture* Source, RHITexture* Dest) override;
 
 private:
 	void SetScreenBackBufferAsRT();

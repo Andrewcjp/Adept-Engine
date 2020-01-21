@@ -111,6 +111,29 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		list->UAVBarrier(Get()->TileData);
 		Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::IndirectArgs);
 	}
+	if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
+	{
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Copy Step");
+		if (Get()->TempResolveSpace == nullptr || Get()->TempResolveSpace->GetDescription().Width != Target->GetWidth() || Get()->TempResolveSpace->GetDescription().Height != Target->GetHeight())
+		{
+			if (Get()->TempResolveSpace)
+			{
+				EnqueueSafeRHIRelease(Get()->TempResolveSpace);
+			}
+			Get()->TempResolveSpace = RHI::GetRHIClass()->CreateTexture2();
+			RHITextureDesc2 TmpDesc;
+			TmpDesc.Depth = 1;
+			TmpDesc.Width = Target->GetWidth();
+			TmpDesc.Height = Target->GetHeight();
+			TmpDesc.Format = Target->GetDescription().RTFormats[0];
+			TmpDesc.AllowUnorderedAccess = true;
+			Get()->TempResolveSpace->Create(TmpDesc, list->GetDevice());
+		}
+
+		list->CopyResource(Target->GetDescription().RenderTargets[0], Get()->TempResolveSpace);
+		Get()->TempResolveSpace->SetState(list, EResourceState::Non_PixelShader);
+
+	}
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Varable Write");
 		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
@@ -124,6 +147,11 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		list->SetCommandSigniture(SigDesc);
 
 		list->SetUAV(Target, "DstTexture");
+		if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
+		{
+			list->SetTexture2(Get()->TempResolveSpace, "SrcTexture");
+		}
+
 		list->SetTexture2(ShadingImage, "RateImage");
 		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 		list->SetBuffer(Get()->VARTileList, "TileList");
@@ -144,7 +172,7 @@ void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Targe
 		const std::string TextureName = "VRSTexture";
 		if (List->GetCurrnetPSO()->GetDesc().ShaderInUse->FindParam(TextureName) != nullptr)
 		{
-//			List->SetTexture2(List->GetShadingRateImage(), TextureName);
+			//			List->SetTexture2(List->GetShadingRateImage(), TextureName);
 		}
 	}
 }

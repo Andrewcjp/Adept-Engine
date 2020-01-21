@@ -58,11 +58,18 @@ void EditorCameraController::Update()
 		rot = glm::angleAxis(glm::radians(-RotY), glm::vec3(0, 1, 0));
 		rot *= glm::angleAxis(glm::radians(Rotx), glm::vec3(1, 0, 0));
 		Target->SetQrot(rot);
+		MovedThisFrame = true;
 	}
 	else
 	{
+		MovedThisFrame = false;
 		Input::LockCursor(false);
 		Input::SetCursorVisible(true);
 	}
 
+}
+
+bool EditorCameraController::IsMoving()
+{
+	return MovedThisFrame;
 }

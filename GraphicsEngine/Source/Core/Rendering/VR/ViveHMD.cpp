@@ -5,6 +5,7 @@
 #include "Core/Input/InputManager.h"
 #include "Core/Input/Input.h"
 #include "Core/Input/Interfaces/SteamVR/SteamVRInputInterface.h"
+#include "HMDManager.h"
 #if BUILD_STEAMVR
 ViveHMD::ViveHMD()
 {
@@ -69,33 +70,26 @@ glm::mat4 ViveHMD::getRaw(vr::Hmd_Eye nEye)
 {
 	float Left, Right, Top, Bottom;
 	VRInterface->GetSystem()->GetProjectionRaw(nEye, &Right, &Left, &Top, &Bottom);
-	Bottom *= -1.0f;
-	Top *= -1.0f;
-	Right *= -1.0f;
-	Left *= -1.0f;
-
-	float ZNear = 0.1f;
-
-	float SumRL = (Right + Left);
-	float SumTB = (Top + Bottom);
-	float InvRL = (1.0f / (Right - Left));
-	float InvTB = (1.0f / (Top - Bottom));
-
-
-	glm::mat4 Mat = glm::mat4(
-		(2.0f * InvRL), 0.0f, 0.0f, 0.0f,
-		0.0f, (2.0f * InvTB), 0.0f, 0.0f,
-		(SumRL * InvRL), (SumTB * InvTB), 0.0f, 1.0f,
-		0.0f, 0.0f, ZNear, 0.0f);
-
+	glm::vec2 tanHalfFov = glm::vec2(glm::max(Left, Right), glm::max(Top, Bottom));
+	float  fieldOfView =(2.0f * glm::atan(tanHalfFov.y));// *Mathf.Rad2Deg;
+	float  aspect = tanHalfFov.x / tanHalfFov.y;
+	glm::mat4 Mat = glm::perspectiveLH(fieldOfView, aspect, 0.1f, 1000.0f);
 	return Mat;
 }
+float ViveHMD::GetIPD()
+{
+	vr::ETrackedPropertyError Error  = vr::TrackedProp_Success;
+	float out = VRInterface->GetSystem()->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_UserIpdMeters_Float,&Error);
+	ensure(Error == vr::TrackedProp_Success);
+	return out;
+}
+
 void ViveHMD::Update()
 {
 #if 1
 	UpdateProjection((float)GetDimentions().x / (float)GetDimentions().y);
 	HMD::Update();
-	CameraInstance->UpdateDebugTracking();
+	CameraInstance->UpdateDebugTracking(GetIPD());
 #if 1
 	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(getRaw(vr::Eye_Left));
 	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(getRaw(vr::Eye_Right));
@@ -118,7 +112,7 @@ glm::ivec2 ViveHMD::GetDimentions()
 {
 	uint32_t Width, height;
 	VRInterface->GetSystem()->GetRecommendedRenderTargetSize(&Width, &height);
-	return glm::ivec2(glm::iround(Width*RenderScale), glm::iround(height*RenderScale));
+	return glm::ivec2(Width, height);
 }
 
 void ViveHMD::SetPosAndRot(glm::vec3 pos, glm::quat Rot)

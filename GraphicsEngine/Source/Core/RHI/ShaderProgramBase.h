@@ -6,7 +6,7 @@ class ShaderProgramBase
 protected:
 	bool						IsCompute = false;
 public:
-	RHI_API ShaderProgramBase();
+	RHI_API ShaderProgramBase(DeviceContext* context);
 	RHI_API virtual								~ShaderProgramBase();
 	RHI_API virtual EShaderError::Type				AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type);
 	RHI_API virtual EShaderError::Type				AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type, const char * Entrypoint) = 0;
@@ -35,5 +35,6 @@ protected:
 	std::vector<Shader_Define> Defines;
 	uint32 InstructionCount = 0;
 	friend class ShaderReflection;
+	DeviceContext* Context;
 };
 

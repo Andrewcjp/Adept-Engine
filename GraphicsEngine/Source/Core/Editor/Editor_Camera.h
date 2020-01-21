@@ -22,6 +22,7 @@ public:
 	//toggle between cams
 	void SetVrCam(bool state);
 	bool IsVRCam() const;
+	EditorCameraController* Controller = nullptr;
 private:
 	Transform MainCamTransfrom;
 	bool bIsVRCam = false;
@@ -29,6 +30,5 @@ private:
 	VRCamera* VRCam = nullptr;
 	float sensitvity = 0.5f;
 	bool IsActive = false;
-	EditorCameraController* Controller = nullptr;
 };
 #endif

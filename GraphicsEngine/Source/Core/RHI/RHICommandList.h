@@ -181,6 +181,8 @@ public:
 	//forces any queued barriers to be executed
 	RHI_API RHI_VIRTUAL void FlushBarriers();
 	RHITexture* GetShadingRateImage() const { return ShadingRateImage; }
+
+	RHI_API RHI_VIRTUAL void CopyResource(RHITexture* Source, RHITexture* Dest) = 0;
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);

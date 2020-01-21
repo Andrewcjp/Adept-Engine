@@ -5,13 +5,17 @@
 #include "Rendering/Core/Screen.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/Shader_Pair.h"
+#include "Core/Input/Input.h"
+#include "Editor/EditorWindow.h"
+#include "Editor/EditorCameraController.h"
+#include "Editor/Editor_Camera.h"
 
 static ConsoleVariable DebugMode("RT.Noise.Debug", 0, ECVarType::ConsoleAndLaunch, true);
 RTFilterNode::RTFilterNode()
 {
 	OnNodeSettingChange();
 	NodeEngineType = ECommandListType::Compute;
-	DebugMode.SetValue(2);
+	//DebugMode.SetValue(2);
 }
 
 RTFilterNode::~RTFilterNode()
@@ -64,7 +68,11 @@ void RTFilterNode::OnExecute()
 
 void RTFilterNode::RefreshNode()
 {
-
+	Params.Clear = 0;	
+	if (Input::GetKeyDown('L') || EditorWindow::GetInstance()->EditorCamera->Controller->IsMoving())
+	{
+		Params.Clear = 1;
+	}
 }
 
 void RTFilterNode::OnSetupNode()

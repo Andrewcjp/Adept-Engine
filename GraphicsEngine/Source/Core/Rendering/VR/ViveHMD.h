@@ -25,6 +25,8 @@ public:
 
 	glm::mat4 getRaw(vr::Hmd_Eye nEye);
 
+	float GetIPD();
+
 	virtual void Update() override;
 
 	virtual void OutputToEye(FrameBuffer* buffer, EEye::Type eye) override;

@@ -5,16 +5,22 @@ RWTexture2D<uint> SSP_Data: register(u2);
 cbuffer ShaderData: register(b0)
 {
 	int DebugMode;
+	int Clear;
 }
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 groupIndex : SV_GroupID)
 {	
+	if (Clear)
+	{
+		SSP_Data[DTid.xy] = 0;
+		LastFrameData[DTid.xy] = float4(0, 0, 0, 0);
+	}
 	float4 RTXSample = RTXUAV[DTid.xy];
 	float3 NewColour = RTXSample.xyz;
 	float4 Oldcolour = LastFrameData[DTid.xy];
 	float3 Output = NewColour;
 	float3 HistoryOut = Output;
-	if (RTXSample.a > 0.9)
+	if (RTXSample.a > 0.995)
 	{
 		Output = NewColour;
 		HistoryOut = float4(0, 0, 0, 0);

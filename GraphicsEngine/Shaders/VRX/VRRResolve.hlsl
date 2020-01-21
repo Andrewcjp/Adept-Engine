@@ -1,5 +1,8 @@
 #define SUPPORT_VRR 1
 #include "VRX/VRRCommon.hlsl"
+#if !FULL_UAV_LOAD
+Texture2D<float4> SrcTexture: register(t3);
+#endif
 Texture2D<uint> RateImage: register(t0);
 RWTexture2D<float4> DstTexture : register(u0);
 SamplerState BilinearClamp : register(s0);
@@ -49,6 +52,17 @@ uint2 GetCoursePixelPos(uint2 Fullpos)
 	}
 	return Fullpos.xy;
 }
+#if FULL_UAV_LOAD
+float4 LoadUAV(uint2 pos)
+{
+	return DstTexture[pos];
+}
+#else
+float4 LoadUAV(uint2 pos)
+{
+	return SrcTexture[pos];
+}
+#endif
 #define VRR_BLEND 1
 #define BUILD_SHIPPING 0
 #ifndef PS_RESOLVE
@@ -110,7 +124,7 @@ void main(uint3 DTid : SV_GroupThreadID, uint3 groupIndex : SV_GroupID)
 		//find the corse pixel for this pixel
 		const int2 DeltaToMain = Pixel.xy % Rate.xy;
 		const int2 SourcePixel = Pixel.xy - DeltaToMain;
-#if VRR_BLEND
+#if  0//VRR_BLEND
 		[branch]
 		if (LerpBlend > 0.0f)
 		{
@@ -124,11 +138,11 @@ void main(uint3 DTid : SV_GroupThreadID, uint3 groupIndex : SV_GroupID)
 		else
 #endif
 		{
-			DstTexture[Pixel.xy] = DstTexture[SourcePixel];
+			DstTexture[Pixel.xy] = LoadUAV(SourcePixel);
 		}
 	}
 
-#if !BUILD_SHIPPING
+#if 0 //!BUILD_SHIPPING
 	if (DebugShow)
 	{
 		DstTexture[Pixel.xy] += GetColourForRate(Rate)*0.5f;

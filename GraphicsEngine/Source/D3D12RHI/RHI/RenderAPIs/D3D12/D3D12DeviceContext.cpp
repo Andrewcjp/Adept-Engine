@@ -115,6 +115,7 @@ void D3D12DeviceContext::CheckFeatures()
 		LogTierData("Resource Heap", DeviceFeatureData.FeatureData.ResourceHeapTier);
 		LogTierData("Cross Node Sharing", DeviceFeatureData.FeatureData.CrossNodeSharingTier);
 		LogTierData("Min Precision Support", options.MinPrecisionSupport);
+		Caps_Data.SupportTypedUAVLoads = DeviceFeatureData.FeatureData.TypedUAVLoadAdditionalFormats;
 	}
 	Caps_Data.SupportsConservativeRaster = DeviceFeatureData.FeatureData.ConservativeRasterizationTier >= D3D12_CONSERVATIVE_RASTERIZATION_TIER_1;
 	ZeroMemory(&DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));

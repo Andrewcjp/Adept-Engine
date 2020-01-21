@@ -29,5 +29,6 @@ private:
 	RHIBuffer* TileData = nullptr;
 	RHIBuffer* IndirectCommandBuffer;
 	static VRXEngine* Instance;
+	RHITexture* TempResolveSpace = nullptr;
 };
 

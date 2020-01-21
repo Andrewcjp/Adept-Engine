@@ -115,7 +115,7 @@ static glm::quat GetRotation(glm::mat4 matrix)
 
 glm::vec3 SteamVRInputInterface::Getpos(glm::mat4 matMVP)
 {
-	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])*Scale + Offset;
+	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])+Offset;
 }
 
 vr::IVRSystem * SteamVRInputInterface::GetSystem()

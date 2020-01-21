@@ -9,7 +9,7 @@ TerrainRenderer* TerrainRenderer::Instance = nullptr;
 TerrainRenderer::TerrainRenderer()
 {
 	TMP = new GameObject();
-	TMP->GetTransform()->SetPos(glm::vec3(0, 10,0));
+	TMP->GetTransform()->SetPos(glm::vec3(20, 10,0));
 	const int size = 10;
 	TMP->GetTransform()->SetScale(glm::vec3(size, 1, size));
 	QuadMesh = RHI::CreateMesh("models\\TerrainQuad.obj");

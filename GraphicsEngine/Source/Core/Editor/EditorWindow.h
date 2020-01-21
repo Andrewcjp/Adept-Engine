@@ -29,6 +29,7 @@ public:
 	void Eject();
 	CORE_API bool IsEditorEjected();
 	bool IsInPlayMode();;
+	class Editor_Camera* EditorCamera = nullptr;
 protected:
 	bool IsSceneRunning();
 	Scene* GetCurrentScene() override;
@@ -48,7 +49,6 @@ private:
 	EditorObjectSelector* selector = nullptr;
 	Scene* CurrentPlayScene = nullptr;
 	bool IsPlayingScene = false;
-	class Editor_Camera* EditorCamera = nullptr;
 	std::string CurrentSceneSavePath;
 	std::string EditorPlaySceneTempFile = "";
 	EditorCore* mEditorCore = nullptr;

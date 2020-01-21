@@ -8,6 +8,7 @@ DynamicQualityEngine::DynamicQualityEngine()
 	RTBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	RTBuffer->CreateConstantBuffer(sizeof(RTBufferData), 1);
 	RTBuffer->UpdateConstantBuffer(&RTQualityData);
+	//RT_Threshold.SetValueF(1.0f);
 }
 
 DynamicQualityEngine::~DynamicQualityEngine()

@@ -78,6 +78,8 @@ struct CapabilityData
 	int VRSTileSize = 16;
 
 	bool SupportsConservativeRaster = false;
+
+	bool SupportTypedUAVLoads = false;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext
