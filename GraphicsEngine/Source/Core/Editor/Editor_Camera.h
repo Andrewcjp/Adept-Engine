@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Core/Camera.h"
+#include "Core/Transform.h"
 
 class VRCamera;
 class EditorCameraController;

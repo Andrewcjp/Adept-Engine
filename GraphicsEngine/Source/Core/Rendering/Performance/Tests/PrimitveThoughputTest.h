@@ -2,6 +2,7 @@
 #include "..\GPUPerformanceTest.h"
 
 class MeshDrawCommand;
+class RHIBufferGroup;
 //this needs to skip most of the scene renderer overhead etc.
 //as tests should NOT effect the state of the renderer.
 class PrimitveThoughputTest : public GPUPerformanceTest
@@ -22,12 +23,12 @@ protected:
 private:
 	
 	void BuildBatches(int size, glm::vec3 startPos, float stride);
-	RHIBuffer * CreateTransfrom(glm::vec3 pos);
+	RHIBufferGroup * CreateTransfrom(glm::vec3 pos);
 	void AddObjectInstance(glm::vec3 pos);
 	//skip meshes etc. pre-gen the draw commands directly
 	std::vector<MeshDrawCommand*> Batches;
 	Mesh* MeshData;
-	std::vector<RHIBuffer*> TransfromBuffers;
+	std::vector<RHIBufferGroup*> TransfromBuffers;
 
 	FrameBuffer* TestBuffer = nullptr;
 	RHICommandList* List = nullptr;

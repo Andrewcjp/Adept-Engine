@@ -7,8 +7,5 @@ public:
 	DECLARE_GLOBAL_SHADER(Shader_ReflectionRaygen);
 	RHI_API Shader_ReflectionRaygen(DeviceContext* D);
 	~Shader_ReflectionRaygen();
-
-	virtual std::vector<ShaderParameter> GetShaderParameters() override;
-
 };
 

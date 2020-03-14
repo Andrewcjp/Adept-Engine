@@ -32,8 +32,6 @@ private:
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	//#TextureLoading Remove this hack
 	bool UsingDDSLoad = false;
-	ID3D12Resource* m_texture = nullptr;
-	GPUResource* TextureResource = nullptr;
 	int FrameCreated = -1;
 	D3D12RHITexture* Cover = nullptr;
 };

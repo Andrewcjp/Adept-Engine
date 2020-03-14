@@ -7,8 +7,15 @@
 #include "SceneRenderer.h"
 #include "Screen.h"
 #include "RHI\RHITexture.h"
-VRXEngine* VRXEngine::Instance = nullptr;
+#include "..\Utils\UAVFormatConverter.h"
+#include "Core\Utils\StringUtil.h"
 
+REGISTER_SHADER_PS_ONEARG(VRRWriteStencil16,"VRX/VRRWriteStencil", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", "16"));
+REGISTER_SHADER_PS_ONEARG(VRRWriteStencil8, "VRX/VRRWriteStencil", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", "8"));
+REGISTER_SHADER_CS(Classify, "VRX/VRR_Classifycs");
+REGISTER_SHADER_CS(LaunchJobs, "VRX/VRR_LaunchJobs");
+
+VRXEngine* VRXEngine::Instance = nullptr;
 VRXEngine::VRXEngine()
 {
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR(RHI::GetDefaultDevice()))
@@ -16,6 +23,7 @@ VRXEngine::VRXEngine()
 		StencilWriteShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs" ,"VRX/VRRWriteStencil" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT },
 			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
 		ResolvePS = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRRResolve_PS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
+		//ResolvePS = SHADER_resolve;
 		VRRClassifyShader = new Shader_Pair(RHI::GetDefaultDevice(), { "VRX/VRR_Classifycs" }, { EShaderType::SHADER_COMPUTE });
 		VRRLaunchShader = new Shader_Pair(RHI::GetDefaultDevice(), { "VRX/VRR_LaunchJobs" }, { EShaderType::SHADER_COMPUTE });
 		TileData = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
@@ -34,13 +42,31 @@ VRXEngine::VRXEngine()
 		IndirectCommandBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 		d.Stride = sizeof(IndirectDispatchArgs);
 		d.ElementCount = 1;
-		d.Accesstype = EBufferAccessType::Static;
+		d.Accesstype = EBufferAccessType::GPUOnly;
+		d.UseForExecuteIndirect = true;
 		IndirectCommandBuffer->CreateBuffer(d);
 		IndirectDispatchArgs Data;
 		Data.ThreadGroupCountY = 1;
 		Data.ThreadGroupCountZ = 1;
 		Data.ThreadGroupCountX = 1;
-		IndirectCommandBuffer->UpdateBufferData(&Data, sizeof(IndirectDispatchArgs), EBufferResourceState::UnorderedAccess);
+		//	IndirectCommandBuffer->UpdateBufferData(&Data, sizeof(IndirectDispatchArgs), EBufferResourceState::UnorderedAccess);
+
+			//debug
+
+		VRXDebugShader = new Shader_Pair(RHI::GetDefaultDevice(), { "VRX/VRXDebug" }, { EShaderType::SHADER_COMPUTE },
+			{ ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(RHI::GetDefaultDevice()->GetCaps().VRSTileSize)) });
+		ReadBackBuffer = RHI::CreateRHIBuffer(ERHIBufferType::ReadBack);
+		DebugDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
+		RHIBufferDesc Desc = {};
+		Desc.ElementCount = 1;
+		Desc.Stride = sizeof(int);
+		Desc.AllowUnorderedAccess = true;
+		DebugDataBuffer->CreateBuffer(Desc);
+		Desc.UseForExecuteIndirect = false;
+		Desc.AllowUnorderedAccess = false;
+		Desc.UseForReadBack = true;
+		Desc.Accesstype = EBufferAccessType::ReadBack;
+		ReadBackBuffer->CreateBuffer(Desc);
 	}
 }
 
@@ -59,27 +85,52 @@ VRXEngine * VRXEngine::Get()
 
 void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
-	ensure(list->IsComputeList());
-	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->ResolvePS);
+#if USEPS_VRR
+	DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve PS");
+	VRXEngine::Get()->TempTexture->SetState(list, EResourceState::PixelShader);
+	//ensure(list->IsComputeList());
+	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->ResolvePS, Target);
 	Desc.DepthStencilState.DepthEnable = false;
+	Desc.Cull = false;
+	Desc.RasterizerState.Cull = false;
 	list->SetPipelineStateDesc(Desc);
 	if (ShadingImage != nullptr)
 	{
 		list->SetTexture2(ShadingImage, "RateImage");
 	}
+	list->SetTexture2(VRXEngine::Get()->TempTexture, "TempBuffer");
 	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+	glm::ivec2 Resoloution = Screen::GetScaledRes();
+	list->SetRootConstant("ResData", 2, &Resoloution);
 	list->BeginRenderPass(RHIRenderPassDesc(Target));
 	SceneRenderer::DrawScreenQuad(list);
 	list->EndRenderPass();
+#endif
 }
 
 void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
-	if (!RenderSettings::GetVRXSettings().UseVRR())
+#if USEPS_VRR
+	if (!RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
 	{
 		return;
 	}
+	RenderDebug(list, Target, ShadingImage);
+	return;
+#endif
+	if (!RenderSettings::GetVRXSettings().UseVRR())
+	{
+		if (RenderSettings::GetVRXSettings().UseVRS(list->GetDevice()))
+		{
+			RenderDebug(list, Target, ShadingImage);
+		}
+		return;
+	}
 	if (Target->GetDescription().VarRateSettings.BufferMode != FrameBufferVariableRateSettings::VRR)
+	{
+		return;
+	}
+	if (!RHI::GetRenderSettings()->GetVRXSettings().VRXActive)
 	{
 		return;
 	}
@@ -96,6 +147,8 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Classify");
 		list->SetPipelineStateDesc(Desc);
 		list->SetTexture2(ShadingImage, "RateImage");
+		Get()->TileData->SetBufferState(list, EBufferResourceState::UnorderedAccess);
+		Get()->VARTileList->SetBufferState(list, EBufferResourceState::UnorderedAccess);
 		list->SetUAV(Get()->TileData, "TileData");
 		list->SetUAV(Get()->VARTileList, "TileList_VAR");
 		list->DispatchSized(ShadingImage->GetDescription().Width, ShadingImage->GetDescription().Height, 1);
@@ -111,6 +164,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		list->UAVBarrier(Get()->TileData);
 		Get()->IndirectCommandBuffer->SetBufferState(list, EBufferResourceState::IndirectArgs);
 	}
+#if 0
 	if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Copy Step");
@@ -125,7 +179,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 			TmpDesc.Depth = 1;
 			TmpDesc.Width = Target->GetWidth();
 			TmpDesc.Height = Target->GetHeight();
-			TmpDesc.Format = Target->GetDescription().RTFormats[0];
+			TmpDesc.Format = eTEXTURE_FORMAT::FORMAT_R16G16_TYPELESS;// Target->GetDescription().RTFormats[0];
 			TmpDesc.AllowUnorderedAccess = true;
 			Get()->TempResolveSpace->Create(TmpDesc, list->GetDevice());
 		}
@@ -134,6 +188,10 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		Get()->TempResolveSpace->SetState(list, EResourceState::Non_PixelShader);
 
 	}
+#else
+	Target->SetResourceState(list, EResourceState::UAV);
+	UAVFormatConverter::UnPackToTmpResource(&Get()->TempResolveSpace, list, Target->GetDescription().RenderTargets[0]);
+#endif
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Varable Write");
 		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
@@ -146,23 +204,58 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		SigDesc.CommandBufferStide = sizeof(IndirectDispatchArgs);
 		list->SetCommandSigniture(SigDesc);
 
-		list->SetUAV(Target, "DstTexture");
 		if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
 		{
-			list->SetTexture2(Get()->TempResolveSpace, "SrcTexture");
+			RHIViewDesc D = RHIViewDesc::DefaultUAV();
+			D.UseResourceFormat = false;
+			D.Format = eTEXTURE_FORMAT::FORMAT_R32_UINT;
+			list->SetUAV(Get()->TempResolveSpace, list->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("DstTexture"), D);
 		}
+		else
+		{
+			list->SetUAV(Target, "DstTexture");
+		}
+		/*if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
+		{
+			list->SetTexture2(Get()->TempResolveSpace, "SrcTexture");
+		}*/
 
-		list->SetTexture2(ShadingImage, "RateImage");
-		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		//list->SetTexture2(ShadingImage, "RateImage");
+		//
+		//Get()->TileData->SetBufferState(list, EBufferResourceState::Non_PixelShader);
+		Get()->VARTileList->SetBufferState(list, EBufferResourceState::Non_PixelShader);
 		list->SetBuffer(Get()->VARTileList, "TileList");
-		list->ExecuteIndiect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);
+		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		list->SetUAV(Get()->TileData, "TileData");
+		list->ExecuteIndirect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);
 		list->UAVBarrier(Target);
 	}
+	UAVFormatConverter::PackBacktoResource(Get()->TempResolveSpace, list, Target->GetDescription().RenderTargets[0]);
+	RenderDebug(list, Target, ShadingImage);
 }
 
-void VRXEngine::SetVRRShadingRate(RHICommandList * List, int FactorIndex)
+void VRXEngine::RenderDebug(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
-	//#VRX: todo
+	//return;
+	if (ShaderComplier::GetShader<Shader_VRRResolve>()->IsDebugActive())
+	{
+		list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->VRXDebugShader));
+		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		list->SetTexture2(ShadingImage, "RateImage");
+		list->SetUAV(Target, "DstTexture");
+		Get()->DebugDataBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);
+		list->SetUAV(Get()->DebugDataBuffer, "PixelCount");
+		list->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);
+		list->UAVBarrier(Target);
+		list->UAVBarrier(Get()->DebugDataBuffer);
+		Get()->DebugDataBuffer->SetBufferState(list, EBufferResourceState::CopySrc);
+		list->CopyResource(Get()->DebugDataBuffer, Get()->ReadBackBuffer);
+	}
+	int* data = (int*)Get()->ReadBackBuffer->MapReadBack();
+	int TotalPixels = Screen::GetScaledWidth()*Screen::GetScaledHeight();
+	std::string out = " Pixel Shaded: " + std::to_string(*data) + " (" + StringUtils::ToString((*data / (float)TotalPixels)) + ")";
+	Log::Get()->LogTextToScreen(out, 0);
+
 }
 
 void VRXEngine::SetVRXShadingRateImage(RHICommandList * List, RHITexture * Target)
@@ -182,6 +275,7 @@ void VRXEngine::SetupVRRShader(Shader* S, DeviceContext* device)
 	if (RenderSettings::GetVRXSettings().UseVRR())
 	{
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SUPPORT_VRR", "1"));
+		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("SHADER_SUPPORT_VRR", "1"));
 		S->GetShaderProgram()->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(device->GetCaps().VRSTileSize)));
 	}
 }
@@ -193,6 +287,9 @@ void VRXEngine::AddVRRToRS(std::vector<ShaderParameter>& S, int lastindex /*= 0*
 		return;
 	}
 	ShaderParameter Sp = ShaderParameter(ShaderParamType::SRV, lastindex, 66);
+	Sp.Name = "VRSImage";
+	S.push_back(Sp);
+	Sp = ShaderParameter(ShaderParamType::UAV, lastindex + 1, 66);
 	Sp.Name = "VRSImage";
 	S.push_back(Sp);
 }

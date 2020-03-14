@@ -13,7 +13,6 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "../../Shaders/Shader_Main.h"
 #include "../../Core/FrameBuffer.h"
-#include "Flow/VRBranchNode.h"
 #include "Core/Performance/PerfManager.h"
 
 ForwardRenderNode::ForwardRenderNode()
@@ -42,10 +41,6 @@ void ForwardRenderNode::OnExecute()
 
 	CommandList->SetPipelineStateDesc(desc);
 
-	if (GetInput(2)->IsValid())
-	{
-		GetShadowDataFromInput(2)->BindPointArray(CommandList, MainShaderRSBinds::PointShadow);
-	}
 	CommandList->BeginRenderPass(desc.RenderPassDesc);
 	glm::ivec2 Res = glm::ivec2(TargetBuffer->GetWidth(), TargetBuffer->GetHeight());
 	if (!RHI::IsVulkan())
@@ -82,7 +77,7 @@ void ForwardRenderNode::BindLightingData(RHICommandList* list,ForwardRenderNode*
 
 	SceneRenderer::Get()->BindLightsBuffer(list);
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(list);
-	if (node->GetInput(2)->IsValid())
+	if (node->GetInput(2)->IsValid() && list->GetDeviceIndex() == 0)
 	{
 		node->GetShadowDataFromInput(2)->BindPointArray(list, "g_Shadow_texture2");
 	}

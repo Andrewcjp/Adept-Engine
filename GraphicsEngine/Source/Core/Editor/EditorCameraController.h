@@ -5,12 +5,14 @@ class EditorCameraController
 public:
 	EditorCameraController();
 	~EditorCameraController();
+	void TickController(float dt);
 	void Update();
 
 	Transform* Target = nullptr;
 	float FastTranslateSpeed = 100;
 	float BaseTranslateSpeed = 10;
 	float LookSens = 0.1f;
+	float ControllerSens = 100.0f;
 	bool IsMoving();
 private:
 	float Rotx = 0;

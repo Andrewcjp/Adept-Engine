@@ -19,6 +19,7 @@ namespace DeferredLightingShaderRSBinds
 		LightDataBuffer,
 		VX,
 		RateImage,
+		TempVRRBuffer,
 		Limit
 	};
 }

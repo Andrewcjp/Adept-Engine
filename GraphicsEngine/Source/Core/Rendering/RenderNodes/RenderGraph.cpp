@@ -1,8 +1,6 @@
 #include "RenderGraph.h"
 #include "Core/Utils/StringUtil.h"
 #include "NodeLink.h"
-#include "Nodes/Flow/BranchNode.h"
-#include "Nodes/Flow/VRBranchNode.h"
 #include "Nodes/OutputToScreenNode.h"
 #include "Nodes/PathTraceSceneNode.h"
 #include "Nodes/UpdateAccelerationStructuresNode.h"
@@ -103,19 +101,25 @@ void RenderGraph::Update()
 
 void RenderGraph::BuildGraph()
 {
-#if WITH_EDITOR
+#if EDITORUI
 	ApplyEditorToGraph();
 #endif
 	Log::LogMessage("Building graph \"" + GraphName + "\"");
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
+	RenderNode* Node = RootNode;
+	while (Node != nullptr)
+	{
+		Node->OnGraphCreate();
+		Node = Node->GetNextNode();
+	}
 	Processor.Process(this);
 	GraphNeedsProcess = false;
 	for (StorageNode* N : StoreNodes)
 	{
 		N->CreateNode();
 	}
-	RenderNode* Node = RootNode;
+	Node = RootNode;
 	while (Node != nullptr)
 	{
 		Node->SetupNode();
@@ -147,19 +151,19 @@ FrameBufferStorageNode* RenderGraph::CreateRTXBuffer()
 	return RTXBuffer;
 }
 
-BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
-{
-	BranchNode* Node = new BranchNode();
-	Node->Conditonal = initalstate;
-	Start->LinkToNode(Node);
-	Node->LinkToNode(A);
-	Node->BranchB = B;
-	if (ExposeName.length() > 0)
-	{
-		ExposeItem(Node, ExposeName);
-	}
-	return Node;
-}
+//BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
+//{
+//	/*BranchNode* Node = new BranchNode();
+//	Node->Conditonal = initalstate;
+//	Start->LinkToNode(Node);
+//	Node->LinkToNode(A);
+//	Node->BranchB = B;
+//	if (ExposeName.length() > 0)
+//	{
+//		ExposeItem(Node, ExposeName);
+//	}*/
+//	return Node;
+//}
 
 void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
 {
@@ -205,28 +209,28 @@ void RenderGraph::ListNodes()
 		{
 			Log::LogMessage(Node->GetName());
 			Log::LogMessage("----- if true");
-			RenderNode* APath = Node->GetNextNode();
-			RenderNode* BPath = static_cast<BranchNode*>(Node)->BranchB;
-			RenderNode* PathITor = BPath;
-			while (PathITor != APath && PathITor != nullptr)
-			{
-				Log::LogMessage(PathITor->GetName());
-				PathITor = PathITor->GetNextNode();
-			}
+//			RenderNode* APath = Node->GetNextNode();
+//			RenderNode* BPath = static_cast<BranchNode*>(Node)->BranchB;
+	//		RenderNode* PathITor = BPath;
+			//while (PathITor != APath && PathITor != nullptr)
+			//{
+			//	Log::LogMessage(PathITor->GetName());
+			//	PathITor = PathITor->GetNextNode();
+			//}
 			Log::LogMessage("----- if false");
 		}
 		else
 		{
 			if (Node->IsVRBranch())
 			{
-				if (static_cast<VRBranchNode*>(Node)->VrLoopBegin == nullptr)
+				/*if (static_cast<VRBranchNode*>(Node)->VrLoopBegin == nullptr)
 				{
 					Log::LogMessage("--- VR Branch loop start");
 				}
 				else
 				{
 					Log::LogMessage("--- VR Branch loop end");
-				}
+				}*/
 			}
 			else
 			{
@@ -413,7 +417,7 @@ void RenderGraphExposedSettings::SetState(bool state)
 {
 	if (Branch != nullptr)
 	{
-		Branch->Conditonal = state;
+//		Branch->Conditonal = state;
 	}
 	if (TargetProp != nullptr)
 	{
@@ -432,7 +436,7 @@ bool RenderGraphExposedSettings::GetState() const
 {
 	if (Branch != nullptr)
 	{
-		return Branch->Conditonal;
+//		return Branch->Conditonal;
 	}
 	if (ToggleNode != nullptr)
 	{
@@ -446,7 +450,7 @@ RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool D
 {
 	if (Node->IsBranchNode())
 	{
-		Branch = static_cast<BranchNode*>(Node);
+		//Branch = static_cast<BranchNode*>(Node);
 	}
 	else
 	{

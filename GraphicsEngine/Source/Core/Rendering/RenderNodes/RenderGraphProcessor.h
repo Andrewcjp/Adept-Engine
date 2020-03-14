@@ -27,6 +27,7 @@ private:
 	void BuildAliasing(RenderGraph * graph);
 	void BuildTimeLine(RenderGraph * graph);
 	void BuildScheduling(RenderGraph* graph);
+	void BuildScheduling_old(RenderGraph * graph);
 	void BuildTransitions(RenderGraph * graph);
 	std::vector<ResourceTimeLine*> TimeLines;
 	void BuildTransitionsSplit(RenderGraph * graph);

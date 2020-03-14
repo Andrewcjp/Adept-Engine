@@ -233,6 +233,10 @@ void Engine::ProcessCommandLineInput(FString args, int nCmdShow)
 {
 	mwidth = 1700;
 	mheight = 720;
+#ifndef PLATFORM_WINDOWS
+	mwidth = 1920;
+	mheight = 1080;
+#endif
 	if (nCmdShow > 0)
 	{
 		ConsoleVariableManager::SetupVars(args.ToSString());

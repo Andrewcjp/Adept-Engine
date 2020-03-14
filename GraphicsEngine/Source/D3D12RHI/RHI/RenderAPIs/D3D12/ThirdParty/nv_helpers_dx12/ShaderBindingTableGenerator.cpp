@@ -208,7 +208,7 @@ namespace nv_helpers_dx12
 		for (const auto& shader : shaders)
 		{
 			// Get the shader identifier, and check whether that identifier is known
-			void* id = raytracingPipeline->GetShaderIdentifier(shader.m_entryPoint.c_str());
+			const void* id = raytracingPipeline->GetShaderIdentifier(shader.m_entryPoint.c_str());
 			if (!id)
 			{
 				std::wstring errMsg(std::wstring(L"Unknown shader identifier used in the SBT: ") +

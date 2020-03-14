@@ -33,7 +33,7 @@ ShadowRenderer::~ShadowRenderer()
 eTEXTURE_FORMAT ShadowRenderer::GetDepthType()
 {
 #if USE32BITDepth
-	return eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	return eTEXTURE_FORMAT::FORMAT_R32_TYPELESS;
 #else
 	return eTEXTURE_FORMAT::FORMAT_D16_UNORM;
 #endif
@@ -99,10 +99,11 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU)
 {
 	//return;
-	SetPointRS(list);
+	
 	SceneRenderer::Get()->GetCullingManager()->UpdateCullingForShadowLight(LightPtr, SceneRenderer::Get()->GetScene());
 
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
+	SetPointRS(list,TargetBuffer);
 	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
 	RHIRenderPassDesc D = RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
@@ -202,11 +203,11 @@ RHIFrameBufferDesc ShadowRenderer::GetCubeMapFBDesc(int size)
 	return desc;
 }
 
-void ShadowRenderer::SetPointRS(RHICommandList* list)
+void ShadowRenderer::SetPointRS(RHICommandList* list, FrameBuffer* buffer)
 {
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(true, false, false);
-	desc.RenderTargetDesc = GetCubeMapDesc();
+	desc.RenderTargetDesc = buffer->GetPiplineRenderDesc();
 	desc.ShaderInUse = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
 	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 	{

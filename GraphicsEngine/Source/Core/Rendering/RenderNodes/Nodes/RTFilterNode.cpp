@@ -69,7 +69,11 @@ void RTFilterNode::OnExecute()
 void RTFilterNode::RefreshNode()
 {
 	Params.Clear = 0;	
-	if (Input::GetKeyDown('L') || EditorWindow::GetInstance()->EditorCamera->Controller->IsMoving())
+	if (Input::GetKeyDown('L') 
+#if WITH_EDITOR
+		|| EditorWindow::GetInstance()->EditorCamera->Controller->IsMoving()
+#endif
+		)
 	{
 		Params.Clear = 1;
 	}

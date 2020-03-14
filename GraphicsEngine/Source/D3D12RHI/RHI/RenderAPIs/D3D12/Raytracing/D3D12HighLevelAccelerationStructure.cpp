@@ -18,7 +18,7 @@ void D3D12HighLevelAccelerationStructure::Update(RHICommandList* List)
 	ensure(Desc.BuildFlags & AS_BUILD_FLAGS::AllowUpdate);
 	BuildInstanceBuffer();
 
-	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE | D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+	topLevelBuildDesc.Inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE /*| D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE*/;
 	topLevelBuildDesc.Inputs.pGeometryDescs = nullptr;
 	topLevelBuildDesc.Inputs.InstanceDescs = instanceDescs->GetResource()->GetGPUVirtualAddress();
 	topLevelBuildDesc.Inputs.NumDescs = GetValidEntites();
@@ -167,7 +167,8 @@ D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS D3D12HighLevelAccelerationSt
 	}
 	if (BuildFlags & AS_BUILD_FLAGS::AllowUpdate)
 	{
-		Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+		//xs complie issues?
+		//Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 	}
 	return Flags;
 }

@@ -6,11 +6,15 @@
 #include "StoreNodes/SceneDataNode.h"
 #include "StoreNodes/ShadowAtlasStorageNode.h"
 #include "RHI/RHI.h"
-#include "Nodes/Flow/VRBranchNode.h"
+
 #include "../Core/FrameBuffer.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHICommandList.h"
 
 RenderNode::RenderNode()
-{}
+{
+	Context = RHI::GetDefaultDevice();
+}
 
 RenderNode::~RenderNode()
 {}
@@ -180,7 +184,7 @@ bool RenderNode::IsNodeActive() const
 
 void RenderNode::SetNodeActive(bool val)
 {
-	if (val != NodeActive && RHI::GetRenderSystem()->GetCurrentGraph() !=  nullptr)
+	if (val != NodeActive && RHI::GetRenderSystem()->GetCurrentGraph() != nullptr)
 	{
 		//todo: issue if multiple graphs used
 		RHI::GetRenderSystem()->GetCurrentGraph()->InvalidateGraph();
@@ -195,7 +199,7 @@ void RenderNode::FindVRContext()
 	{
 		if (N->IsVrBranchNode)
 		{
-			VRBranchContext = NodeCast<VRBranchNode>(N);
+//			VRBranchContext = NodeCast<VRBranchNode>(N);
 			break;
 		}
 		N = N->Next;
@@ -248,11 +252,7 @@ NodeLink* RenderNode::GetOutputLinkByName(const std::string& name)
 
 EEye::Type RenderNode::GetEye()
 {
-	if (VRBranchContext != nullptr)
-	{
-		return VRBranchContext->GetCurrentEye();
-	}
-	return EEye::Left;
+	return TargetEye;
 }
 
 FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
@@ -260,11 +260,7 @@ FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
 	FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget());
-	if (VRBranchContext != nullptr)
-	{
-		return Node->GetFramebuffer(VRBranchContext->GetCurrentEye());
-	}
-	return Node->GetFramebuffer();
+	return Node->GetFramebuffer(GetEye());
 }
 
 ShadowAtlasStorageNode * RenderNode::GetShadowDataFromInput(int index)
@@ -384,7 +380,14 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 	}
 	else if (TransitonType == QueueWait)
 	{
-		list->GetDevice()->InsertGPUWait(DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+		if (SignalingDevice == -1)
+		{
+			list->GetDevice()->InsertGPUWait(DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+		}
+		else
+		{
+			list->GetDevice()->GPUWaitForOtherGPU(RHI::GetDeviceContext(SignalingDevice), DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+		}
 	}
 }
 
@@ -400,3 +403,16 @@ void RenderNode::AddEndTransition(const ResourceTransition& transition)
 
 void RenderNode::OnResourceResize()
 {}
+
+int RenderNode::GetDeviceIndex() const
+{
+	return Context->GetDeviceIndex();
+}
+
+void RenderNode::OnGraphCreate()
+{}
+
+void RenderNode::SetTargetEye(EEye::Type eye)
+{
+	TargetEye = eye;
+}

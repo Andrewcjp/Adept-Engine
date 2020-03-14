@@ -10,6 +10,7 @@
 #include "../../Shaders/Shader_Main.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Utils/StringUtil.h"
+#include "RHI/RHIBufferGroup.h"
 const std::string PrimitveThoughputTest_Name = "PrimitveThoughputTest";
 
 PrimitveThoughputTest::PrimitveThoughputTest()
@@ -40,9 +41,9 @@ void PrimitveThoughputTest::RunTest()
 		for (int i = 0; i < Batches.size(); i++)
 		{
 			MeshDrawCommand* C = Batches[i];			
-			List->SetConstantBufferView(C->TransformUniformBuffer, 0, 0);
-			List->SetVertexBuffer(C->Vertex);
-			List->SetIndexBuffer(C->Index);
+			List->SetConstantBufferView(C->TransformUniformBuffer->Get(List), 0, 0);
+			List->SetVertexBuffer(C->Vertex->Get(List));
+			List->SetIndexBuffer(C->Index->Get(List));
 			List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);
 		}
 		List->EndRenderPass();
@@ -105,9 +106,9 @@ void PrimitveThoughputTest::BuildBatches(int size, glm::vec3 startPos, float str
 	ResultData.ItemsProcessed = size * size * size;
 }
 
-RHIBuffer* PrimitveThoughputTest::CreateTransfrom(glm::vec3 pos)
+RHIBufferGroup* PrimitveThoughputTest::CreateTransfrom(glm::vec3 pos)
 {
-	RHIBuffer* PrimitiveTransfromBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	RHIBufferGroup* PrimitiveTransfromBuffer = new RHIBufferGroup();
 	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1, true);
 	MeshTransfromBuffer SCB = {};
 	Transform T = Transform();
@@ -120,6 +121,7 @@ RHIBuffer* PrimitveThoughputTest::CreateTransfrom(glm::vec3 pos)
 
 void PrimitveThoughputTest::AddObjectInstance(glm::vec3 pos)
 {
+#if 0
 	MeshDrawCommand* Command = new MeshDrawCommand();
 	Command->NumInstances = 1;
 	Command->TransformUniformBuffer = CreateTransfrom(pos);
@@ -127,4 +129,5 @@ void PrimitveThoughputTest::AddObjectInstance(glm::vec3 pos)
 	Command->Index = MeshData->GetMeshBatch()->elements[0]->IndexBuffer;
 	Command->NumPrimitves = Command->Index->GetVertexCount();
 	Batches.push_back(Command);
+#endif
 }

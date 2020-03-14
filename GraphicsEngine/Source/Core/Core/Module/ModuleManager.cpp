@@ -32,8 +32,8 @@ void ModuleManager::ShutDown()
 
 void ModuleManager::SetupPreLoadModules()
 {
-	ModulesNames.push_back(GameModuleSelector::GetGameModuleName());
 	ModulesNames.push_back("D3D12RHI");
+	ModulesNames.push_back(GameModuleSelector::GetGameModuleName());
 	//ModulesNames.push_back("VulkanRHI");
 #ifndef NOCSHARP
 	ModulesNames.push_back("CSharpContainer");
@@ -79,12 +79,14 @@ IModuleInterface * ModuleManager::LoadModule(FString Name)
 		if (Info->Handle == nullptr)
 		{
 			Info->ModuleStatus = ModuleLoadStatus::Status_LoadFailed;
+			Log::LogMessage("Failed to Load Module " + Name.ToSString(), Log::Error);
 			return nullptr;
 		}
 		FInitializeModuleFunctionPtr ModuleInitPtr = (FInitializeModuleFunctionPtr)PlatformApplication::GetDllExport(Info->Handle, "InitializeModule");
 		if (ModuleInitPtr == nullptr)
 		{
 			Info->ModuleStatus = ModuleLoadStatus::Status_LoadFailed;
+			Log::LogMessage("Failed to find Module entry point for " + Name.ToSString(), Log::Error);
 			return nullptr;
 		}
 		Info->Module = (IModuleInterface*)ModuleInitPtr();

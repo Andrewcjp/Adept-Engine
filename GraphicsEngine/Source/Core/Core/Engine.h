@@ -57,7 +57,7 @@ public:
 	CORE_API static EnginePersistentData* GetEPD();
 	static void						ImmediateExit(int code = 0);
 	CORE_API static void			AssertExit(int code = -1);
-	static Cooker*					GetCookContext();
+	CORE_API static Cooker*					GetCookContext();
 #if !BUILD_SHIPPING
 	void							TestArea();
 #endif

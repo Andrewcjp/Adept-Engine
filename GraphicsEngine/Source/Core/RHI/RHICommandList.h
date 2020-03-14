@@ -1,5 +1,6 @@
 #pragma once
 #include "RHITypes.h"
+#include "RHITemplates.h"
 
 
 class DeviceContext;
@@ -14,6 +15,8 @@ struct RHIBufferDesc
 	bool AllowUnorderedAccess = false;
 	bool CreateSRV = false;
 	bool CreateUAV = false;
+	bool UseForExecuteIndirect = false;
+	bool UseForReadBack = false;
 };
 
 class  RHIBuffer : public IRHIResourse, public IRHISharedDeviceObject<RHIBuffer>
@@ -27,11 +30,12 @@ public:
 	RHI_API RHI_VIRTUAL void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	RHI_API RHI_VIRTUAL void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) = 0;
 	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset = 0) = 0;
-	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length) = 0;
+	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length,int VertexCount = -1) = 0;
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
+	RHI_API RHI_VIRTUAL void* MapReadBack() = 0;
 	RHI_API RHI_VIRTUAL ~RHIBuffer()
 	{}
 	size_t GetVertexCount()
@@ -58,6 +62,7 @@ public:
 
 	int StructSize = 0;
 	int RawStructSize = 0;
+	const RHIBufferDesc& GetDesc() const { return Desc; }
 protected:
 	DeviceContext* Context = nullptr;
 	RHIBufferDesc Desc = {};
@@ -124,14 +129,17 @@ public:
 
 	RHI_API RHI_VIRTUAL void ClearFrameBuffer(FrameBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(FrameBuffer* target) = 0;
+	RHI_API RHI_VIRTUAL void UAVBarrier(RHITexture* target) = 0;
 	RHI_API RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) = 0;
 
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	RHI_API void DispatchSized(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ);
 	//Indirect
-	RHI_API RHI_VIRTUAL void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
+	RHI_API RHI_VIRTUAL void ExecuteIndirect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset) = 0;
 	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSignitureDescription desc);
 	RHI_API RHI_VIRTUAL void SetCommandSigniture(RHICommandSigniture* sig) {};
 	template<class T>
@@ -173,7 +181,6 @@ public:
 	RHI_API void ResolveVRXFramebuffer(FrameBuffer* Target);
 
 	RHI_API void SetVRSShadingRate(VRX_SHADING_RATE::type Rate);
-	RHI_API void SetVRRShadingRate(int RateIndex);
 	void PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer * VRRTarget);
 	RHI_API void SetVRXShadingRateImage(RHITexture* RateImage);
 	RHI_API RHIPipeLineStateObject* GetCurrnetPSO();
@@ -183,6 +190,7 @@ public:
 	RHITexture* GetShadingRateImage() const { return ShadingRateImage; }
 
 	RHI_API RHI_VIRTUAL void CopyResource(RHITexture* Source, RHITexture* Dest) = 0;
+	RHI_API RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) = 0;
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);

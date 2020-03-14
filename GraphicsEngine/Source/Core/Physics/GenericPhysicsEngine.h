@@ -26,6 +26,11 @@ public:
 	CORE_API bool RayCastScene(glm::vec3 startpos, glm::vec3 direction, float distance, RayHit * hit, std::vector<RigidBody*>& IgnoredActors);
 	void SetPhysicsDebugMode(EPhysicsDebugMode::Type mode);
 	ConstraintInstance * CreateConstraint(RigidBody * A, RigidBody * B, const ConstaintSetup& Setup);
+	static EPhysicsDebugMode::Type GetCurrentMode();
+	static GenericPhysicsEngine * Get()
+	{
+		return nullptr;
+	}
 protected:
 	EPhysicsDebugMode::Type PhysicsDebugMode = EPhysicsDebugMode::None;
 

@@ -24,7 +24,7 @@ public:
 	CORE_API static bool TryCreateDirectory(const std::string & name);
 	CORE_API static bool IsDebuggerPresent();
 	static std::string GetExecutablePath();
-	static EPlatforms::Type GetPlatform();
+	CORE_API static EPlatforms::Type GetPlatform();
 	static CORE_API void DisplayAssertBox(std::string title, std::string message);
 private:
 	static double SecondsPerCycle;

@@ -4,6 +4,7 @@
 #include "Core\IRefCount.h"
 #include "Core\Assets\Asset_Shader.h"
 #include "Core\Assets\ShaderComplier.h"
+#include "RHI\RHICommandList.h"
 
 Defaults* Defaults::Instance = nullptr;
 

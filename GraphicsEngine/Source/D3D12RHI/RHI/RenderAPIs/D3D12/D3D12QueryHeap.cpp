@@ -39,7 +39,13 @@ void D3D12QueryHeap::EndQuerry(D3D12CommandList * list, D3D12Query * Q)
 {
 	ensureMsgf(D3D12Helpers::IsValidForQueryHeap(HeapType, Q->GetQueryType()), "Querry Type not valid for heap");
 	CurrentBatch.Alloc(Q);
-	list->GetCommandList()->EndQuery(GetHeap(), GetType(Q->GetQueryType()), Q->IndexInHeap);
+#ifdef OVERRIDE_TIMESTAMPQUERRY
+	OVERRIDE_TIMESTAMPQUERRY
+	if (HeapType != D3D12_QUERY_HEAP_TYPE_TIMESTAMP)
+#endif
+	{
+		list->GetCommandList()->EndQuery(GetHeap(), GetType(Q->GetQueryType()), Q->IndexInHeap);
+	}
 }
 void D3D12QueryHeap::BeginQuerryBatch()
 {
@@ -74,9 +80,9 @@ void D3D12QueryHeap::ReadData()
 		{
 			CurrentBatch.Queries[i]->Result = pTimestamps[CurrentBatch.Queries[i]->IndexInHeap];
 		}
-		else if(CurrentBatch.BatchType == EGPUQueryType::Pipeline_Stats)
+		else if (CurrentBatch.BatchType == EGPUQueryType::Pipeline_Stats)
 		{
-			memcpy(&CurrentBatch.Queries[i]->PipeStatResult, CurrentDataPtr + i*GetHeapTypeSize(), GetHeapTypeSize());
+			memcpy(&CurrentBatch.Queries[i]->PipeStatResult, CurrentDataPtr + i * GetHeapTypeSize(), GetHeapTypeSize());
 		}
 		CurrentBatch.Queries[i]->IsResolved = true;
 	}
@@ -115,9 +121,9 @@ void D3D12QueryHeap::CreateHeap()
 			&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&Buffers[i].ResultBuffer)));
+			ID_PASS(&Buffers[i].ResultBuffer)));
 
-		ThrowIfFailed(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, IID_PPV_ARGS(&Buffers[i].QueryHeap)));
+		/*ThrowIfFailed*/(Device->GetDevice()->CreateQueryHeap(&timestampHeapDesc, ID_PASS(&Buffers[i].QueryHeap)));
 	}
 
 }
@@ -138,7 +144,7 @@ void D3D12QueryHeap::CreateResultsBuffer()
 			&CD3DX12_RESOURCE_DESC::Buffer(resultBufferSize),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&Buffers[i].ResultBuffer)));
+			ID_PASS(&Buffers[i].ResultBuffer)));
 	}
 }
 

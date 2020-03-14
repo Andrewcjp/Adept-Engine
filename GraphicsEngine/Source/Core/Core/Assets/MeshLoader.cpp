@@ -4,13 +4,17 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Rendering/Core/Mesh.h"
+#ifdef BUILD_ASSIMP
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#endif
 #include "../Performance/PerfManager.h"
+#include "../Utils/FileUtils.h"
+#include "BinaryArchive.h"
 MeshLoader* MeshLoader::Instance = nullptr;
-
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
+#ifdef BUILD_ASSIMP
 void TraverseNodeTree(std::vector<aiNode*>& nodes, aiNode* currentnode)
 {
 	for (unsigned int i = 0; i < currentnode->mNumChildren; i++)
@@ -51,7 +55,7 @@ bool FindMeshInNodeTree(std::vector<aiNode*> & nodes, const aiMesh* mesh, const 
 	}
 	return false;
 }
-
+#endif
 void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 {
 	ArchiveProp(Scale);
@@ -65,6 +69,7 @@ void MeshLoader::FMeshLoadingSettings::Serialize(Archive * A)
 ///#Anim  validate bones are the same
 bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings)
 {
+#ifdef BUILD_ASSIMP
 	Assimp::Importer* importer = new Assimp::Importer();
 
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights | aiProcess_SplitByBoneCount;
@@ -92,13 +97,87 @@ bool MeshLoader::LoadAnimOnly(std::string filename, SkeletalMeshEntry * Skeletal
 		Settings.AnimSettings.AssimpAnim = scene->mAnimations[i];
 		SkeletalMesh->AnimNameMap.emplace(Animname, Settings.AnimSettings);
 	}
+#endif
 	//#ANIM: memory leak here fix once moved to own anim system
 	return true;
+}
+
+
+
+void SeralVert(Archive * A, OGLVertex& object)
+{
+	A->LinkProperty(object.m_position, "pos");
+	A->LinkProperty(object.m_normal, "normal");
+	A->LinkProperty(object.m_texcoords, "UVs");
+}
+
+void Seral(Archive * A, RawMeshData* object)
+{
+	A->LinkProperty(object->MaterialIndex, "MaterialIndex");
+	A->LinkPropertyArrayInt(object->indices, "indices");
+	A->LinkPropertyArrayValue<OGLVertex>(object->vertices, "vertices", SeralVert);
+}
+struct MeshLoaderHeader
+{
+	int MeshItems = 0;
+};
+struct MeshItemHeader
+{
+	int MaterialIndex = 0;
+};
+bool MeshLoader::SaveMeshToCookedFile(std::string filename, std::vector<RawMeshData*> &Meshes)
+{
+	std::string outFileName = AssetManager::GetDDCPath() + "\\Mesh\\" + GetFilename(filename.c_str()) + ".Asset";
+	FileUtils::CreateDirectoriesToFullPath(outFileName);
+	BinaryArchive Arch;
+	Arch.Open(outFileName, true);
+	MeshLoaderHeader Header;
+	Header.MeshItems = Meshes.size();
+	Arch.LinkHeader(Header);
+	for (int i = 0; i < Header.MeshItems; i++)
+	{
+		MeshItemHeader ItemHeader;
+		ItemHeader.MaterialIndex = Meshes[i]->MaterialIndex;
+		Arch.LinkHeader(ItemHeader);
+		Arch.LinkVector(Meshes[i]->indices);
+		Arch.LinkVector(Meshes[i]->vertices);
+	}
+	Arch.Close();
+	return false;
+}
+
+bool MeshLoader::LoadMeshFromCookedFile(std::string filename, std::vector<RawMeshData*> &Meshes)
+{
+	Meshes.clear();
+	std::string outFileName = AssetManager::GetDDCPath() + "Mesh\\" + GetFilename(filename.c_str()) + ".Asset";
+	if (!FileUtils::File_ExistsTest(outFileName))
+	{
+		//AD_Assert_Always("failed to load mesh");
+		return false;
+	}
+	BinaryArchive Arch;
+	Arch.Open(outFileName);
+	MeshLoaderHeader Header;
+	Arch.LinkHeader(Header);
+	for (int i = 0; i < Header.MeshItems; i++)
+	{
+		MeshItemHeader ItemHeader;
+		Arch.LinkHeader(ItemHeader);
+		RawMeshData* RawMesh = new RawMeshData();
+		Meshes.push_back(RawMesh);
+		RawMesh->MaterialIndex = ItemHeader.MaterialIndex;		
+		Arch.LinkVector(Meshes[i]->indices);
+		Arch.LinkVector(Meshes[i]->vertices);
+	}
+	Arch.Close();
+	return false;
 }
 
 bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity)
 {
 	PerfManager::Get()->StartSingleActionTimer("LoadMeshFromFile");
+	std::vector<RawMeshData*> Data;
+#if defined(BUILD_ASSIMP) && WITH_EDITOR
 	Assimp::Importer* importer = new Assimp::Importer();
 	importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_LimitBoneWeights /*aiProcess_OptimizeGraph*/ | aiProcess_SplitByBoneCount;
@@ -136,12 +215,12 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 		}
 	}
 
-	std::vector<OGLVertex> vertices;
-	std::vector<IndType> indices;
 	std::vector<aiNode*> NodeArray;
 	TraverseNodeTree(NodeArray, scene->mRootNode);
 	for (unsigned int modeli = 0; modeli < scene->mNumMeshes; modeli++)
 	{
+		RawMeshData* DataChunk = new RawMeshData();
+		Data.push_back(DataChunk);
 		const aiMesh* model = scene->mMeshes[modeli];
 		std::string LV = std::string(model->mName.C_Str());
 		if (VectorUtils::Contains(Settings.IgnoredMeshObjectNames, LV))
@@ -178,71 +257,79 @@ bool MeshLoader::LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Se
 				glm::vec3(pNormal->x, pNormal->y, pNormal->z),
 				glm::vec3(pTangent->x, pTangent->y, pTangent->z));
 
-			vertices.push_back(vert);
+			DataChunk->vertices.push_back(vert);
 		}
 
 		if (Settings.Scale != DefaultScale)
 		{
-			for (int i = 0; i < vertices.size(); i++)
+			for (int i = 0; i < DataChunk->vertices.size(); i++)
 			{
-				glm::vec4 Pos = glm::vec4(vertices[i].m_position.xyz(), 1.0f);
+				glm::vec4 Pos = glm::vec4(DataChunk->vertices[i].m_position.xyz(), 1.0f);
 				Pos = Pos * glm::scale(Settings.Scale);
-				vertices[i].m_position = Pos.xyz();
+				DataChunk->vertices[i].m_position = Pos.xyz();
 			}
 		}
 		for (unsigned int i = 0; i < model->mNumFaces; i++)
 		{
 			const aiFace& face = model->mFaces[i];
 			ensure(face.mNumIndices == 3);
-			indices.push_back(face.mIndices[0]);
-			indices.push_back(face.mIndices[1]);
-			indices.push_back(face.mIndices[2]);
+			DataChunk->indices.push_back(face.mIndices[0]);
+			DataChunk->indices.push_back(face.mIndices[1]);
+			DataChunk->indices.push_back(face.mIndices[2]);
 		}
-		MeshEntity* newmesh = nullptr;
+
+#if 0
 		if (HasAnim)
 		{
 			std::vector<VertexBoneData> Bones;
 			Bones.resize(model->mNumVertices);
 			SKel->LoadBones(modeli, model, Bones);
-			for (int i = 0; i < vertices.size(); i++)
+			for (int i = 0; i < DataChunk->vertices.size(); i++)
 			{
-				vertices[i].m_boneIDs = glm::ivec4(Bones[i].IDs[0], Bones[i].IDs[1], Bones[i].IDs[2], Bones[i].IDs[3]);
-				vertices[i].m_weights = glm::vec4(Bones[i].Weights[0], Bones[i].Weights[1], Bones[i].Weights[2], Bones[i].Weights[3]);
+				DataChunk->vertices[i].m_boneIDs = glm::ivec4(Bones[i].IDs[0], Bones[i].IDs[1], Bones[i].IDs[2], Bones[i].IDs[3]);
+				DataChunk->vertices[i].m_weights = glm::vec4(Bones[i].Weights[0], Bones[i].Weights[1], Bones[i].Weights[2], Bones[i].Weights[3]);
 			}
-			newmesh = new MeshEntity(Settings, vertices, indices);
+			newmesh = new MeshEntity(Settings, DataChunk->vertices, DataChunk->indices);
 			SKel->MeshEntities.push_back(newmesh);
 		}
 		else
-		{
-			newmesh = new MeshEntity(Settings, vertices, indices);
-			Meshes.push_back(newmesh);
-		}
+#endif
 
-		//workaround for weird extra material from blender models
-		if (scene->mNumMaterials > 1)
-		{
-			newmesh->MaterialIndex = model->mMaterialIndex - 1;
-		}
-		else
-		{
-			newmesh->MaterialIndex = model->mMaterialIndex;
-		}
+			//workaround for weird extra material from blender models
+			if (scene->mNumMaterials > 1)
+			{
+				DataChunk->MaterialIndex = model->mMaterialIndex - 1;
+			}
+			else
+			{
+				DataChunk->MaterialIndex = model->mMaterialIndex;
+			}
 
-		vertices.clear();
-		indices.clear();
 	}
 	if (!scene->HasAnimations())//#Anim extract Animations to Smaller and fast format
 	{
 		importer->FreeScene();
 		SafeDelete(importer);
 	}
+	SaveMeshToCookedFile(filename, Data);
+#endif
+#if 1
+	LoadMeshFromCookedFile(filename, Data);
+#endif
+	for (int i = 0; i < Data.size(); i++)
+	{
+		MeshEntity* newmesh = new MeshEntity(Settings, Data[i]->vertices, Data[i]->indices);
+		newmesh->MaterialIndex = Data[i]->MaterialIndex;
+		Meshes.push_back(newmesh);
+	}
 	float time = PerfManager::Get()->EndSingleActionTimer("LoadMeshFromFile");
-	Log::LogMessage("Load of asset " + filename + " took " + StringUtils::ToString(time)+"ms ");
+	Log::LogMessage("Load of asset " + filename + " took " + StringUtils::ToString(time) + "ms ");
 	return true;
 }
 
 bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<IndType>& indices)
 {
+#ifdef BUILD_ASSIMP
 	Assimp::Importer importer;
 	unsigned int Flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 	if (Settings.GenerateIndexed)
@@ -315,6 +402,7 @@ bool MeshLoader::LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSetti
 		basevert += model->mNumVertices;
 	}
 	importer.FreeScene();
+#endif
 	return true;
 }
 
@@ -331,9 +419,9 @@ MeshLoader* MeshLoader::Get()
 
 SkeletalMeshEntry::SkeletalMeshEntry(aiAnimation* anim)
 {
-	SetAnim(anim);
+	//SetAnim(anim);
 }
-
+#ifdef BUILD_ASSIMP
 void SkeletalMeshEntry::SetAnim(const AnimationClip& anim)
 {
 	CurrentAnim = anim;
@@ -346,7 +434,7 @@ void SkeletalMeshEntry::SetAnim(const AnimationClip& anim)
 		MaxTime = (float)anim.AssimpAnim->mDuration / 30.0f;
 	}
 }
-
+#endif
 glm::vec3 GetPos(glm::mat4 model)
 {
 	return glm::vec3(model[3][0], model[3][1], model[3][2]);
@@ -354,6 +442,7 @@ glm::vec3 GetPos(glm::mat4 model)
 
 void SkeletalMeshEntry::RenderBones(Transform* T)
 {
+#ifdef BUILD_ASSIMP
 	for (int i = 0; i < FinalBoneTransforms.size(); i++)
 	{
 		const float C = 1.0f;
@@ -365,11 +454,13 @@ void SkeletalMeshEntry::RenderBones(Transform* T)
 			DebugDrawers::DrawDebugSphere(LocalSpacePos, 0.2f, glm::vec3(C, 0, 0));
 		}
 	}
+#endif
 }
 
 void SkeletalMeshEntry::Tick(float Delta)
 {
 
+#ifdef BUILD_ASSIMP
 	CurrnetTime += Delta * CurrentAnim.Rate;
 	CurrnetTime = glm::clamp(CurrnetTime, 0.0f, MaxTime);
 	if (CurrnetTime >= MaxTime)
@@ -382,11 +473,12 @@ void SkeletalMeshEntry::Tick(float Delta)
 	{//Summing of transform is wonrG!
 		FinalBoneTransforms[i] = m_BoneInfo[i].FinalTransformation;
 	}
-
+#endif
 }
 
 void SkeletalMeshEntry::PlayAnimation(std::string name)
 {
+#ifdef BUILD_ASSIMP
 	auto itor = AnimNameMap.find(name);
 	if (itor != AnimNameMap.end())
 	{
@@ -396,8 +488,9 @@ void SkeletalMeshEntry::PlayAnimation(std::string name)
 	{
 		Log::LogMessage("Failed find animation " + name);
 	}
+#endif
 }
-
+#ifdef BUILD_ASSIMP
 glm::mat3x3 ToGLM(const aiMatrix3x3& mat)
 {
 	return glm::rowMajor3(glm::mat3(mat.a1, mat.a2, mat.a3, mat.b1, mat.b2, mat.b3, mat.c1, mat.c2, mat.c3));
@@ -418,7 +511,8 @@ glm::vec3 ToGLM(aiVector3D& vec)
 {
 	return glm::vec3(vec.x, vec.y, vec.z);
 }
-
+#endif
+#ifdef BUILD_ASSIMP
 void SkeletalMeshEntry::LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones)
 {
 	for (uint i = 0; i < pMesh->mNumBones; i++)
@@ -658,7 +752,7 @@ void SkeletalMeshEntry::ReadNodes(float time, const aiNode* pNode, const glm::ma
 		ReadNodes(time, pNode->mChildren[i], GlobalTransformation, Anim);
 	}
 }
-
+#endif
 void VertexBoneData::AddBoneData(uint BoneID, float Weight)
 {
 	for (uint i = 0; i < NUM_BONES_PER_VEREX; i++)

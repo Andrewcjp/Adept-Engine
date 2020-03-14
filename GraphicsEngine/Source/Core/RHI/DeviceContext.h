@@ -140,6 +140,7 @@ public:
 	void TickDeferredDeleteQueue();
 	bool SupportsIndirectExecute()const;
 	CommandListPool* GetListPool() { return &Pool; }
+	RHI_API virtual bool IsUMA()const = 0;
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();

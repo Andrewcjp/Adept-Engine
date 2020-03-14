@@ -203,11 +203,6 @@ void RHICommandList::SetVRSShadingRate(VRX_SHADING_RATE::type Rate)
 	}
 }
 
-void RHICommandList::SetVRRShadingRate(int RateIndex)
-{
-	VRXEngine::Get()->SetVRRShadingRate(this, RateIndex);
-}
-
 void RHICommandList::PrepareFramebufferForVRR(RHITexture * RateImage, FrameBuffer* VRRTarget)
 {
 	ShadingRateImage = RateImage;
@@ -237,7 +232,7 @@ void RHICommandList::SetVRXShadingRateImage(RHITexture * RateImage)
 	{
 		SetVRSShadingRateImageNative(RateImage);
 	}
-	else if(RHI::GetRenderSettings()->GetVRXSettings().UseVRR(Device))
+	else if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR(Device))
 	{
 		VRXEngine::Get()->SetVRXShadingRateImage(this, RateImage);
 	}
@@ -370,7 +365,12 @@ void RHICommandList::SetTexture2(RHITexture * buffer, std::string slot)
 
 void RHICommandList::SetTexture2(RHITexture * buffer, int slot)
 {
-	SetTexture2(buffer, slot, RHIViewDesc::DefaultSRV(buffer->GetDescription().Dimension));
+	RHIViewDesc Desc = RHIViewDesc::DefaultSRV();
+	if (buffer != nullptr)
+	{
+		Desc = RHIViewDesc::DefaultSRV(buffer->GetDescription().Dimension);
+	}
+	SetTexture2(buffer, slot, Desc);
 }
 
 void RHICommandList::SetUAV(RHIBuffer * uav, std::string slot)

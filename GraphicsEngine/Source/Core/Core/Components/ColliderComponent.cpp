@@ -9,6 +9,7 @@
 #include "Physics/SimTD/TDRigidBody.h"
 #include "RigidbodyComponent.h"
 #include "Rendering/Core/RenderBaseTypes.h"
+#include "Physics/SimTD/TDPhysicsEngine.h"
 
 ColliderComponent::ColliderComponent()
 {
@@ -217,15 +218,15 @@ void ColliderComponent::SceneInitComponent()
 	if ((GetOwner() != nullptr && RigidComp == nullptr) || GetOwner() == nullptr)
 	{
 		//A game object without a rigid body should be setup as a static rigid body
-		Actor = new RigidBody(EBodyType::RigidStatic, GetOwner()->GetPosition());
-		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
-		for (ColliderComponent* cc : colliders)
-		{
-			Actor->AttachCollider(cc->GetCollider());
-		}
-		Actor->SetGravity(false);
-		Actor->InitBody();
-		Actor->SetOwnerComponent(this);
+		//Actor = new RigidBody(EBodyType::RigidStatic, GetOwner()->GetPosition());
+		//std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
+		//for (ColliderComponent* cc : colliders)
+		//{
+		//	Actor->AttachCollider(cc->GetCollider());
+		//}
+		//Actor->SetGravity(false);
+		//Actor->InitBody();
+		//Actor->SetOwnerComponent(this);
 	}
 }
 
@@ -233,7 +234,7 @@ void ColliderComponent::MovePhysicsBody(glm::vec3 newpos, glm::quat newrot)
 {
 	if (Actor != nullptr)
 	{
-		Actor->SetPositionAndRotation(newpos, newrot);
+		//Actor->SetPositionAndRotation(newpos, newrot);
 		//Log::LogMessage(glm::to_string(newrot));
 	}
 }

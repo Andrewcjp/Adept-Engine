@@ -20,8 +20,6 @@
 #include <algorithm>
 #include <memory>
 
-#include "d3dx12.h"
-
 using namespace DirectX;
 
 //--------------------------------------------------------------------------------------
@@ -1046,7 +1044,7 @@ namespace
 			&desc,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(texture));
+			ID_PASS(texture));
 		if (SUCCEEDED(hr))
 		{
 			_Analysis_assume_(*texture != 0);

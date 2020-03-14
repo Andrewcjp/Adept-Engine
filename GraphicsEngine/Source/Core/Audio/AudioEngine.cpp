@@ -1,7 +1,7 @@
 
 #include "AudioEngine.h"
-#include "AKHooks.h"
 #if BUILD_WISE
+#include "AKHooks.h"
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <AK/IBytes.h>
 #include <AK/SoundEngine/Common/AkMemoryMgr.h>

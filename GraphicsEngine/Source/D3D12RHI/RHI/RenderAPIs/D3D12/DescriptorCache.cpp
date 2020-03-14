@@ -166,7 +166,26 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 	}
 	return nullptr;
 }
-
+DXDescriptor* DescriptorCache::FindInCacheHeap(const RSBind* bind)
+{
+	DXDescriptor* Desc = nullptr;
+	if (!ShouldCache(bind))
+	{
+		return Create(bind, CacheHeap);
+	}
+	uint64 hash = GetHash(bind);
+	if (FindInCache(hash, &Desc, bind->BindType))
+	{
+		return Desc;
+	}
+	Desc = Create(bind, CacheHeap);
+	DescriptorRef ref;
+	ref.LastUsedFrame = RHI::GetFrameCount();
+	ref.desc = Desc;
+	DescriptorMap[bind->BindType].emplace(hash, ref);
+	ensure(Desc->IsValid());
+	return Desc;
+}
 
 DXDescriptor* DescriptorCache::GetOrCreate(const RSBind* bind)
 {

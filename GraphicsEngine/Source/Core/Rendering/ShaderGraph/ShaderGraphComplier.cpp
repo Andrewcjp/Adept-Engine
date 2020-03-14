@@ -101,6 +101,10 @@ bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::str
 		//todo: proper checking for Diffs
 		return true;
 	}
+#if BUILD_PACKAGE
+	return true;
+#else
 	return FileUtils::WriteToFile(Path, finaldata);
+#endif
 #endif
 }

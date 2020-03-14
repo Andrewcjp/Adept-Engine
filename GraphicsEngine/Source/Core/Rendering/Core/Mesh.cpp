@@ -13,6 +13,7 @@
 #include "Culling/CullingAABB.h"
 #include "Core/Components/Component.h"
 #include "Core/Components/MeshRendererComponent.h"
+#include "RHI/RHIBufferGroup.h"
 
 Mesh::Mesh()
 {
@@ -21,7 +22,7 @@ Mesh::Mesh()
 	{
 		FrameCreated = -10;
 	}
-	PrimitiveTransfromBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	PrimitiveTransfromBuffer = new RHIBufferGroup();
 	PrimitiveTransfromBuffer->CreateConstantBuffer(sizeof(MeshTransfromBuffer), 1, true);
 }
 
@@ -52,7 +53,7 @@ void Mesh::Release()
 	MemoryUtils::DeleteVector(SubMeshes);
 	//MemoryUtils::DeleteVector(Materials);
 	SafeRHIRelease(PrimitiveTransfromBuffer);
-	SafeRelease(pSkeletalEntity);
+	//	SafeRelease(pSkeletalEntity);
 }
 
 CullingAABB * Mesh::GetBounds()
@@ -86,22 +87,23 @@ void Mesh::Tick(float dt)
 
 void Mesh::Render(RHICommandList * list, bool SetMaterial)
 {
+#if 1
 	if (RHI::GetFrameCount() > FrameCreated + 1)
 	{
-		if (pSkeletalEntity != nullptr && SetMaterial)
-		{
-			//todo: integrate into material system
-			list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SkeletalMesh>()));
-			list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);
-			ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
-			for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
-			{
-				list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()].Get());
-				list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()].Get());
-				list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
-			}
-		}
-		else
+		//if (pSkeletalEntity != nullptr && SetMaterial)
+		//{
+		//	//todo: integrate into material system
+		//	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SkeletalMesh>()));
+		//	list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);
+		//	ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
+		//	for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
+		//	{
+		//		list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()].Get());
+		//		list->SetIndexBuffer(pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()].Get());
+		//		list->DrawIndexedPrimitive((int)pSkeletalEntity->MeshEntities[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
+		//	}
+		//}
+		//else
 		{
 			for (int i = 0; i < SubMeshes.size(); i++)
 			{
@@ -111,13 +113,14 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 					{
 						TryPushMaterial(list, SubMeshes[i]->MaterialIndex);
 					}
-					list->SetVertexBuffer(SubMeshes[i]->VertexBuffers[list->GetDeviceIndex()].Get());
-					list->SetIndexBuffer(SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()].Get());
-					list->DrawIndexedPrimitive((int)SubMeshes[i]->IndexBuffers[list->GetDeviceIndex()]->GetVertexCount(), 1, 0, 0, 0);
+					list->SetVertexBuffer(SubMeshes[i]->VertexBuffers->Get(list));
+					list->SetIndexBuffer(SubMeshes[i]->IndexBuffers->Get(list));
+					list->DrawIndexedPrimitive((int)SubMeshes[i]->IndexBuffers->Get(list)->GetVertexCount(), 1, 0, 0, 0);
 				}
 			}
 		}
 	}
+#endif
 }
 //#TODO Remove
 void Mesh::TryPushMaterial(RHICommandList* list, int index)
@@ -174,7 +177,7 @@ void SerialMaterial(Archive * A, Material* object)
 
 void Mesh::ProcessSerialArchive(Archive * A)
 {
-		A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
+	A->LinkPropertyArray<Material>(Materials, "Mats", SerialMaterial);
 }
 
 void Mesh::SetShadow(bool state)
@@ -227,9 +230,9 @@ MeshBatch * Mesh::GetMeshBatch()
 			continue;
 		}
 		MeshBatchElement* e = new MeshBatchElement();
-		e->VertexBuffer = SubMeshes[i]->VertexBuffers[0].Get();
-		e->IndexBuffer = SubMeshes[i]->IndexBuffers[0].Get();
-		e->NumPrimitives = (int)SubMeshes[i]->IndexBuffers[0]->GetVertexCount();
+		e->VertexBuffer = SubMeshes[i]->VertexBuffers;
+		e->IndexBuffer = SubMeshes[i]->IndexBuffers;
+		e->NumPrimitives = (int)SubMeshes[i]->IndexBuffers->Get(0)->GetVertexCount();
 		e->NumInstances = 1;
 		e->TransformBuffer = PrimitiveTransfromBuffer;
 		e->MaterialInUse = GetMaterial(SubMeshes[i]->MaterialIndex);
@@ -268,21 +271,15 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 		LoadSucessful = false;
 		return;
 	}
-	const int count = Settings.InitOnAllDevices ? RHI::GetDeviceCount() : 1;
-	for (int i = 0; i < count; i++)
-	{
-		VertexBuffers[i] = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDeviceContext(i));
-		IndexBuffers[i] = RHI::CreateRHIBuffer(ERHIBufferType::Index, RHI::GetDeviceContext(i));
-		VertexBuffers[i]->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* (int)vertices.size(), EBufferAccessType::Static);
-		VertexBuffers[i]->UpdateVertexBuffer(vertices.data(), vertices.size());
-		IndexBuffers[i]->CreateIndexBuffer(sizeof(IndType), sizeof(IndType)* (int)indices.size());
-		IndexBuffers[i]->UpdateIndexBuffer(indices.data(), indices.size());
-		if (i > 0)
-		{
-			VertexBuffers[0]->RegisterOtherDeviceTexture(VertexBuffers[i].Get());
-			IndexBuffers[0]->RegisterOtherDeviceTexture(IndexBuffers[i].Get());
-		}
-	}
+
+	VertexBuffers = new RHIBufferGroup();
+	IndexBuffers = new RHIBufferGroup();
+	VertexBuffers->CreateVertexBuffer(sizeof(OGLVertex), sizeof(OGLVertex)* (int)vertices.size(), EBufferAccessType::Static);
+	VertexBuffers->UpdateVertexBuffer(vertices.data(), sizeof(OGLVertex)* vertices.size(), vertices.size());
+	IndexBuffers->CreateIndexBuffer(sizeof(IndType), sizeof(IndType)* (int)indices.size());
+	IndexBuffers->UpdateIndexBuffer(indices.data(), indices.size());
+
+
 	//compute AABB for this entity
 
 	glm::vec3 Min = glm::vec3();
@@ -293,8 +290,6 @@ MeshEntity::MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<O
 		Max = glm::max(Max, vertices[indices[index]].m_position);
 	}
 	AABB = CullingAABB::CreateFromMinMax(Min, Max);
-	indices.clear();
-	vertices.clear();
 	LoadSucessful = true;
 }
 
@@ -304,11 +299,7 @@ MeshEntity::MeshEntity()
 void MeshEntity::InstanceElement(MeshEntity* other, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	LoadSucessful = other->LoadSucessful;
-	const int count = Settings.InitOnAllDevices ? RHI::GetDeviceCount() : 1;
-	for (int i = 0; i < count; i++)
-	{
-		VertexBuffers[i] = other->VertexBuffers[i];
-		IndexBuffers[i] = other->IndexBuffers[i];
-	}
+	VertexBuffers = other->VertexBuffers;
+	IndexBuffers = other->IndexBuffers;
 	AABB = new CullingAABB(other->AABB->GetPos(), other->AABB->GetHalfExtends_Unscaled());
 }

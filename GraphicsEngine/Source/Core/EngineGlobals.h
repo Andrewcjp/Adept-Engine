@@ -4,7 +4,7 @@
 #define TDSIM_ENABLED 0
 #else
 #define PHYSX_ENABLED 0
-#define TDSIM_ENABLED 1
+#define TDSIM_ENABLED 0
 #endif
 #if PHYSX_ENABLED && TDSIM_ENABLED
 #error "Two physics engines enabled only one is allowed";
@@ -33,7 +33,7 @@
 #define STATS 1
 #define DOCHECK 1
 #define DOFULLCHECK 1
-#define RUNTESTS 1
+#define RUNTESTS 0
 #endif
 
 #if STATS
@@ -62,7 +62,7 @@ template <class T>
 void UNUSED_PARAM(T const&)
 {}
 
-#ifdef PLATFORM_WINDOWS
+#if !defined(PLATFORM_ANDROID) || !defined(PLATFORM_LINUX)
 #define DLLEXPORT __declspec(dllexport)
 #define DLLIMPORT __declspec(dllimport)
 #else
@@ -141,17 +141,34 @@ void UNUSED_PARAM(T const&)
 
 extern void ADNOP();
 
-#ifdef PLATFORM_ANDROID
+#if !defined(PLATFORM_ANDROID)
+#define CHECK_INCLUDE(x) __has_include(x)
+#else
+#define CHECK_INCLUDE(x) 0
+#endif
+
+
+#if !defined(PLATFORM_WINDOWS)
 #define BUILD_WISE 0
 #define BUILD_STEAMVR 0
 #define SUPPORTS_COOK 0
 #else
 #define BUILD_WISE 0
-#define BUILD_STEAMVR 1
+#define BUILD_STEAMVR 0
 #define SUPPORTS_COOK 1
 #endif
 
-
+#ifdef SUPPORT_FREETYPE
+#define BUILD_FREETTYPE 1
+#else
+#define BUILD_FREETTYPE 0
+#endif
+#include "AdditionalPlatforms.h"
+#ifndef GEN_ADD_PLATFORMS
+#define GEN_ADD_PLATFORMS
+#define STRING_ADD_PLATFORMS
+#define PARSE_ADD_PLATFORMS
+#endif
 namespace EPlatforms
 {
 	enum Type
@@ -161,6 +178,7 @@ namespace EPlatforms
 		Windows_DX12,
 		Linux,
 		Android,
+		GEN_ADD_PLATFORMS
 		Limit
 	};
 	std::string ToString(EPlatforms::Type type);
@@ -171,3 +189,5 @@ namespace EPlatforms
 #else
 #define FORCE_INLINE  
 #endif
+
+#include "PlatformConfig.h"

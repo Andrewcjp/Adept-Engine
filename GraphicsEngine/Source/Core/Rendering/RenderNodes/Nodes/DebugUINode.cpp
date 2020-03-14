@@ -1,14 +1,13 @@
 #include "DebugUINode.h"
 #include "Rendering/Core/DebugLineDrawer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHICommandList.h"
 
 DebugUINode::DebugUINode()
 {
 	OnNodeSettingChange();
-//	if (RHI::IsVulkan() && RHI::GetRenderSettings()->SelectedGraph != EBuiltinRenderGraphs::Fallback)
-	{
-		SetNodeActive(false);
-	}
+	//SetNodeActive(false);
 }
 
 DebugUINode::~DebugUINode()
@@ -24,9 +23,13 @@ void DebugUINode::OnExecute()
 	{
 		CommandList->ClearFrameBuffer(FB);
 	}
-	DebugLineDrawer::Get()->RenderLines(FB, CommandList, GetEye());
-	DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());	
+	if (CommandList->GetDeviceIndex() == 0)
+	{
+		DebugLineDrawer::Get()->RenderLines(FB, CommandList, GetEye());
+		DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());
+	}
 	SetEndStates(CommandList);
+	Context->GetListPool()->Flush();
 	PassNodeThough(0);
 }
 
@@ -38,6 +41,10 @@ std::string DebugUINode::GetName() const
 void DebugUINode::RefreshNode()
 {
 	SetNodeActive(DebugLineDrawer::Get()->HasWork() || DebugLineDrawer::Get2()->HasWork());
+	if (RHI::GetRenderSettings()->SelectedGraph == EBuiltinRenderGraphs::TEST_MGPU)
+	{
+		SetNodeActive(true);
+	}
 }
 
 void DebugUINode::OnNodeSettingChange()
@@ -49,6 +56,6 @@ void DebugUINode::OnNodeSettingChange()
 
 void DebugUINode::OnSetupNode()
 {
-	
+
 }
 

@@ -33,7 +33,7 @@ public:
 	{
 		uint64 offset = 0;
 		uint64 size = 0;
-		bool CanFitAllocation(const AllocDesc & desc)const;
+		bool CanFitAllocation(const AllocDesc & desc,uint64 AddressAlignmentForce)const;
 	};
 private:
 	
@@ -41,6 +41,7 @@ private:
 	AllocationChunk* AllocateFromFreeChunk(AllocDesc& desc);
 	AllocationChunk* GetChunk(AllocDesc & desc);
 	void CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource ** Resource);
+	void CreateResourceCommitted(AllocationChunk * chunk, AllocDesc & desc, ID3D12Resource ** Resource);
 	void InitHeap();
 	D3D12_HEAP_FLAGS GetFlagsForType(EPageTypes::Type T);
 	ID3D12Heap* PageHeap = nullptr;
@@ -52,5 +53,6 @@ private:
 	std::vector<AllocationChunk*> FreeChunks;
 	bool IsReserved = false;
 	bool IsResident = true;
+	uint64 AddressAlignmentForce = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 };
 

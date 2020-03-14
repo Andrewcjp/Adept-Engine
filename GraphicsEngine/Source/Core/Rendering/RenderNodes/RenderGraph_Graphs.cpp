@@ -23,12 +23,14 @@
 #include "Nodes/OutputToScreenNode.h"
 #include "Nodes/VRXShadingRateNode.h"
 #include "Nodes/ForwardRenderNode.h"
-#include "Nodes/Flow/VRBranchNode.h"
 #include "Nodes/SubmitToHMDNode.h"
 #include "StoreNodes/InterGPUStorageNode.h"
 #include "Nodes/InterGPUCopyNode.h"
 #include "RenderGraphPatchLibrary.h"
 #include "Nodes/RTFilterNode.h"
+#include "Nodes/Flow/VRLoopNode.h"
+#include "Nodes/Flow/MultiGPULoopNode.h"
+#include "RHI/DeviceContext.h"
 
 void RenderGraph::ApplyEditorToGraph()
 {
@@ -57,6 +59,15 @@ void RenderGraph::AddVRXSupport()
 	Desc.LinkToBackBufferScaleFactor = RHI::GetDefaultDevice()->GetCaps().VRSTileSize;
 	VRXShadingRateImage->SetFrameBufferDesc(Desc);
 
+	FrameBufferStorageNode* EdgeDetectImage = AddStoreNode(new FrameBufferStorageNode("Edge Image"));
+	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16_FLOAT;
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.SimpleStartingState = EResourceState::RenderTarget;
+	Desc.AllowUnorderedAccess = true;
+	EdgeDetectImage->SetFrameBufferDesc(Desc);
+
+
 	RG_PatchMarker* marker = FindMarker(EBuiltInRenderGraphPatch::VRX)->Markers[0];
 	if (marker == nullptr)
 	{
@@ -81,9 +92,12 @@ void RenderGraph::AddVRXSupport()
 			pp->GetInput(1)->SetStore(VRXShadingRateImage);
 		}
 	}
-	RateNode->GetInput(1)->SetLink(marker->Inputs[0]);
+	//RateNode->GetInput(1)->SetLink(marker->Inputs[0]);
 	RateNode->GetInput(2)->SetLink(marker->Inputs[1]);
-
+	RateNode->GetInput(1)->SetStore(EdgeDetectImage);
+	GBufferWriteNode* gBuffernode = (GBufferWriteNode*)marker->OutputTargets[2];
+	gBuffernode->GetInput(1)->SetStore(EdgeDetectImage);
+	marker->OutputTargets[3]->GetInput(2)->SetStore(EdgeDetectImage);
 }
 
 void RenderGraph::CreateDefGraphWithRT()
@@ -133,7 +147,7 @@ void RenderGraph::CreateDefGraphWithRT_VOXEL()
 	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
 	SPPList->SetFrameBufferDesc(Desc);
 
-	
+
 
 	RenderNode* UpdateProbesNode = Patch->Markers[0]->ExecuteIn;
 	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
@@ -179,7 +193,7 @@ void RenderGraph::CreateDefGraphWithVoxelRT()
 	LinkNode(UpdateProbesNode, RTNode);
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
 	RTNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
-	LightNode->UseScreenSpaceReflection = true;	
+	LightNode->UseScreenSpaceReflection = true;
 	LinkNode(RTNode, LightNode);
 	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
 
@@ -308,6 +322,8 @@ void RenderGraph::CreateDefTestgraph()
 	VRXMarker->Inputs.push_back(MaskNode->GetOutput(0));
 	VRXMarker->OutputTargets.push_back(PPNode);
 	VRXMarker->OutputTargets.push_back(LightNode);
+	VRXMarker->OutputTargets.push_back(WriteNode);
+	VRXMarker->OutputTargets.push_back(VisNode);
 	RG_PatchSet* VRXset = new RG_PatchSet();
 	VRXset->AddPatchMarker(VRXMarker, EBuiltInRenderGraphPatch::VRX);
 	Markers.AddPatchSet(VRXset);
@@ -374,7 +390,7 @@ void RenderGraph::CreateFWDGraph()
 	OutputToScreenNode* Output = new OutputToScreenNode();
 
 	DebugUINode* Debug = new DebugUINode();
-	AddBranchNode(PP, Debug, Output, true, "Debug");
+	LinkNode(PP, Debug);
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
@@ -403,47 +419,53 @@ void RenderGraph::CreateVRFWDGraph()
 	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
 	ParticleSimulateNode* simNode = new ParticleSimulateNode();
 	LinkNode(ShadowUpdate, simNode);
-	ZPrePassNode* PreZ = new ZPrePassNode();
-	ExposeItem(PreZ, StandardSettings::UsePreZ);
 
-	VRBranchNode* VrStart = new VRBranchNode();
 
+	VRLoopNode* VrStart = new VRLoopNode();
 	LinkNode(simNode, VrStart);
-	LinkNode(VrStart, PreZ);
+	VrStart->SetLoopBody([this,MainBuffer, SceneData, ShadowDataNode](RenderNode* first) {
+		ZPrePassNode* PreZ = new ZPrePassNode();
+		PreZ->GetInput(0)->SetStore(MainBuffer);
+		LinkNode(first, PreZ);
+		ForwardRenderNode* FWDNode = new ForwardRenderNode();
+		LinkNode(PreZ, FWDNode);
+		FWDNode->UseLightCulling = false;
+		FWDNode->UsePreZPass = false;
+		FWDNode->UpdateSettings();
+		FWDNode->GetInput(0)->SetStore(MainBuffer);
+		FWDNode->GetInput(1)->SetStore(SceneData);
+		FWDNode->GetInput(2)->SetStore(ShadowDataNode);
 
+		ParticleRenderNode* renderNode = new ParticleRenderNode();
+		LinkNode(FWDNode, renderNode);
+		renderNode->GetInput(0)->SetStore(MainBuffer);
 
-	PreZ->GetInput(0)->SetStore(MainBuffer);
-	ForwardRenderNode* FWDNode = new ForwardRenderNode();
-	LinkNode(PreZ, FWDNode);
-	FWDNode->UseLightCulling = false;
-	FWDNode->UsePreZPass = false;
-	FWDNode->UpdateSettings();
-	FWDNode->GetInput(0)->SetStore(MainBuffer);
-	FWDNode->GetInput(1)->SetStore(SceneData);
-	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+		PostProcessNode* PP = new PostProcessNode();
+		PP->GetInput(0)->SetStore(MainBuffer);
+		LinkNode(renderNode, PP);
 
-	ParticleRenderNode* renderNode = new ParticleRenderNode();
-	LinkNode(FWDNode, renderNode);
-	renderNode->GetInput(0)->SetStore(MainBuffer);
+		DebugUINode* Debug = new DebugUINode();
+		LinkNode(PP, Debug);
+		Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 
-	PostProcessNode* PP = new PostProcessNode();
-	PP->GetInput(0)->SetStore(MainBuffer);
-	LinkNode(renderNode, PP);
-
-	DebugUINode* Debug = new DebugUINode();
-	LinkNode(PP, Debug);
-	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
-
+		
+		SubmitToHMDNode* SubNode = new SubmitToHMDNode();
+		SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+		LinkNode(Debug, SubNode);
+		return SubNode; 
+	});
+	//LinkNode(simNode, VrStart);
+	//LinkNode(VrStart, PreZ);
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	SubmitToHMDNode* SubNode = new SubmitToHMDNode();
-	SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
-	LinkNode(Debug, SubNode);
-
-	VRBranchNode* VrEnd = new VRBranchNode();
+	LinkNode(VrStart, Output);
+	Output->GetInput(0)->SetStore(MainBuffer);
+	/*VRBranchNode* VrEnd = new VRBranchNode();
 	VrEnd->VrLoopBegin = VrStart;
 	LinkNode(SubNode, VrEnd);
-	LinkNode(VrEnd, Output);
-	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+	LinkNode(VrEnd, Output);*/
+
+
+	
 }
 
 void RenderGraph::CreateFallbackGraph()
@@ -452,6 +474,7 @@ void RenderGraph::CreateFallbackGraph()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.clearcolour = glm::vec4(0.5f, 0, 0.5f, 1);
 	MainBuffer->SetFrameBufferDesc(Desc);
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
@@ -471,6 +494,7 @@ void RenderGraph::CreateMGPU_TESTGRAPH()
 	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.clearcolour = glm::vec4(1, 1, 1, 1);
 	MainBuffer->SetFrameBufferDesc(Desc);
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
@@ -478,19 +502,20 @@ void RenderGraph::CreateMGPU_TESTGRAPH()
 	DebugUINode* Debug = new DebugUINode();
 	Debug->SetDevice(RHI::GetDeviceContext(0));
 	RootNode = Debug;
-	Debug->GetInput(0)->SetStore(MainBuffer);
-	Debug->ClearBuffer = true;
+	Debug->ClearBuffer = false;
 	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
-
+	
 	FrameBufferStorageNode* OtherGPUCopy = AddStoreNode(new FrameBufferStorageNode());
 	OtherGPUCopy->SetDevice(RHI::GetDeviceContext(1));
+	Desc.clearcolour = glm::vec4(1, 0, 0, 1);
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_DEST;
 	OtherGPUCopy->SetFrameBufferDesc(Desc);
-
+	Desc.clearcolour = glm::vec4(1, 1, 1, 1);
 	FrameBufferStorageNode* MainGPU = AddStoreNode(new FrameBufferStorageNode());
 	MainGPU->SetDevice(RHI::GetDeviceContext(0));
 	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COPY_DEST;
 	MainGPU->SetFrameBufferDesc(Desc);
+	Debug->GetInput(0)->SetStore(MainGPU);
 
 	InterGPUStorageNode* HostStore = AddStoreNode(new InterGPUStorageNode());
 	HostStore->StoreTargets.push_back(OtherGPUCopy);
@@ -505,7 +530,83 @@ void RenderGraph::CreateMGPU_TESTGRAPH()
 	CopyFrom->GetInput(0)->SetStore(MainGPU);
 	CopyFrom->GetInput(1)->SetStore(HostStore);
 
-	LinkNode(RootNode, CopyTo);
+	DebugUINode* DebugOtherGPU = new DebugUINode();
+	DebugOtherGPU->SetDevice(RHI::GetDeviceContext(1));
+	DebugOtherGPU->GetInput(0)->SetStore(OtherGPUCopy);
+	DebugOtherGPU->ClearBuffer = true;
+
+	RootNode = DebugOtherGPU;
+
+	Output->GetInput(0)->SetStore(MainGPU);
+	LinkNode(DebugOtherGPU, CopyTo);
 	LinkNode(CopyTo, CopyFrom);
-	LinkNode(CopyFrom, Output);
+	LinkNode(CopyFrom, Debug);
+	LinkNode(Debug, Output);
+}
+
+void RenderGraph::CreateSFR()
+{
+	GraphName = "Forward Renderer";
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
+	Desc.AllowUnorderedAccess = true;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+
+	
+	MultiGPULoopNode* Loop = new MultiGPULoopNode();
+	RootNode = Loop;
+	Loop->SetLoopBody([this, MainBuffer, SceneData](RenderNode* First,DeviceContext* device)
+	{
+		FrameBufferStorageNode* TargetBuffer = MainBuffer;
+		if (device->GetDeviceIndex() != 0)
+		{
+			TargetBuffer = AddStoreNode(new FrameBufferStorageNode());
+			RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+			Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+			Desc.AllowUnorderedAccess = true;
+			TargetBuffer->SetDevice(device);
+			TargetBuffer->SetFrameBufferDesc(Desc);
+		}
+		ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
+		ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
+		ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+		ZPrePassNode* PreZ = new ZPrePassNode();
+		if (First != nullptr)
+		{
+			LinkNode(First, ShadowUpdate);			
+		}
+		else
+		{
+			RootNode = ShadowUpdate;
+		}
+		LinkNode(ShadowUpdate, PreZ);
+		PreZ->GetInput(0)->SetStore(TargetBuffer);
+		ForwardRenderNode* FWDNode = new ForwardRenderNode();
+		LinkNode(PreZ, FWDNode);
+		FWDNode->UseLightCulling = false;
+		FWDNode->UsePreZPass = false;
+		FWDNode->UpdateSettings();
+		FWDNode->GetInput(0)->SetStore(TargetBuffer);
+		FWDNode->GetInput(1)->SetStore(SceneData);
+		FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+
+		PostProcessNode* PP = new PostProcessNode();
+		LinkNode(FWDNode, PP);
+		PP->GetInput(0)->SetStore(TargetBuffer);
+		return PP;
+	});
+
+	OutputToScreenNode* Output = new OutputToScreenNode();
+
+	DebugUINode* Debug = new DebugUINode();
+	LinkNode(Loop, Debug);
+	Debug->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(Debug, Output);
+	Output->GetInput(0)->SetStore(MainBuffer);
 }

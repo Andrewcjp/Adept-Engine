@@ -170,7 +170,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetUAV(System->GetPreSimList(), 2);
 	CmdList->SetUAV(System->DeadParticleIndexs, 3);
 #if USE_INDIRECTCOMPUTE
-	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, 0, nullptr, 0);
+	CmdList->ExecuteIndirect(1, System->DispatchCommandBuffer, 0, nullptr, 0);
 #else
 	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
@@ -185,7 +185,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetUAV(System->DeadParticleIndexs, "DeadIndexs");
 	CmdList->SetUAV(System->GetPostSimList(), "PostSim_AliveIndex");
 #if USE_INDIRECTCOMPUTE
-	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
+	CmdList->ExecuteIndirect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
 	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
@@ -196,7 +196,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetUAV(System->RenderCommandBuffer, 1);
 	//CmdList->SetUAV(System->CounterBuffer, "Counter");
 #if USE_INDIRECTCOMPUTE
-	CmdList->ExecuteIndiect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
+	CmdList->ExecuteIndirect(1, System->DispatchCommandBuffer, sizeof(DispatchArgs), nullptr, 0);
 #else
 	CmdList->Dispatch(System->MaxParticleCount, 1, 1);
 #endif
@@ -275,7 +275,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	system->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
 	RenderList->SetTexture(system->ParticleTexture.Get(), Shader_ParticleDraw::Texture);
 #if USE_INDIRECTRENDER
-	RenderList->ExecuteIndiect(system->MaxParticleCount, system->RenderCommandBuffer, 0, system->CounterBuffer, 0);
+	RenderList->ExecuteIndirect(system->MaxParticleCount, system->RenderCommandBuffer, 0, system->CounterBuffer, 0);
 #else
 	const int RootConstSlot = system->RenderShader->GetSlotForName("Index");
 	for (int i = 0; i < system->MaxParticleCount; i++)

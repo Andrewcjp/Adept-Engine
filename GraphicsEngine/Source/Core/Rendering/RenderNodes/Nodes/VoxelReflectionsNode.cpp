@@ -12,6 +12,7 @@
 #include "Core/Assets/Scene.h"
 #include "../../Core/DynamicQualityEngine.h"
 #include "../StoreNodes/ShadowAtlasStorageNode.h"
+#include "RHI/RHIBufferGroup.h"
 
 VoxelReflectionsNode::VoxelReflectionsNode()
 {
@@ -21,11 +22,13 @@ VoxelReflectionsNode::VoxelReflectionsNode()
 
 void VoxelReflectionsNode::OnExecute()
 {
+
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	FrameBuffer* Gbuffer = GetFrameBufferFromInput(1);
 	FLAT_COMPUTE_START(List->GetDevice());
 	List->ResetList();
 	SetBeginStates(List);
+	if(RHI::GetRenderSettings()->GetVoxelSet().Enabled)
 	{
 		DECALRE_SCOPEDGPUCOUNTER(List, "Voxel Reflections");
 		DataSet.CameraPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
@@ -41,7 +44,7 @@ void VoxelReflectionsNode::OnExecute()
 		GetShadowDataFromInput(2)->BindPointArray(List,"ShadowData");
 		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
 		SceneRenderer::Get()->BindLightsBuffer(List, "LightBuffer");
-		List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "LightList");
+		List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(List), "LightList");
 		List->SetUAV(Target, "gOutput");
 		DynamicQualityEngine::Get()->BindRTBuffer(List, "RTBufferData");
 		int index = List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("voxelTex");

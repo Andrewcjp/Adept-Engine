@@ -1,8 +1,8 @@
 #pragma once
 #include "RHI\Shader.h"
 #include "D3D12RHI.h"
-#include <d3d12shader.h>
 #include "RHI\ShaderBase.h"
+
 
 struct ShaderSourceFile;
 

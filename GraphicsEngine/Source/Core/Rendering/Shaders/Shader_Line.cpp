@@ -6,7 +6,7 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Line);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_ON, Shader_Line, bool, true,nullptr);
 DECLARE_GLOBAL_SHADER_PERMIUTATION(Shader_Line_2D_OFF, Shader_Line, bool, false, nullptr);
-Shader_Line::Shader_Line(DeviceContext* device, bool is2D) : Shader(Device)
+Shader_Line::Shader_Line(DeviceContext* device, bool is2D) : Shader(device)
 {
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TWOD_ONLY", is2D ? "1" : "0"));
 

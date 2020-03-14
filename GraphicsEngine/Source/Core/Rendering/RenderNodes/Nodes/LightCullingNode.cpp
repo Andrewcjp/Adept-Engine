@@ -1,6 +1,8 @@
 
 #include "LightCullingNode.h"
 #include "..\..\Core\LightCulling\LightCullingEngine.h"
+#include "RHI\RHICommandList.h"
+#include "RHI\DeviceContext.h"
 
 
 LightCullingNode::LightCullingNode()

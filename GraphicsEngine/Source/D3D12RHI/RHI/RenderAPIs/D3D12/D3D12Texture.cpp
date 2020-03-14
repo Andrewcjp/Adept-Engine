@@ -37,8 +37,6 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 
 void D3D12Texture::Release()
 {
-	SafeRelease(m_texture);
-	SafeRelease(TextureResource);
 	IRHIResourse::Release();
 	RemoveCheckerRef(D3D12Texture, this);
 }
@@ -48,22 +46,22 @@ D3D12Texture::~D3D12Texture()
 
 void D3D12Texture::BindToSlot(D3D12CommandList* list, int slot)
 {
-	if (RHI::GetFrameCount() > FrameCreated + 1)
-	{
-		//TextureResource->SetResourceState(list->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
+#ifndef PLATFORM_WINDOWS
+		Cover->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+#endif
 }
 
 void D3D12Texture::CreateTextureFromDesc(const TextureDescription& desc)
 {
+	Context = Device;
 	Description = desc;
 	Cover = new D3D12RHITexture();
-	Cover->CreateWithUpload(desc, Context);
+	Cover->CreateWithUpload(desc, Device);
 }
 
 GPUResource * D3D12Texture::GetResource()
 {
-	return TextureResource;
+	return Cover->GetResource();
 }
 
 bool D3D12Texture::CheckDevice(int index)

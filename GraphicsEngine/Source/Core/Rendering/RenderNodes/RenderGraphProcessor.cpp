@@ -15,8 +15,9 @@ RenderGraphProcessor::~RenderGraphProcessor()
 
 void RenderGraphProcessor::Process(RenderGraph * graph)
 {
-	BuildTimeLine(graph);	
-	BuildTransitionsSplit(graph);
+	BuildTimeLine(graph);
+	BuildTransitions(graph);
+	//BuildTransitionsSplit(graph);
 	BuildScheduling(graph);
 	BuildAliasing(graph);
 }
@@ -30,7 +31,7 @@ void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
 {
 	RenderNode* Node = graph->RootNode;
 	RenderNode* Lastnode = Node;
-	Node = Node->GetNextNode();
+	//Node = Node->GetNextNode();
 	while (Node != nullptr)
 	{
 		if (Node->IsNodeActive())
@@ -39,11 +40,11 @@ void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
 			for (int i = 0; i < Node->GetNumInputs(); i++)
 			{
 				NodeLink* output = Node->GetInput(i);
-				if (output->TargetType != EStorageType::Framebuffer)
+				if (output->TargetType != EStorageType::Framebuffer && output->TargetType != EStorageType::InterGPUStagingResource)
 				{
 					continue;
 				}
-				if (output->ResourceState == EResourceState::Undefined)
+				if (output->ResourceState == EResourceState::Undefined && output->TargetType == EStorageType::Framebuffer)
 				{
 					continue;
 				}
@@ -108,8 +109,47 @@ void RenderGraphProcessor::BuildAliasing(RenderGraph* graph)
 	}
 	//todo: aliasing determination 
 }
-
 void RenderGraphProcessor::BuildScheduling(RenderGraph * graph)
+{
+	int count = 0;
+	for (int line = 0; line < TimeLines.size(); line++)
+	{
+		ResourceTimeLine* timeline = TimeLines[line];
+		for (int i = 0; i < timeline->Frames.size(); i++)
+		{
+			if (i == 0)
+			{
+				//continue;
+			}
+			ResourceTimelineFrame* frame = timeline->Frames[i];
+			int LastNodeIndex = (i - 1 < 0 ? timeline->Frames.size() - 1 : i - 1);
+			ResourceTimelineFrame* Lastframe = timeline->Frames[LastNodeIndex];
+			bool DeviceMatch = frame->Node->GetDeviceIndex() == Lastframe->Node->GetDeviceIndex();
+			bool QueueMatch = frame->Node->GetNodeQueueType() == Lastframe->Node->GetNodeQueueType();
+			if (DeviceMatch && QueueMatch)
+			{
+				continue;
+			}
+			ResourceTransition T;
+			T.TransitonType = ResourceTransition::QueueWait;
+			T.SignalingQueue = DeviceContextQueue::GetFromCommandListType(Lastframe->Node->GetNodeQueueType());
+			if (DeviceMatch)
+			{
+				T.SignalingDevice = -1;
+			}
+			else
+			{
+				T.SignalingDevice = Lastframe->Node->GetDeviceIndex();
+			}
+			//add unique
+			frame->Node->AddBeginTransition(T);
+			count++;
+		}
+	}
+	Log::LogMessage("Scheduling syncs count: " + std::to_string(count));
+}
+
+void RenderGraphProcessor::BuildScheduling_old(RenderGraph * graph)
 {
 	int count = 0;
 	for (int line = 0; line < TimeLines.size(); line++)
@@ -145,6 +185,10 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 	for (int line = 0; line < TimeLines.size(); line++)
 	{
 		ResourceTimeLine* timeline = TimeLines[line];
+		if (timeline->Resource->StoreType == EStorageType::InterGPUStagingResource)
+		{
+			continue;
+		}
 		for (int i = 0; i < timeline->Frames.size(); i++)
 		{
 			ResourceTimelineFrame* frame = timeline->Frames[i];
@@ -169,7 +213,7 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 			T.Target = frame->TargetLink;
 			RenderNode* Targetnode = timeline->Frames[i - 1]->Node;
 			bool CanNodeTransition = EResourceState::IsStateValidForList(Targetnode->GetNodeQueueType(), frame->State);
-			if (!CanNodeTransition )
+			if (!CanNodeTransition)
 			{
 				//ensure(EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), frame->State));
 				frame->Node->AddBeginTransition(T);
@@ -181,7 +225,7 @@ void RenderGraphProcessor::BuildTransitionsSplit(RenderGraph* graph)
 				}
 			}
 			else
-			{ 
+			{
 				T.TransitionMode = EResourceTransitionMode::Start;
 				Targetnode->AddEndTransition(T);
 				T.TransitionMode = EResourceTransitionMode::End;
@@ -214,6 +258,10 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 	for (int line = 0; line < TimeLines.size(); line++)
 	{
 		ResourceTimeLine* timeline = TimeLines[line];
+		if (timeline->Resource->StoreType == EStorageType::InterGPUStagingResource)
+		{
+			continue;
+		}
 		for (int i = 0; i < timeline->Frames.size(); i++)
 		{
 			ResourceTimelineFrame* frame = timeline->Frames[i];
@@ -257,6 +305,35 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 					std::string data = " Node " + Targetnode->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
 						+ EResourceState::ToString(frame->State);
 					Log::LogMessage(data);
+				}
+			}
+			if (i == timeline->Frames.size() - 1)
+			{
+				T.TargetState = timeline->Frames[0]->State;
+				T.Target = timeline->Frames[0]->TargetLink;
+				T.TransitionMode = EResourceTransitionMode::Direct;
+
+				//add a transition for the next graph run
+				if (EResourceState::IsStateValidForList(frame->Node->GetNodeQueueType(), T.TargetState))
+				{
+					frame->Node->AddEndTransition(T);
+					if (LogTranstions)
+					{
+						std::string data = " Node " + frame->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
+							+ EResourceState::ToString(T.TargetState);
+						Log::LogMessage(data);
+					}
+				}
+				else
+				{
+					ensure(EResourceState::IsStateValidForList(timeline->Frames[0]->Node->GetNodeQueueType(), T.TargetState));
+					timeline->Frames[0]->Node->AddBeginTransition(T);
+					if (LogTranstions)
+					{
+						std::string data = " Node " + timeline->Frames[0]->Node->GetName() + " Transitions resource " + timeline->Resource->Name + " to state: "
+							+ EResourceState::ToString(T.TargetState);
+						Log::LogMessage(data);
+					}
 				}
 			}
 			count++;

@@ -4,6 +4,8 @@
 #include "MeshDrawCommand.h"
 #include "MeshInstanceBuffer.h"
 #include "RHI/RHITimeManager.h"
+#include "RHI/RHICommandList.h"
+#include "RHI/RHIBufferGroup.h"
 
 static ConsoleVariable UseDynamicInstancing("r.UseDynamicInstancing", 0, ECVarType::ConsoleOnly);
 
@@ -133,9 +135,9 @@ void MeshBatchProcessor::SubmitCommands(RHICommandList* List, const MeshPassRend
 		MeshDrawCommand* C = DrawCommands[i];
 		PERDRAWTIMER(List, C->Object->GetName());
 		OnSubmitCommands(List, C, args);
-		List->SetConstantBufferView(C->TransformUniformBuffer, 0, "GOConstantBuffer");
-		List->SetVertexBuffer(C->Vertex);
-		List->SetIndexBuffer(C->Index);
+		List->SetConstantBufferView(C->TransformUniformBuffer->Get(List), 0, "GOConstantBuffer");
+		List->SetVertexBuffer(C->Vertex->Get(List));
+		List->SetIndexBuffer(C->Index->Get(List));
 		List->DrawIndexedPrimitive(C->NumPrimitves, C->NumInstances, 0, 0, 0);
 		CountDrawCall();
 	}

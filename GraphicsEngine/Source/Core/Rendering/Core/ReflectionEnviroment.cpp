@@ -130,9 +130,12 @@ void ReflectionEnviroment::BindStaticSceneEnivoment(RHICommandList * List, bool 
 	}
 	else
 	{
-		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
-		List->SetFrameBufferTexture(SkyBoxBuffer, "DiffuseIrMap");
-		List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, "envBRDFTexture");
+		//if (List->GetDeviceIndex() == 0)
+		{
+			List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
+			List->SetFrameBufferTexture(SkyBoxBuffer, "DiffuseIrMap");
+			List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, "envBRDFTexture");
+		}
 	}
 }
 

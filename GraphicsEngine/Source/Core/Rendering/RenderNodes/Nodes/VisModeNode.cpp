@@ -6,11 +6,13 @@
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/PostProcess/Shader_DebugOutput.h"
 #include "../../RayTracing/VoxelTracingEngine.h"
+#include "../../Shaders/Shader_Pair.h"
 
 VisModeNode::VisModeNode()
 {
 	SetNodeActive(false);
 	OnNodeSettingChange();
+//	RHI::GetRenderSettings()->SetDebugRenderMode(ERenderDebugOutput::Scene_EdgeDetect);
 }
 
 VisModeNode::~VisModeNode()
@@ -43,6 +45,11 @@ void VisModeNode::OnExecute()
 	case ERenderDebugOutput::Scene_Voxel:
 		VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB);
 		break;
+	case ERenderDebugOutput::Scene_EdgeDetect:	
+		VisTexturesimple(mode);
+		break;
+	case ERenderDebugOutput::Scene_EdgeDetectCount:
+		break;
 	}
 	SetEndStates(DebugList);
 }
@@ -57,6 +64,7 @@ void VisModeNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DontCare, "OutputBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "EdgeTex");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene data");
 
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
@@ -67,7 +75,48 @@ void VisModeNode::OnSetupNode()
 {
 	DebugList = RHI::CreateCommandList(ECommandListType::Graphics, Context);
 }
+void VisModeNode::VisTexturesimple(ERenderDebugOutput::Type mode)
+{
+	if (!RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
+	{
+		return;
+	}
+	if (!GetInput(1)->IsValid())
+	{
+		return;
+	}
+	FrameBuffer* FB = GetFrameBufferFromInput(0);
+	FrameBuffer* target = GetFrameBufferFromInput(2);
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
+	desc.InitOLD(false, false, false);
+	desc.ShaderInUse = ShaderComplier::GetShader<Shader_DebugOutput>();
+	desc.RenderTargetDesc = FB->GetPiplineRenderDesc();
+	DebugList->SetPipelineStateDesc(desc);
 
+	int VisAlpha = 0;
+
+	if (mode == ERenderDebugOutput::Scene_EdgeDetect)
+	{
+		DebugList->SetFrameBufferTexture(target, 0);
+	}
+	if (mode == ERenderDebugOutput::Scene_EdgeDetectCount)
+	{
+		if (Pair == nullptr)
+		{
+			Pair = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRX_EdgeTileCount_Debug_PS" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
+		}
+		desc.ShaderInUse = Pair;
+		DebugList->SetPipelineStateDesc(desc);
+		DebugList->SetFrameBufferTexture(target, 0);
+	}
+	DebugList->BeginRenderPass(RHIRenderPassDesc(FB, ERenderPassLoadOp::Clear));
+	if (mode != ERenderDebugOutput::Scene_EdgeDetectCount)
+	{
+		DebugList->SetRootConstant(1, 1, &VisAlpha, 0);
+	}
+	RenderingUtils::RenderScreenQuad(DebugList);
+	DebugList->EndRenderPass();
+}
 void VisModeNode::RenderGBufferModes(ERenderDebugOutput::Type currentDebugType)
 {
 	if (!GetInput(1)->IsValid())

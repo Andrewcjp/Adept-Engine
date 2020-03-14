@@ -60,7 +60,7 @@ SceneRenderer::SceneRenderer()
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
 	QuadBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDefaultDevice());
-	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4);
+	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4, EBufferAccessType::Dynamic);
 	QuadBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 	TerrainRenderer::Get();
 }
@@ -69,8 +69,8 @@ SceneRenderer::SceneRenderer()
 SceneRenderer::~SceneRenderer()
 {
 	MemoryUtils::RHIUtil::DeleteRHICArray(CLightBuffer, MAX_GPU_DEVICE_COUNT);
+	MemoryUtils::RHIUtil::DeleteRHICArray(CMVBuffer, MAX_GPU_DEVICE_COUNT);
 	MemoryUtils::DeleteVector(probes);
-	EnqueueSafeRHIRelease(CMVBuffer);
 	SafeDelete(MeshController);
 }
 
@@ -97,7 +97,7 @@ void SceneRenderer::PrepareSceneForRender()
 	UpdateMVForMainPass();
 	Culling->UpdateMainPassFrustumCulling(CurrentCamera, TargetScene);
 
-	
+
 	PrepareData();
 	LightCulling->RunLightBroadphase();
 	ShadowRenderer::Get()->UpdateShadowAsignments();
@@ -148,14 +148,13 @@ void SceneRenderer::Init()
 {
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
-		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+		CLightBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant, RHI::GetDeviceContext(i));
 		CLightBuffer[i]->SetDebugName("Light buffer");
-		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
+		CLightBuffer[i]->CreateConstantBuffer(sizeof(LightBufferW), 1);
+		CMVBuffer[i] = RHI::CreateRHIBuffer(ERHIBufferType::Constant, RHI::GetDeviceContext(i));
+		CMVBuffer[i]->SetDebugName("CMVBuffer");
+		CMVBuffer[i]->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1);
 	}
-	CMVBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
-	CMVBuffer->SetDebugName("CMVBuffer");
-	CMVBuffer->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1, RHI::GetRenderSettings()->InitSceneDataOnAllGPUs);
-
 }
 
 void SceneRenderer::UpdateMV(VRCamera* c)
@@ -173,14 +172,20 @@ void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 	MV_Buffer.Res = Screen::GetScaledRes();
 	MV_Buffer.INV_res.x = 1.0f / (float)MV_Buffer.Res.x;
 	MV_Buffer.INV_res.y = 1.0f / (float)MV_Buffer.Res.y;
-	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, index);
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		CMVBuffer[i]->UpdateConstantBuffer(&MV_Buffer, index);
+	}
 }
 
 void SceneRenderer::UpdateMV(glm::mat4 View, glm::mat4 Projection)
 {
 	MV_Buffer.V = View;
 	MV_Buffer.P = Projection;
-	CMVBuffer->UpdateConstantBuffer(&MV_Buffer, 0);
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		CMVBuffer[i]->UpdateConstantBuffer(&MV_Buffer, 0);
+	}
 }
 
 void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
@@ -195,7 +200,7 @@ void SceneRenderer::UpdateLightBuffer(std::vector<Light*> lights)
 			{
 				continue;
 			}
-			LightUniformBuffer newitem = CreateLightEntity(lights[i],devindex);
+			LightUniformBuffer newitem = CreateLightEntity(lights[i], devindex);
 
 			//assume if not resident its pre-sampled
 //			newitem.PreSampled[0] = !lights[i]->GPUShadowResidentMask[devindex];
@@ -287,12 +292,12 @@ void SceneRenderer::BindMvBuffer(RHICommandList * list, std::string slot, int in
 	{
 		slot = "SceneConstantBuffer";
 	}
-	list->SetConstantBufferView(CMVBuffer, index, slot);
+	list->SetConstantBufferView(CMVBuffer[list->GetDeviceIndex()], index, slot);
 }
 
 void SceneRenderer::BindMvBufferB(RHICommandList * list, int slot, int index)
 {
-	list->SetConstantBufferView(CMVBuffer, index, slot);
+	list->SetConstantBufferView(CMVBuffer[list->GetDeviceIndex()], index, slot);
 }
 
 void SceneRenderer::SetScene(Scene * NewScene)

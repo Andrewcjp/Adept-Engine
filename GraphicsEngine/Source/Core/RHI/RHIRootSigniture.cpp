@@ -1,8 +1,8 @@
 #include "RHIRootSigniture.h"
-#if 1
+#if 0
 #define VD_ASSERT(a,b) LogEnsureMsgf(a,b)
 #else
-#define VD_ASSERT(a,b) ensureMsgf(a,b)
+#define VD_ASSERT(a,b)
 #endif
 RHIRootSigniture::RHIRootSigniture()
 {}

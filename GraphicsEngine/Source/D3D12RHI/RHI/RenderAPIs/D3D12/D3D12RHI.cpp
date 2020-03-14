@@ -14,24 +14,25 @@
 #include "Raytracing/D3D12HighLevelAccelerationStructure.h"
 #include "Raytracing/D3D12LowLevelAccelerationStructure.h"
 #include "Raytracing/D3D12StateObject.h"
+#if SUPPORT_DXGI
 #include <dxgidebug.h>
 #include <DXProgrammableCapture.h>  
+#endif
 #include "DescriptorCache.h"
 #include "DXMemoryManager.h"
 #include "D3D12RHITexture.h"
 #include "RHI/RHITexture.h"
 
-static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
-static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly, false);
+
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly, false);
-static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly, false);
+
 static ConsoleVariable EnableDred("EnableDred", 0, ECVarType::LaunchOnly, false);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	//ForceGPUIndex.SetValue(1);
-	ForceSingleGPU.SetValue(true);
+//	ForceSingleGPU.SetValue(true);
 	//ForceNoDebug.SetValue(true); 
 	//AllowWarp.SetValue(true);
 	EnableDred.SetValue(true);
@@ -44,7 +45,7 @@ void D3D12RHI::RunDred()
 {
 	//dred is in windows 19h1
 #if  WIN10_1903
-	HRESULT R = DeviceContexts[0]->GetDevice()->QueryInterface(IID_PPV_ARGS(&pDred));
+	HRESULT R = DeviceContexts[0]->GetDevice()->QueryInterface(ID_PASS(&pDred));
 	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT DredAutoBreadcrumbsOutput;
 	D3D12_DRED_PAGE_FAULT_OUTPUT DredPageFaultOutput;
 	R = (pDred->GetAutoBreadcrumbsOutput(&DredAutoBreadcrumbsOutput));
@@ -146,9 +147,9 @@ RHITexture* D3D12RHI::CreateTexture2()
 void D3D12RHI::MakeSwapChainReady(RHICommandList* list)
 {
 	D3D12CommandList* dlist = DXConv(list);
-	if (m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
+	if (SwapChain->m_RenderTargetResources[m_frameIndex]->GetCurrentState() != D3D12_RESOURCE_STATE_PRESENT)
 	{
-		m_RenderTargetResources[m_frameIndex]->SetResourceState(dlist, D3D12_RESOURCE_STATE_PRESENT);
+		SwapChain->m_RenderTargetResources[m_frameIndex]->SetResourceState(dlist, D3D12_RESOURCE_STATE_PRESENT);
 	}
 }
 
@@ -185,32 +186,31 @@ void D3D12RHI::DestroyContext()
 	// Ensure that the GPU is no longer referencing resources that are about to be
 	// cleaned up by the destructor.
 	ReleaseUploadHeaps(true);
-	if (m_swapChain)
-	{
-		m_swapChain->SetFullscreenState(false, nullptr);
-	}
-	ReleaseSwapRTs();
-	SafeRelease(m_swapChain);
+#if SUPPORT_DXGI
+	SafeRelease(SwapChain);
+//	SafeRelease(factory);
+#endif
 	MemoryUtils::DeleteCArray(DeviceContexts, MAX_GPU_DEVICE_COUNT);
-	SafeRelease(m_rtvHeap);
-	SafeRelease(m_dsvHeap);
-	SafeRelease(factory);
+
 	SafeDelete(ScreenShotter);
 	ReportObjects();
 }
 
 void EnableShaderBasedValidation()
 {
+#if SUPPORT_DXGI
 	ID3D12Debug* spDebugController0;
 	ID3D12Debug1* spDebugController1;
-	(D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)));
-	(spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)));
+	(D3D12GetDebugInterface(ID_PASS(&spDebugController0)));
+	(spDebugController0->QueryInterface(ID_PASS(&spDebugController1)));
 	spDebugController1->SetEnableGPUBasedValidation(true);
+#endif
 }
 
 
 void D3D12RHI::ReportObjects()
 {
+#if SUPPORT_DXGI
 #ifdef _DEBUG
 	IDXGIDebug* pDXGIDebug;
 	typedef HRESULT(__stdcall *fPtr)(const IID&, void**);
@@ -226,6 +226,7 @@ void D3D12RHI::ReportObjects()
 	}
 #endif
 	//DXGIGetDebugInterface(__uuidof(IDXGIInfoQueue), (void**)&pIDXGIInfoQueue);//DXGI_DEBUG_RLO_IGNORE_INTERNAL
+#endif
 }
 
 D3D_FEATURE_LEVEL D3D12RHI::GetMaxSupportedFeatureLevel(ID3D12Device* pDevice)
@@ -261,6 +262,7 @@ void D3D12RHI::ReportDeviceData()
 
 bool D3D12RHI::DetectGPUDebugger()
 {
+#ifdef PLATFORM_WINDOWS
 	IDXGraphicsAnalysis* pGraphicsAnalysis;
 	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(pGraphicsAnalysis), reinterpret_cast<void**>(&pGraphicsAnalysis));
 	if (getAnalysis != S_OK)
@@ -268,6 +270,9 @@ bool D3D12RHI::DetectGPUDebugger()
 		return false;
 	}
 	return true;
+#else
+	return false;
+#endif
 }
 
 void D3D12RHI::WaitForGPU()
@@ -305,7 +310,7 @@ RHIClass::GPUMemoryReport D3D12RHI::ReportMemory()
 
 void D3D12RHI::LoadPipeLine()
 {
-
+#if 	SUPPORT_DXGI
 #ifdef _DEBUG
 #if !AFTERMATH
 #define RUNDEBUG 1
@@ -314,7 +319,7 @@ void D3D12RHI::LoadPipeLine()
 #define RUNDEBUG 0
 #endif
 
-	UINT dxgiFactoryFlags = 0;
+	
 #if RUNDEBUG //nsight needs this off
 #if !_DEBUG
 	Log::LogMessage("Validation layer running", Log::Warning);
@@ -322,19 +327,18 @@ void D3D12RHI::LoadPipeLine()
 	if (DetectGPUDebugger())
 	{
 		ForceNoDebug.SetValue(true);
-
 	}
 	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
 	{	//EnableShaderBasedValidation();
 
 // Enable the debug layer (requires the Graphics Tools "optional feature").
 // NOTE: Enabling the debug layer after device creation will invalidate the active device.
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		if (SUCCEEDED(D3D12GetDebugInterface(ID_PASS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
 			debugController->Release();
 			// Enable additional debug layers.
-			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+			
 		}
 	}
 #endif
@@ -342,41 +346,18 @@ void D3D12RHI::LoadPipeLine()
 	{
 #if WIN10_1903
 		ID3D12DeviceRemovedExtendedDataSettings* pDredSettings;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings))))
+		if (SUCCEEDED(D3D12GetDebugInterface(ID_PASS(&pDredSettings))))
 		{
 			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 			pDredSettings->SetWatsonDumpEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 			pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 		}
 #endif
-	}
-
-	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+	}	
 	ReportObjects();
-
-	if (DetectGPUDebugger())
-	{
-#if 1
-		ForceSingleGPU.SetValue(true);
-#else
-		IDXGIAdapter* warpAdapter;
-		ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-		DeviceContexts[1] = new D3D12DeviceContext();
-		DeviceContexts[1]->CreateDeviceFromAdaptor((IDXGIAdapter1*)warpAdapter, 1);
-		Log::LogMessage("Found D3D12 GPU debugger, Warp adapter is now used instead of second physical GPU");
 #endif
-	}
-	if (!FindAdaptors(factory, false))//Search adapters in a picky fashion 
-	{
-		Log::LogMessage("Failed to find select device index, Defaulting", Log::Severity::Warning);
-		FindAdaptors(factory, true);//force find an adapter
-	}
-	//#DX12: handle 3 GPU
-	if (GetSecondaryDevice() != nullptr)
-	{
-		GetPrimaryDevice()->LinkAdaptors(GetSecondaryDevice());
-		GetSecondaryDevice()->LinkAdaptors(GetPrimaryDevice());
-	}
+	DX12DeviceInterface::CreateDevices(this,!ForceNoDebug.GetBoolValue());	
+	LinkGPUs();	
 #if RUNDEBUG
 	if (!ForceNoDebug.GetBoolValue())
 	{
@@ -385,13 +366,13 @@ void D3D12RHI::LoadPipeLine()
 		{
 			if (DeviceContexts[i] != nullptr)
 			{
-				DeviceContexts[i]->GetDevice()->QueryInterface(IID_PPV_ARGS(&infoqueue[i]));
+				DeviceContexts[i]->GetDevice()->QueryInterface(ID_PASS(&infoqueue[i]));
 				if (infoqueue[i] != nullptr)
 				{
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 					infoqueue[i]->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-				//	infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
+					//	infoqueue[i]->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_INITIALIZATION, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_LIVE_SAMPLER, "Init complete");
 					infoqueue[i]->Release();
 				}
 			}
@@ -400,7 +381,16 @@ void D3D12RHI::LoadPipeLine()
 #endif
 	DisplayDeviceDebug();
 	//Log::LogMessage(ReportMemory());
+}
 
+void D3D12RHI::LinkGPUs()
+{
+	//#DX12: handle 3 GPU
+	if (GetSecondaryDevice() != nullptr)
+	{
+		GetPrimaryDevice()->LinkAdaptors(GetSecondaryDevice());
+		GetSecondaryDevice()->LinkAdaptors(GetPrimaryDevice());
+	}
 }
 
 void D3D12RHI::HandleDeviceFailure()
@@ -449,30 +439,6 @@ void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 #endif
 }
 
-void D3D12RHI::CreateSwapChainRTs()
-{
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-	// Create a RTV for each frame.
-	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
-	{
-		ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_SwaprenderTargets[n])));
-		GetDisplayDevice()->CreateRenderTargetView(m_SwaprenderTargets[n], nullptr, rtvHandle);
-		m_RenderTargetResources[n] = new GPUResource(m_SwaprenderTargets[n], D3D12_RESOURCE_STATE_PRESENT, RHI::GetDefaultDevice());
-		rtvHandle.Offset(1, m_rtvDescriptorSize);
-	}
-	NAME_D3D12_OBJECT(m_SwaprenderTargets[1]);
-	NAME_D3D12_OBJECT(m_SwaprenderTargets[0]);
-}
-
-void D3D12RHI::ReleaseSwapRTs()
-{
-	for (UINT n = 0; n < RHI::CPUFrameCount; n++)
-	{
-		SafeDelete(m_RenderTargetResources[n]);
-	}
-	SafeRelease(m_depthStencil);
-}
-
 void D3D12RHI::ResizeSwapChain(int x, int y)
 {
 	if (x == 0 || y == 0)
@@ -480,21 +446,19 @@ void D3D12RHI::ResizeSwapChain(int x, int y)
 		return;
 	}
 	GetPrimaryDevice()->WaitForGpu();
-	if (m_swapChain != nullptr)
+#if SUPPORT_DXGI
+	if (SwapChain != nullptr)
 	{
-		ReleaseSwapRTs();
 		if (ScreenShotter != nullptr)
 		{
 			SafeDelete(ScreenShotter);
 		}
-		ThrowIfFailed(m_swapChain->ResizeBuffers(RHI::CPUFrameCount, x, y, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-		CreateSwapChainRTs();
-		m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(x), static_cast<float>(y));
-		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(x), static_cast<LONG>(y));
-		CreateDepthStencil(x, y);
-		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0]);
+		SwapChain->Resize(x, y);
+
+		m_frameIndex = SwapChain->GetSwapChainIndex();
+		ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), SwapChain->m_RenderTargetResources[0]);
 	}
+#endif
 }
 #if AFTERMATH
 #pragma optimize("",off)
@@ -510,92 +474,29 @@ void D3D12RHI::RunTheAfterMath()
 	__debugbreak();
 }
 #endif
-void D3D12RHI::CreateDepthStencil(int width, int height)
-{
-	//create the depth stencil for the screen
-	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-	depthOptimizedClearValue.DepthStencil.Stencil = 0;
-
-	AllocDesc Desc = {};
-	Desc.ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-	Desc.InitalState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-	Desc.ClearValue = depthOptimizedClearValue;
-	Desc.Name = "SwapChain depth stencil";
-	GetPrimaryDevice()->GetMemoryManager()->AllocResource(Desc, &m_depthStencil);
-
-	GetDisplayDevice()->CreateDepthStencilView(m_depthStencil->GetResource(), &depthStencilDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-}
 
 void D3D12RHI::InitSwapChain()
 {
-	m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
-	m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
-	// Describe and create the swap chain.
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.BufferCount = RHI::CPUFrameCount;
-	swapChainDesc.Width = m_width;
-	swapChainDesc.Height = m_height;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.SampleDesc.Count = 1;
-	IDXGISwapChain1* swapChain;
-	ThrowIfFailed(factory->CreateSwapChainForHwnd(
-		GetPrimaryDevice()->GetCommandQueue(),		// Swap chain needs the queue so that it can force a flush on it.
-		PlatformWindow::GetHWND(),
-		&swapChainDesc,
-		nullptr,
-		nullptr,
-		&swapChain
-	));
 
-	m_swapChain = (IDXGISwapChain3*)swapChain;
-	// This sample does not support fullscreen transitions.
-	ThrowIfFailed(factory->MakeWindowAssociation(PlatformWindow::GetHWND(), DXGI_MWA_NO_ALT_ENTER));
+	SwapChain = new SwapchainInferface();
+#if SUPPORT_DXGI
+	SwapChain->factory = DX12DeviceInterface::GetFactory();
+#endif
+	SwapChain->Init(RHI::CPUFrameCount, 0, glm::ivec2(m_width, m_height));
+	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), SwapChain->m_RenderTargetResources[0], true);
 
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-	m_swapChain->SetFullscreenState(false, nullptr);
-
-	// Create descriptor heaps.
-	{
-		// Describe and create a render target view (RTV) descriptor heap.
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = RHI::CPUFrameCount;
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(GetDisplayDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-		m_rtvDescriptorSize = GetDisplayDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-	}
-	SafeRelease(factory);
-	CreateSwapChainRTs();
-
-	ScreenShotter = new D3D12ReadBackCopyHelper(RHI::GetDefaultDevice(), m_RenderTargetResources[0], true);
-	CreateDepthStencil(m_width, m_height);
 }
 
 void D3D12RHI::SetFullScreenState(bool state)
 {
 	IsFullScreen = state;
-	if (m_swapChain != nullptr)
-	{
-		m_swapChain->SetFullscreenState(state, nullptr);
-	}
+#if 	SUPPORT_DXGI
+	//if (SwapChain->m_swapChain != nullptr)
+	//{
+	//	m_swapChain->SetFullscreenState(state, nullptr);
+	//}
+#endif
 }
 
 void D3D12RHI::WaitForAllGPUS()
@@ -677,7 +578,7 @@ D3D12RHI * D3D12RHI::Get()
 void D3D12RHI::PresentFrame()
 {
 	//todo: remove this
-	
+
 
 	//only set up to grab the 0 frame of spawn chain
 	if (RunScreenShot && m_frameIndex == 0)
@@ -688,20 +589,21 @@ void D3D12RHI::PresentFrame()
 		Log::LogMessage("Took ScreenShot");
 		RunScreenShot = false;
 	}
-	ThrowIfFailed(m_swapChain->Present(0, 0));
+
 	if (!RHI::AllowCPUAhead())
 	{
 		WaitForAllGPUS();
 	}
 
 	UpdateAllCopyEngines();
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+	SwapChain->Present();
+	m_frameIndex = SwapChain->GetSwapChainIndex();
 
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DeviceContexts[i] != nullptr)
 		{
-			DeviceContexts[i]->MoveNextFrame(m_swapChain->GetCurrentBackBufferIndex());
+			DeviceContexts[i]->MoveNextFrame(m_frameIndex);
 		}
 	}
 	//all execution this frame has finished 
@@ -726,26 +628,17 @@ void D3D12RHI::PresentFrame()
 
 void D3D12RHI::ClearRenderTarget(ID3D12GraphicsCommandList* MainList)
 {
-	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	MainList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	MainList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	SwapChain->ClearRenderTarget(MainList);
 }
 
 void D3D12RHI::RenderToScreen(ID3D12GraphicsCommandList* list)
 {
-	list->RSSetViewports(1, &m_viewport);
-	list->RSSetScissorRects(1, &m_scissorRect);
+	SwapChain->RenderToScreen(list);
 }
 
 void D3D12RHI::SetScreenRenderTarget(D3D12CommandList* list)
 {
-	m_RenderTargetResources[m_frameIndex]->SetResourceState(list, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	list->FlushBarriers();
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	list->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+	SwapChain->SetScreenRenderTarget(list);
 }
 
 DeviceContext * D3D12RHI::GetDeviceContext(int index)
@@ -768,81 +661,6 @@ DeviceContext * D3D12RHI::GetDefaultDevice()
 		return Instance->GetPrimaryDevice();
 	}
 	return nullptr;
-}
-
-bool D3D12RHI::FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind)
-{
-	int TargetIndex = ForceGPUIndex.GetIntValue();
-	bool ForcingIndex = (TargetIndex != -1);
-	if (ForceFind)
-	{
-		ForcingIndex = false;
-	}
-	IDXGIAdapter1* adapter;
-	int CurrentDeviceIndex = 0;
-	for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex)
-	{
-		DXGI_ADAPTER_DESC1 desc;
-		adapter->GetDesc1(&desc);
-
-#if BUILD_SHIPPING
-		bool AllowSoft = false;
-#else
-		bool AllowSoft = AllowWarp.GetBoolValue();
-#endif
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE && !AllowSoft)
-		{
-			if (TargetIndex == adapterIndex)
-			{
-				ForcingIndex = false;
-			}
-			adapter->Release();
-			// Don't select the Basic Render Driver adapter.
-			// If you want a software adapter, pass in "/warp" on the command line.
-			continue;
-		}
-		// Check to see if the adapter supports Direct3D 12, but don't create the
-		// actual device yet.
-		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
-		{
-			if (ForcingIndex && adapterIndex != TargetIndex)
-			{
-				adapter->Release();
-				continue;
-			}
-			D3D12DeviceContext** Device = nullptr;
-			if (CurrentDeviceIndex >= MAX_GPU_DEVICE_COUNT)
-			{
-				return true;
-			}
-			Device = &DeviceContexts[CurrentDeviceIndex];
-			if (*Device == nullptr)
-			{
-				*Device = new D3D12DeviceContext();
-				//#SLI This needs to create more Devices 
-				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
-				CurrentDeviceIndex++;
-				if (ForceSingleGPU.GetBoolValue())
-				{
-					Log::LogMessage("Forced Single Gpu Mode");
-					return true;
-				}
-				if ((*Device)->IsPartOfNodeGroup())
-				{
-					//we have a linked group!
-					//
-					int ExtraNodes = glm::min(CurrentDeviceIndex + (*Device)->GetNodeCount() - 1, MAX_GPU_DEVICE_COUNT);
-					for (int i = 0; i < ExtraNodes; i++)
-					{
-						DeviceContexts[CurrentDeviceIndex] = new D3D12DeviceContext();
-						DeviceContexts[CurrentDeviceIndex]->CreateNodeDevice((*Device)->GetDevice(), i + 1, CurrentDeviceIndex);
-						CurrentDeviceIndex++;
-					}
-				}
-			}
-		}
-	}
-	return (CurrentDeviceIndex != 0);
 }
 
 RHIBuffer * D3D12RHI::CreateRHIBuffer(ERHIBufferType::Type type, DeviceContext* Device)

@@ -167,12 +167,12 @@ EPhysicsDebugMode::Type TDPhysicsEngine::GetCurrentMode()
 
 TD::TDPhysicalMaterial * TDPhysicsEngine::CreatePhysicsMaterial(PhysicalMaterial * Mat)
 {
-	TD::TDPhysicalMaterial* NewMat = new TD::TDPhysicalMaterial();
+	/*TD::TDPhysicalMaterial* NewMat = new TD::TDPhysicalMaterial();
 	NewMat->density = Mat->density;
 	NewMat->DynamicFirction = Mat->DynamicFirction;
 	NewMat->StaticFriction = Mat->StaticFriction;
-	NewMat->Restitution = Mat->Bouncyness;
-	return NewMat;
+	NewMat->Restitution = Mat->Bouncyness;*/
+	return nullptr;
 }
 
 

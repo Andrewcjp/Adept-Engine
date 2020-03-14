@@ -9,6 +9,12 @@ RWByteAddressBuffer TileData : register(u1);
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 {
+	//if (DTid.x == 0 && DTid.y == 0)
+	//{
+	//	TileData.Store(0, 0);
+	//	TileData.Store(TILE_HEADER_OFFSET_VARTILES, 0);
+	//}
+	GroupMemoryBarrierWithGroupSync();
 	uint Rate = RateImage[DTid.xy];
 	uint LastCount = 0;
 #if 1

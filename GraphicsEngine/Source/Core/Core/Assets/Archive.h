@@ -76,6 +76,69 @@ public:
 			SerialHelpers::addJsonValue(*valueptr, *jallocator, PropName, comp);
 		}
 	}
+	template<class T>
+	void LinkPropertyArrayValue(std::vector<T> & Value, const char * PropName, std::function<void(Archive*, T&)> func)
+	{
+		if (IsReading())
+		{
+			rapidjson::Value::MemberIterator starthead = CurrentReadHead;
+			auto t = CurrentReadHead->value.GetArray();
+			t.begin();
+			for (unsigned int i = 0; i < t.Size(); i++)
+			{
+				T newc = T();
+				rapidjson::Value* cv = &t[i];
+				CurrentReadHead = cv->MemberBegin();
+				func(this, newc);				
+				Value.push_back(newc);
+			}
+			CurrentReadHead = starthead;
+			CurrentReadHead++;
+		}
+		else
+		{
+			rapidjson::Value comp(rapidjson::kArrayType);
+			rapidjson::Value* PreValueptr = valueptr;
+			for (int i = 0; i < Value.size(); i++)
+			{
+				rapidjson::Value jsv(rapidjson::kObjectType);
+				valueptr = &jsv;
+				//Value[i]->ProcessSerialArchive(this);
+				func(this, Value[i]);
+				comp.PushBack(jsv, *jallocator);
+			}
+			valueptr = PreValueptr;
+			SerialHelpers::addJsonValue(*valueptr, *jallocator, PropName, comp);
+		}
+	}
+	template<class T>
+	void LinkPropertyArrayInt(std::vector<T> & Value, const char * PropName)
+	{
+		if (IsReading())
+		{
+			rapidjson::Value::MemberIterator starthead = CurrentReadHead;
+			auto t = CurrentReadHead->value.GetArray();
+			t.begin();
+			for (unsigned int i = 0; i < t.Size(); i++)
+			{
+				rapidjson::Value* cv = &t[i];
+				Value.push_back(cv->GetInt());
+			}
+			CurrentReadHead = starthead;
+			CurrentReadHead++;
+		}
+		else
+		{
+			rapidjson::Value comp(rapidjson::kArrayType);
+			rapidjson::Value* PreValueptr = valueptr;
+			for (int i = 0; i < Value.size(); i++)
+			{
+				comp.PushBack((int)Value[i],*jallocator);
+			}
+			valueptr = PreValueptr;
+			SerialHelpers::addJsonValue(*valueptr, *jallocator, PropName, comp);
+		}
+	}
 	template<class K, class T>
 	void LinkPropertyMap(std::map<K, T> & Value, const char * PropName, std::function<void(Archive*, T*)> func)
 	{

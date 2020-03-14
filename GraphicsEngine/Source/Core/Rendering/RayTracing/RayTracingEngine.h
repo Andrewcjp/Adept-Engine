@@ -3,6 +3,7 @@
 class ShaderBindingTable;
 class RayTracingCommandList;
 class ShadowAtlasStorageNode;
+class Scene;
 //This handles render interaction with RT features
 //It abstracts between the Software and API support modes and handles build AS's etc.
 //it will handle different types of Acceleration structure for multiple types of devices e.g. RTX GPU + Software RT GPU. 

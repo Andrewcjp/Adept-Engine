@@ -21,6 +21,7 @@ public:
 		std::string Name;
 		std::string Value;
 	};
+	static void AddDefaultDefines(std::vector<ShaderProgramBase::Shader_Define>& Defines, DeviceContext * context);
 	void										ModifyCompileEnviroment(Shader_Define Define);
 	std::vector<ShaderParameter> GeneratedParams;
 	
@@ -29,10 +30,10 @@ public:
 	void ResolveRS();
 	virtual glm::ivec3 GetComputeThreadSize()const;
 	uint32 GetInstructionCount() const { return InstructionCount; }
+	std::vector<Shader_Define> Defines;
 protected:
 	bool HasResolved = false;
 	void NumberRS();
-	std::vector<Shader_Define> Defines;
 	uint32 InstructionCount = 0;
 	friend class ShaderReflection;
 	DeviceContext* Context;

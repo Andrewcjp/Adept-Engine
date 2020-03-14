@@ -68,14 +68,14 @@ public:
 	CORE_API static const std::string GetGeneratedDir();
 	CORE_API static const std::string DirectGetGeneratedDir();
 	CORE_API static const std::string GetSettingsDir();
-	CORE_API static const std::string GetShaderCacheDir();
+	CORE_API static const std::string GetShaderCacheDir(EPlatforms::Type Platform = EPlatforms::Limit);
 	const std::string GetDriverShaderCacheDir();
 	BaseAsset * CreateOrGetAsset(std::string path);
 	void TestAsset();
 	static const PlatformBuildSettings& GetSettings();
 	CORE_API static std::string GetPlatformDirName();
-	CORE_API void WriteShaderMetaFile(ShaderSourceFile* file,std::string path);
-	
+	CORE_API void WriteShaderMetaFile(ShaderSourceFile* file, std::string path, EPlatforms::Type platform = EPlatforms::Limit);
+
 private:
 	AssetManager();
 	void Init();
@@ -98,6 +98,6 @@ private:
 	static const std::string DDCName;
 	IniHandler* INISaver = nullptr;
 	PlatformBuildSettings PlatformSettings;
-	
+
 };
 

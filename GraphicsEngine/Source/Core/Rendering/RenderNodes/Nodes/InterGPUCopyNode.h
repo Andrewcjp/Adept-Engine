@@ -1,8 +1,17 @@
 #pragma once
 #include "..\RenderNode.h"
+
 class InterGPUCopyNode : public RenderNode
 {
 public:
+	enum CopyMode
+	{
+		CopyToStage,
+		CopyFromStage,
+		CopyAcross,
+		PredicatedCopyAcross,
+		Limit
+	};
 	InterGPUCopyNode(DeviceContext* con);
 	~InterGPUCopyNode();
 

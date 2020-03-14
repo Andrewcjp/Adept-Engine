@@ -11,7 +11,7 @@ public:
 	static RHICommandList* GetList(DeviceContext* con, ECommandListType::Type type = ECommandListType::Graphics);
 	RHICommandList* GetCMDList(ECommandListType::Type type = ECommandListType::Graphics);
 	void Flush();
-	void Init(int Threadcount);
+	void Init(int Threadcount, DeviceContext* device);
 	DeviceContext* Context = nullptr;
 private:
 	std::vector<PoolThreadContext> ThreadContext;

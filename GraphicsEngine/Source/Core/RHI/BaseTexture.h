@@ -2,6 +2,8 @@
 #include "Core/IRefCount.h"
 #include "Core/EngineInc_fwd.h"
 #include "Core/ObjectBase/SharedPtr.h"
+#include "RHITemplates.h"
+
 struct ETextureType
 {
 	enum Type

@@ -17,6 +17,5 @@ public:
 private:
 	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
-
 };
 

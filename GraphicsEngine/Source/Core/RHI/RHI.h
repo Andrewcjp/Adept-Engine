@@ -171,6 +171,7 @@ private:
 	FrameCountingVector<IRHIResourse>* GlobalDeleteQueue= nullptr;
 	DynamicQualityEngine* QualityEngine = nullptr;
 	friend DynamicQualityEngine;
+	bool CheckSwapReady = false;
 };
 
 class RHI_API RHIClass

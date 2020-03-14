@@ -176,6 +176,10 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 		{
 			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
+		if (state == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+		{
+			state = D3D12_RESOURCE_STATE_DEPTH_READ;
+		}
 		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(D3D12RHI::DXConv(List), state, TransitionMode);
 	}
 }
@@ -274,6 +278,10 @@ void D3D12FrameBuffer::CreateRTDescriptor(D3D12RHITexture* Texture, DescriptorHe
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format = D3D12Helpers::ConvertFormat(texDesc.Format);
+		if (texDesc.DepthRenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			depthStencilDesc.Format = D3D12Helpers::ConvertFormat(texDesc.DepthRenderFormat);
+		}
 		depthStencilDesc.ViewDimension = D3D12Helpers::ConvertDimensionDSV(texDesc.Dimension);
 		depthStencilDesc.Texture2DArray.ArraySize = BufferDesc.TextureDepth;
 		depthStencilDesc.Texture2DArray.MipSlice = 0;
@@ -349,11 +357,12 @@ void D3D12FrameBuffer::Init()
 		Desc2.MipCount = BufferDesc.MipCount;
 		Desc2.InitalState = BufferDesc.SimpleStartingState;
 		Desc2.AllowUnorderedAccess = BufferDesc.AllowUnorderedAccess;
+		Desc2.clearcolour = BufferDesc.clearcolour;
 		if (Desc2.Depth > 1)
 		{
 			Desc2.Dimension = DIMENSION_TEXTURECUBE;
 		}
-		BufferDesc.RenderTargets[i]->Create(Desc2);
+		BufferDesc.RenderTargets[i]->Create(Desc2, CurrentDevice);
 	}
 	if (BufferDesc.DepthFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN && BufferDesc.NeedsDepthStencil)
 	{
@@ -366,11 +375,21 @@ void D3D12FrameBuffer::Init()
 		Desc2.Depth = BufferDesc.TextureDepth;
 		Desc2.MipCount = BufferDesc.MipCount;
 		Desc2.InitalState = EResourceState::RenderTarget;
+		Desc2.DepthClearValue = BufferDesc.DepthClearValue;
+		if (Desc2.Format == FORMAT_R32_TYPELESS)
+		{
+			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+			Desc2.DepthRenderFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		}
+		else if (Desc2.Format == FORMAT_R24_UNORM_X8_TYPELESS)
+		{
+			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
+		}
 		if (Desc2.Depth > 1)
 		{
 			Desc2.Dimension = DIMENSION_TEXTURECUBE;
 		}
-		BufferDesc.DepthStencil->Create(Desc2);
+		BufferDesc.DepthStencil->Create(Desc2, CurrentDevice);
 	}
 	CreateFromTextures();
 }
@@ -404,14 +423,14 @@ void D3D12FrameBuffer::CreateFromTextures()
 		{
 			continue;
 		}
-		RenderTargetDesc.RTVFormats[i] = BufferDesc.RenderTargets[i]->GetDescription().Format;
+		RenderTargetDesc.RTVFormats[i] = BufferDesc.RenderTargets[i]->GetDescription().GetRenderformat();
 		RenderTarget[i] = D3D12RHI::DXConv(BufferDesc.RenderTargets[i]);
 		CreateRTDescriptor(RenderTarget[i], RTVHeap, i);
 
 	}
 	if (BufferDesc.DepthStencil != nullptr)
 	{
-		RenderTargetDesc.DSVFormat = BufferDesc.DepthStencil->GetDescription().Format;
+		RenderTargetDesc.DSVFormat = BufferDesc.DepthStencil->GetDescription().GetDepthRenderformat();
 		DepthStencil = D3D12RHI::DXConv(BufferDesc.DepthStencil);
 		CreateRTDescriptor(DepthStencil, DSVHeap, 0);
 	}
@@ -477,6 +496,7 @@ void D3D12FrameBuffer::UnBind(ID3D12GraphicsCommandList * list)
 
 void D3D12FrameBuffer::ClearBuffer(D3D12CommandList * list)
 {
+	ensure(list->GetDeviceIndex() == CurrentDevice->GetDeviceIndex());
 	for (int i = 0; i < BufferDesc.RenderTargetCount; i++)
 	{
 		if (GetResource(0) != nullptr)
@@ -488,6 +508,7 @@ void D3D12FrameBuffer::ClearBuffer(D3D12CommandList * list)
 	{
 		D3D12RHI::DXConv(BufferDesc.DepthStencil)->GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	}
+	list->FlushBarriers();
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		D3D12_CLEAR_FLAGS flags = D3D12_CLEAR_FLAG_DEPTH;

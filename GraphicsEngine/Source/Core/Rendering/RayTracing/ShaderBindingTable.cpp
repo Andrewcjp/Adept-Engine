@@ -4,6 +4,7 @@
 #include "../Core/Mesh.h"
 #include "../Core/Material.h"
 #include "Core/Utils/StringUtil.h"
+#include "RHI/RHIBufferGroup.h"
 
 ShaderBindingTable::ShaderBindingTable()
 {}
@@ -28,8 +29,8 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 		HitGroups[HitGroups.size() - 1]->HitShader = GetMaterialShader();
 		Shader_RTBase* Shader = HitGroups[HitGroups.size() - 1]->HitShader;
 
-		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::IndexBuffer, Object->GetMesh()->SubMeshes[i]->IndexBuffers[0].Get());
-		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::VertexBuffer, Object->GetMesh()->SubMeshes[i]->VertexBuffers[0].Get());
+		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::IndexBuffer, Object->GetMesh()->SubMeshes[i]->IndexBuffers->Get(0));
+		Shader->LocalRootSig.SetBufferReadOnly(DefaultLocalRootSignatureParams::VertexBuffer, Object->GetMesh()->SubMeshes[i]->VertexBuffers->Get(0));
 		OnMeshProcessed(Object->GetMesh(), Object->GetMesh()->SubMeshes[i], Shader);
 		if (Object->GetMesh()->GetMaterial(0)->GetRenderPassType() == EMaterialRenderType::Transparent)
 		{
@@ -39,7 +40,7 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 	}
 }
 
-Shader_RTMateralHit* ShaderBindingTable::GetMaterialShader()
+Shader_RTBase* ShaderBindingTable::GetMaterialShader()
 {
 	return new Shader_RTMateralHit(RHI::GetDefaultDevice());
 }

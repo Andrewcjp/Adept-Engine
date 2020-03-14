@@ -4,6 +4,7 @@ class Scene;
 class MeshBatchProcessor;
 class SceneRenderer;
 class MeshBatch;
+class RHIBufferGroup;
 namespace ERenderPass
 {
 	enum Type
@@ -49,7 +50,7 @@ public:
 	//attempt to merge the static objects in the scene
 	void BuildStaticInstancing();
 
-	void CreateInstanceController(MeshBatch* Ctl, std::map<RHIBuffer *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset);
+	void CreateInstanceController(MeshBatch* Ctl, std::map<RHIBufferGroup *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset);
 
 	//#todo: which one?
 	TEMP_API void RenderPass(ERenderPass::Type type, RHICommandList* List, Shader* shader = nullptr, EBatchFilter::Type Filter = EBatchFilter::ALL);

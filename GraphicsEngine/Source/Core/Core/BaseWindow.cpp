@@ -29,6 +29,8 @@
 #include "Assets/ShaderComplier.h"
 #include "Assets/Scene.h"
 #include "Utils/FileUtils.h"
+#include "Input/InputManager.h"
+#include "Input/InputController.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
@@ -160,15 +162,19 @@ void BaseWindow::Render()
 		RHI::GetRHIClass()->TriggerWriteBackResources();
 #endif
 	}
-	if (Input::GetKeyDown(VK_F1))
+	InputController* con = Input::GetInputManager()->GetController(0);
+
+	if (Input::GetKeyDown(VK_F1) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonRight)))
 	{
 		ShowText = !ShowText;
 	}
-	if (Input::GetKeyDown(VK_F2))
+
+	if (Input::GetKeyDown(VK_F2) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonUp)))
 	{
 		ShowStats.SetValue(!ShowStats.GetBoolValue());
 	}
-	if (Input::GetKeyDown(VK_F3))
+
+	if (Input::GetKeyDown(VK_F3) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonLeft)))
 	{
 		GPUPerfGraph->SetEnabled(!GPUPerfGraph->IsEnabled());
 	}
@@ -186,6 +192,15 @@ void BaseWindow::Render()
 	{
 		PauseState = false;
 		StepOnce = true;
+	}
+	if (Input::GetKeyDown('O'))
+	{
+		ConsoleVariableManager::ToggleVar("vrr.showrate");
+	}
+	if (RHI::GetFrameCount() == 100)
+	{
+		LogPerfCounters();
+		//RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
 #if !WITH_EDITOR
 	if (Input::GetKeyDown(VK_ESCAPE))
@@ -495,7 +510,7 @@ void BaseWindow::RenderText()
 {
 	const int m_height = Screen::GetWindowHeight();
 	const int m_width = Screen::GetWindowWidth();
-	int offset = 1;
+	int offset = 2;
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
 	if (ShowText)
@@ -504,6 +519,10 @@ void BaseWindow::RenderText()
 		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale() << "X ";
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
+		if (Input::GetKeyDown('P'))
+		{
+			Log::LogMessage(stream.str());
+		}
 		UI->RenderTextToScreen(1, stream.str());
 	}
 	stream.str("");
@@ -538,4 +557,17 @@ void BaseWindow::RenderText()
 		UI->RenderTextToScreen(offset, "BlockCommandlistExec Enabled", Colours::RED);
 	}
 	Log::Get()->RenderText(UI, offset);
+	if (Input::GetKeyDown('P'))
+	{
+		LogPerfCounters();
+	}
+}
+
+void BaseWindow::LogPerfCounters()
+{
+	std::vector<TimerData*> Data = PerfManager::Instance->GetAllGPUTimers("GPU_0");
+	for (int i = 0; i < Data.size(); i++)
+	{
+		Log::LogMessage(Data[i]->name + " :" + std::to_string(Data[i]->AVG->GetCurrentAverage()));
+	}
 }

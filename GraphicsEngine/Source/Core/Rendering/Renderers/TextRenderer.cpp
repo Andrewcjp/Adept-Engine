@@ -29,7 +29,7 @@ TextRenderer::TextRenderer(int width, int height, bool SetInstance /*= false*/)
 
 TextRenderer::~TextRenderer()
 {
-	SafeDelete(TextAtlas);
+//	SafeDelete(TextAtlas);
 	SafeDelete(m_TextShader);
 	EnqueueSafeRHIRelease(VertexBuffer);
 	coords.clear();
@@ -40,11 +40,17 @@ TextRenderer::~TextRenderer()
 
 void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	instance->RenderFromAtlas(text, x, y, scale, color);
 }
 
 void TextRenderer::RenderBatches(std::vector<TextBatch*>& batches, RHICommandList* list)
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	int Length = 0;
 	for (int i = 0; i < batches.size(); i++)
 	{
@@ -63,6 +69,9 @@ void TextRenderer::RenderBatches(std::vector<TextBatch*>& batches, RHICommandLis
 
 void TextRenderer::RenderDirect(RHICommandList* list, std::string text, glm::vec2 pos, float scale, glm::vec3 colour)
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	int count = CreateGlyphs(text, pos, scale, colour);
 	VertexBuffer->UpdateVertexBuffer(coords.data(), sizeof(point)*(currentsize));
 	list->SetPipelineStateObject(PSO);
@@ -77,6 +86,7 @@ void TextRenderer::RenderDirect(RHICommandList* list, std::string text, glm::vec
 
 int TextRenderer::CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm::vec3 color)
 {
+#if BUILD_FREETTYPE
 	const uint8_t *p;
 	atlas* a = TextAtlas;
 	size_t TargetDatalength = 6 * text.length();
@@ -137,6 +147,9 @@ int TextRenderer::CreateGlyphs(std::string text, glm::vec2 pos, float scale, glm
 		GLyphs++;
 	}
 	return GLyphs * 6;
+#else
+	return 0;
+#endif
 }
 
 void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float scale, glm::vec3 color, bool reset/* = true*/)
@@ -151,6 +164,9 @@ void TextRenderer::RenderFromAtlas(std::string text, float x, float y, float sca
 
 void TextRenderer::RenderAllText()
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	if (Batches.size() > 0)
 	{
 		m_TextShader->Height = m_height;
@@ -174,6 +190,9 @@ void TextRenderer::RenderAllText()
 
 void TextRenderer::Finish(bool final /*= false*/)
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	RenderAllText();
 	TextCommandList->GetDevice()->GetTimeManager()->EndTimer(TextCommandList, EGPUTIMERS::Text);
 	if (instance == this && final)
@@ -182,12 +201,15 @@ void TextRenderer::Finish(bool final /*= false*/)
 		RHI::MakeSwapChainReady(TextCommandList);
 	}
 	TextCommandList->Execute();
-	TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
+	//TextCommandList->GetDevice()->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
 	currentsize = 0;
 }
 
 void TextRenderer::Reset()
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	TextCommandList->ResetList();
 	TextCommandList->GetDevice()->GetTimeManager()->StartTimer(TextCommandList, EGPUTIMERS::Text);
 	TextCommandList->SetPipelineStateObject(PSO);
@@ -198,6 +220,9 @@ void TextRenderer::Reset()
 
 void TextRenderer::LoadText()
 {
+#if !BUILD_FREETTYPE
+	return;
+#endif
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDeviceContext(0));
 	VertexBuffer->CreateVertexBuffer(sizeof(point), (sizeof(point) * 6) * MAX_BUFFER_SIZE, EBufferAccessType::Dynamic);//max text length?
 
@@ -211,7 +236,7 @@ void TextRenderer::LoadText()
 	Desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 	PSO = RHI::CreatePipelineStateObject(Desc);
 	//TextCommandList->ResetList();
-	
+
 	if (UseFrameBuffer)
 	{
 		RHIFrameBufferDesc desc = RHIFrameBufferDesc::CreateColour(Screen::GetWindowWidth(), Screen::GetWindowHeight());
@@ -220,7 +245,8 @@ void TextRenderer::LoadText()
 		//PostProcessing::Instance->AddCompostPass(Renderbuffer);
 		RHI::AddLinkedFrameBuffer(Renderbuffer);
 	}
-
+#if BUILD_FREETTYPE
+	
 	if (FT_Init_FreeType(&ft))
 	{
 		Log::OutS << "ERROR::FREETYPE: Could not init FreeType Library" << Log::OutS;
@@ -242,6 +268,7 @@ void TextRenderer::LoadText()
 	// Destroy FreeType once we're finished
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
+#endif
 	//Say thanks you to Free type for being very useful
 
 }
@@ -263,7 +290,7 @@ void TextRenderer::NotifyFrameEnd()
 	NeedsClearRT = true;
 	Batches.clear();
 }
-
+#if BUILD_FREETTYPE
 TextRenderer::atlas::atlas(FT_Face face, int height)
 {
 	FT_Set_Pixel_Sizes(face, 0, height);
@@ -352,6 +379,7 @@ TextRenderer::atlas::atlas(FT_Face face, int height)
 	Texture->CreateTextureFromDesc(desc);
 	//printf("Generated a %d x %d (%d kb) texture atlas\n", w, h, w * h / 1024);
 }
+#endif
 
 TextRenderer::atlas::~atlas()
 {

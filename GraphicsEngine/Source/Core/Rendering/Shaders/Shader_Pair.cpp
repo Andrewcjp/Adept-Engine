@@ -1,7 +1,7 @@
 #include "Shader_Pair.h"
 #include "Core\Maths\Math.h"
 
-Shader_Pair::Shader_Pair(DeviceContext* context, const std::vector<std::string>& names, const std::vector<EShaderType::Type>& stageList,const std::vector<ShaderProgramBase::Shader_Define>& defines) :Shader(context)
+Shader_Pair::Shader_Pair(DeviceContext* context, const std::vector<std::string>& names, const std::vector<EShaderType::Type>& stageList, const std::vector<ShaderProgramBase::Shader_Define>& defines) :Shader(context)
 {
 	Names = names;
 	StageList = stageList;
@@ -37,6 +37,9 @@ void Shader_Pair::Init()
 	for (uint64 i = 0; i < MaxIndex; i++)
 	{
 		m_Shader->AttachAndCompileShaderFromFile(Names[i].c_str(), StageList[i]);
+#ifdef PLATFORM_WINDOWS
+		LogEnsure(ShaderComplier::Get()->CheckSourceFileRegistered(Names[i]));
+#endif
 		shadername += Names[i];
 	}
 }

@@ -20,7 +20,7 @@ public:
 	virtual void Release() override;
 
 };
-typedef ID3D12GraphicsCommandList CMDListType;
+
 
 class D3D12CommandList : public RHICommandList
 {
@@ -49,7 +49,7 @@ public:
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void SetCommandSigniture(RHICommandSignitureDescription desc)override;
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
-	CMDListType* GetCommandList();
+	ID3D12GraphicsCommandList* GetCommandList();
 	void CreateCommandList();
 	void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) override;
 
@@ -57,7 +57,7 @@ public:
 	virtual void CopyResourceFromSharedMemory(FrameBuffer* Buffer)override;
 	void Release()override;
 	bool IsOpen() const override;
-	virtual void ExecuteIndiect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
+	virtual void ExecuteIndirect(int MaxCommandCount, RHIBuffer* ArgumentBuffer, int ArgOffset, RHIBuffer* CountBuffer, int CountBufferOffset);
 
 	virtual void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) override;
 	class D3D12FrameBuffer* CurrentRenderTarget = nullptr;
@@ -72,6 +72,7 @@ public:
 #if WIN10_1809
 	ID3D12GraphicsCommandList4* GetCMDList4();
 #endif
+
 #if WIN10_1809
 	virtual void TraceRays(const RHIRayDispatchDesc& desc) override;
 	virtual void SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct) override;
@@ -105,14 +106,25 @@ public:
 
 	void CopyResource(RHITexture* Source, RHITexture* Dest) override;
 
+
+	RHI_VIRTUAL void UAVBarrier(RHITexture* target) override;
+
+	CopyCMDListType* GetCopyList();
+
+	 RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) override;
+	 RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) override;
+
+	 RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) override;
+
 private:
+
 	void SetScreenBackBufferAsRT();
 	void ClearScreen();
 	D3D12StateObject* CurrentRTState = nullptr;
 	std::vector<DescriptorHeap*> heaps;
 	void PushPrimitiveTopology();
 	class D3D12DeviceContext* mDeviceContext = nullptr;
-	CMDListType* CurrentCommandList = nullptr;
+	ID3D12GraphicsCommandList* CurrentCommandList = nullptr;
 #if WIN10_1809
 	ID3D12GraphicsCommandList4* CurrentADVCommandList = nullptr;
 #endif
@@ -120,6 +132,12 @@ private:
 	ID3D12GraphicsCommandList5* CmdList5 = nullptr;
 #endif
 	ID3D12GraphicsCommandList1* CommandList1 = nullptr;
+#if !BUILD_SHIPPING
+#ifdef PLATFORM_WINDOWS
+	ID3D12DebugCommandList* DebugList = nullptr;
+#endif
+#endif
+	CopyCMDListType* CopyListPtr = nullptr;
 	bool m_IsOpen = false;
 	//ID3D12CommandAllocator* m_commandAllocator[RHI::CPUFrameCount];
 	D3D12_INPUT_ELEMENT_DESC VertexDesc = D3D12_INPUT_ELEMENT_DESC();

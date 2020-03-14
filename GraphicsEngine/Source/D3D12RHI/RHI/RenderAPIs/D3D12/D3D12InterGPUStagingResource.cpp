@@ -47,7 +47,7 @@ void D3D12InterGPUStagingResource::Init()
 	{
 		SafeRelease(MainHeap);
 	}
-	Host->CreateHeap(&heapDesc, IID_PPV_ARGS(&MainHeap));
+	Host->CreateHeap(&heapDesc, ID_PASS(&MainHeap));
 
 	ThrowIfFailed(Host->CreateSharedHandle(
 		MainHeap,
@@ -72,7 +72,7 @@ void D3D12InterGPUStagingResource::CreateForGPU(int index)
 		return;
 	}
 	ID3D12Device* Target = D3D12RHI::DXConv(RHI::GetDeviceContext(index))->GetDevice();
-	HRESULT openSharedHandleResult = Target->OpenSharedHandle(heapHandle, IID_PPV_ARGS(&GPUViews[index].SharedHeap));
+	HRESULT openSharedHandleResult = Target->OpenSharedHandle(heapHandle, ID_PASS(&GPUViews[index].SharedHeap));
 	ensure(openSharedHandleResult == S_OK);
 	ID3D12Resource* Res = nullptr;
 	ThrowIfFailed(Target->CreatePlacedResource(
@@ -81,7 +81,7 @@ void D3D12InterGPUStagingResource::CreateForGPU(int index)
 		&CrossAdapterDesc,
 		D3D12_RESOURCE_STATE_COPY_SOURCE,
 		nullptr,
-		IID_PPV_ARGS(&Res)));
+		ID_PASS(&Res)));
 
 	GPUViews[index].SharedResource = new GPUResource(Res, D3D12_RESOURCE_STATE_COPY_SOURCE, RHI::GetDeviceContext(index));
 }

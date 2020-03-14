@@ -116,7 +116,7 @@ void MeshPipelineController::BuildStaticInstancing()
 	}
 	//#mesh Group based on material
 	//#mesh arbitrary per instance data.
-	std::map<RHIBuffer*, std::vector<MeshBatch*>> Buckets;
+	std::map<RHIBufferGroup*, std::vector<MeshBatch*>> Buckets;
 	for (int i = 0; i < Batches.size(); i++)
 	{
 		if (Batches[i]->Owner == nullptr)
@@ -165,7 +165,7 @@ void MeshPipelineController::BuildStaticInstancing()
 	}
 }
 
-void MeshPipelineController::CreateInstanceController(MeshBatch* Ctl, std::map<RHIBuffer *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset)
+void MeshPipelineController::CreateInstanceController(MeshBatch* Ctl, std::map<RHIBufferGroup *, std::vector<MeshBatch *>>::iterator itor, int limit, int offset)
 {
 	Ctl->IsinstancedBatch = true;
 	Ctl->InstanceBuffer = new MeshInstanceBuffer();

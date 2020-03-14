@@ -1,8 +1,9 @@
 #pragma once
 #include "Rendering/Core/RenderBaseTypes.h"
+#ifdef BUILD_ASSIMP
 #include "assimp/vector3.h"
 #include "assimp/quaternion.h"
-
+#endif
 struct MeshEntity;
 struct aiScene;
 class Archive;
@@ -17,6 +18,7 @@ class Mesh;
 class Transform;
 
 ///Represents one animation clip and all its props
+#ifdef BUILD_ASSIMP
 struct AnimationClip
 {
 	AnimationClip(const aiAnimation* Assimpanim, float AnimRate = 1.0f)
@@ -28,6 +30,13 @@ struct AnimationClip
 	{}
 	float Rate = 1.0f;
 	const aiAnimation* AssimpAnim = nullptr;
+};
+#endif
+struct RawMeshData
+{
+	std::vector<OGLVertex> vertices;
+	std::vector<IndType> indices;
+	int MaterialIndex = 0;
 };
 ///class that loads mesh data into a Mesh Entity;
 class MeshLoader
@@ -44,10 +53,15 @@ public:
 		bool FlipUVs = false;
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
+#ifdef BUILD_ASSIMP
 		AnimationClip AnimSettings;
+#endif
 		bool AllowInstancing = true;//Temp
 	};
+
 	static bool LoadAnimOnly(std::string filename, SkeletalMeshEntry * SkeletalMesh, std::string Name, FMeshLoadingSettings& Settings);
+	static bool LoadMeshFromCookedFile(std::string filename, std::vector<RawMeshData*> &Meshes);
+	static bool SaveMeshToCookedFile(std::string filename, std::vector<RawMeshData*> &Meshes);
 	static bool LoadMeshFromFile(std::string filename, FMeshLoadingSettings& Settings, std::vector<MeshEntity*> &Meshes, SkeletalMeshEntry** pSkeletalEntity);
 	static bool LoadMeshFromFile_Direct(std::string filename, FMeshLoadingSettings & Settings, std::vector<OGLVertex>& vertices, std::vector<IndType>& indices);
 	Mesh* TryLoadFromCache(std::string Path);
@@ -92,14 +106,15 @@ struct SkeletalMeshEntry
 	void LoadBones(uint MeshIndex, const aiMesh * pMesh, std::vector<VertexBoneData>& Bones);
 	const aiNodeAnim * FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName);
 	std::map<std::string, uint> m_BoneMapping;
-	std::map<std::string, AnimationClip> AnimNameMap;
 	std::vector<BoneInfo> m_BoneInfo;
 	std::vector<MeshEntity*> MeshEntities;
 	std::vector<glm::mat4x4> FinalBoneTransforms;
 	void InitScene(const aiScene* sc);
 	uint FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void Release();
+#ifdef BUILD_ASSIMP
 	void SetAnim(const AnimationClip& anim);
+	std::map<std::string, AnimationClip> AnimNameMap;
 private:
 	const aiScene* Scene = nullptr;
 	uint FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim);
@@ -108,8 +123,9 @@ private:
 	void CalcInterpolatedPosition(aiVector3D & Out, float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void CalcInterpolatedRotation(aiQuaternion & Out, float AnimationTime, const aiNodeAnim * pNodeAnim);
 	void ReadNodes(float time, const aiNode* pNode, const glm::mat4 ParentTransfrom, const aiAnimation* Anim);
+	AnimationClip CurrentAnim;
+#endif
 	float MaxTime = 0.0f;
 	int m_NumBones = 0;
 	glm::mat4 ModelInvTransfrom;
-	AnimationClip CurrentAnim;
 };

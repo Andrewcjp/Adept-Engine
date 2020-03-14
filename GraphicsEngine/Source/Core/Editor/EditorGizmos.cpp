@@ -238,7 +238,6 @@ void EditorGizmos::InitBoxes()
 	Boxes[CurrentWidget::Handle_ALL].Max = TargetPos + glm::vec3(BoxSize, BoxSize, BoxSize);
 	Planes[CurrentWidget::Handle_ALL].normal = glm::vec3(0, 1, 0);
 }
-#endif
 
 bool EditorGizmos::Box::intersect(const Ray &r)
 {
@@ -277,3 +276,4 @@ bool EditorGizmos::Box::intersect(const Ray &r)
 
 	return true;
 }
+#endif

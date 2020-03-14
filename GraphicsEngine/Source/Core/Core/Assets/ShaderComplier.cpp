@@ -1,16 +1,23 @@
 #include "ShaderComplier.h"
 #include "Asset_Shader.h"
+#include "AssetManager.h"
 #include "Core/Engine.h"
+#include "Core/Module/ModuleManager.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Platform/ConsoleVariable.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 #include "Core/Utils/StringUtil.h"
-#include "RHI/Shader.h"
+#include "Packaging/Cooker.h"
+#include "Rendering/Core/ShaderCache.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "Rendering/ShaderGraph/ShaderGraphComplier.h"
 #include "Rendering/Shaders/Shader_NodeGraph.h"
-#include "../Platform/Windows/WindowsWindow.h"
+#include "RHI/Shader.h"
+#include "RHI/ShaderComplierModule.h"
+
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
+
 ShaderComplier::ShaderComplier()
 {
 	MaterialCompiler = new ShaderGraphComplier();
@@ -41,7 +48,21 @@ void ShaderComplier::ComplieAllGlobalShaders()
 			GetShaderMap(RHI::GetDeviceContext(i))->emplace(it->first, NewShader);
 		}
 		CurrentCount++;
-		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size()));
+		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
+	}
+	for (auto it = SingleShaderMapDefinitions.begin(); it != SingleShaderMapDefinitions.end(); ++it)
+	{
+		ShaderComplieItem Item;
+		Item.Data = AssetManager::Get()->LoadFileWithInclude(it->second->SourceFile + ".hlsl");
+		Item.Defines = it->second->Defines;
+		ShaderProgramBase::AddDefaultDefines(Item.Defines, RHI::GetDeviceContext(0));
+		Item.Stage = it->second->Stage;
+		Item.EntryPoint = "main";
+		Item.ShaderName = it->second->SourceFile;
+		Item.TargetPlatfrom = PlatformApplication::GetPlatform();
+		ShaderCache::Get()->GetShader(&Item);
+		CurrentCount++;
+		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
 	}
 }
 
@@ -101,9 +122,6 @@ void ShaderComplier::AddShaderType(std::string Name, ShaderType type)
 #define DEBUG_SLOW_COMPLIE 1
 void ShaderComplier::TickMaterialComplie()
 {
-#if BASIC_RENDER_ONLY
-	return;
-#endif
 #if DEBUG_SLOW_COMPLIE
 	if (RHI::GetFrameCount() % 100 != 0)
 	{
@@ -167,6 +185,65 @@ Shader_NodeGraph* ShaderComplier::EnqeueueMaterialShadercomplie(MaterialShaderCo
 	return Pair.Placeholder;
 }
 
+void ShaderComplier::RegisterShaderComplier(std::string DLLName)
+{
+	ShaderComplierNames.push_back(DLLName);
+}
+
+void ShaderComplier::Init()
+{
+#ifdef PLATFORM_WINDOWS
+	ShaderComplierNames.push_back("WindowsShaderCompiler");
+#endif
+	FindAndLoadCompliers();
+}
+
+void ShaderComplier::FindAndLoadCompliers()
+{
+	for (int i = 0; i < ShaderComplierNames.size(); i++)
+	{
+		std::string ComplierName = ShaderComplierNames[i];
+		IShaderComplier* Complier = ModuleManager::Get()->GetModule<IShaderComplier>(FString(ComplierName));
+		if (Complier != nullptr)
+		{			
+			Shadercompliers.push_back(Complier);
+		}
+	}
+	PlatformInterface::RegisterShaderCompliers(Shadercompliers);
+}
+
+void ShaderComplier::ComplieShaderNew(ShaderComplieItem* Item, EPlatforms::Type platform)
+{
+	Item->ComplieShaderDebug = ShaderComplier::Get()->ShouldBuildDebugShaders();
+	for (int i = 0; i < Shadercompliers.size(); i++)
+	{
+		if (Shadercompliers[i]->SupportsPlatform(platform))
+		{
+			Shadercompliers[i]->ComplieShader(Item);
+			return;
+		}
+	}
+	AD_Assert_Always("No shader complier found for shader");
+}
+
+void ShaderComplier::RegisterSingleShader(SingleShaderComplie * Target)
+{
+	SingleShaderMapDefinitions.emplace(Target->GetHash(), Target);
+}
+
+bool ShaderComplier::CheckSourceFileRegistered(std::string file)
+{
+	for (auto it = SingleShaderMapDefinitions.begin(); it != SingleShaderMapDefinitions.end(); ++it)
+	{
+		if (it->second->SourceFile == file)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 ShaderComplier::ShaderMap * ShaderComplier::GetShaderMap(DeviceContext * device)
 {
 	if (device == nullptr)
@@ -176,11 +253,33 @@ ShaderComplier::ShaderMap * ShaderComplier::GetShaderMap(DeviceContext * device)
 	return &GlobalShaderMap[device->GetDeviceIndex()];
 }
 
-
 ShaderType::ShaderType(std::string name, InitliserFunc constructor, const ShaderInit & init, ShouldComplieSig func)
 {
 	Constructor = constructor;
 	ShaderInitalizer = init;
 	ShouldComplieFunc = func;
 	ShaderComplier::Get()->AddShaderType(name, *this);
+}
+
+SingleShaderComplie::SingleShaderComplie(std::string name, std::string file, ShaderProgramBase::Shader_Define Define, EShaderType::Type stage)
+{
+	Name = name;
+	SourceFile = file;
+	Defines.push_back(Define);
+	Stage = stage;
+	ShaderComplier::Get()->RegisterSingleShader(this);
+}
+
+SingleShaderComplie::SingleShaderComplie(std::string name, std::string file, EShaderType::Type stage)
+{
+	Name = name;
+	SourceFile = file;
+	Stage = stage;
+	ShaderComplier::Get()->RegisterSingleShader(this);
+}
+
+uint64 SingleShaderComplie::GetHash()
+{
+	uint64 hash = std::hash<std::string>{} (SourceFile);
+	return hash;
 }

@@ -87,11 +87,14 @@ struct DXFeatureData
 	D3D12_FEATURE_DATA_D3D12_OPTIONS1  FeatureData1;
 	D3D12_FEATURE_DATA_D3D12_OPTIONS2  FeatureData2;
 	D3D12_FEATURE_DATA_D3D12_OPTIONS3  FeatureData3;
+#if WIN10_1809
 	D3D12_FEATURE_DATA_D3D12_OPTIONS4  FeatureData4;
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5  FeatureData5;
+#endif
 #if WIN10_1903
 	D3D12_FEATURE_DATA_D3D12_OPTIONS6  FeatureData6;
 #endif
+	D3D12_FEATURE_DATA_ARCHITECTURE1 ArchData = {};
 };
 struct GPUUploadRequest
 {
@@ -135,13 +138,16 @@ public:
 #if WIN10_1809
 	ID3D12Device5 *GetDevice5();
 #endif
+#if WIN10_1903
+	ID3D12Device6* GetDevice6();
+#endif
 	ID3D12CommandQueue* GetCommandQueue();
-	ID3D12GraphicsCommandList* GetCopyList();
+	CopyCMDListType* GetCopyList();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
 	void ResetCopyEngine();
 	void ExecuteComputeCommandList(ID3D12GraphicsCommandList * list);
-	void ExecuteCopyCommandList(ID3D12GraphicsCommandList * list);
+	void ExecuteCopyCommandList(CopyCMDListType * list);
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	class RHITimeManager* GetTimeManager()override;
@@ -169,6 +175,10 @@ public:
 	void EnqueueUploadRequest(const GPUUploadRequest & request);
 	CommandAllocator* GetAllocator(D3D12CommandList* list);
 	const DXFeatureData& GetFeatureData()const;
+	
+
+	bool IsUMA() const override;
+
 private:
 	DXFeatureData DeviceFeatureData;
 	void FlushUploadQueue();
@@ -191,16 +201,22 @@ private:
 	bool LogDeviceDebug = true;
 
 	//Device Data
+#if SUPPORT_DXGI
 	IDXGIAdapter3 * pDXGIAdapter = nullptr;
+#endif
 	ID3D12Device* m_Device = nullptr;
 	ID3D12Device2* m_Device2 = nullptr;
 #if WIN10_1809
 	ID3D12Device5* m_Device5 = nullptr;
 #endif
-
+#if WIN10_1903
+	ID3D12Device6* m_device6 = nullptr;
+#endif
 	//device info
 	DeviceMemoryData MemoryData;
+#if SUPPORT_DXGI
 	DXGI_QUERY_VIDEO_MEMORY_INFO CurrentVideoMemoryInfo;
+#endif
 	size_t usedVRAM = 0;
 	size_t totalVRAM = 0;
 	DXGI_ADAPTER_DESC1 Adaptordesc;

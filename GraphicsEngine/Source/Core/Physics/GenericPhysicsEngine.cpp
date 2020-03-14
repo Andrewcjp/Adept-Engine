@@ -3,16 +3,16 @@
 #include "Core/GameObject.h"
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Utils/TypeUtils.h"
-static ConsoleVariable DebugMode("physdebug", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable PHYS_DebugMode("physdebug", 0, ECVarType::ConsoleAndLaunch);
 
 void GenericPhysicsEngine::InitPhysics()
 {
-	DebugMode.SetValue(EPhysicsDebugMode::None);
+	PHYS_DebugMode.SetValue(EPhysicsDebugMode::None);
 }
 
 void GenericPhysicsEngine::StepPhysics(float Deltatime)
 {
-	SetPhysicsDebugMode(DebugMode.GetAsEnum<EPhysicsDebugMode::Type>());
+	SetPhysicsDebugMode(PHYS_DebugMode.GetAsEnum<EPhysicsDebugMode::Type>());
 }
 
 void GenericPhysicsEngine::CleanupPhysics()
@@ -39,3 +39,7 @@ ConstraintInstance * GenericPhysicsEngine::CreateConstraint(RigidBody * A, Rigid
 }
 
 
+EPhysicsDebugMode::Type GenericPhysicsEngine::GetCurrentMode()
+{
+	return EPhysicsDebugMode::None;
+}

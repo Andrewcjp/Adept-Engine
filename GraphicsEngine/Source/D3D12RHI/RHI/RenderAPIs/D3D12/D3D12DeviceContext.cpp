@@ -48,7 +48,9 @@ D3D12DeviceContext::~D3D12DeviceContext()
 	SafeRelease(m_CopyCommandQueue);
 	SafeRelease(m_Device);
 	SafeDelete(HeapManager);
+#if SUPPORT_DXGI
 	SafeRelease(pDXGIAdapter);
+#endif
 	/*if (pDXGIAdapter != nullptr)
 	{
 		pDXGIAdapter->UnregisterVideoMemoryBudgetChangeNotification(m_BudgetNotificationCookie);
@@ -80,10 +82,10 @@ void D3D12DeviceContext::CheckFeatures()
 	//#DX12: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
-	D3D12_FEATURE_DATA_ARCHITECTURE1 ARCHDAta = {};
-	ARCHDAta.NodeIndex = 0;
-	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&ARCHDAta), sizeof(ARCHDAta)));
-	if (ARCHDAta.UMA)
+	
+	DeviceFeatureData.ArchData.NodeIndex = 0;
+	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&DeviceFeatureData.ArchData), sizeof(DeviceFeatureData.ArchData)));
+	if (DeviceFeatureData.ArchData.UMA)
 	{
 		GPUType = EGPUType::Intergrated;
 	}
@@ -99,7 +101,7 @@ void D3D12DeviceContext::CheckFeatures()
 	{
 		GPUType = EGPUType::Software;
 	}
-	LogFeatureData("UMA", ARCHDAta.UMA);
+	LogFeatureData("UMA", DeviceFeatureData.ArchData.UMA);
 #if 0
 	LogFeatureData("TileBasedRenderer", ARCHDAta.TileBasedRenderer);
 	LogFeatureData("IsolatedMMU", ARCHDAta.IsolatedMMU);
@@ -175,7 +177,7 @@ void D3D12DeviceContext::CheckFeatures()
 #if WIN10_1809
 	const D3D_SHADER_MODEL MaxSM = D3D_SHADER_MODEL_6_4;
 #else
-	const D3D_SHADER_MODEL MaxSM = D3D_SHADER_MODEL_6_2;
+	const D3D_SHADER_MODEL MaxSM = D3D_SHADER_MODEL_6_1;
 #endif
 	for (int i = MaxSM; i > D3D_SHADER_MODEL_5_1; i--)
 	{
@@ -196,10 +198,12 @@ void D3D12DeviceContext::CheckFeatures()
 		break;
 	case D3D_SHADER_MODEL_6_0:
 	case D3D_SHADER_MODEL_6_1:
+#if WIN10_1809
 	case D3D_SHADER_MODEL_6_2:
 	case D3D_SHADER_MODEL_6_3:
 	case D3D_SHADER_MODEL_6_4:
-#if WIN10_1903
+#endif
+#if WIN10_1903 && defined(PLATFORM_WINDOWS)
 	case D3D_SHADER_MODEL_6_5:
 #endif
 		Caps_Data.HighestModel = EShaderSupportModel::SM6;
@@ -250,7 +254,6 @@ void D3D12DeviceContext::CheckFeatures()
 		case D3D12_CROSS_NODE_SHARING_TIER_1:
 			Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
 			break;
-		case D3D12_CROSS_NODE_SHARING_TIER_3:
 		case D3D12_CROSS_NODE_SHARING_TIER_2:
 			Caps_Data.ConnectionMode = EMGPUConnectionMode::DirectTransfer;
 			break;
@@ -286,6 +289,13 @@ void D3D12DeviceContext::InitDevice(int index)
 #if 0
 	pDXGIAdapter->RegisterVideoMemoryBudgetChangeNotificationEvent(m_VideoMemoryBudgetChange, &m_BudgetNotificationCookie);
 #endif
+	m_Device->QueryInterface(ID_PASS(&m_Device2));
+#if WIN10_1809
+	m_Device->QueryInterface(ID_PASS(&m_Device5));
+#endif
+#if WIN10_1903
+	m_Device->QueryInterface(ID_PASS(&m_device6));
+#endif
 	HeapManager = new DescriptorHeapManager(this);
 	DescriptorCacheManager = new DescriptorCache(this);
 	// Describe and create the command queue.
@@ -294,16 +304,19 @@ void D3D12DeviceContext::InitDevice(int index)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.NodeMask = GetNodeMask();
 
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_MainCommandQueue)));
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, ID_PASS(&m_MainCommandQueue)));
 	DEVICE_NAME_OBJECT(m_MainCommandQueue);
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_ComputeCommandQueue)));
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CopyCommandQueue)));
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_SharedCopyCommandQueue)));
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, ID_PASS(&m_ComputeCommandQueue)));
 
+	queueDesc.Type = D3D12RHIConfig::CopyListQueueType;
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, ID_PASS(&m_CopyCommandQueue)));
+#if SUPPORT_DXGI
+	queueDesc.Type = D3D12RHIConfig::CopyListQueueType;
+	ThrowIfFailed(m_Device->CreateCommandQueue(&queueDesc, ID_PASS(&m_SharedCopyCommandQueue)));
 	DEVICE_NAME_OBJECT(m_SharedCopyCommandQueue);
+#endif
+
 	DEVICE_NAME_OBJECT(m_ComputeCommandQueue);
 	DEVICE_NAME_OBJECT(m_CopyCommandQueue);
 
@@ -319,7 +332,9 @@ void D3D12DeviceContext::InitDevice(int index)
 	GPUCopyList->ResetList();
 	GraphicsSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Graphics), GetDevice());
 	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
+#if SUPPORT_DXGI
 	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
+#endif
 	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
 	for (int x = 0; x < RHI::CPUFrameCount; x++)
 	{
@@ -392,6 +407,11 @@ const DXFeatureData & D3D12DeviceContext::GetFeatureData() const
 	return DeviceFeatureData;
 }
 
+bool D3D12DeviceContext::IsUMA() const
+{
+	return DeviceFeatureData.ArchData.UMA;
+}
+
 void D3D12DeviceContext::FlushUploadQueue()
 {
 	for (int i = 0; i < Requests.size(); i++)
@@ -406,7 +426,8 @@ void D3D12DeviceContext::FlushUploadQueue()
 
 void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
 {
-	//EnableStablePower.SetValue(true);
+#if SUPPORT_DXGI
+	EnableStablePower.SetValue(true);
 	pDXGIAdapter = (IDXGIAdapter3*)adapter;
 	pDXGIAdapter->GetDesc1(&Adaptordesc);
 	VendorID = Adaptordesc.VendorId;
@@ -414,7 +435,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 	HRESULT result = D3D12CreateDevice(
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
-		IID_PPV_ARGS(&m_Device)
+		ID_PASS(&m_Device)
 	);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
@@ -425,7 +446,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		ThrowIfFailed(D3D12CreateDevice(
 			pDXGIAdapter,
 			MaxLevel,
-			IID_PPV_ARGS(&m_Device)
+			ID_PASS(&m_Device)
 		));
 	}
 	DEVICE_NAME_OBJECT(m_Device);
@@ -438,12 +459,9 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		Log::LogMessage(ss.str());
 		Log::LogMessage("Creating device with " + std::to_string(m_Device->GetNodeCount()) + " Nodes");
 	}
-	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device2));
-#if WIN10_1809
-	m_Device->QueryInterface(IID_PPV_ARGS(&m_Device5));
-#endif
 	SetNodeMaskFromIndex(0);
 	InitDevice(index);
+#endif
 
 }
 
@@ -469,7 +487,12 @@ ID3D12Device5 * D3D12DeviceContext::GetDevice5()
 	return m_Device5;
 }
 #endif
-
+#if WIN10_1903
+ID3D12Device6 * D3D12DeviceContext::GetDevice6()
+{
+	return m_device6;
+}
+#endif
 ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
 {
 	return GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
@@ -516,6 +539,7 @@ void D3D12DeviceContext::ResetDeviceAtEndOfFrame()
 
 void D3D12DeviceContext::SampleVideoMemoryInfo()
 {
+#if SUPPORT_DXGI
 	pDXGIAdapter->QueryVideoMemoryInfo(GetNodeIndex(), DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &CurrentVideoMemoryInfo);
 	MemoryData.HostSegment_TotalBytes = CurrentVideoMemoryInfo.Budget;
 
@@ -529,6 +553,7 @@ void D3D12DeviceContext::SampleVideoMemoryInfo()
 	{
 		GetMemoryManager()->UpdateTotalAlloc();
 	}
+#endif
 }
 
 RHIClass::GPUMemoryData D3D12DeviceContext::GetMemoryReport()
@@ -557,7 +582,9 @@ void D3D12DeviceContext::WaitForGpu()
 
 void D3D12DeviceContext::WaitForCopy()
 {
-	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
+#if  1//SUPPORT_DXGI	
+	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
+#endif
 }
 
 void D3D12DeviceContext::ReportData()
@@ -582,9 +609,9 @@ void D3D12DeviceContext::ReportData()
 	Log::LogMessage(ss.str());
 }
 
-ID3D12GraphicsCommandList * D3D12DeviceContext::GetCopyList()
+CopyCMDListType * D3D12DeviceContext::GetCopyList()
 {
-	return D3D12RHI::DXConv(GPUCopyList)->GetCommandList();
+	return D3D12RHI::DXConv(GPUCopyList)->GetCopyList();
 }
 
 void D3D12DeviceContext::NotifyWorkForCopyEngine()
@@ -598,6 +625,7 @@ void D3D12DeviceContext::UpdateCopyEngine()
 	{
 		FlushUploadQueue();
 		GPUCopyList->Execute();
+		WaitForCopy();
 		CopyEngineHasWork = false;
 	}
 
@@ -621,7 +649,7 @@ void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * l
 	}
 }
 
-void D3D12DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list)
+void D3D12DeviceContext::ExecuteCopyCommandList(CopyCMDListType * list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_CopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -633,13 +661,14 @@ void D3D12DeviceContext::ExecuteCopyCommandList(ID3D12GraphicsCommandList * list
 
 void D3D12DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock)
 {
+#if SUPPORT_DXGI	
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_SharedCopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	if (RHI::BlockCommandlistExec() || forceblock)
 	{
 		GraphicsQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
 	}
-
+#endif
 }
 void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 {
@@ -669,7 +698,9 @@ bool D3D12DeviceContext::SupportsCommandList4()
 void D3D12DeviceContext::CPUWaitForAll()
 {
 	GraphicsQueueSync.CreateSyncPoint(m_MainCommandQueue);
+#if SUPPORT_DXGI	
 	CopyQueueSync.CreateSyncPoint(m_SharedCopyCommandQueue);
+#endif
 	CopyQueueSync.CreateSyncPoint(m_CopyCommandQueue);
 	ComputeQueueSync.CreateSyncPoint(m_ComputeCommandQueue);
 }
@@ -759,7 +790,7 @@ void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)
 	//  D3D12_FENCE_FLAG_SHARED
 	//	D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER
 	//	D3D12_FENCE_FLAG_NON_MONITORED
-	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_SHARED | D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER, IID_PPV_ARGS(&m_fence)));
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_SHARED | D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER, ID_PASS(&m_fence)));
 	m_fenceEvent = CreateEvent(nullptr, false, false, nullptr);
 	if (m_fenceEvent == nullptr)
 	{
@@ -776,13 +807,13 @@ void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)
 		&fenceHandle);
 
 	// Open shared handle to fence on secondaryDevice GPU
-	SecondDevice->OpenSharedHandle(fenceHandle, IID_PPV_ARGS(&secondaryFence));
+	SecondDevice->OpenSharedHandle(fenceHandle, ID_PASS(&secondaryFence));
 
 	CloseHandle(fenceHandle);
 }
 void GPUSyncPoint::InitGPUOnly(ID3D12Device * device)
 {
-	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, ID_PASS(&m_fence)));
 	m_fenceValue++;
 }
 void GPUSyncPoint::Init(ID3D12Device * device)
@@ -792,7 +823,7 @@ void GPUSyncPoint::Init(ID3D12Device * device)
 	//  D3D12_FENCE_FLAG_SHARED
 	//	D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER
 	//	D3D12_FENCE_FLAG_NON_MONITORED
-	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, ID_PASS(&m_fence)));
 	m_fenceEvent = CreateEvent(nullptr, false, false, nullptr);
 	if (m_fenceEvent == nullptr)
 	{
@@ -857,7 +888,7 @@ void GPUSyncPoint::Wait(ID3D12CommandQueue * queue, int value)
 void GPUFenceSync::Init(ID3D12CommandQueue * TargetQueue, ID3D12Device* device)
 {
 	Queue = TargetQueue;
-	ThrowIfFailed(device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+	ThrowIfFailed(device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, ID_PASS(&m_fence)));
 	m_fenceValues[m_frameIndex] = 1;
 	// Create an event handle to use for frame synchronization
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -942,6 +973,7 @@ void D3D12GPUSyncEvent::Wait()
 
 void D3D12DeviceContext::CheckNVAPISupport()
 {
+#if 0
 	NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS Par = {};
 	Par.version = NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS_VER1;
 	NvAPI_Status ret = NVAPI_OK;
@@ -950,4 +982,5 @@ void D3D12DeviceContext::CheckNVAPISupport()
 	{
 		LogDeviceData("Supports single pass stereo");
 	}
+#endif
 }

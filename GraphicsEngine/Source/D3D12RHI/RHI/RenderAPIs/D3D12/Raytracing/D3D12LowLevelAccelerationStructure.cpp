@@ -13,6 +13,7 @@
 #include "Core/Components/Component.h"
 #include "Core/GameObject.h"
 #include "Core/Components/MeshRendererComponent.h"
+#include "RHI/RHIBufferGroup.h"
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc) :LowLevelAccelerationStructure(Device, Desc)
 {}
 
@@ -72,13 +73,13 @@ void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
 {
 	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
 	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-	geometryDesc.Triangles.IndexBuffer = D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
-	geometryDesc.Triangles.IndexCount = (UINT)D3D12RHI::DXConv(Entity->IndexBuffers[0].Get())->GetVertexCount();
+	geometryDesc.Triangles.IndexBuffer = D3D12RHI::DXConv(Entity->IndexBuffers->Get(0))->GetResource()->GetResource()->GetGPUVirtualAddress();
+	geometryDesc.Triangles.IndexCount = (UINT)D3D12RHI::DXConv(Entity->IndexBuffers->Get(0))->GetVertexCount();
 	geometryDesc.Triangles.IndexFormat = DXGI_FORMAT_R16_UINT;
 	geometryDesc.Triangles.Transform3x4 = 0;
 	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-	geometryDesc.Triangles.VertexBuffer.StartAddress = D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetResource()->GetResource()->GetGPUVirtualAddress();
-	geometryDesc.Triangles.VertexCount = (UINT)D3D12RHI::DXConv(Entity->VertexBuffers[0].Get())->GetVertexCount();
+	geometryDesc.Triangles.VertexBuffer.StartAddress = D3D12RHI::DXConv(Entity->VertexBuffers->Get(0))->GetResource()->GetResource()->GetGPUVirtualAddress();
+	geometryDesc.Triangles.VertexCount = (UINT)D3D12RHI::DXConv(Entity->VertexBuffers->Get(0))->GetVertexCount();
 	ensure(geometryDesc.Triangles.VertexCount > 0);
 	geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
 	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;

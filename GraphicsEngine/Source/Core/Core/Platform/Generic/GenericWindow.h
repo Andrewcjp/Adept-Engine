@@ -1,4 +1,5 @@
 #pragma once
+#include "MinWindows.h"
 
 struct IntPoint;
 
@@ -28,5 +29,6 @@ public:
 	char						GetVirtualKeyAsChar(unsigned int key);
 	short						GetCharAsVirtualKey(char c);
 	bool						IsKeyDown(short key);
+	CORE_API static HWND		GetHWND() { return HWND(); };
 };
 

@@ -13,6 +13,7 @@ void VoxelTracingEngine::VoxliseTest(RHICommandList * list)
 	{
 		return;
 	}
+	VoxelMap->SetState(list, EResourceState::UAV);
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(voxeliseShader);
 	desc.DepthStencilState.DepthEnable = false;
 	desc.RasterizerState.ConservativeRaster = true;
@@ -25,6 +26,7 @@ void VoxelTracingEngine::VoxliseTest(RHICommandList * list)
 	Args.PassType = ERenderPass::VoxelPass;
 	Args.PassData = this;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, list);
+	VoxelMap->SetState(list, EResourceState::Non_PixelShader);
 	//list->UAVBarrier(VoxelMap);
 	//uav barrier?
 }
@@ -36,6 +38,7 @@ void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buf
 		return;
 	}
 	DECALRE_SCOPEDGPUCOUNTER(list,"RenderVoxelDebug");
+	
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(DebugvoxeliseShader, buffer);
 	desc.RasterizerState.Cull = false;
 	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE_POINT;
@@ -49,6 +52,7 @@ void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buf
 	SceneRenderer::Get()->BindMvBuffer(list);
 	list->DrawPrimitive(size*size*size, 1, 0, 0);
 	list->EndRenderPass();
+	
 }
 
 VoxelTracingEngine::VoxelTracingEngine()
@@ -71,6 +75,7 @@ VoxelTracingEngine::VoxelTracingEngine()
 	Desc.AllowUnorderedAccess = true;
 	Desc.Dimension = DIMENSION_TEXTURE3D;
 	Desc.Format = FORMAT_R32G32B32A32_UINT;
+	Desc.InitalState = EResourceState::UAV;
 	Desc.Name = "Voxel Struct";
 	VoxelMap->Create(Desc);
 }

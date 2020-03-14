@@ -7,7 +7,7 @@ public:
 	virtual ~PathTraceBindingTable();
 	virtual void InitTable() override;
 
-	virtual Shader_RTMateralHit* GetMaterialShader() override;
+	virtual Shader_RTBase* GetMaterialShader() override;
 
 protected:
 	virtual void OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader) override;

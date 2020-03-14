@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include "../PlatformTypes.h"
+#include "../Logger.h"
 struct PlatformMemoryInfo
 {
 	uint64 WorkingSetSize = 0;

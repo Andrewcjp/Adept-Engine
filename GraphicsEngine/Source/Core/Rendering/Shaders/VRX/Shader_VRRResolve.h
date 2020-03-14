@@ -9,6 +9,7 @@ public:
 	~Shader_VRRResolve();
 	DECLARE_GLOBAL_SHADER(Shader_VRRResolve);
 	void BindBuffer(RHICommandList* list);
+	bool IsDebugActive()const;
 private:
 	RHIBuffer* DataBuffer = nullptr;
 	struct VRSData
@@ -17,7 +18,15 @@ private:
 		float LerpBlend;
 		Bool Debug;
 		Bool ShowGrid;
+		Bool EdgeHeat;
 	};
 	VRSData DataInst;
+	RHIBuffer* AddressCache;
+	struct Cache
+	{
+		glm::ivec4 DataSet[16 * 16];
+		int BufferLength;
+	};
+	Cache DataCahce;
 };
 

@@ -26,8 +26,11 @@ void EditorUI::SetViewPortSize()
 	//return;
 	if (RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::Disabled)
 	{
-		RHI::GetRenderSettings()->LockBackBuffer = true;
-		RHI::GetRenderSettings()->LockedWidth = ViewPortImage->GetTransfrom()->GetTransfromedSize().x;
-		RHI::GetRenderSettings()->LockedHeight = ViewPortImage->GetTransfrom()->GetTransfromedSize().y;
+		if (RHI::GetRenderSettings()->Testmode == BBTestMode::Limit)
+		{
+			RHI::GetRenderSettings()->LockBackBuffer = true;
+			RHI::GetRenderSettings()->LockedWidth = ViewPortImage->GetTransfrom()->GetTransfromedSize().x;
+			RHI::GetRenderSettings()->LockedHeight = ViewPortImage->GetTransfrom()->GetTransfromedSize().y;
+		}
 	}
 }

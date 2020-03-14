@@ -44,6 +44,22 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSup
 #define IMP_CACHESHADERPARAM(clas,var) int clas::var = -1;
 #define CACHEPARM(var,name) var = GetSlotForName(#name);
 #define CACHED_SHADER_PARM(var,name)
+
+#define REGISTER_SHADER(name,file,stage) \
+static SingleShaderComplie SHADER_##name = SingleShaderComplie(#name,file,stage);
+
+#define REGISTER_SHADER_CS(name,file) REGISTER_SHADER(name,file,EShaderType::SHADER_COMPUTE);
+#define REGISTER_SHADER_PS(name,file) REGISTER_SHADER(name,file,EShaderType::SHADER_FRAGMENT);
+#define REGISTER_SHADER_VS(name,file) REGISTER_SHADER(name,file,EShaderType::SHADER_VERTEX);
+
+
+#define REGISTER_SHADER_ONEARG(name,file,define,stage) \
+static SingleShaderComplie SHADER_##name = SingleShaderComplie(#name,file,define,stage);
+
+#define REGISTER_SHADER_CS_ONEARG(name,file,define) REGISTER_SHADER_ONEARG(name,file,define,EShaderType::SHADER_COMPUTE);
+#define REGISTER_SHADER_PS_ONEARG(name,file,define) REGISTER_SHADER_ONEARG(name,file,define,EShaderType::SHADER_FRAGMENT);
+#define REGISTER_SHADER_VS_ONEARG(name,file,define) REGISTER_SHADER_ONEARG(name,file,define,EShaderType::SHADER_VERTEX);
+
 class Shader
 {
 public:

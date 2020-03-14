@@ -48,7 +48,7 @@ public:
 	*\param Force to add
 	*\param Force addition mode
 	*/
-	void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
+	CORE_API void AddForce(glm::vec3 force, EForceMode::Type Mode = EForceMode::AsForce);
 	/**
 	*\brief Returns the Linear velocity of the body from the last timestep
 	*/

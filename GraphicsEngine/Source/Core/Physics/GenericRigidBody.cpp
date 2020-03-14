@@ -100,10 +100,10 @@ RigidBody * GenericCollider::GetOwner()
 
 void GenericCollider::SetEnabled(bool state)
 {
-	if (Shape == nullptr)
+	/*if (Shape == nullptr)
 	{
 		return;
-	}
+	}*/
 #if PHYSX_ENABLED
 	if (state)
 	{

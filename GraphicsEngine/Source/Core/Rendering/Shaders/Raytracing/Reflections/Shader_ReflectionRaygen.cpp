@@ -13,9 +13,3 @@ Shader_ReflectionRaygen::Shader_ReflectionRaygen(DeviceContext * D)
 Shader_ReflectionRaygen::~Shader_ReflectionRaygen()
 {}
 
-std::vector<ShaderParameter> Shader_ReflectionRaygen::GetShaderParameters()
-{
-	std::vector<ShaderParameter> out;
-	
-	return out;
-}

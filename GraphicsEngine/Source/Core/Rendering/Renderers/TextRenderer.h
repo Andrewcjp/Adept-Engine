@@ -5,7 +5,9 @@
 #include "RHI/RHI.h"
 #include "RHI/BaseTexture.h"
 
+#if BUILD_FREETTYPE
 #include FT_FREETYPE_H  
+#endif
 class BaseTexture;
 class Text_Shader;
 class ShaderProgramBase;
@@ -52,8 +54,10 @@ private:
 	int TextDataLength = 0;
 	int m_width, m_height = 0;
 	Text_Shader * m_TextShader;
+#if BUILD_FREETTYPE
 	FT_Library ft;
 	FT_Face face;
+#endif
 	RHIBuffer* VertexBuffer = nullptr;
 	RHICommandList* TextCommandList = nullptr;
 	//when run on second gpu
@@ -93,8 +97,9 @@ private:
 			float tx;	// x offset of glyph in texture coordinates
 			float ty;	// y offset of glyph in texture coordinates
 		} c[128];		// character information
-
+#if BUILD_FREETTYPE
 		atlas(FT_Face face, int height);
+#endif
 		~atlas();
 	};
 	atlas* TextAtlas;

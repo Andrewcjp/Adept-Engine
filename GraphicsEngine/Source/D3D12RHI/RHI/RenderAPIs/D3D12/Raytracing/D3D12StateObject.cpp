@@ -45,15 +45,16 @@ void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->HitShader);
 		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->AnyHitShader);
 	}
-	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
-	{
-		AddShaderLibrary(Pipe, ShaderTable->RayGenShaders[i]);
-		CreateLocalRootSigShaders(Pipe, ShaderTable->RayGenShaders[i]);
-	}
+
 	for (int i = 0; i < ShaderTable->MissShaders.size(); i++)
 	{
 		AddShaderLibrary(Pipe, ShaderTable->MissShaders[i]);
 		CreateLocalRootSigShaders(Pipe, ShaderTable->MissShaders[i]);
+	}
+	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
+	{
+		AddShaderLibrary(Pipe, ShaderTable->RayGenShaders[i]);
+		CreateLocalRootSigShaders(Pipe, ShaderTable->RayGenShaders[i]);
 	}
 }
 
@@ -64,18 +65,16 @@ void D3D12StateObject::CreateStateObject()
 	AddShaders(RTPipe);
 	AddHitGroups(RTPipe);
 
-	auto shaderConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-	shaderConfig->Config(Desc.PayloadSize, Desc.AttibuteSize);
-
 	auto globalRootSignature = RTPipe.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
 	globalRootSignature->SetRootSignature(m_raytracingGlobalRootSignature);
 
+	auto shaderConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
+	shaderConfig->Config(Desc.PayloadSize, Desc.AttibuteSize);
+
 	auto pipelineConfig = RTPipe.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-
-
 	pipelineConfig->Config(Desc.MaxRecursionDepth);
 
-	D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice5()->CreateStateObject(RTPipe, IID_PPV_ARGS(&StateObject));
+	D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetDevice6()->CreateStateObject(RTPipe, ID_PASS(&StateObject));
 }
 
 void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
@@ -115,7 +114,9 @@ void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shade
 
 void D3D12StateObject::CreateRootSignatures()
 {
-	D3D12Shader::CreateRootSig(&m_raytracingGlobalRootSignature, ShaderTable->GlobalRootSig.Params, Device, true, RHISamplerDesc::GetDefault());
+	RootSignitureCreateInfo Info;
+	Info.IsGlobalSig = true;
+	D3D12Shader::CreateRootSig(&m_raytracingGlobalRootSignature, ShaderTable->GlobalRootSig.Params, Device, true, RHISamplerDesc::GetDefault(), Info);
 }
 
 void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader)
@@ -132,8 +133,16 @@ void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & ray
 	ID3D12RootSignature* m_raytracingLocalRootSignature = nullptr;
 	RootSignitureCreateInfo Info;
 	Info.IsLocalSig = true;
-	D3D12Shader::CreateRootSig(&m_raytracingLocalRootSignature, shader->GetShaderParameters(), Device, true, std::vector<RHISamplerDesc>(), Info);
-
+	//if (shader->GetStage() == ERTShaderType::RayGen)
+	//{
+	//	std::vector<ShaderParameter> Hask;
+	//	Hask.push_back(ShaderParameter(ShaderParamType::CBV, 5, 66));
+	//	D3D12Shader::CreateRootSig(&m_raytracingLocalRootSignature, Hask, Device, true, std::vector<RHISamplerDesc>(), Info);
+	//}
+	//else
+	{
+		D3D12Shader::CreateRootSig(&m_raytracingLocalRootSignature, shader->GetShaderParameters(), Device, true, std::vector<RHISamplerDesc>(), Info);
+	}
 	// Local root signature to be used in a hit group.
 	auto localRootSignature = raytracingPipeline.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
 	localRootSignature->SetRootSignature(m_raytracingLocalRootSignature);
@@ -185,7 +194,7 @@ void D3D12StateObject::BuildShaderTables()
 		D3D12RHI::DXConv(Device)->GetMemoryManager()->AllocUploadTemporary(desc, &SBTData);
 		m_sbtStorage = SBTData->GetResource();
 	}
-	StateObject->QueryInterface(IID_PPV_ARGS(&props));
+	StateObject->QueryInterface(ID_PASS(&props));
 	m_sbtHelper.Generate(m_sbtStorage, props);
 }
 
@@ -233,6 +242,8 @@ void D3D12StateObject::BindToList(D3D12CommandList * List)
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& DispatchDesc, RHICommandList* T, D3D12FrameBuffer* target)
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
+
+	DXList->GetRootSig()->SetRootSig(ShaderTable->GlobalRootSig.Params);
 	if (DispatchDesc.PushRayArgs)
 	{
 		DXList->SetRootConstant(8, 2, ((void*)&DispatchDesc.RayArguments), 0);

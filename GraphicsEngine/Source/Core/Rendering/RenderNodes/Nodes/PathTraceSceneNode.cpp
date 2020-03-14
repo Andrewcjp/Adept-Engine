@@ -7,11 +7,14 @@
 #include "Rendering/RayTracing/ShaderBindingTable.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "../../RayTracing/Tables/PathTraceBindingTable.h"
+#include "../../Core/Camera.h"
+#include "RHI/RHICommandList.h"
 
 
 PathTraceSceneNode::PathTraceSceneNode()
 {
 	OnNodeSettingChange();
+	NodeEngineType = ECommandListType::Compute;
 }
 
 
@@ -23,14 +26,14 @@ void PathTraceSceneNode::OnExecute()
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
 	StateObject->RebuildShaderTable();
 	FLAT_COMPUTE_START(RTList->GetRHIList()->GetDevice());
-
+	
 	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
 	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());
 	Data.CamPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	CBV->UpdateConstantBuffer(&Data, 0);
 
 	RTList->ResetList();
-
+	SetBeginStates(RTList->GetRHIList());
 	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
 	RTList->SetStateObject(StateObject);
 
@@ -38,6 +41,7 @@ void PathTraceSceneNode::OnExecute()
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
 	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
+	SetEndStates(RTList->GetRHIList());
 	RTList->Execute();
 
 	FLAT_COMPUTE_END(RTList->GetRHIList()->GetDevice());

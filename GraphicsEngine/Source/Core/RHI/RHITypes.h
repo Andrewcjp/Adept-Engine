@@ -239,6 +239,9 @@ namespace EBufferResourceState
 		UnorderedAccess,
 		Read,
 		IndirectArgs,
+		Non_PixelShader,
+		CopySrc,
+		CopyDST,
 		Limit
 	};
 }
@@ -300,7 +303,8 @@ namespace ERHIBufferType
 		Vertex,
 		Index,
 		Constant,
-		GPU
+		GPU,
+		ReadBack
 	};
 }
 
@@ -573,6 +577,7 @@ struct RHIViewDesc
 	EViewType::Type ViewType = EViewType::Limit;
 	eTextureDimension Dimension = DIMENSION_UNKNOWN;
 	bool UseResourceFormat = true;
+	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	static RHIViewDesc CreateUAV(int Resource)
 	{
 		RHIViewDesc D;
@@ -741,7 +746,8 @@ namespace EBufferAccessType
 	{
 		Static,
 		Dynamic,
-		GPUOnly
+		GPUOnly,
+		ReadBack
 	};
 };
 

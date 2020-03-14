@@ -33,7 +33,7 @@ inline ID3D12Resource* CreateBuffer(ID3D12Device* m_device, uint64_t size,
 
   ID3D12Resource* pBuffer;
   ThrowIfFailed(m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &bufDesc,
-                                                  initState, nullptr, IID_PPV_ARGS(&pBuffer)));
+                                                  initState, nullptr, ID_PASS(&pBuffer)));
   return pBuffer;
 }
 
@@ -135,7 +135,7 @@ ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, uint32_t count,
       shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
   ID3D12DescriptorHeap* pHeap;
-  ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pHeap)));
+  ThrowIfFailed(device->CreateDescriptorHeap(&desc, ID_PASS(&pHeap)));
   return pHeap;
 }
 

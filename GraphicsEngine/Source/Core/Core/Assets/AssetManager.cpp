@@ -140,20 +140,22 @@ const PlatformBuildSettings & AssetManager::GetSettings()
 
 std::string AssetManager::GetPlatformDirName()
 {
+#if SUPPORTS_COOK	
 	if (Engine::GetIsCooking())
 	{
 		return EPlatforms::ToString(Engine::GetCookContext()->GetTargetPlatform());
 	}
+#endif
 	return  EPlatforms::ToString(PlatformApplication::GetPlatform());
 }
 
-void AssetManager::WriteShaderMetaFile(ShaderSourceFile * file, std::string path)
+void AssetManager::WriteShaderMetaFile(ShaderSourceFile * file, std::string path,EPlatforms::Type platform)
 {
 	if (file->RootConstants.size() == 0)
 	{
 		return;
 	}
-	std::string Metapath = GetShaderCacheDir() + path + ".meta";
+	std::string Metapath = GetShaderCacheDir(platform) + path + ".meta";
 	Archive* File = new Archive(Metapath, true);
 	File->HandleArchiveBody("ShaderData", ShaderSourceFile::VersionNum);
 	File->LinkStringArray(file->RootConstants, "RootConstants");
@@ -177,9 +179,14 @@ bool AssetManager::LoadShaderMetaFile(std::string CSOpath, ShaderSourceFile** fi
 	return true;
 }
 
-const std::string AssetManager::GetShaderCacheDir()
+const std::string AssetManager::GetShaderCacheDir(EPlatforms::Type Platform)
 {
-	return AssetManager::GetDDCPath() + "Shaders\\" + GetPlatformDirName() + "\\";
+	std::string platfromstring = GetPlatformDirName();
+	if (Platform != EPlatforms::Limit)
+	{
+		platfromstring = EPlatforms::ToString(Platform);
+	}
+	return AssetManager::GetDDCPath() + "Shaders\\" + platfromstring + "\\";
 }
 
 const std::string AssetManager::GetDriverShaderCacheDir()
@@ -198,7 +205,7 @@ void AssetManager::SetupPaths()
 	if (!FileUtils::File_ExistsTest(ContentDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Content Dir");
-		Engine::RequestExit(-1);
+		//Engine::RequestExit(-1);
 	}
 	DDCDirPath = RootDir + "\\" + DDCName + "\\";
 	PlatformApplication::TryCreateDirectory(DDCDirPath);
@@ -210,7 +217,7 @@ void AssetManager::SetupPaths()
 	if (!FileUtils::File_ExistsTest(ShaderDirPath))
 	{
 		PlatformApplication::DisplayMessageBox("Error", "No Shader Dir");
-		Engine::RequestExit(-1);
+		//Engine::RequestExit(-1);
 	}
 	ScriptDirPath = RootDir + "\\Scripts\\";
 #endif
@@ -231,11 +238,13 @@ void AssetManager::Init()
 	INISaver->SaveAllConfigProps();
 
 	TestAsset();
+#if SUPPORTS_COOK	
 	if (Engine::GetIsCooking())
 	{
 		InitAssetSettings(Engine::GetCookContext()->GetTargetPlatform());
 	}
 	else
+#endif
 	{
 		InitAssetSettings(PlatformApplication::GetPlatform());
 	}
@@ -272,6 +281,9 @@ AssetManager::~AssetManager()
 
 ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 {
+#if BUILD_PACKAGE
+	return new ShaderSourceFile();
+#else
 	ShaderSourceFile*  output;
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
@@ -285,6 +297,7 @@ ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 		output = ShaderSourceMap.at(name);
 	}
 	return output;
+#endif
 }
 
 void AssetManager::RegisterMeshAssetLoad(std::string name)
@@ -308,6 +321,8 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
 		return nullptr;
 	}
+#else
+	Fileref.IsDDC = true;
 #endif
 	RHITextureDesc Desc;
 	Desc.IsCubeMap = settings.IsCubeMap;

@@ -12,6 +12,7 @@ namespace EBuiltinRenderGraphs
 		VRForwardRenderer,
 		Pathtracing,
 		TEST_MGPU,
+		MGPU_SFR,
 		Custom,
 		Limit
 	};

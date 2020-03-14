@@ -42,6 +42,7 @@ void ReflectionsBindingTable::InitTable()
 	GlobalRootSig.Params.push_back(s);
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 9, 66));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 10, 3));
+	//GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 11, 10));
 }
 
 void ReflectionsBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)

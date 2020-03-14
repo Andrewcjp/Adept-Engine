@@ -65,7 +65,7 @@ void RigidbodyComponent::MovePhysicsBody(glm::vec3 newpos, glm::quat newrot)
 {
 	if (actor != nullptr)
 	{
-		actor->SetPositionAndRotation(newpos, newrot);
+//		actor->SetPositionAndRotation(newpos, newrot);
 		//Log::LogMessage(glm::to_string(newrot));
 	}
 }
@@ -74,18 +74,18 @@ void RigidbodyComponent::SceneInitComponent()
 {
 	if (Engine::PhysEngine != nullptr && GetOwnerScene() && !GetOwnerScene()->IsEditorScene())
 	{
-		actor = new RigidBody(EBodyType::RigidDynamic, *GetOwner()->GetTransform());
-		std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
-		for (ColliderComponent* cc : colliders)
-		{
-			cc->TransferToRigidbody();
-			actor->AttachCollider(cc->GetCollider());
-		}
-		actor->SetBodyData(BodyData);
-		actor->SetOwnerComponent(this);
-		actor->InitBody();
-		actor->SetLinearVelocity(InitalVelocity);
-		actor->SetGravity(BodyData.Gravity);
+		//actor = new RigidBody(EBodyType::RigidDynamic, *GetOwner()->GetTransform());
+		//std::vector<ColliderComponent*> colliders = GetOwner()->GetAllComponentsOfType<ColliderComponent>();
+		//for (ColliderComponent* cc : colliders)
+		//{
+		//	cc->TransferToRigidbody();
+		//	actor->AttachCollider(cc->GetCollider());
+		//}
+		//actor->SetBodyData(BodyData);
+		//actor->SetOwnerComponent(this);
+		////actor->InitBody();
+		//actor->SetLinearVelocity(InitalVelocity);
+		//actor->SetGravity(BodyData.Gravity);
 	}
 }
 

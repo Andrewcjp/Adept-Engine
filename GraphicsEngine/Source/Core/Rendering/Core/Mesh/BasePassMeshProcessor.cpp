@@ -5,6 +5,7 @@
 #include "RHI/RHICommandList.h"
 #include "../../Shaders/Shader_Main.h"
 #include "../SceneRenderer.h"
+#include "RHI/RHIBufferGroup.h"
 
 
 BasePassMeshProcessor::BasePassMeshProcessor(bool Cubemap)
@@ -53,7 +54,7 @@ void BasePassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComma
 	if (Command->NumInstances > 1)
 	{
 		//todo: move this 
-		List->SetConstantBufferView(Command->MaterialInstanceBuffer, 0, "MateralConstantBuffer");
+		List->SetConstantBufferView(Command->MaterialInstanceBuffer->Get(List), 0, "MateralConstantBuffer");
 	}
 
 	SceneRenderer::Get()->BindMvBuffer(List, "", args.Eye);

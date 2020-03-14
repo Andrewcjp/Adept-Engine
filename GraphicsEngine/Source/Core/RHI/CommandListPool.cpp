@@ -1,5 +1,6 @@
 #include "CommandListPool.h"
 #include "RHI/DeviceContext.h"
+#include "RHICommandList.h"
 
 RHICommandList * CommandListPool::GetList(DeviceContext * con, ECommandListType::Type type)
 {
@@ -45,9 +46,10 @@ void CommandListPool::Flush()
 	con->SetCurrentList(nullptr);
 }
 
-void CommandListPool::Init(int Threadcount)
+void CommandListPool::Init(int Threadcount, DeviceContext* device)
 {
 	ThreadContext.resize(Threadcount);
+	Context = device;
 }
 
 void PoolThreadContext::SetCurrentList(RHICommandList * list)

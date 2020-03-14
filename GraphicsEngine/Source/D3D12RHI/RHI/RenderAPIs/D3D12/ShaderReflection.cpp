@@ -1,6 +1,6 @@
 #include "ShaderReflection.h"
-#include <d3d12shader.h>
-#include <d3dcompiler.h>
+
+
 #include "Core\Utils\VectorUtils.h"
 #include "Core\Assets\AssetManager.h"
 #define DXIL_FOURCC(ch0, ch1, ch2, ch3) (                            \
@@ -11,20 +11,37 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 {
 	ID3D12ShaderReflection* REF = nullptr;
 #if !USE_DIXL
-	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), IID_PPV_ARGS(&REF)));
+	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), ID_PASS(&REF)));
 	RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 #else
 	IDxcContainerReflection* pReflection;
-	UINT32 shaderIdx;
+
 	DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
-	ThrowIfFailed(pReflection->Load(target));
-	ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
-	ensure(shaderIdx != 0);
+	HRESULT res = S_OK;
+#ifdef PLATFORM_WINDOWS
+	UINT32 shaderIdx = -1;
+	pReflection->Load(target);
+	if (res == S_OK)
+	{
+		ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
+	}
+	ensure(shaderIdx > 0);
+#endif
 	D3D12_LIBRARY_DESC LDesc;
 	if (Type == EShaderType::SHADER_RT_LIB)
 	{
 		ID3D12LibraryReflection* Libreflect;
+#ifdef PLATFORM_WINDOWS
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, IID_PPV_ARGS(&Libreflect)));
+#else
+		IDxcUtils* pUtils;
+		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
+		DxcBuffer ReflectionData;
+		ReflectionData.Encoding = DXC_CP_ACP;
+		ReflectionData.Ptr = target->GetBufferPointer();
+		ReflectionData.Size = target->GetBufferSize();
+		pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&Libreflect));
+#endif
 		Libreflect->GetDesc(&LDesc);
 
 		for (uint i = 0; i < LDesc.FunctionCount; i++)
@@ -35,7 +52,18 @@ void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type,
 	}
 	else
 	{
+#ifdef PLATFORM_WINDOWS
 		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
+#else
+		IDxcUtils* pUtils;
+		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
+		DxcBuffer ReflectionData;
+		ReflectionData.Encoding = DXC_CP_ACP;
+		ReflectionData.Ptr = target->GetBufferPointer();
+		ReflectionData.Size = target->GetBufferSize();
+		pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&REF));
+#endif
+
 		RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 	}
 #endif
@@ -156,7 +184,7 @@ void ShaderReflection::RelfectShader(ID3D12ShaderReflection* REF, bool &iscomput
 		}
 		if (p.Type != ShaderParamType::Limit && p.Type != ShaderParamType::Sampler)//#todo: handle dynamic samplers
 		{
-			VectorUtils::AddUnique(shaderbinds, p); 
+			VectorUtils::AddUnique(shaderbinds, p);
 		}
 	}
 	if (iscompute)

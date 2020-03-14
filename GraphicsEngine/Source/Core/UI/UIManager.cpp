@@ -105,7 +105,7 @@ void UIManager::InitEditorUI()
 	AssetMan->SetRootSpaceSize(1920, 200, 0, 0);
 	AddWidget(AssetMan);
 #endif
-
+#if EDITORUI
 	EditorLayout = new UILayoutManager();
 	UIWindow* LeftWindow = new UIWindow();
 	LeftWindow->GetTransfrom()->SetScalingMode(EWidetSizeSpace::RootSpace);
@@ -115,10 +115,10 @@ void UIManager::InitEditorUI()
 	AddWidget(LeftWindow);
 
 
-	 OutLiner = new EditorOutliner();
+	OutLiner = new EditorOutliner();
 	LeftWindow->AddTab(OutLiner);
 
-	
+
 	UITab* tab = new UITab();
 
 	UIWindow* RightWin = new UIWindow();
@@ -144,6 +144,7 @@ void UIManager::InitEditorUI()
 	inspector = new Inspector(0, 0, 0, 0);
 	inspector->SetRootSpaceScaled(0, 0, 0, 0);
 	RightWin->AddTab(inspector);
+#endif
 	const int Small = GetScaledWidth(0.2);
 	ViewportArea = glm::ivec4(1920 - Small, 1080 - Small, GetScaledWidth(0.2f), Small);
 	ViewportRect = CollisionRect(ViewportArea.x, ViewportArea.x, ViewportArea.z, ViewportArea.w);
@@ -272,7 +273,7 @@ void UIManager::UpdateBatches()
 }
 
 void UIManager::UpdateWidgets()
-{	
+{
 	SCOPE_CYCLE_COUNTER_GROUP("Update Widgets", "UI");
 	for (int i = 0; i < Contexts.size(); i++)
 	{
@@ -282,7 +283,9 @@ void UIManager::UpdateWidgets()
 
 void UIManager::RenderWidgets()
 {
+#if EDITORUI
 	EditorLayout->Update();
+#endif
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->RenderWidgets();
@@ -352,7 +355,7 @@ void UIManager::RefreshGameObjectList()
 	if (GameObjectsPtr != nullptr)
 	{
 		OutLiner->SetGameObjects((*GameObjectsPtr));
-	
+
 		if (GetInspector())
 		{
 			GetInspector()->Refresh();

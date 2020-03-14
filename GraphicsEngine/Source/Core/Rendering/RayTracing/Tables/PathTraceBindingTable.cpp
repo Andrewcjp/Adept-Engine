@@ -23,7 +23,7 @@ void PathTraceBindingTable::InitTable()
 	RayGenShaders[0]->AddExport("rayGen");
 
 	HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
-	HitGroups[0]->HitShader = new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	HitGroups[0]->HitShader = GetMaterialShader();
 
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, GlobalRootSignatureParams::OutputViewSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, GlobalRootSignatureParams::AccelerationStructureSlot, 0));
@@ -31,12 +31,15 @@ void PathTraceBindingTable::InitTable()
 
 }
 
-Shader_RTMateralHit* PathTraceBindingTable::GetMaterialShader()
+Shader_RTBase* PathTraceBindingTable::GetMaterialShader()
 {
-	return new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	return ShaderBindingTable::GetMaterialShader();
+	Shader_RTBase* out = new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\Pathtrace\\Path_MaterialHitShader", ERTShaderType::Hit);
+	out->AddExport("chs");
+	return out;
 }
 
 void PathTraceBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
 {
-	Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"));
+	Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"),RHIViewDesc::DefaultSRV());
 }

@@ -1,7 +1,15 @@
 #define SUPPORT_VRR 1
 #include "VRX/VRRCommon.hlsl"
 RWTexture2D<uint> RateData : register(u0);
-PUSHCONST cbuffer ResData : register(b1)
+cbuffer GData : register(b1)
+{
+	float GeoThreshold;
+	int FullResTheshold;
+	int HalfResTheshold;
+	bool DebugEdgeCount;
+	bool WriteZeroImage;
+};
+PUSHCONST cbuffer ResData : register(b2)
 {
 	int2 Resolution;
 };
@@ -45,36 +53,53 @@ float IsEdge(uint2 coords)
 		abs(pix[2] - pix[6])
 		) / 4.;
 
-	return threshold(0.1, 1.0, clamp(delta, 0.0, 1.0));
+	return threshold(GeoThreshold, 1.0, clamp(delta, 0.0, 1.0));
 }
 bool DetectEdgeAtPX(uint2 px)
 {	
 	return (IsEdge(px) >  0.0);
 }
+#define SHADOWONLY 0
 uint DetmineRate(uint2 Origin)
 {
 	bool SampleHit = false;
-	for (int x = 0; x < VRS_TILE_SIZE; x += VRS_TILE_SIZE - 1)
+	int EdgesHit = 0;
+	for (int x = 0; x < VRS_TILE_SIZE; x += 1)
 	{
-		for (int y = 0; y < VRS_TILE_SIZE; y += VRS_TILE_SIZE - 1)
+		for (int y = 0; y < VRS_TILE_SIZE; y += 1)
 		{
 			int2 samplepos = Origin + int2(x, y);
 			if (samplepos.x >= Resolution.x || samplepos.y >= Resolution.y)
 			{
 				continue;
 			}
+#if SHADOWONLY
 			float z = ShadowMask[samplepos].x;	
-			/*if (DetectEdgeAtPX(samplepos))
-			{
-				SampleHit = true;
-			}*/
 			if (z == 0)
 			{
 				return SHADING_RATE_1X1;
-			}			
+			}
+#endif
+			if (GBuffer_Tex[samplepos].r > GeoThreshold)
+			{
+				SampleHit = true;
+				EdgesHit++;
+			}
+		
 		}
 	}
-	if (SampleHit)
+	if (DebugEdgeCount)
+	{
+		return EdgesHit;
+	}
+#if SHADOWONLY
+	return SHADING_RATE_2X2;
+#endif
+	if (EdgesHit >= FullResTheshold)
+	{
+		return SHADING_RATE_1X1;
+	}
+	if (EdgesHit >= HalfResTheshold)
 	{
 		return SHADING_RATE_2X2;
 	}
@@ -84,7 +109,14 @@ uint DetmineRate(uint2 Origin)
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-	uint2 Origin = DTid.xy*VRS_TILE_SIZE;	
-	RateData[DTid.xy] = DetmineRate(Origin);
+	uint2 Origin = DTid.xy*VRS_TILE_SIZE;
+	if (WriteZeroImage)
+	{
+		RateData[DTid.xy] = SHADING_RATE_1X1;
+	}
+	else
+	{
+		RateData[DTid.xy] = SHADING_RATE_2X2;// DetmineRate(Origin);
+	}
 }
 

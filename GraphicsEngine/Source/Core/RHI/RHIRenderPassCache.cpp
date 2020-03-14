@@ -1,4 +1,5 @@
 #include "RHIRenderPassCache.h"
+#include "RHICommandList.h"
 
 
 RHIRenderPassCache::RHIRenderPassCache()

@@ -134,9 +134,14 @@ DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHe
 	return Descriptor;
 }
 
+
+
 void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType::Type Accesstype)
 {
 	BufferAccesstype = Accesstype;
+#ifdef PLATFORM_ALWAYS_UMA
+	BufferAccesstype = EBufferAccessType::Dynamic;
+#endif
 	if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
 		CreateDynamicBuffer(ByteSize);
@@ -153,9 +158,13 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType
 	ElementSize = Stride;
 }
 
-void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length)
+void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length, int InVertexCount)
 {
 	VertexCount = length;
+	if (InVertexCount != -1)
+	{
+		VertexCount = InVertexCount;
+	}
 	UpdateData(data, length, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	if (BufferAccesstype == EBufferAccessType::Dynamic)
 	{
@@ -238,6 +247,10 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
 	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
 	D.Segment = EGPUMemorysegment::Non_Local;
+	if (Desc.UseForExecuteIndirect)
+	{
+		D.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
+	}
 	Device->GetMemoryManager()->AllocResource(D, &m_UploadBuffer);
 	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
@@ -250,6 +263,12 @@ void D3D12Buffer::CreateDynamicBuffer(int ByteSize)
 	AllocDesc Allocdesc = AllocDesc(TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	Allocdesc.Segment = EGPUMemorysegment::Non_Local;
+	if (Desc.UseForExecuteIndirect)
+	{
+		Allocdesc.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
+		Allocdesc.PageAllocationType = EPageTypes::BuffersOnly;
+	}
+	Allocdesc.IsReadBack = BufferAccesstype == EBufferAccessType::ReadBack;
 	Device->GetMemoryManager()->AllocResource(Allocdesc, &m_DataBuffer);
 	PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 }
@@ -277,6 +296,10 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 		AllocDesc Allocdesc = {};
 		Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 		Allocdesc.InitalState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		if (desc.UseForExecuteIndirect)
+		{
+			Allocdesc.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
+		}
 		Device->GetMemoryManager()->AllocTemporaryGPU(Allocdesc, &m_DataBuffer);
 	}
 	else if (BufferAccesstype == EBufferAccessType::Dynamic)
@@ -287,13 +310,18 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	{
 		CreateStaticBuffer(TotalByteSize);
 	}
+	else if (BufferAccesstype == EBufferAccessType::ReadBack)
+	{
+		CreateDynamicBuffer(TotalByteSize);
+		PostUploadState = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
 
 void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
 {
 	VertexCount = length;
-	UpdateData(data, length, D3D12_RESOURCE_STATE_GENERIC_READ);
+	UpdateData(data, TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
 void D3D12Buffer::UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state)
@@ -303,8 +331,15 @@ void D3D12Buffer::UpdateBufferData(void * data, size_t length, EBufferResourceSt
 
 void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 {
+
 	TotalByteSize = ByteSize;
+#ifdef PLATFORM_ALWAYS_UMA
+	BufferAccesstype = EBufferAccessType::Dynamic;
+	CreateDynamicBuffer(ByteSize);
+#else
 	CreateStaticBuffer(ByteSize);
+#endif
+
 	m_IndexBufferView.BufferLocation = m_DataBuffer->GetResource()->GetGPUVirtualAddress();
 #if USE_16BIT_INDICIES
 	m_IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
@@ -334,4 +369,11 @@ void D3D12Buffer::UnMap()
 	m_DataBuffer->GetResource()->Unmap(0, nullptr);
 }
 
+void * D3D12Buffer::MapReadBack()
+{
+	void* Data = malloc(GetSize());
+	CD3DX12_RANGE readRange(0, GetSize());		// We do not intend to read from this resource on the CPU.
+	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, &Data));
 
+	return Data;
+}

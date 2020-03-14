@@ -1,9 +1,13 @@
 #include "TerrainRenderer.h"
-#include "Rendering/Core/Mesh/MeshBatch.h"
-#include "Rendering/Shaders/Shader_Pair.h"
 #include "Core/Assets/AssetManager.h"
-#include "../../Core/FrameBuffer.h"
-#include "../../Core/SceneRenderer.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/Mesh/MeshBatch.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Shaders/Shader_Pair.h"
+#include "RHI/RHIBufferGroup.h"
+
+REGISTER_SHADER_VS(Terrain_Vs, "Terrain\\Terrain_Vs");
+REGISTER_SHADER_PS(Terrain_Ps, "Terrain\\Terrain_PS_Def");
 
 TerrainRenderer* TerrainRenderer::Instance = nullptr;
 TerrainRenderer::TerrainRenderer()
@@ -60,9 +64,12 @@ TerrainRenderer * TerrainRenderer::Get()
 void TerrainRenderer::RenderQuad(RHICommandList * List)
 {
 	MeshBatch* batch = QuadMesh->GetMeshBatch();
-	List->SetConstantBufferView(batch->elements[0]->TransformBuffer, 0, "GOConstantBuffer");
-	List->SetVertexBuffer(batch->elements[0]->VertexBuffer);
-	List->SetIndexBuffer(batch->elements[0]->IndexBuffer);
-	List->DrawIndexedPrimitive(batch->elements[0]->NumPrimitives, 1, 0, 0, 0);
+	if (batch->elements.size() > 0)
+	{
+		List->SetConstantBufferView(batch->elements[0]->TransformBuffer->Get(List), 0, "GOConstantBuffer");
+		List->SetVertexBuffer(batch->elements[0]->VertexBuffer->Get(List));
+		List->SetIndexBuffer(batch->elements[0]->IndexBuffer->Get(List));
+		List->DrawIndexedPrimitive(batch->elements[0]->NumPrimitives, 1, 0, 0, 0);
+	}
 }
 

@@ -113,22 +113,6 @@ void GPUResource::SetResourceState(D3D12CommandList*  List, D3D12_RESOURCE_STATE
 	}
 }
 
-//void GPUResource::SetResourceState(ID3D12GraphicsCommandList*  List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion)
-//{
-//	if (newstate != CurrentResourceState)
-//	{
-//#if LOG_RESOURCE_TRANSITIONS
-//		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
-//			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
-//#endif
-//		ensure(!QueueTranstion);
-//		List->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
-//		CurrentResourceState = newstate;
-//		TargetState = newstate;
-//		PerfManager::Get()->AddToCountTimer("ResourceTransitons", 1);
-//	}
-//}
-
 void GPUResource::StartResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
@@ -172,6 +156,21 @@ void GPUResource::UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate)
 {
 	CurrentResourceState = newstate;
 	TargetState = newstate;
+}
+
+inline EPhysicalMemoryState::Type GPUResource::GetCurrentAliasState() const { return CurrentAliasState; }
+
+inline void GPUResource::SetCurrentAliasState(EPhysicalMemoryState::Type val) { CurrentAliasState = val; }
+
+bool GPUResource::NeedsClear() const
+{
+	return CurrentAliasState == EPhysicalMemoryState::Active_NoClear;
+}
+
+void GPUResource::NotifyClearComplete()
+{
+	ensure(NeedsClear());
+	CurrentAliasState = EPhysicalMemoryState::Active_NoClear;
 }
 
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()

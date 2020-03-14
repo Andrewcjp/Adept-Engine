@@ -4,7 +4,7 @@
 #include "RHI/RHITypes.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
-#if __has_include(<pix3.h>)
+#if __has_include(<pix3.h>) && defined(PLATFORM_WINDOWS)
 #define PIX_ENABLED 1
 #else
 #define PIX_ENABLED 0
@@ -63,10 +63,6 @@ private:
 	UINT64 m_ComputeQueueFreqency = 1;
 	UINT64 m_copyCommandQueueTimestampFrequencies = 1;
 	D3D12DeviceContext* Device = nullptr;
-#if PIX_ENABLED
-	std::string PixTimerNames[TotalMaxTimerCount] = {};
-	const char* GetTimerNameForPIX(int index);
-#endif
 	//contains all timestamps for a timer
 	struct TimerQ
 	{

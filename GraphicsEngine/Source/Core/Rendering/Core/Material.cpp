@@ -7,6 +7,7 @@
 #include "Defaults.h"
 #include "../Shaders/Shader_NodeGraph.h"
 #include "../RenderNodes/Nodes/ForwardRenderNode.h"
+#include "RHI/RHIBufferGroup.h"
 
 void Material::UpdateShaderData()
 {
@@ -26,7 +27,7 @@ Material::Material(Asset_Shader * shader)
 	CurrentBindSet = ShaderInterface->GetBinds();
 	ParmbindSet = ShaderInterface->GetParamBinds();
 	ParmbindSet.AllocateMemeory();
-	MaterialDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	MaterialDataBuffer = new RHIBufferGroup();
 	MaterialDataBuffer->CreateConstantBuffer((int)ParmbindSet.GetSize(), 1);
 }
 
@@ -75,7 +76,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 
 	desc.ShaderInUse = (Shader*)CurrentShader;
 	list->SetPipelineStateDesc(desc);
-	list->SetConstantBufferView(MaterialDataBuffer, 0, "MateralConstantBuffer");
+	list->SetConstantBufferView(MaterialDataBuffer->Get(list), 0, "MateralConstantBuffer");
 	for (auto const& Pair : CurrentBindSet->BindMap)
 	{
 		if (Pair.second.TextureObj == nullptr)

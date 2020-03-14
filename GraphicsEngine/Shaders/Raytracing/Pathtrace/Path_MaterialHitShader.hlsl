@@ -1,5 +1,5 @@
-#include "DefaultShaderCommon.hlsl"
-#include "RaytracingCommon.hlsl"
+#include "Raytracing/DefaultShaderCommon.hlsl"
+#include "Raytracing/RaytracingCommon.hlsl"
 Texture2D<float4> albedo					: register(t3);
 SamplerState g_sampler : register(s0);
 
@@ -14,7 +14,7 @@ void chs(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attr
 
 	VertexAttributes vert = GetVertexData(PrimitiveIndex(), barycentrics);
 
-	payload.color = albedo.SampleLevel(g_sampler, vert.uv, 0).xyz;
+	payload.color =  albedo.SampleLevel(g_sampler, vert.uv, 0).xyz; //barycentrics;// float3(1, 1, 1);//
 	payload.Normal = vert.Normal;
 	payload.Pos = vert.position;
 	payload.Hit = true;

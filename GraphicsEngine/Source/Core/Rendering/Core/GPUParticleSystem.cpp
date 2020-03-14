@@ -119,6 +119,7 @@ void ParticleSystem::SetupCommandBuffer()
 	desc.ElementCount = 1;
 	desc.AllowUnorderedAccess = true;
 	desc.CreateUAV = true;
+	desc.UseForExecuteIndirect = true;
 	DispatchCommandBuffer->SetDebugName("Dispatch Command Buffer");
 	DispatchCommandBuffer->CreateBuffer(desc);
 	ParticleSystemManager::DispatchArgs Data[2];
@@ -138,8 +139,7 @@ void ParticleSystem::SetupCommandBuffer()
 	desc.Accesstype = EBufferAccessType::Static;
 	desc.Stride = sizeof(ParticleSystemManager::IndirectArgs);
 	desc.ElementCount = MaxParticleCount;
-	desc.AllowUnorderedAccess = true;
-	desc.CreateUAV = true;
+	desc.UseForExecuteIndirect = true;
 	RenderCommandBuffer->SetDebugName("RenderCommandBuffer");
 	RenderCommandBuffer->CreateBuffer(desc);
 	std::vector<ParticleSystemManager::IndirectArgs> cmdbuffer;

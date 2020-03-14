@@ -20,6 +20,7 @@ public:
 	DXDescriptor* CopyToCurrentHeap(DXDescriptor * d, bool CouldbeReused  = true);
 	bool ShouldCache(const RSBind * bind);
 	DXDescriptor * Create(const RSBind * bind, DescriptorHeap * heap);
+	DXDescriptor * FindInCacheHeap(const RSBind * bind);
 	DXDescriptor* GetOrCreate(const RSBind* bind);
 
 private:

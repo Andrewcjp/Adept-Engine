@@ -14,4 +14,8 @@
 #include "Android/AndroidApplication.h"
 #include "Android/AndroidPlatformMisc.h"
 #include "Android/AndroidWindow.h"
+#else
+#if CHECK_INCLUDE( "Extra/ExtraPlatformCore.h")
+#include "Extra/ExtraPlatformCore.h"
+#endif
 #endif

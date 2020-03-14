@@ -11,6 +11,7 @@
 #include "AI/Core/SpawnMarker.h"
 #include "Rendering/Core/Defaults.h"
 #include "../Components/Utillity/FreeLookComponent.h"
+#include "../Module/GameModuleSelector.h"
 #define TEST_HEAVY 0//NDEBUG
 Scene::Scene(bool EditorScene)
 {
@@ -183,6 +184,56 @@ void Scene::LoadExampleScene()
 
 	AddGameobjectToScene(go);
 #else
+
+
+#endif
+	go = new GameObject("Camera");
+	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
+	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
+	go->GetTransform()->SetScale(glm::vec3(2));
+	go->GetTransform()->GetScale();
+	go->AttachComponent(new CameraComponent());
+#if !WITH_EDITOR 
+	if (GameModuleSelector::GetGameModuleName() == "TestGame")
+	{
+		go->AttachComponent(new FreeLookComponent());
+	}
+#endif
+	AddGameobjectToScene(go);
+
+#if 0
+	go = new GameObject("Dir Light");
+	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
+	go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
+	lc = (LightComponent*)go->AttachComponent(new LightComponent());
+	lc->SetShadow(true);
+	lc->SetLightType(Light::Directional);
+	lc->SetIntensity(1.3f);
+	AddGameobjectToScene(go);
+
+#endif
+	//sun
+	AddLight(glm::vec3(-8, 27, -12), true, 5, 100);
+	bool ExtraShadows = false;
+	AddLight(glm::vec3(0, 2, -20), ExtraShadows, 10, 30);
+	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 10);
+	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 10);
+#if 1
+	glm::vec3 startPos = glm::vec3(-10, 5, 10);
+	CreateGrid(6, startPos, 2.5f, true);
+#endif
+	//light testing
+#if TEST_HEAVY
+	for (int i = 0; i < 32; i += 4)
+	{
+		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
+		AddLight(glm::vec3(33, 6, -3), false, 75.0f);
+
+		AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
+		AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
+	}
+#endif
+
 	go = new GameObject("Terrain");
 	mat = Material::CreateDefaultMaterialInstance();
 	MeshLoader::FMeshLoadingSettings set;
@@ -209,46 +260,8 @@ void Scene::LoadExampleScene()
 	cc->SetCollisonShape(EShapeType::eTRIANGLEMESH);
 	cc->SetTriangleMeshAssetName(Name);
 	AddGameobjectToScene(go);
-
-#endif
-	go = new GameObject("Camera");
-	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
-	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
-	go->GetTransform()->SetScale(glm::vec3(2));
-	go->GetTransform()->GetScale();
-	go->AttachComponent(new CameraComponent());
-#if !WITH_EDITOR
-	//go->AttachComponent(new FreeLookComponent());
-#endif
-	AddGameobjectToScene(go);
-
-#if 0
-	go = new GameObject("Dir Light");
-	go->GetTransform()->SetPos(glm::vec3(0, 5, 1));
-	go->GetTransform()->SetEulerRot(glm::vec3(45, 0, 0));
-	lc = (LightComponent*)go->AttachComponent(new LightComponent());
-	lc->SetShadow(true);
-	lc->SetLightType(Light::Directional);
-	lc->SetIntensity(1.3f);
-	AddGameobjectToScene(go);
-
-#endif
-	//sun
-	AddLight(glm::vec3(-8, 27, -12), true, 5, 100);
-	bool ExtraShadows = false;
-	AddLight(glm::vec3(0, 2, -20), ExtraShadows, 10, 30);
-	AddLight(glm::vec3(0, 5, 34), ExtraShadows, 10);
-	AddLight(glm::vec3(0, 4, -50), ExtraShadows, 10);
-	//light testing
-#if TEST_HEAVY
-	for (int i = 0; i < 32; i += 4)
-	{
-		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
-		AddLight(glm::vec3(33, 6, -3), false, 75.0f);
-
-		AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
-		AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
-	}
+#if !defined(PLATFORM_WINDOWS) && _DEBUG
+	return;
 #endif
 	go = new GameObject("Rock");
 	mat = Material::CreateDefaultMaterialInstance();
@@ -333,12 +346,7 @@ void Scene::LoadExampleScene()
 	}
 #endif
 	//AddMeshObject(glm::vec3(0, 50, 0), "exterior.obj");
-#if 1
-	size = 6;
-	glm::vec3 startPos = glm::vec3(-10, 5, 10);
-	stride = 2.5f;
-	CreateGrid(size, startPos, 2.5f,true);
-#endif
+
 #if TEST_HEAVY
 	CreateGrid(10, glm::vec3(0, 10, 20), 10);
 #endif

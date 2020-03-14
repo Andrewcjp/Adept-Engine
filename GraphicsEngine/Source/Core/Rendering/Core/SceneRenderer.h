@@ -12,6 +12,7 @@ class CullingManager;
 class Camera;
 class Editor_Camera;
 class ReflectionEnviroment;
+class Scene;
 
 #include "LightInterop.h"
 typedef LightEntry LightUniformBuffer;
@@ -102,7 +103,7 @@ private:
 	ReflectionEnviroment* Enviroment = nullptr;
 	static SceneRenderer* Instance;
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	RHIBuffer* CMVBuffer = nullptr;
+	RHIBuffer* CMVBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	//the View and projection Matrix in one place as each game object will not have different ones.
 	MVBuffer MV_Buffer;
 

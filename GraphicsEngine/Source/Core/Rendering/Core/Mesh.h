@@ -18,10 +18,11 @@ class MeshBatch;
 class CullingAABB;
 class MeshRendererComponent;
 class RHIBuffer;
+class RHIBufferGroup;
 struct MeshEntity
 {
-	SharedPtr<RHIBuffer> VertexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
-	SharedPtr<RHIBuffer> IndexBuffers[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	RHIBufferGroup* VertexBuffers =  nullptr ;
+	RHIBufferGroup* IndexBuffers =  nullptr ;
 	MeshEntity(MeshLoader::FMeshLoadingSettings& Settings, std::vector<OGLVertex> &vertices, std::vector<IndType> &indices);
 	MeshEntity();
 	void InstanceElement(MeshEntity * other, MeshLoader::FMeshLoadingSettings& Settings);
@@ -68,6 +69,6 @@ private:
 	SkeletalMeshEntry* pSkeletalEntity = nullptr;
 	int MaterialCount = 0;
 	bool DoesShadow = true;
-	RHIBuffer* PrimitiveTransfromBuffer;
+	RHIBufferGroup* PrimitiveTransfromBuffer = nullptr;
 };
 

@@ -8,10 +8,13 @@ Shader_RTBase::Shader_RTBase(DeviceContext* C, std::string Name, ERTShaderType::
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_DIR_SHADOWS", std::to_string(std::max(RHI::GetRenderConstants()->MAX_DYNAMIC_DIRECTIONAL_SHADOWS, 1))));
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("MAX_LIGHTS", std::to_string(RHI::GetRenderConstants()->MAX_LIGHTS)));
 #if RHI_SUPPORTS_RT
-	m_Shader->AttachAndCompileShaderFromFile(Name.c_str(), EShaderType::SHADER_RT_LIB);
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		m_Shader->AttachAndCompileShaderFromFile(Name.c_str(), EShaderType::SHADER_RT_LIB);
+	}
 #endif
 	ShaderStage = Stage;
-	
+
 }
 
 

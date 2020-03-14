@@ -16,12 +16,15 @@ struct RHITextureDesc2
 	bool AllowCrossGPU = false;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
-
+	eTEXTURE_FORMAT RenderFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
+	eTEXTURE_FORMAT DepthRenderFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	glm::vec4 clearcolour = glm::vec4(0.0f, 0.2f, 0.4f, 1.0f);
 	float DepthClearValue = 1.0f;
 	std::string Name = "";
 
 	EResourceState::Type InitalState = EResourceState::Common;
+	RHI_API eTEXTURE_FORMAT GetRenderformat()const;
+	RHI_API eTEXTURE_FORMAT GetDepthRenderformat() const;
 };
 class RHITexture : public IRHIResourse
 {

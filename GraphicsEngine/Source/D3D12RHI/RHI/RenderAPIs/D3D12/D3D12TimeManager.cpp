@@ -131,7 +131,7 @@ void D3D12TimeManager::UpdateTimers()
 float D3D12TimeManager::ConvertTimeStampToMS(UINT64 Time)
 {
 	UINT64 Delta = Time;
-	return  (float)(Delta * 1000 / m_directCommandQueueTimestampFrequencies);
+	return  (float)(double(Delta) * (1000.0f / double(m_directCommandQueueTimestampFrequencies)));
 }
 
 void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListType::Type type)
@@ -152,20 +152,7 @@ void D3D12TimeManager::SetTimerName(int index, std::string Name, ECommandListTyp
 		data->IsGPUTimer = true;
 		data->TimerType = type;
 	}
-#if PIX_ENABLED
-	PixTimerNames[index] = Name;
-#endif
 }
-#if PIX_ENABLED
-const char* D3D12TimeManager::GetTimerNameForPIX(int index)
-{
-	if (index >= PixTimerNames->size())
-	{
-		return "";
-	}
-	return PixTimerNames[index].c_str();
-}
-#endif
 
 void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 {
@@ -179,11 +166,8 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	GetOrCreateTimer(GetTimerName(index), CommandList->GetDevice(), CommandList->GetListType());
 	StartTimer(List, index, List->IsCopyList());
 #if PIX_ENABLED
-	//if (/*index == EGPUTIMERS::PointShadows &&*/ !List->IsCopyList())
-	{
-		//PIXSetMarker(0, GetTimerNameForPIX(index));
-		PIXBeginEvent(List->GetCommandList(), index, GetTimerNameForPIX(index));
-	}
+	//PIXSetMarker(0, GetTimerNameForPIX(index));
+	PIXBeginEvent(List->GetCommandList(), index, GetTimerName(index).c_str());
 #endif
 #if AFTERMATH
 	const char* t = TimeDeltas[index].name.c_str();
@@ -292,7 +276,9 @@ void D3D12TimeManager::EndTotalGPUTimer(RHICommandList* ComandList)
 		EndTimer(ComandList, 0);
 		TimerStarted = false;
 	}
+#ifdef PLATFORM_WINDOWS
 	Device->GetTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(ComandList));
+#endif
 	//Device->GetCopyTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(ComandList));
 #endif
 }

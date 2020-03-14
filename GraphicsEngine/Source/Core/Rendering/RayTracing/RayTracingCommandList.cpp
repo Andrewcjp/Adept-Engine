@@ -1,4 +1,6 @@
 #include "RayTracingCommandList.h"
+#include "RHI/RHITypes.h"
+#include "RHI/RHICommandList.h"
 
 RayTracingCommandList::RayTracingCommandList(DeviceContext * device, ERayTracingSupportType::Type Mode)
 {

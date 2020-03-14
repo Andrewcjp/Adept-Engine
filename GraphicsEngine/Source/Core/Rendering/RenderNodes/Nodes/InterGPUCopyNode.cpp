@@ -3,6 +3,7 @@
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StoreNodes/InterGPUStorageNode.h"
 #include "../StorageNodeFormats.h"
+#include "RHI/RHICommandList.h"
 
 
 InterGPUCopyNode::InterGPUCopyNode(DeviceContext* con)
@@ -23,16 +24,17 @@ void InterGPUCopyNode::OnExecute()
 	InterGPUStorageNode* Node = (InterGPUStorageNode*)GetInput(1)->GetStoreTarget();
 	RHIInterGPUStagingResource* InterRes = Node->GetStore(0)->Resource;
 	CopyList->ResetList();
+	SetBeginStates(CopyList);
 	//todo: target sub resources in FBs
-
-	/*if (CopyTo)
+	if (CopyTo)
 	{
 		FB->CopyToStagingResource(InterRes, CopyList);
 	}
 	else
 	{
 		FB->CopyFromStagingResource(InterRes, CopyList);
-	}*/
+	}
+	SetEndStates(CopyList);
 	CopyList->Execute();
 }
 
@@ -43,7 +45,7 @@ bool InterGPUCopyNode::IsNodeSupported(const RenderSettings& settings)
 
 void InterGPUCopyNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer,EResourceState::CopySrc, StorageFormats::DontCare, "Buffer to copy");
+	AddResourceInput(EStorageType::Framebuffer,EResourceState::Common, StorageFormats::DontCare, "Buffer to copy");
 	AddInput(EStorageType::InterGPUStagingResource, StorageFormats::DontCare, "Staging resource");
 }
 

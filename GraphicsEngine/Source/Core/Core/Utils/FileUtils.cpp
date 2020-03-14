@@ -5,7 +5,7 @@
 
 bool FileUtils::File_ExistsTest(const std::string & name, bool Silent)
 {
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
 	struct stat buffer;
 	if ((stat(name.c_str(), &buffer) == 0))
 	{
@@ -88,7 +88,7 @@ bool FileUtils::WriteToFile(std::string Filename, std::string data, bool append)
 	std::ofstream myfile(Filename, flags);
 	if (!myfile.is_open())
 	{
-		Log::OutS << "Failed to Write " << Filename << Log::OutS;
+		//Log::OutS << "Failed to Write " << Filename << Log::OutS;
 		return false;
 	}
 	myfile.write(data.c_str(), data.length());

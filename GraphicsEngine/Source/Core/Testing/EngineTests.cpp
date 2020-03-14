@@ -1,3 +1,4 @@
+#if RUNTESTS
 #define CATCH_CONFIG_RUNNER
 #include <Catch2/catch.hpp>
 #include "EngineTests.h"
@@ -87,3 +88,4 @@ TEST_CASE("InterGPUDesc Mask GPU 1", "[RHI]")
 
 	}
 }
+#endif

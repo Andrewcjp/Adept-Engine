@@ -75,8 +75,11 @@ void AnimationController::OnTick(float dt)
 void AnimationController::TransitionToState(AnimationState * NewState)
 {
 	CurrnetState = NewState;
-	Mesh->PlayAnimation(CurrnetState->AnimName);
-	//todo: transitions
+	if (Mesh != nullptr)
+	{
+		Mesh->PlayAnimation(CurrnetState->AnimName);
+		//todo: transitions
+	}
 }
 
 void AnimationController::Tick(float Time)

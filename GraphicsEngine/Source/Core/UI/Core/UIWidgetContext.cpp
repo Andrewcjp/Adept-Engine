@@ -16,7 +16,7 @@ UIWidgetContext::UIWidgetContext()
 	set.ForceMipCount = 1;
 	PauseTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\PauseScreen.png");
 	LoadingTex = AssetManager::DirectLoadTextureAsset("texture\\UI\\Loading screen.png", set);
-	LoadingTex->MaxMip = 1;
+	//LoadingTex->MaxMip = 1;
 	Quad->Texture = PauseTex;
 }
 

@@ -8,10 +8,6 @@
 #include "Core/Utils/RefChecker.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
-#ifdef NTDDI_WIN10_RS5
-#include <dxcapi.h>
-#endif
-#include <d3dcompiler.h>
 #define FORCE_RENDER_PASS_USE 0
 #define AFTERMATH 0
 #if AFTERMATH
@@ -39,6 +35,7 @@ class D3D12InterGPUStagingResource;
 class D3D12RHITextureArray;
 class RHITexture;
 class D3D12RHITexture;
+struct IDXGIFactory2;
 class D3D12RHI : public RHIClass
 {
 public:
@@ -110,9 +107,7 @@ private:
 	void DisplayDeviceDebug();
 	void ReportObjects();
 	void LoadPipeLine();
-	void CreateSwapChainRTs();
-	void ReleaseSwapRTs();
-	void CreateDepthStencil(int width, int height);
+	void LinkGPUs();
 	void InitSwapChain();
 	void SetFullScreenState(bool state);
 	void WaitForAllGPUS();
@@ -148,34 +143,28 @@ private:
 	D3D12DeviceContext * GetPrimaryDevice();
 	D3D12DeviceContext* GetSecondaryDevice();
 	D3D12DeviceContext* GetThridDevice();
-	IDXGIFactory4 * factory = nullptr;
-
 	ID3D12Device * GetDisplayDevice();
 	D3D12DeviceContext* DeviceContexts[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	friend DX12DeviceInterface;
 	int m_width = 0;
 	int m_height = 0;
 	float m_aspectRatio = 0.0f;
 	bool HasSetup = false;
-	CD3DX12_VIEWPORT m_viewport;
-	CD3DX12_RECT m_scissorRect;
-	IDXGISwapChain3* m_swapChain = nullptr;
-	ID3D12Resource* m_SwaprenderTargets[RHI::CPUFrameCount] = {nullptr,nullptr};
-	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
-	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
-	UINT m_rtvDescriptorSize;
-	GPUResource* m_depthStencil = nullptr; 
+
 	int m_frameIndex = 0;
 	ID3D12Debug* debugController;
 
 	typedef std::pair<IUnknown*, int64_t> UploadHeapStamped;
 	std::vector<UploadHeapStamped> DeferredDeleteQueue;
-	GPUResource* m_RenderTargetResources[RHI::CPUFrameCount] = { 0,0 };
+
 	D3D12ReadBackCopyHelper* ScreenShotter = nullptr;
 	bool Omce = false;
 	bool RunScreenShot = false;
-#if WIN10_1903
+#if WIN10_1903_WIN
 	ID3D12DeviceRemovedExtendedData* pDred;
 #endif
+	SwapchainInferface* SwapChain = nullptr;
+	friend SwapchainInferface;
 };
 #include "D3D12Helpers.h"
 //helper functions!
@@ -194,4 +183,3 @@ static inline void ThrowIfFailed(HRESULT hr)
 	}
 }
 #define StateAssert(GPUR,state) if(GPUR->GetCurrentState() != state){AD_Assert_Always(" Resource state incorrect"); };
-

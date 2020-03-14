@@ -7,6 +7,7 @@
 #include "Core/BaseWindow.h"
 
 #include "Screen.h"
+#include "RHI/RHITexture.h"
 
 FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc)
 {
@@ -137,10 +138,14 @@ void FrameBuffer::CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * Targe
 
 
 void FrameBuffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
-{}
+{
+	BufferDesc.RenderTargets[0]->CopyToStagingResource(Res, List);
+}
 
 void FrameBuffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list)
-{}
+{
+	BufferDesc.RenderTargets[0]->CopyFromStagingResource(Res, list);
+}
 
 void FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/, EResourceTransitionMode::Type TransitionMode /*= EResourceTransitionMode::Direct*/)
 {}

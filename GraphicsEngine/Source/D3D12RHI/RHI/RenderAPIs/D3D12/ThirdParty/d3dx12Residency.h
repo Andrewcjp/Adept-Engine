@@ -393,7 +393,7 @@ namespace D3DX12Residency
 
 			HRESULT Initialize(ID3D12Device* pDevice)
 			{
-				HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pFence));
+				HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, ID_PASS(&pFence));
 				RESIDENCY_CHECK_RESULT(hr);
 
 				return hr;

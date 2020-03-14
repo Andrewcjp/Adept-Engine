@@ -446,7 +446,7 @@ float GameObject::GetMass()
 {
 	if (PhysicsBodyComponent != nullptr)
 	{
-		return PhysicsBodyComponent->GetActor()->GetMass();
+//		return PhysicsBodyComponent->GetActor()->GetMass();
 	}
 	return 1.0f;
 }

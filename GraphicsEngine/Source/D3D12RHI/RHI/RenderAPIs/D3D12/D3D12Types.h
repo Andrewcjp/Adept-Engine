@@ -18,6 +18,7 @@ namespace EPageTypes
 		BuffersOnly,
 		BufferUploadOnly,
 		TexturesOnly,
+		ReadBack,
 		Limit
 	};
 }
@@ -35,7 +36,10 @@ struct AllocDesc
 	D3D12_RESOURCE_ALLOCATION_INFO TextureAllocData;
 	D3D12_CLEAR_VALUE ClearValue = {};
 	D3D12_RESOURCE_DESC ResourceDesc;
+	D3D12_HEAP_FLAGS HeapFlags = D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE;
 	bool IsTransient = false;//notify that this resource is used for a short amount of time.
+	bool UseCommittedResource = false;
+	bool IsReadBack = false;
 };
 namespace EResourcePageState
 {

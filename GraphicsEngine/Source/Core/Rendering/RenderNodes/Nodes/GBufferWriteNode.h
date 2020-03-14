@@ -2,6 +2,7 @@
 #include "../RenderNode.h"
 
 class RHICommandList;
+class Shader_Pair;
 class GBufferWriteNode : public RenderNode
 {
 public:
@@ -14,5 +15,6 @@ public:
 
 private:
 	RHICommandList* CommandList = nullptr;
+	Shader_Pair* Test = nullptr;
 };
 

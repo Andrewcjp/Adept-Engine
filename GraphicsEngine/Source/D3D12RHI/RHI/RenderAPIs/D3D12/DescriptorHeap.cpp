@@ -27,7 +27,7 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 
 void DescriptorHeap::CreateHeap()
 {
-	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&mHeap)));
+	ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&HeapDesc, ID_PASS(&mHeap)));
 	DescriptorOffsetSize = Device->GetDevice()->GetDescriptorHandleIncrementSize(HeapDesc.Type);
 	const std::string name = "Desc Heap Descs: " + std::to_string(HeapDesc.NumDescriptors);
 	SetName(StringUtils::ConvertStringToWide(name).c_str());

@@ -2,7 +2,9 @@
 #include "InputManager.h"
 #include "InputInterface.h"
 #include "Interfaces/SteamVR/SteamVRInputInterface.h"
+#include "Interfaces/XInput/XInputInterface.h"
 
+static std::vector<std::function<InputInterface*()>> InterfaceInitFuncs;
 InputManager::InputManager()
 {}
 
@@ -19,6 +21,16 @@ void InputManager::InitInterfaces()
 		Interfaces.push_back(VrInterface);
 	}
 #endif
+
+	for (int i = 0; i < InterfaceInitFuncs.size(); i++)
+	{
+		InputInterface* newinterface = InterfaceInitFuncs[i]();
+		if (newinterface != nullptr)
+		{
+			Interfaces.push_back(newinterface);
+		}
+	}
+
 }
 
 void InputManager::Tick()
@@ -37,6 +49,11 @@ void InputManager::EnumConnectedDevices()
 InputInterface * InputManager::GetActiveVRInterface()
 {
 	return VrInterface;
+}
+
+void InputManager::RegisterInterface(std::function<InputInterface*()> CreateFunc)
+{
+	InterfaceInitFuncs.push_back(CreateFunc);
 }
 
 InputController* InputManager::GetController(int index, int interfaceindex /*= -1*/)

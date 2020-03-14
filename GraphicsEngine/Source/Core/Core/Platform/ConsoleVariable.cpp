@@ -62,7 +62,7 @@ void ConsoleVariable::SetValue(int value)
 	if (OnChangedFunction)
 	{
 		OnChangedFunction(value);
-	}	
+	}
 }
 
 void ConsoleVariable::SetValueF(float value)
@@ -272,14 +272,14 @@ void ConsoleVariableManager::SetupVars(std::string LaunchArgString)
 						else
 						{
 							Log::LogMessage("Int Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
-						}					
+						}
 						CV->SetValue(parsedvalue);
 					}
 					else
 					{
 						Log::LogMessage("Argument " + CV->GetLaunchName() + " Is missing Value, -1 assumed", Log::Severity::Warning);
 						CV->SetValue(-1);
-					}					
+					}
 				}
 				else
 				{
@@ -341,6 +341,30 @@ void ConsoleVariableManager::DebugLogCVars()
 	{
 		Log::LogMessage(Get()->ConsoleVars[i]->GetName());
 	}
+}
+
+void ConsoleVariableManager::ExecuteCommand(std::string command)
+{
+	ConsoleVariable* Var = nullptr;
+	std::string Response = "Command Unknown: " + command;
+	if (ConsoleVariableManager::TrySetCVar(command, &Var))
+	{
+		Response = (Var->GetName() + " " + Var->GetValueString());
+	}
+	Log::LogMessage(Response);
+}
+
+void ConsoleVariableManager::ToggleVar(std::string var)
+{
+	for (int i = 0; i < Get()->ConsoleVars.size(); i++)
+	{
+		if (Get()->ConsoleVars[i]->GetName() == var)
+		{
+			Get()->ConsoleVars[i]->SetValue(!Get()->ConsoleVars[i]->GetBoolValue());
+			return;
+		}
+	}
+
 }
 
 void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)

@@ -2,9 +2,14 @@
 #include <functional>
 #include "Rendering\Core\Mesh\MaterialTypes.h"
 #include "RHI\DeviceContext.h"
-
+#include "RHI\ShaderProgramBase.h"
+//Two types of shaders present:
+//1) class based complied and handled though their class type
+//2) source based - complied and handled though a hash.
 class Shader_NodeGraph;
 class ShaderGraphComplier;
+class IShaderComplier;
+struct ShaderComplieItem;
 struct ShaderInit
 {
 	ShaderInit()
@@ -26,11 +31,21 @@ struct ShaderType
 {
 	typedef std::function<class Shader*(const ShaderInit &)> InitliserFunc;
 	typedef std::function<bool(const ShaderComplieSettings& args)> ShouldComplieSig;
-	ShaderType(std::string name, InitliserFunc constructor,const ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
+	ShaderType(std::string name, InitliserFunc constructor, const ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
 	InitliserFunc Constructor;
 	ShaderInit ShaderInitalizer;
 	Shader* CompliedShader = nullptr;
 	ShouldComplieSig ShouldComplieFunc;
+};
+struct SingleShaderComplie
+{
+	std::string Name;
+	SingleShaderComplie(std::string name, std::string file, ShaderProgramBase::Shader_Define Define, EShaderType::Type stage);
+	SingleShaderComplie(std::string name, std::string file, EShaderType::Type stage);
+	std::string SourceFile;
+	std::vector<ShaderProgramBase::Shader_Define> Defines;
+	EShaderType::Type Stage = EShaderType::SHADER_UNDEFINED;
+	uint64 GetHash();
 };
 struct MaterialShaderPair
 {
@@ -47,7 +62,7 @@ public:
 	void FreeAllGlobalShaders();
 	RHI_API bool ShouldBuildDebugShaders();
 	void ComplieShader(ShaderType & type, DeviceContext* Context);
-	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name,DeviceContext* context = nullptr);
+	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name, DeviceContext* context = nullptr);
 	void AddShaderType(std::string Name, ShaderType  type);
 	void TickMaterialComplie();
 	template<class T>
@@ -69,7 +84,7 @@ public:
 	template<class T>
 	static T* GetShader(class DeviceContext* dev)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"),dev);
+		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"), dev);
 		if (CachedShader != nullptr)
 		{
 			if (CachedShader->CompliedShader == nullptr)
@@ -83,7 +98,7 @@ public:
 	template<class T, class U>
 	static T* GetShader(class DeviceContext* dev, U Data)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data),dev);
+		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data), dev);
 		if (CachedShader != nullptr)
 		{
 			if (CachedShader->CompliedShader == nullptr)
@@ -104,7 +119,15 @@ public:
 	void ComplieMaterialShader(Shader_NodeGraph * shader);
 	//returns a place holder object which will be populated later
 	Shader_NodeGraph* EnqeueueMaterialShadercomplie(MaterialShaderComplieData data);
+	void RegisterShaderComplier(std::string DLLName);;
+	void Init();
+	void ComplieShaderNew(ShaderComplieItem * shader, EPlatforms::Type platform = EPlatforms::Windows);
+	void RegisterSingleShader(SingleShaderComplie* Target);
+	bool CheckSourceFileRegistered(std::string file);
 private:
+	std::vector<std::string> ShaderComplierNames;
+	void FindAndLoadCompliers();
+	std::vector<IShaderComplier*> Shadercompliers;
 	ShaderGraphComplier* MaterialCompiler = nullptr;
 	static ShaderComplier * Instance;
 	typedef std::map<std::string, ShaderType> ShaderMap;
@@ -114,4 +137,6 @@ private:
 	std::map<std::string, Shader_NodeGraph*> MaterialShaderMap;
 	std::queue<MaterialShaderPair> MaterialShaderComplieQueue;
 	bool ComplieShadersOnTheFly = false;
+	std::map<uint64, SingleShaderComplie*> SingleShaderMapDefinitions;
+	std::map<uint64, SingleShaderComplie*> SingleShaderMap[MAX_GPU_DEVICE_COUNT];
 };

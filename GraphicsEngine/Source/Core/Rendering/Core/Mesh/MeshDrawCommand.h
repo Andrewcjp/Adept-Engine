@@ -2,15 +2,16 @@
 
 class RHICommandList;
 class Material;
+class RHIBufferGroup;
 class MeshDrawCommand
 {
 public:
 	MeshDrawCommand();
 	~MeshDrawCommand();
-	RHIBuffer* Vertex;
-	RHIBuffer* Index;
-	RHIBuffer* TransformUniformBuffer;
-	RHIBuffer* MaterialInstanceBuffer = nullptr;
+	RHIBufferGroup* Vertex;
+	RHIBufferGroup* Index;
+	RHIBufferGroup* TransformUniformBuffer = nullptr;
+	RHIBufferGroup* MaterialInstanceBuffer = nullptr;
 	uint64 FirstIndex = 0;
 	uint64 NumPrimitves = 0;
 	uint64 NumInstances = 0;

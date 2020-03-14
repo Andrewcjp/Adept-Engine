@@ -43,6 +43,10 @@ public:
 	static D3D12_RESOURCE_STATES ConvertBufferResourceState(EBufferResourceState::Type intype);
 	static UINT64 Align(UINT64 size, UINT64 alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
 	{
+		if (alignment == 0)
+		{
+			return size;
+		}
 		return (size + alignment - 1) & ~(alignment - 1);
 	}
 	static std::string ResouceStateToString(D3D12_RESOURCE_STATES state);

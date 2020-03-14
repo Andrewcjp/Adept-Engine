@@ -57,12 +57,13 @@ std::string EPlatforms::ToString(EPlatforms::Type type)
 {
 	switch (type)
 	{
-		case EPlatforms::Windows:
-			return "Windows";
-		case EPlatforms::Linux:
-			return "Linux";
-		case EPlatforms::Android:
-			return "Android";
+	case EPlatforms::Windows:
+		return "Windows";
+	case EPlatforms::Linux:
+		return "Linux";
+	case EPlatforms::Android:
+		return "Android";
+		STRING_ADD_PLATFORMS;
 	}
 	return "Unknown";
 }
@@ -82,6 +83,8 @@ EPlatforms::Type EPlatforms::Parse(std::string name)
 	else if (Lower == "linux")
 	{
 		return EPlatforms::Linux;
-	}
+	}	
+	PARSE_ADD_PLATFORMS;
+	ensure(false);
 	return EPlatforms::Limit;
 }

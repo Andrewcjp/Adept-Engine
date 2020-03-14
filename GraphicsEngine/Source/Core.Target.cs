@@ -3,7 +3,7 @@ using EngineBuildTool;
 
 class CoreTargetRules : TargetRules
 {
-    bool BuildPhysx = true;
+    bool BuildPhysx = false;
     bool BuildVulkan = false;
     bool BuildCSharp = false;
     public CoreTargetRules()
@@ -26,7 +26,7 @@ class CoreTargetRules : TargetRules
             ModuleExcludeList.Add("TDPhysics");
         }
         WindowTenVersionTarget = "1903";
-       // WindowTenVersionTarget = "1803";
+        // WindowTenVersionTarget = "1803";
     }
     public override ModuleDef GetCoreModule()
     {
@@ -41,7 +41,7 @@ class CoreTargetRules : TargetRules
         CoreModule.IncludeDirectories.Add("/source/ThirdParty/freetype2");
         CoreModule.IncludeDirectories.Add("/source/TDPhysics");
         CoreModule.UseCorePCH = false;
-        
+
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "Core";
 
@@ -49,15 +49,21 @@ class CoreTargetRules : TargetRules
         CoreModule.SystemLibNames.Add("winmm.lib");
         CoreModule.SystemLibNames.Add("shlwapi.lib");
         CoreModule.SystemLibNames.Add("dbghelp.lib");
+        CoreModule.StaticLibraries.Add(new LibDependency("Xinput9_1_0.lib", "win64"));
+        CoreModule.ExcludedFolders.Add("**/ThirdParty/Audio/**");
+        CoreModule.UnityBuildExcludedFolders.Add("\\Core\\Platform\\Extra\\");
+
         string[] ThirdPartyModules = new string[] {
             "freetypeBuild",
             "assimpBuild",
-            "nvapiBuild",
-            "WWiseBuild",
-            "OpenVRBuild",
-            "AfterMathBuild"
-        };
+           "nvapiBuild", 
+           // "WWiseBuild",
+            //"OpenVRBuild",
+            //"AfterMathBuild",
+           // "PixBuild"
+            };
         CoreModule.ThirdPartyModules.AddRange(ThirdPartyModules);
+
         if (BuildPhysx)
         {
             CoreModule.ThirdPartyModules.Add("PhysxBuild");
@@ -70,7 +76,8 @@ class CoreTargetRules : TargetRules
         {
             CoreModule.PreProcessorDefines.Add("WITH_VK");
         }
-        CoreModule.GameModuleName = "BleedOutGame";
+        //CoreModule.GameModuleName = "BleedOutGame";
+        CoreModule.GameModuleName = "TestGame";
         return CoreModule;
     }
 }

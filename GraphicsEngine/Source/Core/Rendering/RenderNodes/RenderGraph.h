@@ -63,7 +63,7 @@ public:
 
 	void CreateDefTestgraph();
 
-	BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
+	//BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
 
 	void LinkNode(RenderNode * A, RenderNode * B);
 
@@ -95,7 +95,7 @@ public:
 	void CreateFallbackGraph();
 
 	void CreateMGPU_TESTGRAPH();
-
+	void CreateSFR();
 	std::vector<StorageNode*> GetNodesOfType(EStorageType::Type type);
 
 	RG_PatchSet * FindMarker(EBuiltInRenderGraphPatch::Type type);

@@ -72,7 +72,7 @@ public:
 	virtual void UpdateScaled();
 	virtual void UpdateData();
 	void GatherBatches(UIRenderBatch* BatchPtr = nullptr);
-	UIWidget* Parent;
+	UIWidget* Parent = nullptr;
 	bool IsWithinParentBounds();
 	std::vector<UIWidget*> Children;
 	void AddChild(UIWidget* W);

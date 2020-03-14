@@ -10,6 +10,8 @@
 #include "Rendering/Shaders/MultiGPU/Shader_ShadowSample.h"
 #include "Rendering/Shaders/Shader_Pair.h"
 #include "RHI/RHITimeManager.h"
+#include "RHI/RHICommandList.h"
+#include "RHI/RHIBufferGroup.h"
 
 ShadowMaskNode::ShadowMaskNode()
 {
@@ -37,15 +39,17 @@ void ShadowMaskNode::OnExecute()
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(2);
 	List->SetFrameBufferTexture(GBuffer, "GBuffer_Pos");
 	List->BeginRenderPass(RHIRenderPassDesc(OutputBuffer, ERenderPassLoadOp::Clear));
+
 	GetShadowDataFromInput(1)->BindPointArray(List, "g_Shadow_texture2");
-	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer(), "lights");
+
+	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(List), "lights");
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
 	//OutputBuffer->SetResourceState(List, EResourceState::Non_PixelShader);
 	SetEndStates(List);
 	List->EndTimer(EGPUTIMERS::ShadowPreSample);
 	List->Execute();
-	
+
 }
 
 void ShadowMaskNode::OnNodeSettingChange()

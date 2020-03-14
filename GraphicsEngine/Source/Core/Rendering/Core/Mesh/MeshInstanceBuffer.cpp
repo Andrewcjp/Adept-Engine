@@ -2,6 +2,7 @@
 #include "Rendering/Core/Mesh/MeshBatch.h"
 #include "Core/GameObject.h"
 #include "../Material.h"
+#include "RHI/RHIBufferGroup.h"
 
 
 MeshInstanceBuffer::MeshInstanceBuffer()
@@ -66,12 +67,12 @@ void MeshInstanceBuffer::Build()
 	{
 		EnqueueSafeRHIRelease(Buffer);
 	}
-	Buffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	Buffer = new RHIBufferGroup();
 	Stride = sizeof(InstanceArgs);
 	Buffer->SetDebugName("Mesh Instance Buffer (Transfrom)" + std::to_string(GetInstanceCount()));
 	Buffer->CreateConstantBuffer(Stride, GetInstanceCount());
 
-	MateralDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
+	MateralDataBuffer = new RHIBufferGroup();
 	MateralDataBuffer->SetDebugName("Mesh Instance Buffer (material data)" + std::to_string(GetInstanceCount()));
 	MateralDataBuffer->CreateConstantBuffer(TargetMaterial->GetInstanceDataSize(), GetInstanceCount());
 }
@@ -81,12 +82,12 @@ int MeshInstanceBuffer::GetInstanceCount()
 	return (int)containedBatches.size();
 }
 
-RHIBuffer * MeshInstanceBuffer::GetBuffer()
+RHIBufferGroup * MeshInstanceBuffer::GetBuffer()
 {
 	return Buffer;
 }
 
-RHIBuffer * MeshInstanceBuffer::GetMaterialBuffer()
+RHIBufferGroup * MeshInstanceBuffer::GetMaterialBuffer()
 {
 	return MateralDataBuffer;
 }

@@ -16,7 +16,7 @@ static inline const char * GetFilename(const char * name)
 #define DEBUGBREAK  __debugbreak();
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #else
-#define DEBUGBREAK
+#define DEBUGBREAK  __debugbreak();
 #endif
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
@@ -68,7 +68,7 @@ Log::LogMessage(_AssertMSG_,Log::Severity::Error); PlatformApplication::DisplayA
 
 #if DOCHECK
 #define ensureFatalMsgf(condition,Message) if(!(condition)){ AssertDebugBreak();ASSERT_STRING("Assert Failed: ",#condition " ",Message);\
-Log::LogMessage(_AssertMSG_,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",_AssertMSG_);}
+Log::LogMessage(_AssertMSG_,Log::Severity::Error); PlatformApplication::DisplayMessageBox("Fatal Error",_AssertMSG_);__debugbreak();}
 #else
 #define ensureFatalMsgf(condition,Message);
 #endif

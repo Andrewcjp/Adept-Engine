@@ -42,7 +42,7 @@ public:
 private:
 	static void RenderShadowMap_GPU(Light* Lightptr, RHICommandList * list, int IndexOnGPU);
 	static void RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU);
-	static void SetPointRS(RHICommandList * list);
+	static void SetPointRS(RHICommandList * list, FrameBuffer* buffer);
 	//called to allocate all lights to an atlas, also handles multi-gpu assignment
 	void AssignAtlasData(ShadowAtlas* Node);
 

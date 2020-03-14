@@ -7,6 +7,7 @@
 static ConsoleVariable LogPageAllocations("VMEM.LogAlloc", 0, ECVarType::ConsoleAndLaunch);
 GPUMemoryPage::GPUMemoryPage(AllocDesc & desc, D3D12DeviceContext* context)
 {
+	AddressAlignmentForce = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 	PageDesc = desc;
 	Device = context;
 	InitHeap();
@@ -22,14 +23,21 @@ GPUMemoryPage::~GPUMemoryPage()
 EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Resource)
 {
 	CalculateSpaceNeeded(desc);
-	if (!CheckSpaceForResource(desc))
+	if (!CheckSpaceForResource(desc) && !desc.UseCommittedResource)
 	{
 		return EAllocateResult::NoSpace;
 	}
 	//DXMM: Todo reserved resources 
 	ID3D12Resource* DxResource = nullptr;
 	AllocationChunk* UsedChunk = GetChunk(desc);
-	CreateResource(UsedChunk, desc, &DxResource);
+	if (desc.UseCommittedResource)
+	{
+		CreateResourceCommitted(UsedChunk, desc, &DxResource);
+	}
+	else
+	{
+		CreateResource(UsedChunk, desc, &DxResource);
+	}
 	if (desc.Name.length() > 0)
 	{
 		std::wstring Conv = StringUtils::ConvertStringToWide(desc.Name);
@@ -40,6 +48,11 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	ContainedResources.push_back(*Resource);
 	(*Resource)->SetGPUPage(this);
 	(*Resource)->Chunk = UsedChunk;
+	if (!desc.UseCommittedResource)
+	{
+		//#dxTODO: might need on pc?
+		(*Resource)->SetCurrentAliasState(EPhysicalMemoryState::Active_NoClear);
+	}
 	if (LogPageAllocations.GetBoolValue())
 	{
 		//Log::LogMessage("Allocating " + std::to_string(desc.Size / 1e6) + "MB Called '" + desc.Name + "' in Segment " + EGPUMemorysegment::ToString(desc.Segment));
@@ -50,12 +63,18 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 
 void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc & desc)
 {
+	desc.ResourceDesc.Alignment = 0;
 	desc.TextureAllocData = Device->GetDevice()->GetResourceAllocationInfo(0, 1, &desc.ResourceDesc);
 	desc.ResourceDesc.Alignment = desc.TextureAllocData.Alignment;
 }
 
 bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 {
+	if (desc.UseCommittedResource)
+	{
+		//committed pages are sized as needed by nature
+		return false;
+	}
 	if (desc.PageAllocationType != PageDesc.PageAllocationType)
 	{
 		return false;
@@ -71,7 +90,7 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::FindFreeChunk(AllocDesc & desc)
 {
 	for (int i = 0; i < FreeChunks.size(); i++)
 	{
-		if (FreeChunks[i]->CanFitAllocation(desc))
+		if (FreeChunks[i]->CanFitAllocation(desc, AddressAlignmentForce))
 		{
 			return FreeChunks[i];
 		}
@@ -86,7 +105,7 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc 
 		return nullptr;
 	}
 	AllocationChunk* NewChunk = new AllocationChunk();
-	const uint64_t ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+	const uint64_t ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes, AddressAlignmentForce);
 
 	NewChunk->offset = Source->offset;
 	Source->offset += ResourceSize;
@@ -110,9 +129,34 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::GetChunk(AllocDesc & desc)
 	return AllocateFromFreeChunk(desc);
 }
 
-bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc & desc) const
+bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc & desc, uint64 AddressAlignmentForce) const
 {
-	return size > D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes);
+	return size > D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes, AddressAlignmentForce);
+}
+
+void GPUMemoryPage::CreateResourceCommitted(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
+{
+	D3D12_CLEAR_VALUE* value = nullptr;
+	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+	{
+		value = &desc.ClearValue;
+	}
+	D3D12_HEAP_FLAGS Flags = desc.HeapFlags;
+	if (PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
+	{
+		desc.ResourceDesc.Alignment = 0;	
+	}
+	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		Flags,
+		&desc.ResourceDesc,
+		desc.InitalState,
+		value,
+		ID_PASS(Resource)));
+	AllocationChunk* NewChunk = new AllocationChunk();
+	const uint64_t ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes, AddressAlignmentForce);
+	NewChunk->size = ResourceSize;
+	AllocatedChunks.push_back(NewChunk);
 }
 
 void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
@@ -122,20 +166,45 @@ void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3
 	{
 		value = &desc.ClearValue;
 	}
-	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, chunk->offset, &desc.ResourceDesc, desc.InitalState, value, IID_PPV_ARGS(Resource)));
+#if 1
+	//if (PageDesc.PageAllocationType == EPageTypes::BuffersOnly || PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
+	{
+		if (desc.ResourceDesc.Alignment != 0 || desc.ResourceDesc.Alignment != D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
+		{
+			desc.ResourceDesc.Alignment = 0;
+		}
+	}
+
+	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, D3D12Helpers::Align(chunk->offset, AddressAlignmentForce), &desc.ResourceDesc, desc.InitalState, value, ID_PASS(Resource)));
+#else
+	ensure(PageHeap);
+	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, chunk->offset, &desc.ResourceDesc, desc.InitalState, value, ID_PASS(Resource)));
+#endif
 }
 
 void GPUMemoryPage::InitHeap()
 {
+	if (PageDesc.UseCommittedResource)
+	{
+		return;
+	}
+	if (PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
+	{
+		AddressAlignmentForce = D3D12RHIConfig::RenderTargetMemoryAlignment;
+	}
 	D3D12_HEAP_DESC desc = {};
 	{
 		// To avoid wasting memory SizeInBytes should be 
 		// multiples of the effective alignment [Microsoft 2018a]
-		desc.SizeInBytes = D3D12Helpers::Align(PageDesc.Size);
+		desc.SizeInBytes = D3D12Helpers::Align(PageDesc.Size, AddressAlignmentForce);
 		desc.Alignment = 0;
 		if (PageDesc.PageAllocationType == EPageTypes::BufferUploadOnly)
 		{
 			desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		}
+		else if (PageDesc.PageAllocationType == EPageTypes::ReadBack)
+		{
+			desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
 		}
 		else
 		{
@@ -143,7 +212,7 @@ void GPUMemoryPage::InitHeap()
 		}
 		desc.Flags = GetFlagsForType(PageDesc.PageAllocationType);
 
-		ThrowIfFailed(Device->GetDevice()->CreateHeap(&desc, IID_PPV_ARGS(&PageHeap)));
+		ThrowIfFailed(Device->GetDevice()->CreateHeap(&desc, ID_PASS(&PageHeap)));
 	}
 	AllocationChunk* chunk = new AllocationChunk();
 	chunk->size = PageDesc.Size;
@@ -154,15 +223,17 @@ D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
 {
 	switch (T)
 	{
-		case EPageTypes::All:
-			return D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES;
-		case EPageTypes::RTAndDS_Only:
-			return D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
-		case EPageTypes::BuffersOnly:
-		case EPageTypes::BufferUploadOnly:
-			return D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
-		case EPageTypes::TexturesOnly:
-			return D3D12_HEAP_FLAG_NONE | D3D12_HEAP_FLAG_DENY_BUFFERS | D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
+	case EPageTypes::All:
+		return D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES;
+	case EPageTypes::RTAndDS_Only:
+		return D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
+	case EPageTypes::BuffersOnly:
+	case EPageTypes::BufferUploadOnly:
+		return D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS | D3D12RHIConfig::IndirectBufferHeapFlag;
+	case EPageTypes::TexturesOnly:
+		return D3D12_HEAP_FLAG_NONE | D3D12_HEAP_FLAG_DENY_BUFFERS | D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES;
+	case EPageTypes::ReadBack:
+		return D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
 	}
 	return D3D12_HEAP_FLAG_NONE;
 }

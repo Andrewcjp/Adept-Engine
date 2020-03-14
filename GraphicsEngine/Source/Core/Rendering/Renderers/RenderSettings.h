@@ -3,7 +3,6 @@
 #include "..\RenderNodes\RenderGraphSystem.h"
 #include "WinLauncher.h"
 
-
 class Archive;
 struct CapabilityData;
 namespace AAMode
@@ -29,6 +28,8 @@ struct ERenderDebugOutput
 		GBuffer_Material,
 		GBuffer_RoughNess,
 		GBuffer_Metallic,
+		Scene_EdgeDetect,
+		Scene_EdgeDetectCount,
 		Scene_Metallic,
 		Scene_RoughNess,
 		Scene_LightRange,
@@ -96,6 +97,7 @@ namespace EVRSMode
 struct VRXSettings
 {
 	bool EnableVRX = false;
+	bool VRXActive = true;
 	EVRSMode::Type VRXMode = EVRSMode::HardwareAndSoftware;
 	bool SupportPerDrawRateOnVRR = false;	//not yet supported
 	int VRRTileSize = 16;
@@ -115,6 +117,7 @@ public:
 	EBuiltInRenderGraphPatch::Type SelectedPatch = EBuiltInRenderGraphPatch::NONE;
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
+	BBTestMode::Type Testmode = BBTestMode::Limit;
 	int LockedWidth = 0;
 	int LockedHeight = 0;
 
@@ -137,6 +140,7 @@ public:
 	void ValidateSettings();
 	bool InitSceneDataOnAllGPUs = true;
 	RHI_API static const VRXSettings& GetVRXSettings();
+	static void SetVRXActive(bool state);
 	void MaxSupportedCaps(CapabilityData& MaxData);
 	bool ShouldRunGPUTests = false;
 	VoxelSettings& GetVoxelSet();

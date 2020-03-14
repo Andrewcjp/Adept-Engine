@@ -75,6 +75,9 @@ protected:
 private:
 	void PostFrameOne();
 	void RenderText();
+
+	void LogPerfCounters();
+
 	void InitilseWindow();
 	static BaseWindow* Instance;
 	//constants

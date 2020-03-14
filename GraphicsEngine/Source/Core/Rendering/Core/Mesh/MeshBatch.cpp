@@ -1,5 +1,6 @@
 #include "MeshBatch.h"
 #include "MeshInstanceBuffer.h"
+#include "Core/GameObject.h"
 
 MeshBatch::MeshBatch()
 {}

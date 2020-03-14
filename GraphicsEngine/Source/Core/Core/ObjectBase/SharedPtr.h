@@ -23,7 +23,7 @@ public:
 	//Destructor
 	virtual ~SharedPtr()
 	{
-		SafeRefRelease(ObjectRaw);
+		//SafeRefRelease(ObjectRaw);
 	}
 	// Copy Constructor
 	SharedPtr(const SharedPtr<T>& other)

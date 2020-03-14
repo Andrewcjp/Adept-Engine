@@ -27,6 +27,7 @@
 #include "Rendering/Performance/GPUPerformanceTestManager.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/DynamicQualityEngine.h"
+#include "Rendering/Utils/UAVFormatConverter.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -299,6 +300,7 @@ void RHI::RunGPUTests()
 void RHI::MakeSwapChainReady(RHICommandList * list)
 {
 	GetRHIClass()->MakeSwapChainReady(list);
+	Get()->CheckSwapReady = true;
 }
 
 void RHI::AddToDeferredDeleteQueue(IRHIResourse * Resource)
@@ -370,7 +372,7 @@ BaseTextureRef RHI::CreateTexture(AssetPathRef path, DeviceContext* Device, RHIT
 	{
 		return ImageIO::GetDefaultTexture();
 	}
-	if (Desc.InitOnALLDevices && Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 1 && RHI::IsD3D12() && RHI::GetRenderSettings()->InitSceneDataOnAllGPUs)
+	if (/*Desc.InitOnALLDevices && */Device->GetDeviceIndex() == 0 && RHI::GetDeviceCount() > 1 && RHI::IsD3D12() /*&& RHI::GetRenderSettings()->InitSceneDataOnAllGPUs*/)
 	{
 		BaseTextureRef other = GetRHIClass()->CreateTexture(Desc, RHI::GetDeviceContext(1));
 		newtex->RegisterOtherDeviceTexture(other.Get());
@@ -475,11 +477,13 @@ RHIQuery * RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 
 void RHI::InitialiseContext()
 {
+	ShaderComplier::Get();//create the Complier
 	instance->RenderPassCache = new RHIRenderPassCache();
 	GetRHIClass()->InitRHI();
 	PlatformWindow::TickSplashWindow(5, "Loading RHI");
 	instance->ValidateSettings();
 	RunTests.SetValue(true);
+#if RUNTESTS
 	if (RunTests.GetBoolValue())
 	{
 		TESTING::RunTests();
@@ -490,6 +494,8 @@ void RHI::InitialiseContext()
 			return;
 		}
 	}
+#endif
+	ShaderComplier::Get()->Init();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	PlatformWindow::TickSplashWindow(10, "Loading Render Graph");
 	ParticleSystemManager::Get();
@@ -505,6 +511,7 @@ void RHI::InitialiseContext()
 	Get()->RenderSystem = new RenderGraphSystem();
 	Get()->TestManager = new GPUPerformanceTestManager();
 	Get()->TestManager->Init();
+	UAVFormatConverter::Get();
 }
 
 void RHI::ValidateSettings()
@@ -537,9 +544,11 @@ std::string RHI::ReportMemory(bool all /*= false*/)
 
 void RHI::RHISwapBuffers()
 {
+	ensure(Get()->CheckSwapReady);
 	GetRHIClass()->RHISwapBuffers();
 	Get()->TickDeferredDeleteQueue();
 	instance->PresentCount++;
+	Get()->CheckSwapReady = false;
 }
 
 void RHI::RHIRunFirstFrame()

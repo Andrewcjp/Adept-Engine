@@ -21,10 +21,12 @@ protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;
 
+	void VisTexturesimple(ERenderDebugOutput::Type mode);
 	void RenderGBufferModes(ERenderDebugOutput::Type mode);
 	void RenderForwardMode(ERenderDebugOutput::Type mode);
 	void RenderScreenSpaceModes(ERenderDebugOutput::Type mode);
 private:
 	RHICommandList* DebugList = nullptr;
+	Shader_Pair* Pair = nullptr;
 };
 

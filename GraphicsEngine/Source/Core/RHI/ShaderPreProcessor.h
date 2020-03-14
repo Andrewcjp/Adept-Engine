@@ -20,11 +20,11 @@ public:
 	RHI_API static bool PreProcessDefines(std::vector<ShaderProgramBase::Shader_Define> & defines, std::string & shaderData);
 	static bool CheckIncludeExists(const std::string& file);
 	RHI_API static  std::string LoadShaderIncludeFile(std::string name, IncludeStack * Stack = nullptr, uint32 * LineCount = nullptr);
-		
-	RHI_API static bool CheckCSOValid(std::string Name, const  std::string & ShaderNameHash);
+
+	RHI_API static bool CheckCSOValid(std::string Name, const  std::string & ShaderNameHash, EPlatforms::Type platform = EPlatforms::Limit);
 	static void FindRootConstants(ShaderSourceFile* file);
 private:
-	static bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName);
+	static bool CompareCachedShaderBlobWithSRC(const std::string & ShaderName, const std::string & FullShaderName, EPlatforms::Type platform = EPlatforms::Limit);
 	//include Handler
 	static const int	 includeLength = 9;
 	static std::string ForceIncludeData;

@@ -6,12 +6,13 @@
 #include "Rendering/Renderers/TextRenderer.h"
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/GPUStateCache.h"
+#include "Streaming/GPUTextureStreamer.h"
 
 DeviceContext::DeviceContext()
 {
 	PSOCache = new PipelineStateObjectCache(this);
 	StateCache = new GPUStateCache();
-	Pool.Init(1);
+	Pool.Init(1,this);
 }
 
 DeviceContext::~DeviceContext()
@@ -22,10 +23,12 @@ DeviceContext::~DeviceContext()
 void DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	CopyListPoolFreeIndex = 0;//reset the copy pool indexer
+	Streamer->Update();
 }
 
 void DeviceContext::DestoryDevice()
 {
+	SafeDelete(Streamer);
 	for (int i = 0; i < COPYLIST_MAX_POOL_SIZE; i++)
 	{
 		EnqueueSafeRHIRelease(CopyListPool[i]);
@@ -219,7 +222,8 @@ EGPUType::Type DeviceContext::GetType()
 }
 
 void DeviceContext::OnFrameStart()
-{}
+{
+}
 
 GPUTextureStreamer * DeviceContext::GetStreamer()
 {

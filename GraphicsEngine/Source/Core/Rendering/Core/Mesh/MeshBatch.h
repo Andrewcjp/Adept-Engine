@@ -2,11 +2,12 @@
 
 class Material;
 class MeshInstanceBuffer;
+class RHIBufferGroup;
 struct MeshBatchElement
 {
-	RHIBuffer* VertexBuffer = nullptr;
-	RHIBuffer* IndexBuffer = nullptr;
-	RHIBuffer* TransformBuffer = nullptr;
+	RHIBufferGroup* VertexBuffer = nullptr;
+	RHIBufferGroup* IndexBuffer = nullptr;
+	RHIBufferGroup* TransformBuffer = nullptr;
 	int NumPrimitives = 0;
 	int NumInstances = 0;
 	Material* MaterialInUse = nullptr;

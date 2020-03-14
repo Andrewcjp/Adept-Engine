@@ -7,7 +7,7 @@ ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
-	//SetRes(BBTestMode::UHD);
+	//SetRes(BBTestMode::HD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
@@ -16,10 +16,10 @@ RenderSettings::RenderSettings()
 	//DRSSettings.EnableDynamicResolutionScaling = true;
 	RTSettings.Enabled = true;
 	CurrentAAMode = AAMode::NONE;
-	//EnableGPUParticles = false;
+	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX_RT;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -31,7 +31,10 @@ RenderSettings::RenderSettings()
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
 	}
-	VoxelSet.Enabled = true;
+	if (SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX_RT)
+	{
+		VoxelSet.Enabled = true;
+	}
 }
 
 void RenderSettings::ValidateSettings()
@@ -44,11 +47,21 @@ void RenderSettings::ValidateSettings()
 	//until software version is ready.
 	RTSettings.Enabled = false;
 #endif
+#ifndef PLATFORM_WINDOWS
+	EnableGPUParticles = false;
+	VoxelSet.Enabled = false;
+	//RTSettings.Enabled = false;
+#endif
 }
 
 const VRXSettings& RenderSettings::GetVRXSettings()
 {
 	return RHI::GetRenderSettings()->VRXSet;
+}
+
+void RenderSettings::SetVRXActive(bool state)
+{
+	RHI::GetRenderSettings()->VRXSet.VRXActive = state;
 }
 
 void RenderSettings::MaxSupportedCaps(CapabilityData& MaxData)
@@ -89,6 +102,7 @@ RendererSettings & RenderSettings::GetSettingsForRender()
 void RenderSettings::SetRes(BBTestMode::Type Mode)
 {
 	LockBackBuffer = true;
+	Testmode = Mode;
 	switch (Mode)
 	{
 	case BBTestMode::HD:

@@ -1,0 +1,1 @@
+EngineBuildTool.exe -premake

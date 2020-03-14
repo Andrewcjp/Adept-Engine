@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <functional>
 #pragma warning(pop)
 #if 0
 #pragma warning(push,4)

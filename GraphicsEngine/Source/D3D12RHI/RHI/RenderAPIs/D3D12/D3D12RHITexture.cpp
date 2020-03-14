@@ -86,9 +86,13 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 		ResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER;
 	}
 	D3D12_CLEAR_VALUE ClearValue = {};
-	ClearValue.Format = ResourceDesc.Format;
+	ClearValue.Format = D3D12Helpers::ConvertFormat(Desc.GetRenderformat());
 	if (Desc.IsDepthStencil)
 	{
+		if (Desc.DepthRenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			ClearValue.Format = D3D12Helpers::ConvertFormat(Desc.DepthRenderFormat);
+		}
 		ClearValue.DepthStencil.Depth = Desc.DepthClearValue;
 		ClearValue.DepthStencil.Stencil = 0;
 	}
@@ -124,6 +128,7 @@ void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIView
 void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
 	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
 	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
 	D3D12CommandList* list = D3D12RHI::DXConv(List);
 	D3D12DeviceContext* CurrentDevice = D3D12RHI::DXConv(Context);
@@ -137,7 +142,7 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 	TargetResource->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
 	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);
-
+	list->FlushBarriers();
 	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
 	CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
@@ -149,6 +154,8 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
 		list->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
 	}
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
+	list->FlushBarriers();
 	PerfManager::EndTimer("CopyToDevice");
 	//DidTransferLastFrame = true;
 	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
@@ -157,6 +164,7 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
 	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
 	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
 	D3D12CommandList* list = D3D12RHI::DXConv(List);
 	PerfManager::StartTimer("MakeReadyOnTarget");
@@ -173,7 +181,7 @@ void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, R
 	GPUResource* TargetResource = GetResource();
 	const int count = Desc.Depth;
 	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.Format);
-
+	list->FlushBarriers();
 	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 	for (int i = 0; i < count; i++)
 	{
@@ -186,7 +194,8 @@ void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, R
 	}
 	//int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
 	//CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
-
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
+	list->FlushBarriers();
 	PerfManager::EndTimer("MakeReadyOnTarget");
 	//DidTransferLastFrame = true;
 	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
@@ -205,8 +214,8 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 	ImageDesc.InitalState = EResourceState::CopyDst;
 	ImageDesc.Depth = idesc.Faces;
 	ImageDesc.MipCount = idesc.MipLevels;
-	ImageDesc.AllowUnorderedAccess = true;
-	Create(ImageDesc, DContext);
+	//ImageDesc.AllowUnorderedAccess = true;
+	Create(ImageDesc, iContext);
 
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(Resource->GetResource(), 0, idesc.MipLevels*idesc.Faces);
 
@@ -242,16 +251,16 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 	textureUploadHeap->SetName(L"Upload");
 }
 
-DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & desc) const
+DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) const
 {
 	DescriptorItemDesc ItemDesc;
-	if (desc.ViewType == EViewType::SRV)
+	if (viewDesc.ViewType == EViewType::SRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC d = {};
 		d.Format = D3D12Helpers::ConvertFormat(Desc.Format);
 		if (Desc.IsDepthStencil)
 		{
-			d.Format = DXGI_FORMAT_R32_FLOAT;
+			d.Format = D3D12Helpers::ConvertFormat(Desc.RenderFormat);
 		}
 		d.ViewDimension = D3D12Helpers::ConvertDimension(Desc.Dimension);
 		if (Desc.Depth > 1)
@@ -260,16 +269,16 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & desc) const
 		}
 		d.Texture2D.MipLevels = Desc.MipCount;
 		d.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		d.TextureCube.MostDetailedMip = desc.Mip;
-		d.TextureCube.MipLevels = Math::Min(desc.MipLevels, Desc.MipCount);
-		if (desc.Dimension != DIMENSION_UNKNOWN)
+		d.TextureCube.MostDetailedMip = viewDesc.Mip;
+		d.TextureCube.MipLevels = Math::Min(viewDesc.MipLevels, Desc.MipCount);
+		if (viewDesc.Dimension != DIMENSION_UNKNOWN)
 		{
-			d.ViewDimension = D3D12Helpers::ConvertDimension(desc.Dimension);
+			d.ViewDimension = D3D12Helpers::ConvertDimension(viewDesc.Dimension);
 		}
 		d.Texture2DArray.ArraySize = Desc.Depth;
-		d.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+		d.Texture2DArray.FirstArraySlice = viewDesc.ArraySlice;
 		//Descriptor->CreateShaderResourceView(Resource->GetResource(), &d, desc.OffsetInDescriptor);
-		ItemDesc.CreateShaderResourceView(Resource->GetResource(), &d, desc.OffsetInDescriptor);
+		ItemDesc.CreateShaderResourceView(Resource->GetResource(), &d, viewDesc.OffsetInDescriptor);
 	}
 	else
 	{
@@ -277,21 +286,30 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & desc) const
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 		destTextureUAVDesc.ViewDimension = D3D12Helpers::ConvertDimensionUAV(Desc.Dimension);
 		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(GetDescription().Format);
-		destTextureUAVDesc.Texture2D.MipSlice = desc.Mip;
+		if (!viewDesc.UseResourceFormat)
+		{
+			destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(viewDesc.Format);
+		}
+		destTextureUAVDesc.Texture2D.MipSlice = viewDesc.Mip;
 		if (GetDescription().Depth > 1 && GetDescription().Dimension != DIMENSION_TEXTURE3D)
 		{
 			destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 			destTextureUAVDesc.Texture2DArray.ArraySize = Desc.Depth;
-			destTextureUAVDesc.Texture2DArray.FirstArraySlice = desc.ArraySlice;
+			destTextureUAVDesc.Texture2DArray.FirstArraySlice = viewDesc.ArraySlice;
 		}
-		ItemDesc.CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, desc.OffsetInDescriptor);
+		ItemDesc.CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, viewDesc.OffsetInDescriptor);
 	}
 	return ItemDesc;
 }
 
 void D3D12RHITexture::SetState(RHICommandList* list,EResourceState::Type State)
 {
-	GetResource()->SetResourceState(D3D12RHI::DXConv(list),D3D12FrameBuffer::ConvertState(State));
+	D3D12_RESOURCE_STATES DXState = D3D12FrameBuffer::ConvertState(State);
+	if (DXState == D3D12_RESOURCE_STATE_RENDER_TARGET)
+	{
+		DXState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	}
+	GetResource()->SetResourceState(D3D12RHI::DXConv(list), DXState);
 }
 
 

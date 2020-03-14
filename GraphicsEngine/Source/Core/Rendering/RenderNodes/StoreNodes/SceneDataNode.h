@@ -1,5 +1,7 @@
 #pragma once
 #include "../StorageNode.h"
+
+class Scene;
 class SceneDataNode : public StorageNode
 {
 public:

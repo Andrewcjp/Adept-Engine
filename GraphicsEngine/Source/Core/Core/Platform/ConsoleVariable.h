@@ -88,6 +88,8 @@ public:
 	static void SetupVars(std::string LaunchArgString);
 	static bool TrySetCVar(std::string command, ConsoleVariable ** Var);
 	static void DebugLogCVars();
+	static void ExecuteCommand(std::string command);
+	static void ToggleVar(std::string var);
 };
 struct IConsoleSettingsVar
 {

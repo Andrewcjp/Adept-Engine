@@ -3,6 +3,7 @@
 
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "../NodeLink.h"
+#include "RHI/RHICommandList.h"
 
 ParticleRenderNode::ParticleRenderNode()
 {
@@ -28,6 +29,7 @@ void ParticleRenderNode::OnExecute()
 	RenderList->ResetList();
 	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
 	SetBeginStates(RenderList);
+	ParticleSystemManager::Get()->RenderList = RenderList;
 	ParticleSystemManager::Get()->Render(Buffer, DepthSource, GetEye());
 	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
 	SetEndStates(RenderList);

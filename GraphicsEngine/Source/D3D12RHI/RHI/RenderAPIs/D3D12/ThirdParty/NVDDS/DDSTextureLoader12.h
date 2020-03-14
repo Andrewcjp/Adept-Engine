@@ -15,8 +15,8 @@
 //--------------------------------------------------------------------------------------
 
 #pragma once
+#include "Dx12Select.h"
 
-#include <d3d12.h>
 
 #include <memory>
 #include <vector>

@@ -16,7 +16,7 @@ public:
 	void BuildAllMaterials();
 	void BuildAll();
 	void SetPlatform(EPlatforms::Type Platform);
-	EPlatforms::Type GetTargetPlatform()const;
+	CORE_API EPlatforms::Type GetTargetPlatform()const;
 	ERenderSystemType GetTargetRHI()const;
 private:
 	std::string OutputPath = "";

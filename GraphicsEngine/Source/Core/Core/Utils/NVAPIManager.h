@@ -39,4 +39,6 @@ private:
 #endif
 	int StatIds[MAX_GPU_DEVICE_COUNT][Stats::Limit] = { 0 };
 };
+#else
+#define NVAPI_PRESENT 0
 #endif

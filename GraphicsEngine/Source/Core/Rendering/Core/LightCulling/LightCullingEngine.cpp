@@ -10,6 +10,7 @@
 #include "Rendering/Shaders/Shader_Deferred.h"
 #include "RHI/DeviceContext.h"
 #include "../Screen.h"
+#include "RHI/RHIBufferGroup.h"
 
 static ConsoleVariable ShowLightBounds("c.ShowLightBounds", 0);
 static ConsoleVariable FreezeLightCulling("c.LightFreeze", 0);
@@ -35,7 +36,7 @@ void LightCullingEngine::Init(CullingManager * m)
 	}
 	CreateLightDataBuffer();
 	Manager = m;
-	LightDataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
+	LightDataBuffer = new RHIBufferGroup();
 	RHIBufferDesc Desc = {};
 	Desc.CreateSRV = true;
 	Desc.ElementCount = MAX_POSSIBLE_LIGHTS;
@@ -54,7 +55,7 @@ void LightCullingEngine::LaunchCullingForScene(RHICommandList* list, EEye::Type 
 	SceneRenderer::Get()->BindLightsBuffer(list, "LightBuffer");
 	SceneRenderer::Get()->BindMvBuffer(list, "CameraData");
 	//LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
-	list->SetBuffer(LightDataBuffer, "LightList");
+	list->SetBuffer(LightDataBuffer->Get(list), "LightList");
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
 }
 
@@ -76,16 +77,17 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 	{
 		LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
 		//LightCullingBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightBuffer);
-		LightDataBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
+		LightDataBuffer->Get(list)->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
+		//list->SetBuffer(LightDataBuffer->Get(list), DeferredLightingShaderRSBinds::LightDataBuffer);
 	}
 	else
 	{
 		//LightDataBuffer->BindBufferReadOnly(list, "");
-		list->SetBuffer(LightDataBuffer, "lights");
+		list->SetBuffer(LightDataBuffer->Get(list), "lights");
 	}
 }
 
-RHIBuffer* LightCullingEngine::GetLightDataBuffer()
+RHIBufferGroup* LightCullingEngine::GetLightDataBuffer()
 {
 	return LightDataBuffer;
 }

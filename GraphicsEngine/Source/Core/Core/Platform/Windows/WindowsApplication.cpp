@@ -10,6 +10,8 @@
 #include <shellapi.h>
 #include <commdlg.h>
 #include <Shlwapi.h>
+#include "Core/Engine.h"
+#include "Packaging/Cooker.h"
 
 double WindowsApplication::SecondsPerCycle = 0.0f;
 
@@ -242,6 +244,10 @@ std::string WindowsApplication::GetExecutablePath()
 
 EPlatforms::Type WindowsApplication::GetPlatform()
 {
+	if (Engine::GetIsCooking() && Engine::GetCookContext() != nullptr)
+	{
+		return Engine::GetCookContext()->GetTargetPlatform();
+	}
 	return EPlatforms::Windows;
 }
 

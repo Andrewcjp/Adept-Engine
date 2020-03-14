@@ -12,7 +12,7 @@ public:
 	virtual void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) override;
 	virtual void CreateIndexBuffer(int Stride, int ByteSize) override;
 	virtual void CreateBuffer(RHIBufferDesc desc) override;
-	virtual void UpdateVertexBuffer(void* data, size_t length) override;
+	virtual void UpdateVertexBuffer(void* data, size_t length, int VertexCount = -1) override;
 	virtual void BindBufferReadOnly(RHICommandList* list, int RSSlot)override;
 	virtual void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) override;
 	bool CheckDevice(int index);
@@ -23,6 +23,9 @@ public:
 	void SetConstantBufferView(int offset, ID3D12GraphicsCommandList * list, int Slot, bool IsCompute, int Deviceindex);
 	GPUResource* GetResource();
 	DXDescriptor* GetDescriptor(const RHIViewDesc& desc, DescriptorHeap* heap = nullptr);
+
+	virtual void* MapReadBack();
+	
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;

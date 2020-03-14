@@ -1,5 +1,6 @@
 #pragma once
 #include "HMD.h"
+#include "Core/Transform.h"
 
 class VRCamera
 {

@@ -22,7 +22,7 @@ long PerfManager::GetSeconds()
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
 #else
-	return 0;
+	return (unsigned long)std::chrono::high_resolution_clock::now().time_since_epoch().count();
 #endif
 }
 PerfManager * PerfManager::Get()
@@ -62,7 +62,7 @@ PerfManager::PerfManager()
 {
 	Instance = this;
 	ShowAllStats = true;
-#ifdef PLATFORM_WINDOWS
+#if NVAPI_PRESENT
 	NVApiManager = new NVAPIManager();
 #endif
 	Bencher = new BenchMarker();
@@ -80,7 +80,9 @@ void PerfManager::Test()
 }
 PerfManager::~PerfManager()
 {
+#if NVAPI_PRESENT
 	SafeDelete(NVApiManager);
+#endif
 	SafeDelete(Bencher);
 }
 
@@ -280,7 +282,10 @@ std::string PerfManager::GetAllTimers()
 		stream << std::fixed << std::setprecision(3) << "Stats: ";
 		for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 		{
-			stream << GetTimerName(it->first) << ": " << it->second.AVG->GetCurrentAverage() << "ms ";
+			if (it->second.Active)
+			{
+				stream << GetTimerName(it->first) << ": " << it->second.AVG->GetCurrentAverage() << "ms ";
+			}
 		}
 	}
 	return stream.str();

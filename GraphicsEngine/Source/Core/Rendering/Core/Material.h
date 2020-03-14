@@ -9,6 +9,7 @@ class RHIBuffer;
 class Shader_NodeGraph;
 class Asset_Shader;
 class MaterialShader;
+class RHIBufferGroup;
 class Material
 {
 public:
@@ -30,7 +31,7 @@ public:
 	static Material * GetDefaultMaterial();
 	void ProcessSerialArchive(class Archive* A);
 	static constexpr const char* DefuseBindName = "DiffuseMap";
-	RHIBuffer* MaterialDataBuffer = nullptr;
+	RHIBufferGroup* MaterialDataBuffer = nullptr;
 	EMaterialRenderType::Type GetRenderPassType();
 	
 	static Shader* GetDefaultMaterialShader();

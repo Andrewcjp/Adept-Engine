@@ -1,4 +1,8 @@
 #pragma once
+
+class MeshBatch;
+class Material;
+class RHIBufferGroup;
 struct InstanceArgs
 {
 	glm::mat4x4 M;
@@ -14,14 +18,14 @@ public:
 	void UpdateBuffer();
 	void Build();
 	int GetInstanceCount();
-	RHIBuffer* GetBuffer();
-	RHIBuffer* GetMaterialBuffer();
+	RHIBufferGroup* GetBuffer();
+	RHIBufferGroup* GetMaterialBuffer();
 	Material* TargetMaterial = nullptr;
 	bool IsCompletelyCulled()const;
 private:
 	std::vector<MeshBatch*> containedBatches;
-	RHIBuffer* Buffer = nullptr;
-	RHIBuffer* MateralDataBuffer = nullptr;
+	RHIBufferGroup* Buffer = nullptr;
+	RHIBufferGroup* MateralDataBuffer = nullptr;
 	int Stride = 0;
 	bool IsCulled = false;
 };

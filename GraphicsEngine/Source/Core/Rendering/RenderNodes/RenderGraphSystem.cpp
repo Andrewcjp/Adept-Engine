@@ -110,6 +110,9 @@ void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraph
 	case EBuiltinRenderGraphs::TEST_MGPU:
 		Graph->CreateMGPU_TESTGRAPH();
 		break;
+	case EBuiltinRenderGraphs::MGPU_SFR:
+		Graph->CreateSFR();
+		break;
 	}
 }
 
@@ -156,6 +159,10 @@ void RenderGraphSystem::Update()
 	if (Input::GetKeyDown('Y'))
 	{
 		CurrentGraph->ToggleCondition("Debug");
+	}
+	if (Input::GetKeyDown('R'))
+	{
+		RHI::GetRenderSettings()->SetVRXActive(!RHI::GetRenderSettings()->GetVRXSettings().VRXActive);
 	}
 #if 0
 	if (Input::GetKeyDown('I'))

@@ -17,6 +17,7 @@ class SceneDataNode;
 class ShadowAtlasStorageNode;
 class VRBranchNode;
 class RenderNode;
+class Scene;
 
 struct ResourceTransition
 {
@@ -36,7 +37,7 @@ struct ResourceTransition
 
 	//queue wait
 	DeviceContextQueue::Type SignalingQueue = DeviceContextQueue::LIMIT;
-
+	int SignalingDevice = -1;
 };
 
 class RenderNode
@@ -97,6 +98,9 @@ public:
 	virtual void OnResourceResize();
 	RenderNode* GetLastNode() const { return LastNode; }
 	void SetLastNode(RenderNode* val) { LastNode = val; }
+	int GetDeviceIndex()const;
+	virtual void OnGraphCreate();
+	void SetTargetEye(EEye::Type eye);
 protected:
 
 	//search forwards until we reach the end VR node 
@@ -105,7 +109,7 @@ protected:
 	VRBranchNode* VRBranchContext = nullptr;
 	bool IsVrBranchNode = false;
 	bool NodeActive = true;
-
+	EEye::Type TargetEye = EEye::Left;
 	//is this node configured for a deferred pipeline or a forward one
 	//This is a special case as many nodes need the depth from the Gbuffer in deferred 
 	//all other conditions should be handled with Node conditionals.

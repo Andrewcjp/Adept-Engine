@@ -1,5 +1,5 @@
 #include "WinLauncher.h"
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
 #include "Core/Engine.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"

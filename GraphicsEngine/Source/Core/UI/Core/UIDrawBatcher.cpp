@@ -140,7 +140,7 @@ void UIDrawBatcher::RenderBatches()
 {
 	if (BatchedVerts.size() == 0)
 	{
-		return;
+		//return;
 	}
 	SCOPE_CYCLE_COUNTER_GROUP("Draw Batches", "UI");
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
@@ -149,6 +149,10 @@ void UIDrawBatcher::RenderBatches()
 	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, EGPUTIMERS::UI);
 	Render(commandlist);
 	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, EGPUTIMERS::UI);
+#if !BUILD_FREETTYPE
+	commandlist->GetDevice()->GetTimeManager()->EndTotalGPUTimer(commandlist);
+	RHI::MakeSwapChainReady(commandlist);
+#endif
 	commandlist->Execute();
 }
 
@@ -174,4 +178,7 @@ void UIDrawBatcher::Render(RHICommandList * list)
 			TextRenderer::instance->RenderBatches(batch->TextData, list);
 		}
 	}
+#if !BUILD_FREETTYPE
+	RHI::MakeSwapChainReady(list);
+#endif
 }

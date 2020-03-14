@@ -31,7 +31,7 @@ void OutputToScreenNode::OnExecute()
 
 	ScreenWriteList = Context->GetListPool()->GetCMDList();
 	SetBeginStates(ScreenWriteList);
-#if WITH_EDITOR
+#if EDITORUI
 	RHIRenderPassDesc RP = RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear);
 	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::RenderTarget);
@@ -78,12 +78,14 @@ void OutputToScreenNode::OnExecute()
 		D.Cull = false;
 		D.DepthStencilState.DepthEnable = false;
 		D.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
+		Target->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 		ScreenWriteList->SetPipelineStateDesc(D);
+		//ScreenWriteList->ClearFrameBuffer(Target);
 		ScreenWriteList->SetFrameBufferTexture(Target, 0);
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->EndRenderPass();
-#if WITH_EDITOR
+#if EDITORUI
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 	UIManager::Get()->SetEditorViewPortRenderTarget(GetFrameBufferFromInput(1));
 #endif
@@ -94,7 +96,7 @@ void OutputToScreenNode::OnExecute()
 void OutputToScreenNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "Frame");
-#if WITH_EDITOR
+#if EDITORUI
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "Editor ViewPort Output");
 #endif
 }

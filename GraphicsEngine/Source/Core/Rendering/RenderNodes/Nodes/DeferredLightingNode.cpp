@@ -15,6 +15,7 @@
 #include "../../Core/VRXEngine.h"
 #include "../../RayTracing/VoxelTracingEngine.h"
 #include "../../Renderers/Terrain/TerrainRenderer.h"
+#include "RHI/RHITexture.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -57,16 +58,27 @@ void DeferredLightingNode::OnExecute()
 	desc.RenderTargetDesc = MainBuffer->GetPiplineRenderDesc();
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
-		desc.DepthStencilState.StencilEnable = true;
+		desc.DepthStencilState.StencilEnable = false;
 		desc.DepthStencilState.BackFace.StencilFunc = COMPARISON_FUNC_EQUAL;
 		desc.DepthStencilState.FrontFace.StencilFunc = COMPARISON_FUNC_EQUAL;
 	}
 	List->SetPipelineStateDesc(desc);
-	if (VRXImage != nullptr && VRXImage->IsValid())
+	if (VRXImage != nullptr && VRXImage->IsValid() )
 	{
 		RHITexture* Text = StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture();
 		List->SetVRXShadingRateImage(Text);
 		List->SetTexture2(Text, DeferredLightingShaderRSBinds::RateImage);
+#if USEPS_VRR
+		if (VRXEngine::Get()->TempTexture == nullptr)
+		{
+			RHITextureDesc2 Desc2 = MainBuffer->GetDescription().RenderTargets[0]->GetDescription();
+			VRXEngine::Get()->TempTexture = RHI::GetRHIClass()->CreateTexture2();
+			Desc2.AllowUnorderedAccess = true;
+			VRXEngine::Get()->TempTexture->Create(Desc2);
+		}
+		VRXEngine::Get()->TempTexture->SetState(List, EResourceState::UAV);
+		List->SetUAV(VRXEngine::Get()->TempTexture, DeferredLightingShaderRSBinds::TempVRRBuffer, RHIViewDesc::DefaultUAV());
+#endif
 	}
 	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().UseVRR() ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	List->BeginRenderPass(D);
@@ -85,15 +97,24 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
-		GetShadowDataFromInput(3)->BindPointArray(List, 6);
+		GetShadowDataFromInput(3)->BindPointArray(List, 6);	
 	}
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
+
+
 #if !TEST_VRR
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
 #endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
+#if USEPS_VRR
+	if (VRXImage != nullptr)
+	{
+		RHITexture* Text = StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture();
+		VRXEngine::ResolveVRRFramebuffer_PS(List, MainBuffer, Text);
+	}
+#endif-
 	SetEndStates(List);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;

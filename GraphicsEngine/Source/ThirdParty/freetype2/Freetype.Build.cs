@@ -7,7 +7,8 @@ class freetypeBuild : ExternalModuleDef
         ModuleRoot = "\\freetype2\\";
         AddLibSearch(ref LibrarySearchPaths, "", LibBuildConfig.General, false);
         AddLibSearch(ref LibrarySearchPaths, "", LibBuildConfig.General, true);
-        CommonLibs.Add("freetype.lib");
-        DLLs.Add("freetype271.dll");
+        LibDirs.Add("../source/ThirdParty/freetype2/");
+        StaticLibraries.Add(new LibDependency("freetype.lib", "all"));
+        Defines.Add("SUPPORT_FREETYPE");
     }
 }

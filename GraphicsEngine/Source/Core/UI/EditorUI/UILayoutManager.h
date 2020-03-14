@@ -10,8 +10,8 @@ public:
 	void UpdateSlotSizes();
 	struct DockedSlot
 	{
-		glm::ivec2 Pos;
-		glm::ivec2 Size;
+		glm::ivec2 Pos = glm::ivec2();
+		glm::ivec2 Size  = glm::ivec2();
 		glm::ivec2 GetSize();
 		UIWidget* Widget = nullptr;
 	};

@@ -21,6 +21,7 @@ namespace DefaultLocalRootSignatureParams
 }
 class Shader_RTBase;
 class Shader_RTMateralHit;
+class Scene;
 struct ShaderHitGroup
 {
 	ShaderHitGroup(std::string name);
@@ -45,7 +46,7 @@ public:
 	void RebuildHittableFromScene(Scene * Sc);
 	void AddObject(GameObject * Object);
 
-	virtual	Shader_RTMateralHit* GetMaterialShader();
+	virtual	Shader_RTBase* GetMaterialShader();
 
 	std::vector<Shader_RTBase*> MissShaders;
 	std::vector<Shader_RTBase*> RayGenShaders;

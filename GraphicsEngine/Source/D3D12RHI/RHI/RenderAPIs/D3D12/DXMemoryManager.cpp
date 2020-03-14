@@ -72,6 +72,11 @@ EAllocateResult::Type DXMemoryManager::AllocResource(AllocDesc & desc, GPUResour
 			desc.PageAllocationType = EPageTypes::BufferUploadOnly;
 		}
 	}
+	if (desc.IsReadBack)
+	{
+		desc.PageAllocationType = EPageTypes::ReadBack;
+		desc.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
 	EAllocateResult::Type Error = FindFreePage(desc, AllocatedPages)->Allocate(desc, ppResource);
 	ensure(Error == EAllocateResult::OK);
 	return Error;
@@ -130,6 +135,10 @@ GPUMemoryPage * DXMemoryManager::FindFreePage(AllocDesc & desc, std::vector<GPUM
 	GPUMemoryPage* newpage = nullptr;
 	const UINT64 PageMinSize = 256 * 1024 * 1024u;
 	desc.Size = Math::Max(desc.TextureAllocData.SizeInBytes, PageMinSize);
+	if (desc.UseCommittedResource)
+	{
+		desc.Size = desc.TextureAllocData.SizeInBytes;
+	}	
 	AllocPage(desc, &newpage);
 	if (AllocatedPages != pages)
 	{
