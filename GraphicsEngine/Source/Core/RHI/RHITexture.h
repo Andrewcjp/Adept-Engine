@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Platform/PlatformCore.h"
 #include "RHITypes.h"
+#include "BaseTexture.h"
 
 class DeviceContext;
 //Represents a GPU resource 

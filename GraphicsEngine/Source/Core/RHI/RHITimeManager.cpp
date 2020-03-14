@@ -2,6 +2,7 @@
 #include "RHITimeManager.h"
 #include "DeviceContext.h"
 #include "Core\Performance\PerfManager.h"
+#include "RHICommandList.h"
 static ConsoleVariable CaptureFullTimers("GPUPerf.PerDrawTimers", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable Paused("GPUPerf.Pause", 0, ECVarType::ConsoleAndLaunch);
 RHITimeManager::RHITimeManager(DeviceContext * context)

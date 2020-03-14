@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI\RHITexture.h"
+#include "DXDescriptor.h"
 
 class D3D12DeviceContext;
 class DXDescriptor;

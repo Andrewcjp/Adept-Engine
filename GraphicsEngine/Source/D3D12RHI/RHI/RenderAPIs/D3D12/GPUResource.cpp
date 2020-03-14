@@ -158,9 +158,9 @@ void GPUResource::UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate)
 	TargetState = newstate;
 }
 
-inline EPhysicalMemoryState::Type GPUResource::GetCurrentAliasState() const { return CurrentAliasState; }
+EPhysicalMemoryState::Type GPUResource::GetCurrentAliasState() const { return CurrentAliasState; }
 
-inline void GPUResource::SetCurrentAliasState(EPhysicalMemoryState::Type val) { CurrentAliasState = val; }
+void GPUResource::SetCurrentAliasState(EPhysicalMemoryState::Type val) { CurrentAliasState = val; }
 
 bool GPUResource::NeedsClear() const
 {

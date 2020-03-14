@@ -4,6 +4,8 @@
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
+#include "Editor/Inspector.h"
+#include "../GameObject.h"
 
 MeshRendererComponent::MeshRendererComponent()
 {

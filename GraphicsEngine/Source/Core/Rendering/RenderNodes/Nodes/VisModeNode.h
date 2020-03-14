@@ -2,6 +2,7 @@
 #include "../RenderNode.h"
 
 class RHICommandList;
+class Shader_Pair;
 //this node renders the scene with debug visualizations   
 class VisModeNode : public RenderNode
 {

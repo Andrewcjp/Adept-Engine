@@ -33,6 +33,9 @@
 #include <vector>
 #include <mutex>
 #include <functional>
+#include <ios>
+#include <iostream>
+#include <fstream>
 #pragma warning(pop)
 #if 0
 #pragma warning(push,4)

@@ -7,6 +7,7 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/GPUStateCache.h"
 #include "Streaming/GPUTextureStreamer.h"
+#include "RHICommandList.h"
 
 DeviceContext::DeviceContext()
 {

@@ -5,6 +5,7 @@
 #include "../StoreNodes/FrameBufferStorageNode.h"
 #include "RHI/RHICommandList.h"
 #include "Rendering/Core/FrameBuffer.h"
+#include "RHI/DeviceContext.h"
 
 PostProcessNode::PostProcessNode()
 {

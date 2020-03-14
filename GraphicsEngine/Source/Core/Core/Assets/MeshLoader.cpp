@@ -12,6 +12,7 @@
 #include "../Performance/PerfManager.h"
 #include "../Utils/FileUtils.h"
 #include "BinaryArchive.h"
+#include "../Transform.h"
 MeshLoader* MeshLoader::Instance = nullptr;
 const glm::vec3 MeshLoader::DefaultScale = glm::vec3(1.0f, 1.0f, 1.0f);
 #ifdef BUILD_ASSIMP

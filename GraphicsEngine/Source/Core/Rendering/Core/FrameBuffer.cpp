@@ -8,6 +8,7 @@
 
 #include "Screen.h"
 #include "RHI/RHITexture.h"
+#include "RHI/RHICommandList.h"
 
 FrameBuffer::FrameBuffer(DeviceContext * device, const RHIFrameBufferDesc & Desc)
 {

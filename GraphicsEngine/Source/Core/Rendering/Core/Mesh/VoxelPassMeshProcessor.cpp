@@ -2,6 +2,7 @@
 #include "MeshDrawCommand.h"
 #include "../Material.h"
 #include "../Defaults.h"
+#include "RHI/RHICommandList.h"
 
 void VoxelPassMeshProcessor::AddBatch(MeshBatch* Batch)
 {

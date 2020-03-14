@@ -2,6 +2,7 @@
 #include "UIWidgetContext.h"
 #include "UI\UIManager.h"
 #include "Rendering\Core\Screen.h"
+#include "UIWidget.h"
 
 
 void UITransform::Set(int width, int height, int x, int y, EWidetSizeSpace::Type SpaceMode)

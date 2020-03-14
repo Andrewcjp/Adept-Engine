@@ -1,6 +1,7 @@
 #include "CullingFrustum.h"
 #include "CullingAABB.h"
 #include "..\DebugLineDrawer.h"
+#include "..\Camera.h"
 
 
 CullingFrustum::CullingFrustum()

@@ -1,5 +1,7 @@
 #include "UpdateAccelerationStructuresNode.h"
 #include "..\..\RayTracing\RayTracingEngine.h"
+#include "RHI\CommandListPool.h"
+#include "RHI\DeviceContext.h"
 
 
 UpdateAccelerationStructuresNode::UpdateAccelerationStructuresNode()
