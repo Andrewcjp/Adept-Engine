@@ -64,6 +64,8 @@ Log::LogMessage(_AssertMSG_,Log::Severity::Error); PlatformApplication::DisplayA
 #define LogEnsure_Always(m)
 #define ENUMCONVERTFAIL()
 #define AD_WARN(msg)
+#define AD_ERROR(Message)
+#define AD_Assert_Always(Message)
 #endif
 
 #if DOCHECK

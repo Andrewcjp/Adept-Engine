@@ -587,7 +587,7 @@ void D3D12CommandList::CreateCommandList()
 #endif
 
 		CurrentCommandList->QueryInterface(ID_PASS(&CommandList1));
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS) && !BUILD_SHIPPING
 		CurrentCommandList->QueryInterface(ID_PASS(&DebugList));
 #endif
 		D3D12Helpers::NameRHIObject(CurrentCommandList, this);

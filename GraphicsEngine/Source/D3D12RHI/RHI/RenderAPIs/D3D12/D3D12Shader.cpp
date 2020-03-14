@@ -104,7 +104,9 @@ void D3D12Shader::ReportStats(ShaderSourceFile* ShaderData)
 
 EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shadername, EShaderType::Type ShaderType, const char * Entrypoint)
 {
+#if !BUILD_SHIPPING
 	stats.TotalShaderCount++;
+#endif
 	ShaderComplieItem*  item = new ShaderComplieItem();
 	item->ShaderName = shadername;
 	item->Defines = Defines;
@@ -132,10 +134,14 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	ShaderReflection::GatherRSBinds(RelfectionBlob, ShaderType, GeneratedParams, IsCompute, item->Data, this);
 	if (item->CacheHit)
 	{
+#if !BUILD_SHIPPING
 		stats.ShaderLoadFromCacheCount++;
+#endif
 		return EShaderError::SHADER_ERROR_NONE;
 	}
+#if !BUILD_SHIPPING
 	stats.ShaderComplieCount++;
+#endif
 	ReportStats(item->Data);
 	if (ShaderType == EShaderType::SHADER_COMPUTE)
 	{
