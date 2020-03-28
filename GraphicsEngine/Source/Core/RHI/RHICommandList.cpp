@@ -114,17 +114,7 @@ void RHICommandList::EndTimer(int TimerId)
 
 void RHICommandList::ResolveTimers()
 {
-	/*if (ListType == ECommandListType::Copy)
-	{
-		if (GetDevice()->GetCaps().SupportsCopyTimeStamps)
-		{
-			GetDevice()->GetTimeManager()->ResolveCopyTimeHeaps(this);
-		}
-	}
-	else
-	{
-		GetDevice()->GetTimeManager()->ResolveTimeHeaps(this);
-	}*/
+	GetDevice()->GetTimeManager()->ResolveHeaps(this);
 }
 
 bool RHICommandList::IsGraphicsList() const

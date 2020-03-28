@@ -72,9 +72,9 @@ public:
 	LightGPUAffinty * FindLightResident();
 	bool ShouldCopyToDevice(int index);
 	LightGPUAffinty GPUResidenceMask[MAX_GPU_DEVICE_COUNT] = {};
-	bool NeedsShadowUpdate();
+	bool NeedsShadowUpdate(int deviceIndex);
 	void InvalidateCachedShadow();
-	void NotifyShadowUpdate();
+	void NotifyShadowUpdate(int deviceIndex);
 	bool IsResident(DeviceContext* dev);
 	bool HasValidHandle(int deviceindex);
 private:
@@ -87,7 +87,7 @@ private:
 	ELightType::Type m_type = ELightType::Limit;
 	bool DoesShadow = true;
 	int ShadowId = -1;
-	bool ShadowNeedsUpdate = true;
+	bool ShadowNeedsUpdate[MAX_GPU_DEVICE_COUNT] = { true };
 	ELightMobility::Type ShadowMode = ELightMobility::Realtime;
 };
 

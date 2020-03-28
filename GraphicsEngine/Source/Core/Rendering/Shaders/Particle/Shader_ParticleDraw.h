@@ -11,6 +11,6 @@ public:
 	virtual void CacheParms() override;
 
 private:
-	std::vector<Shader::VertexElementDESC> GetVertexFormat()  override;
+	std::vector<VertexElementDESC> GetVertexFormat()  override;
 };
 

@@ -17,7 +17,7 @@ Shader_Main::~Shader_Main()
 
 }
 
-std::vector<Shader::VertexElementDESC> Shader_Main::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_Main::GetVertexFormat()
 {
 	return GetMainVertexFormat();
 }
@@ -48,9 +48,9 @@ void Shader_Main::GetMainShaderSig(std::vector<ShaderParameter>& out)
 	out.push_back(ShaderParameter(ShaderParamType::Buffer, MainShaderRSBinds::LightDataBuffer, 30));
 }
 
-std::vector<Shader::VertexElementDESC> Shader_Main::GetMainVertexFormat()
+std::vector<VertexElementDESC> Shader_Main::GetMainVertexFormat()
 {
-	std::vector<Shader::VertexElementDESC> out;
+	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out[0].Stride = sizeof(OGLVertex);
 	out.push_back(VertexElementDESC{ "NORMAL", 0, FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

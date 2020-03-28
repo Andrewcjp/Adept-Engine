@@ -1,3 +1,4 @@
+
 #include "RenderNode.h"
 #include "StorageNode.h"
 #include "NodeLink.h"
@@ -115,6 +116,18 @@ ECommandListType::Type RenderNode::GetNodeQueueType() const
 	return NodeEngineType;
 }
 
+DeviceContextQueue::Type RenderNode::GetNodeQueue() const
+{
+	if (NodeQueueType == DeviceContextQueue::Graphics)
+	{
+		if (NodeEngineType == ECommandListType::Compute || NodeEngineType == ECommandListType::RayTracing)
+		{
+			return DeviceContextQueue::Compute;
+		}
+	}
+	return NodeQueueType;
+}
+
 RenderNode * RenderNode::GetNextNode() const
 {
 	return Next;
@@ -199,7 +212,7 @@ void RenderNode::FindVRContext()
 	{
 		if (N->IsVrBranchNode)
 		{
-//			VRBranchContext = NodeCast<VRBranchNode>(N);
+			//			VRBranchContext = NodeCast<VRBranchNode>(N);
 			break;
 		}
 		N = N->Next;
@@ -382,11 +395,11 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 	{
 		if (SignalingDevice == -1)
 		{
-			list->GetDevice()->InsertGPUWait(DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+			list->GetDevice()->InsertGPUWait(rnode->GetNodeQueue(), SignalingQueue);
 		}
 		else
 		{
-			list->GetDevice()->GPUWaitForOtherGPU(RHI::GetDeviceContext(SignalingDevice), DeviceContextQueue::GetFromCommandListType(rnode->GetNodeQueueType()), SignalingQueue);
+			list->GetDevice()->InsertCrossGPUWait(rnode->GetNodeQueue(),RHI::GetDeviceContext(SignalingDevice), SignalingQueue);
 		}
 	}
 }

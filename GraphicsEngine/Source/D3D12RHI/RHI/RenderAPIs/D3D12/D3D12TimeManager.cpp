@@ -16,7 +16,8 @@ D3D12TimeManager::D3D12TimeManager(DeviceContext* context) :RHITimeManager(conte
 }
 
 D3D12TimeManager::~D3D12TimeManager()
-{}
+{
+}
 
 void D3D12TimeManager::Init(DeviceContext* context)
 {
@@ -75,6 +76,7 @@ void D3D12TimeManager::UpdateTimers()
 #if ENABLE_GPUTIMERS
 	UpdateTimeStampFreq();
 	Device->GetTimeStampHeap()->ReadData();
+	Device->GetCopyTimeStampHeap()->ReadData();
 	Device->GetPipelinePerfHeap()->ReadData();
 	ResolveAllTimers();
 	if (!IsRunning())
@@ -193,6 +195,20 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 #endif
 }
 
+void D3D12TimeManager::ResolveHeaps(RHICommandList* list)
+{
+#ifdef PLATFORM_WINDOWS
+	if (list->IsCopyList())
+	{
+		Device->GetCopyTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(list));
+	}
+	else
+	{
+		Device->GetTimeStampHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(list));
+	}
+#endif
+}
+
 float D3D12TimeManager::GetTotalTime()
 {
 	return AVGgpuTimeMS;
@@ -210,7 +226,7 @@ void D3D12TimeManager::EndPipelineStatCapture(RHICommandList* commandlist)
 	Device->GetPipelinePerfHeap()->ResolveAndEndQueryBatches(D3D12RHI::DXConv(commandlist));
 }
 
-void D3D12TimeManager::StartTimer(D3D12CommandList * ComandList, int index, bool IsCopy)
+void D3D12TimeManager::StartTimer(D3D12CommandList* ComandList, int index, bool IsCopy)
 {
 	TimerQ* timer = GetTimer(TimerNames[index]);
 	if (timer == nullptr)
@@ -259,7 +275,7 @@ void D3D12TimeManager::EndTimer(D3D12CommandList* ComandList, int index, bool Is
 void D3D12TimeManager::StartTotalGPUTimer(RHICommandList* ComandList)
 {
 #if ENABLE_GPUTIMERS
-	if (TimerStarted)
+	if (TimerStarted || ComandList->IsCopyList())
 	{
 		return;
 	}
@@ -290,8 +306,13 @@ void D3D12TimeManager::TimerQ::Resolve(UINT64 freqnecy)
 		TotalTime = 0.0f;
 		return;
 	}
+	int Count = TimerQueries.size();
+	if (Count % 2 != 0)
+	{
+		Count -= 1;
+	}
 	TotalTime = 0.0f;
-	for (int i = 0; i < TimerQueries.size(); i += 2)
+	for (int i = 0; i < Count; i += 2)
 	{
 		if (TimerQueries[i]->IsResolved && TimerQueries[i + 1]->IsResolved)
 		{

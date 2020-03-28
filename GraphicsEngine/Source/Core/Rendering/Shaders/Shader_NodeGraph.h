@@ -10,7 +10,7 @@ public:
 	Shader_NodeGraph(std::string Shadername, TextureBindSet* binds);
 	void Init();
 	~Shader_NodeGraph();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	const std::string GetName() override;
 	TextureBindSet* GetBinds();

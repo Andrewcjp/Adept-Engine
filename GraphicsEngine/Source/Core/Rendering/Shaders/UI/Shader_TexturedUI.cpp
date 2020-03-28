@@ -70,7 +70,7 @@ std::vector<ShaderParameter> Shader_TexturedUI::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	return out;
 }
-std::vector<Shader::VertexElementDESC> Shader_TexturedUI::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_TexturedUI::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

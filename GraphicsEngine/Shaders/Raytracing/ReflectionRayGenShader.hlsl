@@ -20,9 +20,9 @@ float3 linearToSrgb(float3 c)
 	return srgb;
 }
 cbuffer RTBufferData : register(b3)
-{
+{  
 	float RT_RoughnessThreshold;
-	float VX_MaxRoughness;
+	float VX_MaxRoughness; 
 	float VX_MinRoughness;
 	float VX_RT_BlendStart;
 	float VX_RT_BlendEnd;

@@ -506,9 +506,11 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 		InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 		InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
 	}
-#if 0
-	InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-	InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+#if 1
+	if (GetDeviceIndex() != 0)
+	{
+		InsertCrossGPUWait(DeviceContextQueue::Graphics, RHI::GetDeviceContext(0), DeviceContextQueue::Graphics);
+	}	
 #endif
 	GraphicsSync.MoveNextFrame(SyncIndex);
 	CopySync.MoveNextFrame(SyncIndex);
@@ -690,6 +692,11 @@ void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceCont
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), D3D12RHI::DXConv(OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
 }
 
+void D3D12DeviceContext::InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue)
+{
+	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint_NonLocalSignal(D3D12RHI::DXConv(SignalingGPU)->GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+}
+
 bool D3D12DeviceContext::SupportsCommandList4()
 {
 	return SupportsCmdsList4;
@@ -856,6 +863,16 @@ void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12Com
 	otherDeviceQeue->Wait(secondaryFence, m_fenceValue);
 	m_fenceValue++;
 }
+
+void GPUSyncPoint::CrossGPUCreateSyncPoint_NonLocalSignal(ID3D12CommandQueue* queue, ID3D12CommandQueue* otherDeviceQeue)
+{
+	// Schedule a Signal command in the queue.
+	ThrowIfFailed(queue->Signal(secondaryFence, m_fenceValue));
+
+	otherDeviceQeue->Wait(m_fence, m_fenceValue);
+	m_fenceValue++;
+}
+
 void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue)
 {
 	//Breaks!

@@ -65,6 +65,7 @@ public:
 	void Init(ID3D12Device* device);
 	void CreateSyncPoint(ID3D12CommandQueue* queue);
 	void CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * otherDeviceQeue);
+	void CrossGPUCreateSyncPoint_NonLocalSignal(ID3D12CommandQueue* queue, ID3D12CommandQueue* otherDeviceQeue);
 	void GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue);
 	void Signal(ID3D12CommandQueue * queue, int value = -1);
 	void Wait(ID3D12CommandQueue * queue, int value = -1);
@@ -152,6 +153,7 @@ public:
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	class RHITimeManager* GetTimeManager()override;
 	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
+	void InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue);
 	bool SupportsCommandList4();
 	void CPUWaitForAll();
 	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);

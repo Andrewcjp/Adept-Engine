@@ -22,10 +22,17 @@ public:
 	void BindStaticSceneEnivoment(RHICommandList* List, bool IsDeferredshader);
 	void GenerateStaticEnvData();
 private:
-	Shader_Convolution* Conv = nullptr;
-	Shader_EnvMap* EnvMap = nullptr;
+
 	std::vector<ReflectionProbe*> Probes;
 	RHICommandList* StaticGenList = nullptr;
-	FrameBuffer* SkyBoxBuffer = nullptr;
+	struct ReflectionEnviromentGPUData
+	{
+		void init(int index);
+
+		FrameBuffer* SkyBoxBuffer = nullptr;
+		Shader_Convolution* Conv = nullptr;
+		Shader_EnvMap* EnvMap = nullptr;
+	};
+	ReflectionEnviromentGPUData GpuData[MAX_GPU_DEVICE_COUNT];
 };
 

@@ -32,9 +32,9 @@ std::vector<ShaderParameter> Shader_SkeletalMesh::GetShaderParameters()
 	return Output;
 }
 
-std::vector<Shader::VertexElementDESC> Shader_SkeletalMesh::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_SkeletalMesh::GetVertexFormat()
 {
-	std::vector<Shader::VertexElementDESC> foamt = Shader_Main::GetMainVertexFormat();//ends on 32 
+	std::vector<VertexElementDESC> foamt = Shader_Main::GetMainVertexFormat();//ends on 32 
 	foamt.push_back(VertexElementDESC{ "BLENDINDICES", 0, FORMAT_R32G32B32A32_UINT, 0, 44, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	foamt.push_back(VertexElementDESC{ "TEXCOORD", 2, FORMAT_R32G32B32A32_FLOAT, 0, 44 + 16, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	return foamt;

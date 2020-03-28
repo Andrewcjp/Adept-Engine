@@ -10,6 +10,8 @@
 #include "RHI/ShaderProgramBase.h"
 #include "Shader_Main.h"
 #include "../Core/ReflectionProbe.h"
+#include "RHI/SFRController.h"
+#include "../Core/Screen.h"
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
@@ -83,6 +85,10 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 			list->BeginRenderPass(D);
 		}
 	}
+	if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
+	{
+		list->SetScissorRect(SFRController::GetScissor(list->GetDeviceIndex(), Screen::GetScaledRes()));
+	}
 #if DEBUG_CUBEMAPS
 	list->SetFrameBufferTexture(test, "g_texture");
 #else
@@ -124,7 +130,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 	}
 }
 
-std::vector<Shader::VertexElementDESC> Shader_Skybox::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_Skybox::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

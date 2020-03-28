@@ -7,6 +7,6 @@ public:
 	Shader_ColourCorrect(class DeviceContext* dev);
 	~Shader_ColourCorrect();
 	std::vector<ShaderParameter> GetShaderParameters();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	std::vector<VertexElementDESC> GetVertexFormat();
 };
 

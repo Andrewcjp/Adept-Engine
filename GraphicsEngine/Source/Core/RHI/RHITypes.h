@@ -5,11 +5,13 @@
 
 
 
+
 class Shader;
 class FrameBuffer;
 class DeviceContext;
 class IRHIResourse;
 class RHITexture;
+struct VertexElementDESC;
 #define MRT_MAX 8
 #define NAME_RHI_PRIMS !BUILD_SHIPPING
 enum eTextureDimension
@@ -494,7 +496,10 @@ struct ViewInstancingMode
 	uint32 Instances = 6;
 	bool NV_UseSMP = false;
 };
-
+struct RHIInputLayout
+{
+	std::vector<VertexElementDESC> Elements;
+};
 struct  RHIPipeLineStateDesc
 {
 	//Hold both root signature and shader blobs
@@ -521,6 +526,7 @@ struct  RHIPipeLineStateDesc
 	ViewInstancingMode ViewInstancing;
 	RHIRenderPassDesc RenderPassDesc;
 	bool EnableDepthBoundsTest = false;
+	RHIInputLayout InputLayout = RHIInputLayout();
 private:
 	uint64 UniqueHash = 0;
 	std::string StringPreHash;
@@ -624,7 +630,8 @@ public:
 	TEMP_API static RHIFrameBufferDesc CreateColourDepth(int width, int height);
 	static RHIFrameBufferDesc CreateGBuffer(int width, int height);
 	RHIFrameBufferDesc()
-	{};
+	{
+	};
 	RHIFrameBufferDesc(int width, int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
 	{
 		RTFormats[0] = format;
@@ -824,7 +831,8 @@ struct RHISamplerDesc
 	int ShaderRegister = 0;
 	int MaxAnisotropy = 0;
 	RHISamplerDesc()
-	{}
+	{
+	}
 	RHISamplerDesc(ESamplerFilterMode::Type filter, ESamplerWrapMode::Type WrapMode, int Reg);
 	RHI_API static std::vector<RHISamplerDesc> GetDefault();
 };

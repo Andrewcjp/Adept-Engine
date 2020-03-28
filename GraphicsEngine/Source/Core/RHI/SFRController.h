@@ -1,5 +1,7 @@
 #pragma once
+#include "RHICommandList.h"
 struct SFRNode;
+
 ///This class controls how the frame is split across Devices
 class SFRController
 {
@@ -14,6 +16,7 @@ public:
 	float DynamicAdjustSpeed = 0.5f;
 	float PCMaxdelta = 0.05f;
 	bool AllowDynmaicChanging = false;
+	static RHIScissorRect GetScissor(int index, glm::ivec2 Res);
 private:
 	float CurrentCoolDown = 0.0f;
 	float CurrnetPC = 0.5f;

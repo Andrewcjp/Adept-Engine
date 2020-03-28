@@ -29,8 +29,8 @@ public:
 	TEMP_API Shader_Main(bool LoadForward = true);
 	~Shader_Main();
 	static void GetMainShaderSig(std::vector<ShaderParameter>& out);
-	static std::vector<Shader::VertexElementDESC> GetMainVertexFormat();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	static std::vector<VertexElementDESC> GetMainVertexFormat();
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	
 };

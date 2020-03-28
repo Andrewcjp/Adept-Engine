@@ -8,7 +8,7 @@ public:
 	Shader_Compost(class DeviceContext* context);
 	virtual ~Shader_Compost();
 	std::vector<ShaderParameter> GetShaderParameters() override;
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 };
 
 class Shader_VROutput :
@@ -19,5 +19,5 @@ public:
 	Shader_VROutput(class DeviceContext* context);
 	virtual ~Shader_VROutput();
 	std::vector<ShaderParameter> GetShaderParameters() override;
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 };

@@ -125,7 +125,7 @@ void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIView
 	Descriptor->SetItemDesc(GetItemDesc(desc));
 }
 
-void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect)
 {
 	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
 	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
@@ -145,14 +145,14 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 	list->FlushBarriers();
 	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.Width, Desc.Height, Desc.Depth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
-	CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
+	CD3DX12_BOX box(rect.Left, rect.Top, rect.Right, rect.Bottom);
 	const int count = Desc.Depth;
 	for (int i = 0; i < count; i++)
 	{
 		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION dest(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), renderTargetLayout);
-		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
-		list->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);		
+		list->GetCommandList()->CopyTextureRegion(&dest, rect.Left, rect.Top, 0, &src, &box);
 	}
 	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
 	list->FlushBarriers();
@@ -161,7 +161,7 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
 }
 
-void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect)
 {
 	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
 	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
@@ -189,8 +189,8 @@ void D3D12RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource* Res, R
 		CD3DX12_TEXTURE_COPY_LOCATION dest(TargetResource->GetResource(), offset);
 		Host->GetCopyableFootprints(&renderTargetDesc, offset, 1, 0, &textureLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION src(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), textureLayout);
-		CD3DX12_BOX box(0, 0, Desc.Width, Desc.Height);
-		list->GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+		CD3DX12_BOX box(rect.Left, rect.Top, rect.Right, rect.Bottom);
+		list->GetCommandList()->CopyTextureRegion(&dest, rect.Left, rect.Top, 0, &src, &box);
 	}
 	//int Pixelsize = (BufferDesc.SFR_FullWidth - (int)BufferDesc.ScissorRect.x)*m_height;
 	//CrossGPUBytes = Pixelsize * (int)D3D12Helpers::GetBytesPerPixel(secondaryAdapterTexture.Format);
@@ -302,7 +302,7 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) co
 	return ItemDesc;
 }
 
-void D3D12RHITexture::SetState(RHICommandList* list,EResourceState::Type State)
+void D3D12RHITexture::SetState(RHICommandList* list, EResourceState::Type State)
 {
 	D3D12_RESOURCE_STATES DXState = D3D12FrameBuffer::ConvertState(State);
 	if (DXState == D3D12_RESOURCE_STATE_RENDER_TARGET)

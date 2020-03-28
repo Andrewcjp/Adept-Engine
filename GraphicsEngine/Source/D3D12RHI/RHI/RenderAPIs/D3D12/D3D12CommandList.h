@@ -116,6 +116,9 @@ public:
 
 	 RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) override;
 
+
+	 RHI_VIRTUAL void SetScissorRect(const RHIScissorRect& rect) override;
+
 private:
 
 	void SetScreenBackBufferAsRT();

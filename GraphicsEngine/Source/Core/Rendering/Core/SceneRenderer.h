@@ -13,6 +13,7 @@ class Camera;
 class Editor_Camera;
 class ReflectionEnviroment;
 class Scene;
+class RHIBufferGroup;
 
 #include "LightInterop.h"
 typedef LightEntry LightUniformBuffer;
@@ -98,15 +99,16 @@ public:
 
 	ReflectionEnviroment* GetReflectionEnviroment();
 	static void DrawScreenQuad(RHICommandList* list);
+	RHIBufferGroup* GetLastMVData() const { return LastMVData; }
 private:
 	bool SceneChanged = false;
 	ReflectionEnviroment* Enviroment = nullptr;
 	static SceneRenderer* Instance;
 	RHIBuffer * CLightBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
 	RHIBuffer* CMVBuffer[MAX_GPU_DEVICE_COUNT] = { nullptr };
+	RHIBufferGroup* LastMVData = nullptr;
 	//the View and projection Matrix in one place as each game object will not have different ones.
 	MVBuffer MV_Buffer;
-
 	class Scene* TargetScene = nullptr;
 	class Shader_NodeGraph* WorldDefaultMatShader = nullptr;
 
@@ -114,6 +116,6 @@ private:
 	CullingManager* Culling = nullptr;
 	Camera* CurrentCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
-	RHIBuffer* QuadBuffer = nullptr;
+	RHIBufferGroup* QuadBuffer = nullptr;
 };
 

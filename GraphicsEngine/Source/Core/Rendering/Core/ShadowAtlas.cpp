@@ -24,12 +24,14 @@ void ShadowAtlas::Destory()
 
 void ShadowAtlas::Init()
 {
+
 	ShadowCubeArray = RHI::CreateTextureArray(Context, MaxPointLight);
 	ShadowCubeArray->SetFrameBufferFormat(ShadowRenderer::GetCubeMapFBDesc(1));
 	for (int i = 0; i < MaxPointLight; i++)
 	{
 		ShadowCubeArray->SetIndexNull(i);
 	}
+
 }
 
 ShadowAtlas::~ShadowAtlas()
@@ -71,7 +73,7 @@ bool ShadowAtlas::ReleaseHandle(ShadowAtlasHandle* handle)
 	return false;
 }
 
-void ShadowAtlas::AllocateRenderTarget(ShadowAtlasHandle * handle, DeviceContext* dev)
+void ShadowAtlas::AllocateRenderTarget(ShadowAtlasHandle* handle, DeviceContext* dev)
 {
 	Light* lightptr = handle->lightPtr;
 	RHIFrameBufferDesc desc;
@@ -82,7 +84,7 @@ void ShadowAtlas::AllocateRenderTarget(ShadowAtlasHandle * handle, DeviceContext
 	}
 	if (handle->lightPtr->GetType() == ELightType::Point)
 	{
-		handle->DynamicMapPtr = RHI::CreateFrameBuffer(dev, ShadowRenderer::GetCubeMapFBDesc(size));
+		handle->DynamicMapPtr = RHI::CreateFrameBuffer(Context, ShadowRenderer::GetCubeMapFBDesc(size));
 		ShadowCubeArray->AddFrameBufferBind(handle->DynamicMapPtr, lightptr->GetShadowId());
 	}
 	//if (lightPtr->GetLightMobility() == ELightMobility::Baked)
@@ -91,8 +93,13 @@ void ShadowAtlas::AllocateRenderTarget(ShadowAtlasHandle * handle, DeviceContext
 	//}
 }
 
-void ShadowAtlas::BindPointmaps(RHICommandList * list, int slot)
+void ShadowAtlas::BindPointmaps(RHICommandList* list, int slot)
 {
 	ShadowCubeArray->BindToShader(list, slot);
+}
+
+int ShadowAtlas::GetDeviceIndex() const
+{
+	return Context->GetDeviceIndex();
 }
 

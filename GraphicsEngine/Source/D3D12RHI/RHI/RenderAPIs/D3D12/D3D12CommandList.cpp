@@ -483,9 +483,16 @@ void D3D12PipeLineStateObject::Complie()
 	int VertexDesc_ElementCount = 0;
 	D3D12Shader* target = D3D12RHI::DXConv(Desc.ShaderInUse->GetShaderProgram());
 	ensure(target != nullptr);
-	ensure((Desc.ShaderInUse->GetVertexFormat().size() > 0));
+	
 	D3D12_INPUT_ELEMENT_DESC* desc;
-	D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
+	if (Desc.InputLayout.Elements.size() != 0)
+	{
+		D3D12Shader::ParseVertexFormat(Desc.InputLayout.Elements, &desc, &VertexDesc_ElementCount);
+	}
+	else
+	{
+		D3D12Shader::ParseVertexFormat(Desc.ShaderInUse->GetVertexFormat(), &desc, &VertexDesc_ElementCount);
+	}
 	D3D12Shader::CreateRootSig(&this->RootSig, Desc.ShaderInUse->GetShaderParameters(), Device, Desc.ShaderInUse->IsComputeShader(), RHISamplerDesc::GetDefault());
 	if (Desc.ShaderInUse->IsComputeShader())
 	{
@@ -769,6 +776,12 @@ void D3D12CommandList::CopyResource(RHIBuffer* Source, RHIBuffer* Dest)
 	GetCommandList()->CopyBufferRegion(DDest->GetResource()->GetResource(), 0, DSource->GetResource()->GetResource(), 0, DSource->GetSize());
 	DSource->GetResource()->SetResourceState(this, StartState);
 	FlushBarriers();
+}
+
+void D3D12CommandList::SetScissorRect(const RHIScissorRect& rect)
+{
+	CD3DX12_RECT ScissorR = CD3DX12_RECT(rect.Left, rect.Top, rect.Right, rect.Bottom);
+	CurrentCommandList->RSSetScissorRects(1, &ScissorR);
 }
 
 void D3D12CommandList::ExecuteIndirect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

@@ -41,11 +41,11 @@ public:
 	static	void CreatePipelineShader(D3D12PipeLineStateObject* output, D3D12_INPUT_ELEMENT_DESC * inputDisc, int DescCount, ShaderBlobs * blobs, const RHIPipeLineStateDesc & Depthtest, DeviceContext * context);
 
 	ShaderBlobs* GetShaderBlobs();
-	static bool ParseVertexFormat(std::vector<Shader::VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
+	static bool ParseVertexFormat(std::vector<VertexElementDESC>, D3D12_INPUT_ELEMENT_DESC** Data, int* length);
 	static void CreateRootSig(ID3D12RootSignature ** output, std::vector<ShaderParameter> Params, DeviceContext * context, bool compute, std::vector<RHISamplerDesc> samplers, RootSignitureCreateInfo Info = RootSignitureCreateInfo());
 
 	void Init();
-	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(Shader::VertexElementDESC * desc);
+	static D3D12_INPUT_ELEMENT_DESC ConvertVertexFormat(VertexElementDESC * desc);
 
 #if !BUILD_SHIPPING
 	static void PrintShaderStats();

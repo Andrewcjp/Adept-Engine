@@ -32,7 +32,7 @@ public:
 	~Shader_Deferred();
 
 	std::vector<ShaderParameter> GetShaderParameters();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	std::vector<VertexElementDESC> GetVertexFormat();
 
 };
 

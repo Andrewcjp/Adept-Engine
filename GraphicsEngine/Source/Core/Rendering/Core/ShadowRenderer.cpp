@@ -48,9 +48,9 @@ eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
 #endif
 }
 
-void ShadowRenderer::RenderPointShadows(RHICommandList * list)
+void ShadowRenderer::RenderPointShadows(RHICommandList* list)
 {
-	
+
 	list->StartTimer(EGPUTIMERS::PointShadows);
 	int IndexOnGPU = 0;
 	std::vector<Light*> lights = SceneRenderer::Get()->GetLightCullingEngine()->GetCurrentlyRelevantLights();
@@ -65,7 +65,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 		{
 			continue;
 		}
-		if (!Ptr->NeedsShadowUpdate())
+		if (!Ptr->NeedsShadowUpdate(list->GetDeviceIndex()))
 		{
 			continue;
 		}
@@ -86,7 +86,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 		{
 			RenderShadowMap_CPU(lights[i], list, IndexOnGPU);
 		}
-		Ptr->NotifyShadowUpdate();
+		Ptr->NotifyShadowUpdate(list->GetDeviceIndex());
 		IndexOnGPU++;
 	}
 	/*if (list->GetDeviceIndex() == 0 && RHI::GetMGPUSettings()->SplitShadowWork)
@@ -96,14 +96,14 @@ void ShadowRenderer::RenderPointShadows(RHICommandList * list)
 	list->EndTimer(EGPUTIMERS::PointShadows);
 }
 
-void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU)
+void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList* list, int IndexOnGPU)
 {
 	//return;
-	
+
 	SceneRenderer::Get()->GetCullingManager()->UpdateCullingForShadowLight(LightPtr, SceneRenderer::Get()->GetScene());
 
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
-	SetPointRS(list,TargetBuffer);
+	SetPointRS(list, TargetBuffer);
 	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
 	RHIRenderPassDesc D = RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear);
 	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
@@ -147,7 +147,7 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList * list,
 	TargetBuffer->MakeReadyForComputeUse(list, true);
 }
 
-void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list, int IndexOnGPU)
+void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList* list, int IndexOnGPU)
 {
 	SceneRenderer::Get()->GetCullingManager()->UpdateCullingForShadowLight(LightPtr, SceneRenderer::Get()->GetScene());
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
@@ -170,7 +170,7 @@ void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList * list,
 	TargetBuffer->MakeReadyForComputeUse(list, true);
 }
 
-void ShadowRenderer::RenderDirectionalShadows(RHICommandList * list)
+void ShadowRenderer::RenderDirectionalShadows(RHICommandList* list)
 {
 	/*for (int SNum = 0; SNum < (int)LightInteractions.size(); SNum++)
 	{
@@ -246,7 +246,7 @@ eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat(int Shadownumber)
 		return eTEXTURE_FORMAT::FORMAT_R8_UNORM;
 	}
 	else if (Shadownumber == 2)
-	{
+	{   
 		return eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
 	}
 	//todo: don't copy alpha channel of 3 lights !
@@ -265,8 +265,7 @@ void ShadowRenderer::InvalidateAllBakedShadows()
 void ShadowRenderer::AssignAtlasData(ShadowAtlas* Node)
 {
 	std::vector<Light*> lights = SceneRenderer::Get()->GetLightCullingEngine()->GetCurrentlyRelevantLights();
-	//#Shadow: todo: MGPU
-	int DeviceIndex = 0;
+	int DeviceIndex = Node->GetDeviceIndex();
 	for (int i = 0; i < lights.size(); i++)
 	{
 		if (!lights[i]->GetDoesShadow())
@@ -289,7 +288,7 @@ void ShadowRenderer::AssignAtlasData(ShadowAtlas* Node)
 }
 
 //handles are in arrays of maps and need to be contiguous.
-void ShadowRenderer::UpdateShadowID(Light * L, int D)
+void ShadowRenderer::UpdateShadowID(Light* L, int D)
 {
 	if (L->GPUResidenceMask[D].AtlasHandle != nullptr)
 	{
@@ -297,7 +296,7 @@ void ShadowRenderer::UpdateShadowID(Light * L, int D)
 	}
 }
 
-ShadowRenderer * ShadowRenderer::Get()
+ShadowRenderer* ShadowRenderer::Get()
 {
 	return Instance;
 }

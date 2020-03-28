@@ -17,7 +17,17 @@ void InterGPUStorageNode::Update()
 {}
 
 void InterGPUStorageNode::Resize()
-{}
+{
+	for (int i = 0; i < Resources.size(); i++)
+	{
+		SafeRHIRelease(Resources[i].Resource);
+	}
+	Resources.clear();
+	for (int i = 0; i < StoreTargets.size(); i++)
+	{
+		ReserveSpaceForFB(StoreTargets[i]->GetFramebuffer());
+	}
+}
 
 uint64 InterGPUStorageNode::ReserveSpaceForFB(FrameBuffer* FB)
 {

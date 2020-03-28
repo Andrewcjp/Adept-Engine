@@ -19,7 +19,7 @@ std::vector<ShaderParameter> Shader_Compost::GetShaderParameters()
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 0));
 	return out;
 }
-std::vector<Shader::VertexElementDESC> Shader_Compost::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_Compost::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
@@ -45,7 +45,7 @@ std::vector<ShaderParameter> Shader_VROutput::GetShaderParameters()
 	return out;
 }
 
-std::vector<Shader::VertexElementDESC> Shader_VROutput::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_VROutput::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

@@ -1,1 +1,1 @@
-EngineBuildTool.exe -premake
+EngineBuildTool.exe -vs19

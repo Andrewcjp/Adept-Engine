@@ -69,6 +69,7 @@ public:
 	//For VR Only
 	EViewMode::Type GetViewMode() const;
 	ECommandListType::Type GetNodeQueueType() const;
+	DeviceContextQueue::Type GetNodeQueue()const;
 	RenderNode* GetNextNode()const;
 	bool IsComputeNode()const;
 	virtual std::string GetName()const;
@@ -135,6 +136,7 @@ protected:
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;
 	ECommandListType::Type NodeEngineType = ECommandListType::Graphics;
+	DeviceContextQueue::Type NodeQueueType = DeviceContextQueue::Graphics;
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;

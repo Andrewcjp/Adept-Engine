@@ -9,7 +9,8 @@ Light::Light(glm::vec3 positon, float intesity, ELightType::Type type, glm::vec3
 	m_type = type;
 	DoesShadow = doesshadow;
 	Resolution = RHI::GetRenderSettings()->GetShadowSettings().DefaultShadowMapSize;
-	//ShadowMode = ELightMobility::Baked;
+	ShadowMode = ELightMobility::Baked;
+	InvalidateCachedShadow();
 }
 
 Light::~Light()
@@ -133,7 +134,7 @@ bool Light::ShouldCopyToDevice(int index)
 	return FindLightResident()->GPUTargetFlags.GetFlagValue(index);
 }
 
-bool Light::NeedsShadowUpdate()
+bool Light::NeedsShadowUpdate(int deviceIndex)
 {
 	if (!DoesShadow)
 	{
@@ -143,17 +144,20 @@ bool Light::NeedsShadowUpdate()
 	{
 		return true;
 	}
-	return ShadowNeedsUpdate;
+	return ShadowNeedsUpdate[deviceIndex];
 }
 
 void Light::InvalidateCachedShadow()
 {
-	ShadowNeedsUpdate = true;
+	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
+	{
+		ShadowNeedsUpdate[i] = true;
+	}
 }
 
-void Light::NotifyShadowUpdate()
+void Light::NotifyShadowUpdate(int deviceIndex)
 {
-	ShadowNeedsUpdate = false;
+	ShadowNeedsUpdate[deviceIndex] = false;
 }
 
 bool Light::IsResident(DeviceContext * dev)

@@ -7,6 +7,6 @@ public:
 	NAME_SHADER(Shader_ShadowSample);
 	Shader_ShadowSample(DeviceContext * Context, int SampleCount);
 	virtual ~Shader_ShadowSample();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	std::vector<VertexElementDESC> GetVertexFormat();
 };
 

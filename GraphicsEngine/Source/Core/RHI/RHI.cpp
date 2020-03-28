@@ -46,7 +46,7 @@ RHI::RHI(ERenderSystemType system)
 	case ERenderSystemType::RenderSystemD3D12:
 		Log::LogMessage("Loading DirectX 12 RHI");
 		RHImodule = ModuleManager::Get()->GetModule<RHIModule>("D3D12RHI");
-		ensure(RHImodule);
+		ensure(RHImodule); 
 		CurrentRHI = RHImodule->GetRHIClass();
 		break;
 #endif

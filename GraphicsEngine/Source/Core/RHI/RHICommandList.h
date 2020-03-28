@@ -30,7 +30,7 @@ public:
 	RHI_API RHI_VIRTUAL void CreateIndexBuffer(int Stride, int ByteSize) = 0;
 	RHI_API RHI_VIRTUAL void CreateConstantBuffer(int StructSize, int Elementcount, bool ReplicateToAllDevices = false) = 0;
 	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset = 0) = 0;
-	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length,int VertexCount = -1) = 0;
+	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length, int VertexCount = -1) = 0;
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
@@ -71,7 +71,20 @@ protected:
 	int TotalByteSize = 0;
 	class RHIUAV* UAV = nullptr;
 };
-
+struct RHIScissorRect
+{
+	RHIScissorRect(LONG left, LONG top, LONG right, LONG bottom) :
+		Left(left)
+		, Top(top)
+		, Right(right)
+		, Bottom(bottom)
+	{}
+	LONG Left;
+	LONG Top;
+	LONG Right;
+	LONG Bottom;
+};
+typedef RHIScissorRect RHICopyRect;
 class FrameBuffer;
 class RHICommandList : public IRHIResourse
 {
@@ -81,6 +94,7 @@ public:
 	RHI_API RHI_VIRTUAL void ResetList() = 0;
 
 	RHI_API RHI_VIRTUAL void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
+	RHI_API RHI_VIRTUAL void SetScissorRect(const RHIScissorRect& rect) = 0;
 	RHI_API RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
 	//drawing
 	RHI_API RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
@@ -103,7 +117,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetUAV(RHITexture* buffer, int slot, const RHIViewDesc & view) = 0;
 	RHI_API RHI_VIRTUAL void SetTextureArray(RHITextureArray* array, int slot, const RHIViewDesc& view) = 0;
 	RHI_API RHI_VIRTUAL void SetTexture2(RHITexture* t, int slot, const RHIViewDesc& view) = 0;
-	
+
 	//view Creators
 	RHI_API void SetUAV(RHIBuffer* uav, int slot);
 	RHI_API void SetUAV(FrameBuffer* uav, int slot, int ResourceIndex = 0, int Face = 0, int MipSlice = 0);

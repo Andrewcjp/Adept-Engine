@@ -17,15 +17,10 @@
 ReflectionEnviroment::ReflectionEnviroment()
 {
 	StaticGenList = RHI::CreateCommandList(ECommandListType::Graphics);
-	Conv = ShaderComplier::GetShader<Shader_Convolution>();
-	EnvMap = ShaderComplier::GetShader<Shader_EnvMap>();
-	Conv->init();
-	EnvMap->Init();
-	
-	const int Size = 1024;
-	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	SkyBoxBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), Desc);
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
+	{
+		GpuData[i].init(i);
+	}
 
 	//Probes.push_back(new ReflectionProbe(glm::vec3(0, 5, 0)));
 }
@@ -92,7 +87,7 @@ void ReflectionEnviroment::RenderCubemap(ReflectionProbe * Map, RHICommandList* 
 		commandlist->EndRenderPass();
 		//ShaderComplier::GetShader<Shader_Skybox>()->Render(SceneRenderer::Get(), commandlist, Map->CapturedTexture, nullptr, Map, i);
 	}
-	Conv->ComputeConvolutionProbe(commandlist, Map->CapturedTexture, Map->ConvolutionBuffer);
+	//Conv->ComputeConvolutionProbe(commandlist, Map->CapturedTexture, Map->ConvolutionBuffer);
 	Map->SetCaptured();
 	Map->CapturedTexture->MakeReadyForComputeUse(commandlist);
 }
@@ -125,27 +120,42 @@ void ReflectionEnviroment::BindStaticSceneEnivoment(RHICommandList * List, bool 
 	if (IsDeferredshader)
 	{
 		List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, DeferredLightingShaderRSBinds::SpecBlurMap);
-		List->SetFrameBufferTexture(SkyBoxBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
-		List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
+		List->SetFrameBufferTexture(GpuData[List->GetDeviceIndex()].SkyBoxBuffer, DeferredLightingShaderRSBinds::DiffuseIr);
+		List->SetFrameBufferTexture(GpuData[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, DeferredLightingShaderRSBinds::EnvBRDF);
 	}
 	else
 	{
 		//if (List->GetDeviceIndex() == 0)
 		{
 			List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
-			List->SetFrameBufferTexture(SkyBoxBuffer, "DiffuseIrMap");
-			List->SetFrameBufferTexture(EnvMap->EnvBRDFBuffer, "envBRDFTexture");
+			List->SetFrameBufferTexture(GpuData[List->GetDeviceIndex()].SkyBoxBuffer, "DiffuseIrMap");
+			List->SetFrameBufferTexture(GpuData[List->GetDeviceIndex()].EnvMap->EnvBRDFBuffer, "envBRDFTexture");
 		}
 	}
 }
 
 void ReflectionEnviroment::GenerateStaticEnvData()
 {
-	if (RHI::GetFrameCount() == 0)
+	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
-		EnvMap->ComputeEnvBRDF();
+		if (RHI::GetFrameCount() == 0)
+		{
+			GpuData[i].EnvMap->ComputeEnvBRDF();
+		}
+		GpuData[i].Conv->ComputeConvolution(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, GpuData[i].SkyBoxBuffer);
 	}
-	Conv->ComputeConvolution(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, SkyBoxBuffer);
 
+}
 
+void ReflectionEnviroment::ReflectionEnviromentGPUData::init(int index)
+{
+	Conv = ShaderComplier::GetShader<Shader_Convolution>(RHI::GetDeviceContext(index));
+	EnvMap = ShaderComplier::GetShader<Shader_EnvMap>(RHI::GetDeviceContext(index));
+	Conv->init();
+	EnvMap->Init();
+
+	const int Size = 1024;
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	SkyBoxBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(index), Desc);
 }

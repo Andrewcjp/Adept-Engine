@@ -16,6 +16,7 @@
 #include "../../RayTracing/VoxelTracingEngine.h"
 #include "../../Renderers/Terrain/TerrainRenderer.h"
 #include "RHI/RHITexture.h"
+#include "RHI/SFRController.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -63,7 +64,7 @@ void DeferredLightingNode::OnExecute()
 		desc.DepthStencilState.FrontFace.StencilFunc = COMPARISON_FUNC_EQUAL;
 	}
 	List->SetPipelineStateDesc(desc);
-	if (VRXImage != nullptr && VRXImage->IsValid() )
+	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
 		RHITexture* Text = StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture();
 		List->SetVRXShadingRateImage(Text);
@@ -82,6 +83,10 @@ void DeferredLightingNode::OnExecute()
 	}
 	RHIRenderPassDesc D = RHIRenderPassDesc(MainBuffer, RHI::GetRenderSettings()->GetVRXSettings().UseVRR() ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 	List->BeginRenderPass(D);
+	if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
+	{
+		List->SetScissorRect(SFRController::GetScissor(List->GetDeviceIndex(), Screen::GetScaledRes()));
+	}
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
@@ -97,7 +102,7 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
 	if (GetInput(3)->IsValid() && RHI::IsD3D12())
 	{
-		GetShadowDataFromInput(3)->BindPointArray(List, 6);	
+		GetShadowDataFromInput(3)->BindPointArray(List, 6);
 	}
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
@@ -114,7 +119,11 @@ void DeferredLightingNode::OnExecute()
 		RHITexture* Text = StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture();
 		VRXEngine::ResolveVRRFramebuffer_PS(List, MainBuffer, Text);
 	}
-#endif-
+#endif
+	if (List->GetDeviceIndex() == 1)
+	{
+		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
+	}
 	SetEndStates(List);
 	List->Execute();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;

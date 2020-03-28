@@ -19,7 +19,7 @@ ZPrePassNode::~ZPrePassNode()
 {
 	SafeRHIRelease(Cmdlist);
 }
-
+ 
 void ZPrePassNode::OnExecute()
 {
 	//PassNodeThough(0, StorageFormats::PreZData);

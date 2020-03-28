@@ -360,7 +360,7 @@ D3D12Shader::ShaderBlobs * D3D12Shader::GetShaderBlobs()
 void D3D12Shader::Init()
 {}
 
-D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(Shader::VertexElementDESC* desc)
+D3D12_INPUT_ELEMENT_DESC D3D12Shader::ConvertVertexFormat(VertexElementDESC* desc)
 {
 	D3D12_INPUT_ELEMENT_DESC output;
 	output.SemanticName = desc->SemanticName;
@@ -383,7 +383,7 @@ void D3D12Shader::PrintShaderStats()
 	Log::LogMessage(ss.str());
 }
 #endif
-bool D3D12Shader::ParseVertexFormat(std::vector<Shader::VertexElementDESC> desc, D3D12_INPUT_ELEMENT_DESC ** Data, int * length)
+bool D3D12Shader::ParseVertexFormat(std::vector<VertexElementDESC> desc, D3D12_INPUT_ELEMENT_DESC ** Data, int * length)
 {
 	*Data = new D3D12_INPUT_ELEMENT_DESC[desc.size()];
 	*length = (int)desc.size();

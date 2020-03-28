@@ -69,6 +69,7 @@ struct RendererSettings
 };
 struct SFRSettings
 {
+	bool Enabled = false;
 	//adds gaps in Render targets to show transitions
 	bool DEBUG_ShowSplits = false;
 	//each pixel will have a colour tint which indicates to the GPU that rendered it.
@@ -144,6 +145,7 @@ public:
 	void MaxSupportedCaps(CapabilityData& MaxData);
 	bool ShouldRunGPUTests = false;
 	VoxelSettings& GetVoxelSet();
+	SFRSettings& GetCurrnetSFRSettings() { return CurrnetSFRSettings; }
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

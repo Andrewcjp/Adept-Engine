@@ -63,17 +63,20 @@ void SFRController::DualUpdatePC(float splittest)
 	}
 	Nodes[0]->SFR_PercentSize = splittest;
 	Nodes[0]->SFR_Offset = 0.0f;
+
 	Nodes[1]->SFR_PercentSize = 1.0f - splittest;
 	Nodes[1]->SFR_Offset = splittest;
 	CurrnetPC = splittest;
 	LastPc = CurrnetPC;
-//	if (RHI::GetMGPUSettings()->MainPassSFR || RHI::GetMGPUSettings()->SFRSplitShadows)
+
+
+	//	if (RHI::GetMGPUSettings()->MainPassSFR || RHI::GetMGPUSettings()->SFRSplitShadows)
 	{
 		Log::LogMessage("SFR updated to " + std::to_string(CurrnetPC));
 	}
 }
 
-SFRNode * SFRController::GetNode(int DeviceIndex)
+SFRNode* SFRController::GetNode(int DeviceIndex)
 {
 	return Nodes[DeviceIndex];
 }
@@ -94,6 +97,19 @@ void SFRController::Init()
 		Node->SFRDriveTimer = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Main Pass" + std::to_string(i)));
 		Nodes.push_back(Node);
 	}
-	const float splittest = 0.5f;
+	const float splittest = 0.9f;
 	DualUpdatePC(splittest);
+}
+
+RHIScissorRect SFRController::GetScissor(int index, glm::ivec2 Res)
+{
+	SFRNode* n = RHI::GetSplitController()->GetNode(index);
+	const int Offset = n->SFR_Offset * Res.x;
+	const int right = Offset + (Res.x * n->SFR_PercentSize);
+	RHIScissorRect rect = RHIScissorRect(Offset, 0, right, Res.y);
+	if (index == 0)
+	{
+		rect.Right -= 10;
+	}
+	return rect;
 }

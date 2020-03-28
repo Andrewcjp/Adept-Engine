@@ -4,6 +4,8 @@
 #include "BaseTexture.h"
 
 class DeviceContext;
+struct RHIScissorRect;
+typedef RHIScissorRect RHICopyRect;
 //Represents a GPU resource 
 struct RHITextureDesc2
 {
@@ -37,8 +39,10 @@ public:
 
 	RHI_API virtual void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext);
 
-	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
-	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
+	void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List);
+	void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
+	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect);
+	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list, const RHICopyRect & rect);
 	RHI_API virtual void SetState(RHICommandList* list, EResourceState::Type State) = 0;
 protected:
 	RHITextureDesc2 Desc;

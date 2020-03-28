@@ -25,6 +25,7 @@ struct RG_PatchMarker
 	std::vector<RenderNode*> OutputTargets;
 	RenderNode* ExecuteIn = nullptr;
 	RenderNode* ExecuteOut = nullptr;
+	std::vector<StorageNode*> ExposedResources;
 };
 struct RG_PatchSet
 {

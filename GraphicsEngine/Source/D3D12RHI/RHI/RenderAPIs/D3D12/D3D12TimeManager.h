@@ -34,6 +34,9 @@ public:
 	void EndPipelineStatCapture(RHICommandList * commandlist) override;
 	void StartTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
 	void EndTimer(D3D12CommandList * ComandList, int index, bool IsCopy);
+
+	void ResolveHeaps(RHICommandList* list) override;
+
 private:
 
 	float AVGgpuTimeMS = 0;

@@ -56,7 +56,7 @@ std::vector<ShaderParameter> Shader_Deferred::GetShaderParameters()
 	//VRXEngine::AddVRSToRS(out, DeferredLightingShaderRSBinds::Limit);
 	return out;
 }
-std::vector<Shader::VertexElementDESC> Shader_Deferred::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_Deferred::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

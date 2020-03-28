@@ -13,7 +13,7 @@ public:
 	virtual ~Shader_Skybox();
 	void SetSkyBox(BaseTextureRef tex);
 	void Render(SceneRenderer * SceneRender, RHICommandList* list, FrameBuffer * Buffer, FrameBuffer * DepthSourceBuffer, ReflectionProbe* Cubemap = nullptr, int index = 0);
-	std::vector<Shader::VertexElementDESC> GetVertexFormat();
+	std::vector<VertexElementDESC> GetVertexFormat();
 	BaseTextureRef SkyBoxTexture;
 #if DEBUG_CUBEMAPS
 	FrameBuffer* test = nullptr;

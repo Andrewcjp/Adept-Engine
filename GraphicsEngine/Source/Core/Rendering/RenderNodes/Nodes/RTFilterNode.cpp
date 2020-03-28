@@ -9,7 +9,9 @@
 #include "Editor/EditorWindow.h"
 #include "Editor/EditorCameraController.h"
 #include "Editor/Editor_Camera.h"
-
+#include "../NodeLink.h"
+REGISTER_SHADER_CS(SimpleTAccumilate,"Raytracing\\TemporalAccumilate");
+REGISTER_SHADER_CS(VelAccumilate, "Raytracing\\Accumilate_Velocity");
 static ConsoleVariable DebugMode("RT.Noise.Debug", 0, ECVarType::ConsoleAndLaunch, true);
 RTFilterNode::RTFilterNode()
 {
@@ -55,6 +57,10 @@ void RTFilterNode::OnExecute()
 	//accumulate Over N Frames
 	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(TemporalShader));
 	list->SetUAV(Target, "RTXUAV");
+	if (GetInput(4)->IsValid())
+	{
+		list->SetFrameBufferTexture(GetFrameBufferFromInput(4), "Velocity");
+	}
 	list->SetUAV(GetFrameBufferFromInput(2), "LastFrameData"); 
 	list->SetUAV(GetFrameBufferFromInput(3), "SSP_Data");
 	list->SetConstantBufferView(DenoiserData, 0, "ShaderData");
@@ -70,7 +76,7 @@ void RTFilterNode::RefreshNode()
 {
 	Params.Clear = 0;	
 	if (Input::GetKeyDown('L') 
-#if WITH_EDITOR
+#if 0//WITH_EDITOR
 		|| EditorWindow::GetInstance()->EditorCamera->Controller->IsMoving()
 #endif
 		)
@@ -82,7 +88,11 @@ void RTFilterNode::RefreshNode()
 void RTFilterNode::OnSetupNode()
 {
 	MergeShader = new Shader_Pair(Context, { "Raytracing\\MergeVXRT" }, { EShaderType::SHADER_COMPUTE });
+#if 1
 	TemporalShader = new Shader_Pair(Context, { "Raytracing\\TemporalAccumilate" }, { EShaderType::SHADER_COMPUTE });
+#else
+	TemporalShader = new Shader_Pair(Context, { "Raytracing\\Accumilate_Velocity" }, { EShaderType::SHADER_COMPUTE });
+#endif
 	BilateralFilter = new Shader_Pair(Context, { "Raytracing\\Denosier\\BilateralFilterCS" }, { EShaderType::SHADER_COMPUTE });
 	DenoiserData = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DenoiserData->CreateConstantBuffer(sizeof(DenoiserParams),1);
@@ -99,6 +109,7 @@ void RTFilterNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat, "Voxel RT Buffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "AccumBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "SSP");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat, "Velocity");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
 	LinkThough(0);
 }

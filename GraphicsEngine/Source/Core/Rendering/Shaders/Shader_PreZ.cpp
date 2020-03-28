@@ -14,7 +14,7 @@ Shader_PreZ::~Shader_PreZ()
 {}
 
 
-std::vector<Shader::VertexElementDESC> Shader_PreZ::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_PreZ::GetVertexFormat()
 {
 	return Shader_Main::GetMainVertexFormat();
 }

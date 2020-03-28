@@ -30,7 +30,8 @@ void MultiGPULoopNode::OnGraphCreate()
 		//todo: handle device zero copy
 		if (i > 0)
 		{
-			while (itor != nullptr)
+			itor = itor->GetNextNode();
+			while (itor != nullptr && itor != Next)
 			{
 				itor->SetDevice(RHI::GetDeviceContext(i));
 				itor = itor->GetNextNode();

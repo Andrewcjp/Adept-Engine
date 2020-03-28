@@ -21,6 +21,7 @@ public:
 	virtual bool IsNodeSupported(const RenderSettings& settings) override;
 	bool CopyTo = true;
 	NameNode("InterGPUCopy");
+	SFRNode* CopyNode;
 protected:
 	virtual void OnNodeSettingChange() override;
 

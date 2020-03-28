@@ -29,7 +29,7 @@ Shader_NodeGraph::~Shader_NodeGraph()
 
 }
 
-std::vector<Shader::VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_NodeGraph::GetVertexFormat()
 {
 	return Shader_Main::GetVertexFormat();
 }

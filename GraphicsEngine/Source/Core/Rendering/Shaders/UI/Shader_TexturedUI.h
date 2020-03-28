@@ -13,7 +13,7 @@ public:
 
 	virtual std::vector<ShaderParameter> GetShaderParameters() override;
 
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 	BaseTextureRef Texture = nullptr;
 	bool blend = true;
 private:

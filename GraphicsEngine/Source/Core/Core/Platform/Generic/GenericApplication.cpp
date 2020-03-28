@@ -2,8 +2,8 @@
 #include "GenericApplication.h"
 #include "Core/Utils/StringUtil.h"
 #ifdef PLATFORM_WINDOWS
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
+#include <filesystem>
+namespace fs = std::filesystem;
 #endif
 #include "Core/Utils/FileUtils.h"
 
@@ -31,7 +31,9 @@ void GenericApplication::Sleep(float Milliseconds)
 int64_t GenericApplication::GetFileTimeStamp(const std::string& Path)
 {
 #ifdef PLATFORM_WINDOWS
-	return fs::_Last_write_time(StringUtils::ConvertStringToWide(Path).c_str());
+	fs::file_time_type t;
+	fs::_Last_write_time(StringUtils::ConvertStringToWide(Path).c_str(), t);
+	return t.time_since_epoch().count();
 #endif
 	return 0;
 }
@@ -47,7 +49,7 @@ bool GenericApplication::CheckFileSrcNewer(const std::string& srcpath, const std
 	return  !(time > CSOtime);
 }
 
-bool GenericApplication::TryCreateDirectory(const std::string & name)
+bool GenericApplication::TryCreateDirectory(const std::string& name)
 {
 	return false;
 }
@@ -64,15 +66,15 @@ void GenericApplication::DisplayMessageBox(std::string title, std::string messag
 
 void GenericApplication::DisplayAssertBox(std::string title, std::string message)
 {
-	
+
 }
 
-bool GenericApplication::DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string & outData)
+bool GenericApplication::DisplayOpenFileDialog(std::string StartDir, std::string Filter, std::string& outData)
 {
 	return false;
 }
 
-bool GenericApplication::DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string & outData)
+bool GenericApplication::DisplaySaveFileDialog(std::string StartDir, std::string Filter, std::string Extenstion, std::string& outData)
 {
 	return false;
 }
@@ -85,15 +87,15 @@ bool GenericApplication::CopyFileToTarget(std::string Target, std::string Dest)
 void GenericApplication::Init()
 {}
 
-void * GenericApplication::GetDllExport(void * DllHandle, const char * ProcName)
+void* GenericApplication::GetDllExport(void* DllHandle, const char* ProcName)
 {
 	return nullptr;
 }
 
-void GenericApplication::FreeDllHandle(void * DllHandle)
+void GenericApplication::FreeDllHandle(void* DllHandle)
 {}
 
-void * GenericApplication::GetDllHandle(FString Name)
+void* GenericApplication::GetDllHandle(FString Name)
 {
 	return nullptr;
 }

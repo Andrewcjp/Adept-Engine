@@ -22,6 +22,7 @@
 #include "Screen.h"
 #include "ShadowRenderer.h"
 #include "../Renderers/Terrain/TerrainRenderer.h"
+#include "RHI/RHIBufferGroup.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -59,7 +60,7 @@ SceneRenderer::SceneRenderer()
 		1.0f, -1.0f, 0.0f,0.0f,
 		1.0f,  1.0f, 0.0f,0.0f,
 	};
-	QuadBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex, RHI::GetDefaultDevice());
+	QuadBuffer = new RHIBufferGroup();
 	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4, EBufferAccessType::Dynamic);
 	QuadBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 	TerrainRenderer::Get();
@@ -155,6 +156,8 @@ void SceneRenderer::Init()
 		CMVBuffer[i]->SetDebugName("CMVBuffer");
 		CMVBuffer[i]->CreateConstantBuffer(sizeof(MVBuffer), RHI::SupportVR() ? 2 : 1);
 	}
+	LastMVData = new RHIBufferGroup();
+	GetLastMVData()->CreateConstantBuffer(sizeof(MVBuffer), 1);
 }
 
 void SceneRenderer::UpdateMV(VRCamera* c)
@@ -165,6 +168,8 @@ void SceneRenderer::UpdateMV(VRCamera* c)
 
 void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 {
+	LastMVData->UpdateConstantBuffer(&MV_Buffer);
+
 	MV_Buffer.V = c->GetView();
 	MV_Buffer.P = c->GetProjection();
 	MV_Buffer.CameraPos = c->GetPosition();
@@ -352,7 +357,7 @@ ReflectionEnviroment * SceneRenderer::GetReflectionEnviroment()
 
 void SceneRenderer::DrawScreenQuad(RHICommandList * list)
 {
-	list->SetVertexBuffer(SceneRenderer::Get()->QuadBuffer);
+	list->SetVertexBuffer(SceneRenderer::Get()->QuadBuffer->Get(list));  
 	list->DrawPrimitive(6, 1, 0, 0);
 }
 

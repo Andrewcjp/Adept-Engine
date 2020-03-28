@@ -18,8 +18,8 @@ public:
 	void Create(const RHITextureDesc2& Desc, DeviceContext* Context) override;
 	GPUResource* GetResource()const;
 	void WriteToDescriptor(DXDescriptor* Descriptor, const RHIViewDesc& desc);
-	virtual void CopyToStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List) override;
-	virtual void CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List) override;
+	virtual void CopyToStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List, const RHICopyRect & rect) override;
+	virtual void CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List, const RHICopyRect & rect) override;
 
 	void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext) override;
 	DescriptorItemDesc GetItemDesc(const RHIViewDesc& desc)const;

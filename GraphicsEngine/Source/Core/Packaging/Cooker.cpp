@@ -1,6 +1,6 @@
 #include "Cooker.h"
 #if SUPPORTS_COOK
-#include <experimental/filesystem>
+#include <filesystem>
 #include "Core/Utils/FileUtils.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
@@ -39,7 +39,7 @@ std::string Cooker::GetTargetPath(bool AppendSlash)
 	}
 	return TargetPath;
 }
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 void Cooker::Execute()
 {
 #include "Core/Engine.h"
@@ -72,7 +72,7 @@ void Cooker::Execute()
 
 		//Copy Binaries 
 		uintmax_t SumSize = 0;
-		for (auto & p : std::experimental::filesystem::directory_iterator(path))
+		for (auto & p : std::filesystem::directory_iterator(path))
 		{
 			std::string destpath = p.path().string();
 			StringUtils::RemoveChar(destpath, path);
@@ -138,7 +138,7 @@ void Cooker::CopyFolderToOutput(std::string Target, std::string PathFromBuild)
 {
 	uintmax_t SumSize = 0;
 	FileUtils::CreateDirectoriesToFullPath(GetTargetPath() + PathFromBuild);
-	for (auto & p : std::experimental::filesystem::recursive_directory_iterator(Target))
+	for (auto & p : std::filesystem::recursive_directory_iterator(Target))
 	{
 		std::string destpath = p.path().string();
 		StringUtils::RemoveChar(destpath, Target);

@@ -1,5 +1,5 @@
 #include "RHITexture.h"
-
+#include "RHICommandList.h"
 
 RHITexture::RHITexture()
 {}
@@ -25,11 +25,20 @@ void RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceContex
 
 void RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
 {
-
-
+	CopyToStagingResource(Res, List, RHICopyRect(0, 0, Desc.Width, Desc.Height));
 }
 
 void RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * list)
+{
+	CopyFromStagingResource(Res, list, RHICopyRect(0, 0, Desc.Width, Desc.Height));
+}
+
+void RHITexture::CopyToStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List, const RHICopyRect & rect)
+{
+
+}
+
+void RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * list, const RHICopyRect & rect)
 {
 
 }

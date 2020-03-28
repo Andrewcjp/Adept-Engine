@@ -251,15 +251,15 @@ void EditorWindow::Update()
 	if (Input::GetKeyDown('T'))
 	{
 		int currentmode = RHI::GetRenderSettings()->GetDebugRenderMode();
-		currentmode++;
+		currentmode++;   
 		currentmode = currentmode % (ERenderDebugOutput::Limit);
 		RHI::GetRenderSettings()->SetDebugRenderMode((ERenderDebugOutput::Type)currentmode);
 	}
 	if (Input::GetKeyDown('N'))
 	{
-		if (RHI::GetRenderSettings()->CurrentAAMode != AAMode::NONE)
-		{
-			RHI::GetRenderSettings()->CurrentAAMode = AAMode::NONE;
+		if (RHI::GetRenderSettings()->CurrentAAMode != AAMode::NONE) 
+		{    
+			RHI::GetRenderSettings()->CurrentAAMode = AAMode::NONE; 
 		}
 		else
 		{
@@ -269,9 +269,9 @@ void EditorWindow::Update()
 	if (Input::GetKeyDown(VK_ESCAPE))
 	{
 		ExitPlayMode();
-	}
+	} 
 	if (Input::GetKeyDown('P'))
-	{
+	{  
 		ShadowRenderer::InvalidateAllBakedShadows();
 	}
 	if (Input::GetVKey(VK_CONTROL))

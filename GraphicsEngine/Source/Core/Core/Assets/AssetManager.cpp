@@ -15,7 +15,7 @@ void AssetManager::LoadFromShaderDir()
 {
 	std::string path = GetShaderPath();
 #ifdef PLATFORM_WINDOWS
-	for (auto & p : std::experimental::filesystem::directory_iterator(path))
+	for (auto & p : std::filesystem::directory_iterator(path))
 	{
 		LoadFileWithInclude(p.path().filename().string());
 	}

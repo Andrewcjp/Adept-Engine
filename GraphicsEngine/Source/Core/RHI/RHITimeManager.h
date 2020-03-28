@@ -45,6 +45,7 @@ public:
 	RHI_API std::string GetTimerName(int id);
 	std::vector<GPUTimerPair*> GetGPUTimers(ECommandListType::Type type);
 	RHI_API bool IsRunning();
+	RHI_API virtual void ResolveHeaps(RHICommandList* list) {};
 protected:
 	RHI_API void PushToPerfManager();
 	void AddTimer(GPUTimer* Data, std::string name, DeviceContext* D);

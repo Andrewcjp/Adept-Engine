@@ -18,6 +18,7 @@ public:
 	bool ReleaseHandle(ShadowAtlasHandle* handle);
 	void AllocateRenderTarget(ShadowAtlasHandle * handle, DeviceContext* dev);
 	void BindPointmaps(RHICommandList * list, int slot);
+	int GetDeviceIndex()const;
 private:
 	void Destory();
 	void Init();

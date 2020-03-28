@@ -13,7 +13,7 @@ public:
 	DECLARE_GLOBAL_SHADER_ARGS(Shader_UIBatch,int);
 	Shader_UIBatch(DeviceContext* dev, int Mode);
 	virtual ~Shader_UIBatch();
-	std::vector<Shader::VertexElementDESC> GetVertexFormat() override;
+	std::vector<VertexElementDESC> GetVertexFormat() override;
 	void PushTOGPU(RHICommandList * list);
 	void UpdateUniforms(glm::mat4x4 Proj);
 

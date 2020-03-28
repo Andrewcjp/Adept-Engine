@@ -104,6 +104,7 @@ public:
 
 	RHI_API virtual void CPUWaitForAll() = 0;
 	RHI_API virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual void InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue) = 0;
 	RHI_API const CapabilityData& GetCaps();
 	RHI_API RHICommandList* GetInterGPUCopyList();
 	RHI_API virtual class RHITimeManager* GetTimeManager() = 0;

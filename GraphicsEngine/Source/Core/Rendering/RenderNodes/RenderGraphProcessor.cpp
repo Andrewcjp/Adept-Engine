@@ -132,17 +132,28 @@ void RenderGraphProcessor::BuildScheduling(RenderGraph * graph)
 			}
 			ResourceTransition T;
 			T.TransitonType = ResourceTransition::QueueWait;
-			T.SignalingQueue = DeviceContextQueue::GetFromCommandListType(Lastframe->Node->GetNodeQueueType());
+			T.SignalingQueue = Lastframe->Node->GetNodeQueue();
 			if (DeviceMatch)
 			{
 				T.SignalingDevice = -1;
+				frame->Node->AddBeginTransition(T);
 			}
 			else
 			{
-				T.SignalingDevice = Lastframe->Node->GetDeviceIndex();
+				
+				if (i == 0)
+				{
+					T.SignalingDevice = frame->Node->GetDeviceIndex();
+					Lastframe->Node->AddBeginTransition(T);
+				}
+				else
+				{
+					T.SignalingDevice = Lastframe->Node->GetDeviceIndex();
+					frame->Node->AddBeginTransition(T);
+				}
 			}
 			//add unique
-			frame->Node->AddBeginTransition(T);
+		
 			count++;
 		}
 	}

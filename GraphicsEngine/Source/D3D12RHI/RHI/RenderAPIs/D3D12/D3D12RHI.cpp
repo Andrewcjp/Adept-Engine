@@ -598,7 +598,7 @@ void D3D12RHI::PresentFrame()
 	UpdateAllCopyEngines();
 	SwapChain->Present();
 	m_frameIndex = SwapChain->GetSwapChainIndex();
-
+	
 	for (int i = 0; i < MAX_GPU_DEVICE_COUNT; i++)
 	{
 		if (DeviceContexts[i] != nullptr)

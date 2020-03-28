@@ -16,9 +16,9 @@ Shader_ShadowSample::Shader_ShadowSample(DeviceContext * Context,int SampleCount
 Shader_ShadowSample::~Shader_ShadowSample()
 {}
 
-std::vector<Shader::VertexElementDESC> Shader_ShadowSample::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_ShadowSample::GetVertexFormat()
 {
-	std::vector<Shader::VertexElementDESC> out;
+	std::vector<VertexElementDESC> out;
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "NORMAL", 0, FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TEXCOORD", 0, FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

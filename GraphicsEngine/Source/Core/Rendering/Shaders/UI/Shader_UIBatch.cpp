@@ -16,9 +16,9 @@ Shader_UIBatch::Shader_UIBatch(DeviceContext* dev, int Mode) :Shader(dev)
 	UniformBuffer->CreateConstantBuffer(sizeof(UnifromData), 1);
 }
 
-std::vector<Shader::VertexElementDESC> Shader_UIBatch::GetVertexFormat()
+std::vector<VertexElementDESC> Shader_UIBatch::GetVertexFormat()
 {
-	std::vector<Shader::VertexElementDESC> out;
+	std::vector<VertexElementDESC> out;
 	///(float2 position : POSITION, int back : NORMAL0, float3 fc : TEXCOORD, float3 bc : TEXCOORD1)
 	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
 	out.push_back(VertexElementDESC{ "TEXCOORD", 2, FORMAT_R16_UINT, 0, 8, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });

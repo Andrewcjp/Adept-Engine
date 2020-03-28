@@ -7,7 +7,7 @@ ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
-	//SetRes(BBTestMode::HD);
+	SetRes(BBTestMode::HD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -34,6 +34,10 @@ RenderSettings::RenderSettings()
 	if (SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX_RT)
 	{
 		VoxelSet.Enabled = true;
+	}
+	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR) 
+	{
+		CurrnetSFRSettings.Enabled = true;
 	}
 }
 
