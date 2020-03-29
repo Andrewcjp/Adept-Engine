@@ -11,8 +11,10 @@
 #include "DXDescriptor.h"
 #include "D3D12Helpers.h"
 #include "DescriptorHeap.h"
+#include "D3D12InterGPUStagingResource.h"
+#include "D3D12Framebuffer.h"
 
-D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext * inDevice) :RHIBuffer(type)
+D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext* inDevice) :RHIBuffer(type)
 {
 	AddCheckerRef(D3D12Buffer, this);
 	if (inDevice == nullptr)
@@ -37,7 +39,8 @@ void D3D12Buffer::Release()
 }
 
 D3D12Buffer::~D3D12Buffer()
-{}
+{
+}
 
 void D3D12Buffer::CreateConstantBuffer(int iStructSize, int iElementcount, bool ReplicateToAllDevices)
 {
@@ -46,9 +49,9 @@ void D3D12Buffer::CreateConstantBuffer(int iStructSize, int iElementcount, bool 
 	InitCBV(iStructSize, iElementcount);
 }
 
-void D3D12Buffer::UpdateConstantBuffer(void * data, int offset)
+void D3D12Buffer::UpdateConstantBuffer(void* data, int offset)
 {
-	ensure((offset*StructSize) + StructSize <= TotalByteSize);
+	ensure((offset * StructSize) + StructSize <= TotalByteSize);
 	memcpy(m_pCbvDataBegin[Context->GetCpuFrameIndex()] + (offset * StructSize), data, RawStructSize);
 	if (RHI::GetFrameCount() == 0)
 	{
@@ -87,13 +90,13 @@ void D3D12Buffer::SetConstantBufferView(int offset, ID3D12GraphicsCommandList* l
 	}
 }
 
-GPUResource * D3D12Buffer::GetResource()
+GPUResource* D3D12Buffer::GetResource()
 {
 	return m_DataBuffer;
 }
 
 
-DXDescriptor * D3D12Buffer::GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap)
+DXDescriptor* D3D12Buffer::GetDescriptor(const RHIViewDesc& desc, DescriptorHeap* heap)
 {
 	if (heap == nullptr)
 	{
@@ -158,7 +161,7 @@ void D3D12Buffer::CreateVertexBuffer(int Stride, int ByteSize, EBufferAccessType
 	ElementSize = Stride;
 }
 
-void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length, int InVertexCount)
+void D3D12Buffer::UpdateVertexBuffer(void* data, size_t length, int InVertexCount)
 {
 	VertexCount = length;
 	if (InVertexCount != -1)
@@ -172,7 +175,7 @@ void D3D12Buffer::UpdateVertexBuffer(void * data, size_t length, int InVertexCou
 	}
 }
 
-void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
+void D3D12Buffer::BindBufferReadOnly(RHICommandList* list, int RSSlot)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
@@ -184,13 +187,57 @@ void D3D12Buffer::BindBufferReadOnly(RHICommandList * list, int RSSlot)
 	list->SetBuffer(this, RSSlot, d);
 }
 
-void D3D12Buffer::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
+void D3D12Buffer::SetBufferState(RHICommandList* list, EBufferResourceState::Type State)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
 	m_DataBuffer->SetResourceState(d3dlist, D3D12Helpers::ConvertBufferResourceState(State));
 }
 
-void D3D12Buffer::UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState)
+void D3D12Buffer::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+{
+	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
+	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
+	D3D12CommandList* list = D3D12RHI::DXConv(List);
+
+	D3D12DeviceContext* CurrentDevice = D3D12RHI::DXConv(Context);
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
+	GPUResource* TargetResource = GetResource();
+
+	list->FlushBarriers();
+	list->GetCommandList()->CopyResource(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), TargetResource->GetResource());
+
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
+	list->FlushBarriers();
+	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+}
+
+void D3D12Buffer::CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)
+{
+	List->StartTimer(EGPUCOPYTIMERS::MGPUCopy);
+	ensure(List->GetDeviceIndex() == Context->GetDeviceIndex());
+	D3D12InterGPUStagingResource* DXres = D3D12RHI::DXConv(Res);
+	D3D12CommandList* list = D3D12RHI::DXConv(List);
+
+	D3D12DeviceContext* CurrentDevice = D3D12RHI::DXConv(Context);
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT textureLayout;
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_DEST);
+	DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->SetResourceState(list, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_SOURCE);
+	GPUResource* TargetResource = GetResource();
+
+	list->FlushBarriers();
+	list->GetCommandList()->CopyResource(TargetResource->GetResource(), DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource());
+
+	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
+	list->FlushBarriers();
+	List->EndTimer(EGPUCOPYTIMERS::MGPUCopy);
+}
+
+void D3D12Buffer::UpdateData(void* data, size_t length, D3D12_RESOURCE_STATES EndState)
 {
 	PostUploadState = EndState;
 	if (BufferAccesstype == EBufferAccessType::Dynamic)
@@ -229,7 +276,7 @@ bool D3D12Buffer::CheckDevice(int index)
 	return false;
 }
 
-void D3D12Buffer::EnsureResouceInFinalState(D3D12CommandList * list)
+void D3D12Buffer::EnsureResouceInFinalState(D3D12CommandList* list)
 {
 	m_DataBuffer->SetResourceState(list, PostUploadState);
 }
@@ -295,7 +342,14 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	{
 		AllocDesc Allocdesc = {};
 		Allocdesc.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
-		Allocdesc.InitalState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		if (Desc.StartState == EResourceState::Undefined)
+		{
+			Allocdesc.InitalState = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		}
+		else
+		{
+			Allocdesc.InitalState = D3D12FrameBuffer::ConvertState(Desc.StartState);
+		}
 		if (desc.UseForExecuteIndirect)
 		{
 			Allocdesc.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
@@ -318,13 +372,13 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 	D3D12Helpers::NameRHIObject(m_DataBuffer, this);
 }
 
-void D3D12Buffer::UpdateIndexBuffer(void * data, size_t length)
+void D3D12Buffer::UpdateIndexBuffer(void* data, size_t length)
 {
 	VertexCount = length;
 	UpdateData(data, TotalByteSize, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
-void D3D12Buffer::UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state)
+void D3D12Buffer::UpdateBufferData(void* data, size_t length, EBufferResourceState::Type state)
 {
 	UpdateData(data, length, D3D12Helpers::ConvertBufferResourceState(state));
 }
@@ -353,12 +407,12 @@ void D3D12Buffer::CreateIndexBuffer(int Stride, int ByteSize)
 	ElementSize = Stride;
 }
 
-GPUResource * D3D12Buffer::GetDoubleBuffer()
+GPUResource* D3D12Buffer::GetDoubleBuffer()
 {
 	return m_DataBufferDouble[Context->GetCpuFrameIndex()];
 }
 
-void D3D12Buffer::MapBuffer(void ** Data)
+void D3D12Buffer::MapBuffer(void** Data)
 {
 	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, Data));
@@ -369,11 +423,17 @@ void D3D12Buffer::UnMap()
 	m_DataBuffer->GetResource()->Unmap(0, nullptr);
 }
 
-void * D3D12Buffer::MapReadBack()
+void* D3D12Buffer::MapReadBack()
 {
 	void* Data = malloc(GetSize());
 	CD3DX12_RANGE readRange(0, GetSize());		// We do not intend to read from this resource on the CPU.
 	ThrowIfFailed(m_DataBuffer->GetResource()->Map(0, &readRange, &Data));
 
 	return Data;
+}
+
+void D3D12Buffer::SetResourceState(RHICommandList* list, EResourceState::Type State)
+{
+	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
+	m_DataBuffer->SetResourceState(d3dlist, D3D12FrameBuffer::ConvertState(State));
 }

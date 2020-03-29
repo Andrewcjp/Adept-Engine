@@ -11,6 +11,7 @@
 #include "../Core/FrameBuffer.h"
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
+#include "StoreNodes/BufferStorageNode.h"
 
 RenderNode::RenderNode()
 {
@@ -275,7 +276,13 @@ FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
 	FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget());
 	return Node->GetFramebuffer(GetEye());
 }
-
+RHIBuffer* RenderNode::GetBufferFromInput(int index)
+{
+	ensure(GetInput(index)->GetStoreTarget());
+	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Buffer);
+	BufferStorageNode* Node = static_cast<BufferStorageNode*>(GetInput(index)->GetStoreTarget());
+	return Node->GetBuffer();
+}
 ShadowAtlasStorageNode * RenderNode::GetShadowDataFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
@@ -389,6 +396,22 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 			FrameBuffer* buffer = Node->GetFramebuffer(rnode->GetEye());
 			//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
 			buffer->SetResourceState(list, TargetState, false, TransitionMode);
+		}
+		else if (Target->TargetType == EStorageType::Buffer)
+		{
+			if (StoreNode == nullptr)
+			{
+				StoreNode = Target->GetStoreTarget();
+			}
+			BufferStorageNode* Node = static_cast<BufferStorageNode*>(StoreNode);
+			if (Node == nullptr)
+			{
+				return;
+			}
+			RHIBuffer* buffer = Node->GetBuffer();
+			//Log::LogMessage("[Transition] " + rnode->GetName() + " from " + EResourceState::ToString(buffer->GetCurrentState()) + " to " + EResourceState::ToString(TargetState));
+			//buffer->SetResourceState(list, TargetState, false, TransitionMode);
+			buffer->SetResourceState(list, TargetState);
 		}
 	}
 	else if (TransitonType == QueueWait)

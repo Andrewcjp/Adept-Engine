@@ -15,6 +15,8 @@ public:
 	virtual void UpdateVertexBuffer(void* data, size_t length, int VertexCount = -1) override;
 	virtual void BindBufferReadOnly(RHICommandList* list, int RSSlot)override;
 	virtual void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) override;
+	RHI_VIRTUAL void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) override;
+	RHI_VIRTUAL void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List)override;
 	bool CheckDevice(int index);
 	void EnsureResouceInFinalState(D3D12CommandList* list);
 	D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
@@ -26,6 +28,9 @@ public:
 
 	virtual void* MapReadBack();
 	
+
+	RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) override;
+
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;

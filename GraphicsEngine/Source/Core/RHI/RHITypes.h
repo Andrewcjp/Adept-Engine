@@ -234,6 +234,8 @@ namespace DeviceContextQueue
 	};
 	DeviceContextQueue::Type GetFromCommandListType(ECommandListType::Type listType);
 }
+
+//todo: remove this
 namespace EBufferResourceState
 {
 	enum Type
@@ -763,6 +765,7 @@ class RHI_API RHIUtils
 public:
 	static size_t BitsPerPixel(eTEXTURE_FORMAT fmt);
 	static size_t GetPixelSize(eTEXTURE_FORMAT format);
+	static size_t GetComponentCount(eTEXTURE_FORMAT fmt);
 };
 
 

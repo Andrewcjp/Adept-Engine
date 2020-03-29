@@ -4,6 +4,7 @@
 #include "NodeLink.h"
 #include "StorageNode.h"
 #include "StoreNodes\FrameBufferStorageNode.h"
+#include "StoreNodes\BufferStorageNode.h"
 
 
 RenderGraphProcessor::RenderGraphProcessor()
@@ -40,7 +41,7 @@ void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
 			for (int i = 0; i < Node->GetNumInputs(); i++)
 			{
 				NodeLink* output = Node->GetInput(i);
-				if (output->TargetType != EStorageType::Framebuffer && output->TargetType != EStorageType::InterGPUStagingResource)
+				if (output->TargetType != EStorageType::Framebuffer && output->TargetType != EStorageType::InterGPUStagingResource && output->TargetType != EStorageType::Buffer)
 				{
 					continue;
 				}
@@ -287,6 +288,11 @@ void RenderGraphProcessor::BuildTransitions(RenderGraph* graph)
 				if (FB != nullptr)
 				{
 					FB->InitalResourceState = frame->State;
+				}
+				BufferStorageNode* Buffer = StorageNode::NodeCast<BufferStorageNode>(store);
+				if (Buffer != nullptr)
+				{
+					Buffer->Desc.StartState = frame->State;
 				}
 				continue;
 			}

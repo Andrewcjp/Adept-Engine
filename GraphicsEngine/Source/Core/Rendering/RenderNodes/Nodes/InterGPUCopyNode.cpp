@@ -24,29 +24,50 @@ InterGPUCopyNode::~InterGPUCopyNode()
 
 void InterGPUCopyNode::OnExecute()
 {
-	FrameBuffer* FB = GetFrameBufferFromInput(0);
 	InterGPUStorageNode* Node = (InterGPUStorageNode*)GetInput(1)->GetStoreTarget();
 	RHIInterGPUStagingResource* InterRes = Node->GetStore(0)->Resource;
 	CopyList->ResetList();
 	SetBeginStates(CopyList);
-	//todo: target sub resources in FBs
-	if (CopyTo)
+
+	if (GetInput(0)->IsValid())
 	{
-		
-		//FB->CopyToStagingResource(InterRes, CopyList);
-		FB->GetRenderTexture()->CopyToStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
-		CopyList->ResolveTimers();
-	}
-	else
-	{
-		//if (CopyNode != nullptr)
+		FrameBuffer* FB = GetFrameBufferFromInput(0);
+		//todo: target sub resources in FBs
+		if (CopyTo)
 		{
-			FB->GetRenderTexture()->CopyFromStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
+
+			//FB->CopyToStagingResource(InterRes, CopyList);
+			FB->GetRenderTexture()->CopyToStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
+			CopyList->ResolveTimers();
 		}
-		/*else
+		else
 		{
-			FB->CopyFromStagingResource(InterRes, CopyList);
-		}*/
+			//if (CopyNode != nullptr)
+			{
+				FB->GetRenderTexture()->CopyFromStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
+			}
+			/*else
+			{
+				FB->CopyFromStagingResource(InterRes, CopyList);
+			}*/
+			CopyList->ResolveTimers();
+		}
+	}
+	if (GetInput(2)->IsValid())
+	{
+		RHIBuffer* Buffer = GetBufferFromInput(2);
+		//todo: target sub resources in FBs
+		if (CopyTo) 
+		{
+			Buffer->CopyToStagingResource(InterRes, CopyList);
+			//FB->GetRenderTexture()->CopyToStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()))
+			
+		}
+		else
+		{
+			Buffer->CopyFromStagingResource(InterRes, CopyList);
+				//FB->GetRenderTexture()->CopyFromStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
+		}
 		CopyList->ResolveTimers();
 	}
 	SetEndStates(CopyList);
@@ -62,6 +83,7 @@ void InterGPUCopyNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Common, StorageFormats::DontCare, "Buffer to copy");
 	AddInput(EStorageType::InterGPUStagingResource, StorageFormats::DontCare, "Staging resource");
+	AddResourceInput(EStorageType::Buffer, EResourceState::Common, StorageFormats::DontCare, "Buffer to copy");
 }
 
 void InterGPUCopyNode::OnSetupNode()

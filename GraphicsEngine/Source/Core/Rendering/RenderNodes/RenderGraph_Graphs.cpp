@@ -32,6 +32,8 @@
 #include "Nodes/Flow/MultiGPULoopNode.h"
 #include "RHI/DeviceContext.h"
 #include "Nodes/VelocityNode.h"
+#include "Nodes/MGPU/CompressionNode.h"
+#include "StoreNodes/BufferStorageNode.h"
 
 void RenderGraph::ApplyEditorToGraph()
 {
@@ -394,13 +396,29 @@ void RenderGraph::CreateFWDGraph()
 	FWDNode->GetInput(0)->SetStore(MainBuffer);
 	FWDNode->GetInput(1)->SetStore(SceneData);
 	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+
 	ParticleRenderNode* renderNode = new ParticleRenderNode();
+	renderNode->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(FWDNode, renderNode);
 
-	renderNode->GetInput(0)->SetStore(MainBuffer);
+	BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
+	CompressData->FramebufferNode = MainBuffer;
+	
+	CompressionNode* Compress = new CompressionNode();
+	Compress->SetCompressMode(true);
+	Compress->GetInput(0)->SetStore(MainBuffer);
+	Compress->GetInput(1)->SetStore(CompressData);
+	LinkNode(renderNode, Compress);
+
+	CompressionNode* DECompress = new CompressionNode();
+	DECompress->SetCompressMode(false);
+	DECompress->GetInput(0)->SetStore(MainBuffer);
+	DECompress->GetInput(1)->SetStore(CompressData);
+	LinkNode(Compress, DECompress);
+
 	PostProcessNode* PP = new PostProcessNode();
 	PP->GetInput(0)->SetStore(MainBuffer);
-	LinkNode(renderNode, PP);
+	LinkNode(DECompress, PP);
 
 	OutputToScreenNode* Output = new OutputToScreenNode();
 
@@ -574,7 +592,7 @@ void RenderGraph::CreateSFR()
 	MainBuffer->StoreType = EStorageType::Framebuffer;
 	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
 	InterGPUStorageNode* HostStore = AddStoreNode(new InterGPUStorageNode());
-	HostStore->StoreTargets.push_back(MainBuffer);
+	//HostStore->StoreTargets.push_back(MainBuffer);
 
 	MultiGPULoopNode* Loop = new MultiGPULoopNode();
 	RootNode = Loop;
@@ -615,24 +633,43 @@ void RenderGraph::CreateSFR()
 			FWDNode->GetInput(2)->SetStore(ShadowDataNode);
 			if (device->GetDeviceIndex() != 0)
 			{
+				BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
+				CompressData->FramebufferNode = MainBuffer;
+				CompressData->SetDevice(device);
+				CompressionNode* Compress = new CompressionNode();
+				Compress->SetCompressMode(true);
+				Compress->GetInput(0)->SetStore(TargetBuffer);
+				Compress->GetInput(1)->SetStore(CompressData);
+				LinkNode(FWDNode, Compress);
+
 				InterGPUCopyNode* Copy = new InterGPUCopyNode(device);
 				Copy->CopyTo = true;
-				Copy->GetInput(0)->SetStore(TargetBuffer);
 				Copy->GetInput(1)->SetStore(HostStore);
-				LinkNode(FWDNode, Copy);
+				Copy->GetInput(2)->SetStore(CompressData);
+				LinkNode(Compress, Copy);
 				return  (RenderNode*)Copy;
 			}
 			return (RenderNode*)FWDNode;
 		});
 
+	BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
+	CompressData->FramebufferNode = MainBuffer;
+	HostStore->BufferStoreTargets.push_back(CompressData);
 	InterGPUCopyNode* Copy = new InterGPUCopyNode(RHI::GetDefaultDevice());
 	Copy->CopyTo = false;
-
-	Copy->GetInput(0)->SetStore(MainBuffer);
+	Copy->GetInput(2)->SetStore(CompressData);
 	Copy->GetInput(1)->SetStore(HostStore);
+
 	LinkNode(Loop, Copy);
+
+	CompressionNode* DECompress = new CompressionNode();
+	DECompress->SetCompressMode(false);
+	DECompress->GetInput(0)->SetStore(MainBuffer);
+	DECompress->GetInput(1)->SetStore(CompressData);
+	LinkNode(Copy, DECompress);
+
 	PostProcessNode* PP = new PostProcessNode();
-	LinkNode(Copy, PP);
+	LinkNode(DECompress, PP);
 	PP->GetInput(0)->SetStore(MainBuffer);
 	OutputToScreenNode* Output = new OutputToScreenNode();
 

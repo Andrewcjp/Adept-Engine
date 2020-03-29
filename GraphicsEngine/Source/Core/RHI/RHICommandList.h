@@ -17,6 +17,7 @@ struct RHIBufferDesc
 	bool CreateUAV = false;
 	bool UseForExecuteIndirect = false;
 	bool UseForReadBack = false;
+	EResourceState::Type StartState = EResourceState::Undefined;
 };
 
 class  RHIBuffer : public IRHIResourse, public IRHISharedDeviceObject<RHIBuffer>
@@ -34,8 +35,11 @@ public:
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
+	RHI_API RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) = 0;	
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
 	RHI_API RHI_VIRTUAL void* MapReadBack() = 0;
+	RHI_API RHI_VIRTUAL void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
+	RHI_API RHI_VIRTUAL void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
 	RHI_API RHI_VIRTUAL ~RHIBuffer()
 	{}
 	size_t GetVertexCount()
@@ -73,6 +77,10 @@ protected:
 };
 struct RHIScissorRect
 {
+	RHIScissorRect()
+	{
+
+	}
 	RHIScissorRect(LONG left, LONG top, LONG right, LONG bottom) :
 		Left(left)
 		, Top(top)

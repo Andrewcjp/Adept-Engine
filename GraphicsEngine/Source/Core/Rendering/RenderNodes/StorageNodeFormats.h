@@ -15,4 +15,6 @@ namespace StorageFormats
 	const std::string ScreenReflectionData = "ScreenReflectionData";
 
 	const std::string ShadingImage = "Shading Image";
+	const std::string CompressedData = "CompressedData";
+	
 }

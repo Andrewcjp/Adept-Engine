@@ -118,7 +118,8 @@ protected:
 
 	//helpers:
 	FrameBuffer* GetFrameBufferFromInput(int index);
-	ShadowAtlasStorageNode * GetShadowDataFromInput(int index);
+	RHIBuffer* GetBufferFromInput(int index);
+	ShadowAtlasStorageNode* GetShadowDataFromInput(int index);
 	Scene* GetSceneDataFromInput(int index);
 	virtual void OnNodeSettingChange();
 

@@ -25,14 +25,22 @@ GPUResource * D3D12InterGPUStagingResource::GetViewOnDevice(int index)
 void D3D12InterGPUStagingResource::Init()
 {
 	ID3D12Device* Host = D3D12RHI::DXConv(OwnerDevice)->GetDevice();
+	UINT64 textureSize = 0;
+	if (Desc.IsBuffer)
+	{
+		textureSize = Desc.BufferDesc.ElementCount * Desc.BufferDesc.Stride;
+	}
+	else
+	{
 
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-	UINT64 pTotalBytes = 0;
-	DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.FramebufferDesc.RTFormats[0]);
-	CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.FramebufferDesc.Width, Desc.FramebufferDesc.Height
-		, Desc.FramebufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
-	Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
-	UINT64 textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+		UINT64 pTotalBytes = 0;
+		DXGI_FORMAT readFormat = D3D12Helpers::ConvertFormat(Desc.FramebufferDesc.RTFormats[0]);
+		CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(readFormat, Desc.FramebufferDesc.Width, Desc.FramebufferDesc.Height
+			, Desc.FramebufferDesc.TextureDepth, 1, 1, 0, D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT_UNKNOWN);
+		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &layout, nullptr, nullptr, &pTotalBytes);
+		textureSize = D3D12Helpers::Align(layout.Footprint.RowPitch * layout.Footprint.Height);
+	}
 
 	CrossAdapterDesc = CD3DX12_RESOURCE_DESC::Buffer(textureSize, D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER);
 

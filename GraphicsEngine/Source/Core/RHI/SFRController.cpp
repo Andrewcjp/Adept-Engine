@@ -97,7 +97,7 @@ void SFRController::Init()
 		Node->SFRDriveTimer = PerfManager::Get()->GetTimerData(PerfManager::Get()->GetTimerIDByName("Main Pass" + std::to_string(i)));
 		Nodes.push_back(Node);
 	}
-	const float splittest = 0.9f;
+	const float splittest = 0.5f;
 	DualUpdatePC(splittest);
 }
 
@@ -109,7 +109,7 @@ RHIScissorRect SFRController::GetScissor(int index, glm::ivec2 Res)
 	RHIScissorRect rect = RHIScissorRect(Offset, 0, right, Res.y);
 	if (index == 0)
 	{
-		rect.Right -= 10;
+		//-rect.Right -= 10;
 	}
 	return rect;
 }

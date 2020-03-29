@@ -6,6 +6,8 @@ struct InterGPUDesc
 {
 	GPUDeviceMask Mask;
 	RHIFrameBufferDesc FramebufferDesc;
+	bool IsBuffer = false;
+	RHIBufferDesc BufferDesc;
 	InterGPUDesc();
 };
 class RHIInterGPUStagingResource: public IRHIResourse
