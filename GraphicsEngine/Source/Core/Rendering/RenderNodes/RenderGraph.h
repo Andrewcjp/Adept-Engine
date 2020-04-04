@@ -7,6 +7,7 @@ class RenderNode;
 class StorageNode;
 class FrameBufferStorageNode;
 class BranchNode;
+class OutputToScreenNode;
 struct RenderGraphExposedSettings
 {
 	std::string name;
@@ -64,6 +65,8 @@ public:
 
 	void CreateDefTestgraph();
 
+	void EndGraph(FrameBufferStorageNode* MainBuffer, RenderNode* Output);
+
 	//BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
 
 	void LinkNode(RenderNode * A, RenderNode * B);
@@ -97,6 +100,7 @@ public:
 
 	void CreateMGPU_TESTGRAPH();
 	void CreateSFR();
+	void CreateMGPUShadows();
 	std::vector<StorageNode*> GetNodesOfType(EStorageType::Type type);
 
 	RG_PatchSet * FindMarker(EBuiltInRenderGraphPatch::Type type);
@@ -108,10 +112,10 @@ public:
 		void AddWarning(std::string Message);
 		void AddError(std::string Message);
 		bool HasError() const;
-		std::vector<std::string> Warnings;
-		std::vector<std::string> Errors;
+		std::vector<std::pair<std::string, Log::Severity>> OutputLog;
 		RenderGraph* TargetGraph = nullptr;
 	private:
+		bool Error = false;
 	};
 	bool IsVRGraph = false;
 	bool IsGraphValid();

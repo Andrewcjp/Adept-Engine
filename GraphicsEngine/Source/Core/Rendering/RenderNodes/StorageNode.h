@@ -1,6 +1,7 @@
 #pragma once
 
 class RenderGraph;
+class RenderNode;
 namespace EStorageType
 {
 	enum Type
@@ -40,12 +41,17 @@ public:
 	RenderGraph* OwnerGraph = nullptr;
 	bool GetIsTransisent() const { return IsTransisent; }
 	void SetRetained() { IsTransisent = false; }
+	DeviceContext* GetDeviceObject() const { return DeviceObject; }
+	//Once This node has run the resource is not used again
+	void DiscardAtEndOfNode(RenderNode* node);
+
 protected:
 	//called when the graph is built to create this resource (if needed)
 
 	virtual void Create() {}; 
 	DeviceContext* DeviceObject = nullptr;
 	bool IsTransisent = true;
+	RenderNode* DiscardingNode = nullptr;
 private:
 	std::string InitalFormat = "";
 };

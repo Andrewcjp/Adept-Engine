@@ -1,7 +1,7 @@
 #pragma once
-
+#pragma warning(push,0)
 #include "rapidjson\document.h"
-
+#pragma warning(pop)
 namespace SerialHelpers
 {
 	template<typename T>

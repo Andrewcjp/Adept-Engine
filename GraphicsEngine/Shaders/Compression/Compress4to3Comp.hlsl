@@ -13,12 +13,24 @@ inline uint flatten2D(uint2 coord, uint2 dim)
 {
 	return coord.x + (coord.y * dim.x);
 }
+uint PackFloat(float f)
+{
+	f *= 255;
+	uint value = (uint)f;
+	return  value;
+}
+
+#if USE_8BIT
+#define ENCODE(x) PackFloat(x);
+#else
+#define ENCODE(x) f32tof16(x);
+#endif
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 groupIndex : SV_GroupID)
 {
 	uint index = flatten2D(DTid.xy, Res)*3;
 	float4 Sample = InputData[OffsetXY+DTid.xy];
-	OutputBuffer[index] = f32tof16(Sample.x);
-	OutputBuffer[index + 1] = f32tof16(Sample.y);
-	OutputBuffer[index + 2] = f32tof16(Sample.z);
+	OutputBuffer[index] = ENCODE(Sample.x);
+	OutputBuffer[index + 1] = ENCODE(Sample.y);
+	OutputBuffer[index + 2] = ENCODE(Sample.z);
 }

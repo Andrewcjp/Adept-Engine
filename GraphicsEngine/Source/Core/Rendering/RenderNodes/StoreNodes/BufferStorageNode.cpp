@@ -39,10 +39,10 @@ void BufferStorageNode::Create()
 		int compCount = RHIUtils::GetComponentCount(FramebufferNode->GetFrameBufferDesc().RTFormats[0]);
 		compCount = 3;
 		Desc.ElementCount = Math::Max(1, (Size * compCount) * LinkedFrameBufferRatio);
-		Desc.Stride = sizeof(float) / 2;
+		Desc.Stride = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? 1 : 2;
 	}
 	Desc.AllowUnorderedAccess = true;
 	Desc.Accesstype = EBufferAccessType::GPUOnly;
-	GPUBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU, DeviceObject);
+	GPUBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU, GetDeviceObject());
 	GPUBuffer->CreateBuffer(Desc);
 }

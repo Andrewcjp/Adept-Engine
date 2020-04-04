@@ -17,6 +17,7 @@ ShadowMaskNode::ShadowMaskNode()
 {
 	OnNodeSettingChange();
 	SetNodeActive(RHI::GetRenderSettings()->GetVRXSettings().UseVRX());
+	SetWorkType(ENodeWorkFocus::Compute);
 }
 
 ShadowMaskNode::~ShadowMaskNode()

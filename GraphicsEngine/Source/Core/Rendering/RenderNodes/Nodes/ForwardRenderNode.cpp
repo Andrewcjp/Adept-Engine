@@ -111,7 +111,8 @@ void ForwardRenderNode::OnNodeSettingChange()
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit output");
 	//if (UseLightCulling)
 	{
-		AddInput(EStorageType::Buffer, StorageFormats::LightCullingData, "Light culling data");
+		NodeLink* lnk = AddInput(EStorageType::Buffer, StorageFormats::LightCullingData, "Light culling data");
+		lnk->SetOptional();
 	}
 	//if (UsePreZPass)
 	{

@@ -30,7 +30,8 @@ void NameObject(ID3D12Object* pObject, std::wstring name, int id)
 static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
 
 D3D12DeviceContext::D3D12DeviceContext()
-{}
+{
+}
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
@@ -82,7 +83,7 @@ void D3D12DeviceContext::CheckFeatures()
 	//#DX12: validate the device capabilities 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, reinterpret_cast<void*>(&options), sizeof(options)));
-	
+
 	DeviceFeatureData.ArchData.NodeIndex = 0;
 	ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ARCHITECTURE1, reinterpret_cast<void*>(&DeviceFeatureData.ArchData), sizeof(DeviceFeatureData.ArchData)));
 	if (DeviceFeatureData.ArchData.UMA)
@@ -125,7 +126,7 @@ void D3D12DeviceContext::CheckFeatures()
 	if (SUCCEEDED(hr) && LogDeviceDebug)
 	{
 		LogDeviceData("Threads Per warp count: " + std::to_string(DeviceFeatureData.FeatureData1.WaveLaneCountMin));
-	}	
+	}
 	ZeroMemory(&DeviceFeatureData.FeatureData2, sizeof(DeviceFeatureData.FeatureData2));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &DeviceFeatureData.FeatureData2, sizeof(DeviceFeatureData.FeatureData2));
 #if WIN10_1809
@@ -276,7 +277,7 @@ void D3D12DeviceContext::LogDeviceData(const std::string& data)
 	Log::LogMessage("Device " + std::to_string(GetDeviceIndex()) + ": " + data);
 }
 
-void D3D12DeviceContext::LogTierData(const std::string& data, int teir, const std::string & extramsg)
+void D3D12DeviceContext::LogTierData(const std::string& data, int teir, const std::string& extramsg)
 {
 	LogDeviceData(data + " tier " + std::to_string(teir) + " " + extramsg);
 }
@@ -367,7 +368,7 @@ void D3D12DeviceContext::CreateNodeDevice(ID3D12Device* dev, int nodemask, int i
 	InitDevice(index);
 }
 
-DXMemoryManager * D3D12DeviceContext::GetMemoryManager()
+DXMemoryManager* D3D12DeviceContext::GetMemoryManager()
 {
 	return MemoryManager;
 }
@@ -382,12 +383,12 @@ D3D_SHADER_MODEL D3D12DeviceContext::GetShaderModel() const
 	return HighestShaderModel;
 }
 
-void D3D12DeviceContext::EnqueueUploadRequest(const GPUUploadRequest & request)
+void D3D12DeviceContext::EnqueueUploadRequest(const GPUUploadRequest& request)
 {
 	Requests.push_back(request);
 }
 
-CommandAllocator * D3D12DeviceContext::GetAllocator(D3D12CommandList * list)
+CommandAllocator* D3D12DeviceContext::GetAllocator(D3D12CommandList* list)
 {
 	//todo: match threads
 	for (int i = 0; i < Allocators.size(); i++)
@@ -402,7 +403,7 @@ CommandAllocator * D3D12DeviceContext::GetAllocator(D3D12CommandList * list)
 	return Alloc;
 }
 
-const DXFeatureData & D3D12DeviceContext::GetFeatureData() const
+const DXFeatureData& D3D12DeviceContext::GetFeatureData() const
 {
 	return DeviceFeatureData;
 }
@@ -424,7 +425,7 @@ void D3D12DeviceContext::FlushUploadQueue()
 	Requests.clear();
 }
 
-void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int index)
+void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int index)
 {
 #if SUPPORT_DXGI
 	EnableStablePower.SetValue(true);
@@ -436,7 +437,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
 		ID_PASS(&m_Device)
-	);
+		);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
@@ -447,7 +448,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1 * adapter, int in
 			pDXGIAdapter,
 			MaxLevel,
 			ID_PASS(&m_Device)
-		));
+			));
 	}
 	DEVICE_NAME_OBJECT(m_Device);
 
@@ -471,7 +472,7 @@ void D3D12DeviceContext::LinkAdaptors(D3D12DeviceContext* other)
 	CrossAdaptorSync[1].Init(GetDevice(), other->GetDevice());
 }
 
-ID3D12Device * D3D12DeviceContext::GetDevice()
+ID3D12Device* D3D12DeviceContext::GetDevice()
 {
 	return m_Device;
 }
@@ -482,18 +483,18 @@ ID3D12Device2* D3D12DeviceContext::GetDevice2()
 }
 
 #if WIN10_1809
-ID3D12Device5 * D3D12DeviceContext::GetDevice5()
+ID3D12Device5* D3D12DeviceContext::GetDevice5()
 {
 	return m_Device5;
 }
 #endif
 #if WIN10_1903
-ID3D12Device6 * D3D12DeviceContext::GetDevice6()
+ID3D12Device6* D3D12DeviceContext::GetDevice6()
 {
 	return m_device6;
 }
 #endif
-ID3D12CommandQueue * D3D12DeviceContext::GetCommandQueue()
+ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueue()
 {
 	return GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
 }
@@ -510,7 +511,7 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	if (GetDeviceIndex() != 0)
 	{
 		InsertCrossGPUWait(DeviceContextQueue::Graphics, RHI::GetDeviceContext(0), DeviceContextQueue::Graphics);
-	}	
+	}
 #endif
 	GraphicsSync.MoveNextFrame(SyncIndex);
 	CopySync.MoveNextFrame(SyncIndex);
@@ -611,7 +612,7 @@ void D3D12DeviceContext::ReportData()
 	Log::LogMessage(ss.str());
 }
 
-CopyCMDListType * D3D12DeviceContext::GetCopyList()
+CopyCMDListType* D3D12DeviceContext::GetCopyList()
 {
 	return D3D12RHI::DXConv(GPUCopyList)->GetCopyList();
 }
@@ -641,7 +642,7 @@ void D3D12DeviceContext::ResetCopyEngine()
 	}
 }
 
-void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * list)
+void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList* list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_ComputeCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -651,7 +652,7 @@ void D3D12DeviceContext::ExecuteComputeCommandList(ID3D12GraphicsCommandList * l
 	}
 }
 
-void D3D12DeviceContext::ExecuteCopyCommandList(CopyCMDListType * list)
+void D3D12DeviceContext::ExecuteCopyCommandList(CopyCMDListType* list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	m_CopyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -661,7 +662,7 @@ void D3D12DeviceContext::ExecuteCopyCommandList(CopyCMDListType * list)
 	}
 }
 
-void D3D12DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock)
+void D3D12DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList* list, bool forceblock)
 {
 #if SUPPORT_DXGI	
 	ID3D12CommandList* ppCommandLists[] = { list };
@@ -672,7 +673,7 @@ void D3D12DeviceContext::ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandLis
 	}
 #endif
 }
-void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
+void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList* list)
 {
 	ID3D12CommandList* ppCommandLists[] = { list };
 	GetCommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -682,12 +683,12 @@ void D3D12DeviceContext::ExecuteCommandList(ID3D12GraphicsCommandList * list)
 	}
 }
 
-RHITimeManager * D3D12DeviceContext::GetTimeManager()
+RHITimeManager* D3D12DeviceContext::GetTimeManager()
 {
 	return TimeManager;
 }
 
-void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), D3D12RHI::DXConv(OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
 }
@@ -735,31 +736,36 @@ ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQue
 void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
+#if 0
 	GPUWaitPoints[0][SignalQueue].GPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
+#else
+	SignalCommandQueue(SignalQueue);
+	InsertWaitForValue(SignalQueue, WaitingQueue);
+#endif
 }
 
 
-RHICommandList * D3D12DeviceContext::GetInterGPUCopyList()
+RHICommandList* D3D12DeviceContext::GetInterGPUCopyList()
 {
 	return InterGPUCopyList;
 }
 
-DescriptorHeapManager * D3D12DeviceContext::GetHeapManager()
+DescriptorHeapManager* D3D12DeviceContext::GetHeapManager()
 {
 	return HeapManager;
 }
 
-DescriptorCache * D3D12DeviceContext::GetDescriptorCache()
+DescriptorCache* D3D12DeviceContext::GetDescriptorCache()
 {
 	return DescriptorCacheManager;
 }
 
-D3D12QueryHeap * D3D12DeviceContext::GetTimeStampHeap()
+D3D12QueryHeap* D3D12DeviceContext::GetTimeStampHeap()
 {
 	return TimeStampHeap;
 }
 
-D3D12QueryHeap * D3D12DeviceContext::GetCopyTimeStampHeap()
+D3D12QueryHeap* D3D12DeviceContext::GetCopyTimeStampHeap()
 {
 	return CopyTimeStampHeap;
 }
@@ -790,7 +796,7 @@ GPUSyncPoint::~GPUSyncPoint()
 	SafeRelease(secondaryFence);
 }
 
-void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)
+void GPUSyncPoint::Init(ID3D12Device* device, ID3D12Device* SecondDevice)
 {
 	//Fence types
 	//  D3D12_FENCE_FLAG_NONE
@@ -818,12 +824,12 @@ void GPUSyncPoint::Init(ID3D12Device * device, ID3D12Device* SecondDevice)
 
 	CloseHandle(fenceHandle);
 }
-void GPUSyncPoint::InitGPUOnly(ID3D12Device * device)
+void GPUSyncPoint::InitGPUOnly(ID3D12Device* device)
 {
 	ThrowIfFailed(device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, ID_PASS(&m_fence)));
 	m_fenceValue++;
 }
-void GPUSyncPoint::Init(ID3D12Device * device)
+void GPUSyncPoint::Init(ID3D12Device* device)
 {
 	//Fence types
 	//  D3D12_FENCE_FLAG_NONE
@@ -839,7 +845,7 @@ void GPUSyncPoint::Init(ID3D12Device * device)
 	m_fenceValue++;
 }
 
-void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
+void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue* queue)
 {
 	// Schedule a Signal command in the queue.
 	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
@@ -855,7 +861,7 @@ void GPUSyncPoint::CreateSyncPoint(ID3D12CommandQueue * queue)
 	}
 	ensure(status == WAIT_OBJECT_0);
 }
-void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue* otherDeviceQeue)
+void GPUSyncPoint::CrossGPUCreateSyncPoint(ID3D12CommandQueue* queue, ID3D12CommandQueue* otherDeviceQeue)
 {
 	// Schedule a Signal command in the queue.
 	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
@@ -873,7 +879,7 @@ void GPUSyncPoint::CrossGPUCreateSyncPoint_NonLocalSignal(ID3D12CommandQueue* qu
 	m_fenceValue++;
 }
 
-void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQueue * targetqueue)
+void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue* queue, ID3D12CommandQueue* targetqueue)
 {
 	//Breaks!
 	// Schedule a Signal command in the queue.
@@ -883,7 +889,7 @@ void GPUSyncPoint::GPUCreateSyncPoint(ID3D12CommandQueue * queue, ID3D12CommandQ
 	m_fenceValue++;
 }
 
-void GPUSyncPoint::Signal(ID3D12CommandQueue * queue, int value)
+void GPUSyncPoint::Signal(ID3D12CommandQueue* queue, int value)
 {
 	if (value != -1)
 	{
@@ -892,7 +898,7 @@ void GPUSyncPoint::Signal(ID3D12CommandQueue * queue, int value)
 	ThrowIfFailed(queue->Signal(m_fence, m_fenceValue));
 }
 
-void GPUSyncPoint::Wait(ID3D12CommandQueue * queue, int value)
+void GPUSyncPoint::Wait(ID3D12CommandQueue* queue, int value)
 {
 	if (value != -1)
 	{
@@ -902,7 +908,7 @@ void GPUSyncPoint::Wait(ID3D12CommandQueue * queue, int value)
 	m_fenceValue++;
 }
 
-void GPUFenceSync::Init(ID3D12CommandQueue * TargetQueue, ID3D12Device* device)
+void GPUFenceSync::Init(ID3D12CommandQueue* TargetQueue, ID3D12Device* device)
 {
 	Queue = TargetQueue;
 	ThrowIfFailed(device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, ID_PASS(&m_fence)));
@@ -944,7 +950,7 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 }
 CreateChecker(D3D12GPUSyncEvent);
-D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext * device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
+D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext* device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
 {
 	AddCheckerRef(D3D12GPUSyncEvent, this);
 	D3D12DeviceContext* d3dc = D3D12RHI::DXConv(Device);

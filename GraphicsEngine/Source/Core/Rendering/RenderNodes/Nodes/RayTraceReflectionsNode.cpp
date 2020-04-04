@@ -112,6 +112,6 @@ void RayTraceReflectionsNode::OnValidateNode(RenderGraph::ValidateArgs & args)
 {
 	if (Context->GetCaps().RTSupport == ERayTracingSupportType::None)
 	{
-		args.AddError("RayTraceReflectionsNode on GPU with no raytracing");
+		args.AddError("RayTraceReflectionsNode on GPU with no ray tracing");
 	}
 }

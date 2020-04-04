@@ -18,7 +18,8 @@ GBufferWriteNode::GBufferWriteNode()
 {
 	ViewMode = EViewMode::PerView;
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat);
+	NodeLink* link = AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat);
+	link->SetOptional();
 	AddResourceOutput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData);
 	GetOutput(0)->SetLink(GetInput(0));
 }

@@ -31,7 +31,7 @@ InputController* XInputInterface::GetController(int Index)
 
 int XInputInterface::GetNumOfControllers() const
 {
-	return controllers.size();
+	return (int)controllers.size();
 }
 
 void XInputInterface::ShutDown()

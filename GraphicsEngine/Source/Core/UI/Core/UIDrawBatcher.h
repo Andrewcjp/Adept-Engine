@@ -42,7 +42,7 @@ public:
 	void ReallocBuffer(int NewSize);
 	~UIDrawBatcher();
 	void SendToGPU();
-	void RenderBatches();
+	void RenderBatches(RHICommandList* List);
 	void Render(RHICommandList * list);
 	void ClearVertArray();
 	void CleanUp();

@@ -40,7 +40,7 @@ void ParticleRenderNode::OnExecute()
 void ParticleRenderNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::LitScene, "Screen Data");
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "Depth Data");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "Depth Data")->SetOptional();
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 	LinkThough(0);
 }

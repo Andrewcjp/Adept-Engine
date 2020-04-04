@@ -34,6 +34,7 @@
 #include "Nodes/VelocityNode.h"
 #include "Nodes/MGPU/CompressionNode.h"
 #include "StoreNodes/BufferStorageNode.h"
+#include "Nodes/UINode.h"
 
 void RenderGraph::ApplyEditorToGraph()
 {
@@ -232,12 +233,7 @@ void RenderGraph::CreateDefTestgraph()
 	MainBuffer->SetFrameBufferDesc(Desc);
 	MainBuffer->SetRetained();
 
-	FrameBufferStorageNode* SSAOBuffer = AddStoreNode(new FrameBufferStorageNode("SSAO Buffer"));
-	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-	Desc.AllowUnorderedAccess = true;
-	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	SSAOBuffer->SetFrameBufferDesc(Desc);
+
 
 	FrameBufferStorageNode* ShadowMaskBuffer = AddStoreNode(new FrameBufferStorageNode("Shadow Mask"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
@@ -296,21 +292,19 @@ void RenderGraph::CreateDefTestgraph()
 #endif	
 	LinkNode(ParticleSimNode, LightNode);
 
-	LightNode->GetInput(0)->SetLink(WriteNode->GetOutput(0));
-	LightNode->GetInput(1)->SetStore(MainBuffer);
-	LightNode->GetInput(2)->SetStore(SceneData);
-	LightNode->GetInput(3)->SetStore(ShadowDataNode);
-	LightNode->GetInputLinkByName("ShadowMask")->SetLink(MaskNode->GetOutput(0));
+	LightNode->GetData().GBuffer->SetStore(GBufferNode);
+	LightNode->GetData().MainBuffer->SetStore(MainBuffer);
+	LightNode->GetData().ShadowMaps->SetStore(ShadowDataNode);
+	LightNode->GetInputLinkByName("ShadowMask")->SetStore(ShadowMaskBuffer);
 
 	ParticleRenderNode* PRenderNode = new ParticleRenderNode();
 	LinkNode(LightNode, PRenderNode);
-	PRenderNode->GetInput(0)->SetLink(LightNode->GetOutput(0));
+	PRenderNode->GetInput(0)->SetStore(MainBuffer);
 	PRenderNode->GetInput(1)->SetStore(GBufferNode);
 
 	SSAONode* SSAO = new SSAONode();
-	SSAO->GetInput(0)->SetLink(LightNode->GetOutput(0));
-	SSAO->GetInput(1)->SetLink(WriteNode->GetOutput(0));
-	SSAO->GetInput(2)->SetStore(SSAOBuffer);
+	SSAO->GetInput(0)->SetStore(MainBuffer);
+	SSAO->GetInput(1)->SetStore(GBufferNode);
 	LinkNode(PRenderNode, SSAO);
 
 	PostProcessNode* PPNode = new PostProcessNode();
@@ -329,6 +323,11 @@ void RenderGraph::CreateDefTestgraph()
 	OutputToScreenNode* Output = new OutputToScreenNode();
 	VisNode->LinkToNode(Output);
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
+
+	EndGraph(MainBuffer, Output);
+
+
+
 
 	//VRS
 	RG_PatchMarker* VRXMarker = new RG_PatchMarker();
@@ -403,7 +402,7 @@ void RenderGraph::CreateFWDGraph()
 
 	BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
 	CompressData->FramebufferNode = MainBuffer;
-	
+
 	CompressionNode* Compress = new CompressionNode();
 	Compress->SetCompressMode(true);
 	Compress->GetInput(0)->SetStore(MainBuffer);
@@ -427,6 +426,7 @@ void RenderGraph::CreateFWDGraph()
 	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+	EndGraph(MainBuffer, Output);
 
 }
 
@@ -457,37 +457,37 @@ void RenderGraph::CreateVRFWDGraph()
 	VRLoopNode* VrStart = new VRLoopNode();
 	LinkNode(simNode, VrStart);
 	VrStart->SetLoopBody([this, MainBuffer, SceneData, ShadowDataNode](RenderNode* first)
-		{
-			ZPrePassNode* PreZ = new ZPrePassNode();
-			PreZ->GetInput(0)->SetStore(MainBuffer);
-			LinkNode(first, PreZ);
-			ForwardRenderNode* FWDNode = new ForwardRenderNode();
-			LinkNode(PreZ, FWDNode);
-			FWDNode->UseLightCulling = false;
-			FWDNode->UsePreZPass = false;
-			FWDNode->UpdateSettings();
-			FWDNode->GetInput(0)->SetStore(MainBuffer);
-			FWDNode->GetInput(1)->SetStore(SceneData);
-			FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+	{
+		ZPrePassNode* PreZ = new ZPrePassNode();
+		PreZ->GetInput(0)->SetStore(MainBuffer);
+		LinkNode(first, PreZ);
+		ForwardRenderNode* FWDNode = new ForwardRenderNode();
+		LinkNode(PreZ, FWDNode);
+		FWDNode->UseLightCulling = false;
+		FWDNode->UsePreZPass = false;
+		FWDNode->UpdateSettings();
+		FWDNode->GetInput(0)->SetStore(MainBuffer);
+		FWDNode->GetInput(1)->SetStore(SceneData);
+		FWDNode->GetInput(2)->SetStore(ShadowDataNode);
 
-			ParticleRenderNode* renderNode = new ParticleRenderNode();
-			LinkNode(FWDNode, renderNode);
-			renderNode->GetInput(0)->SetStore(MainBuffer);
+		ParticleRenderNode* renderNode = new ParticleRenderNode();
+		LinkNode(FWDNode, renderNode);
+		renderNode->GetInput(0)->SetStore(MainBuffer);
 
-			PostProcessNode* PP = new PostProcessNode();
-			PP->GetInput(0)->SetStore(MainBuffer);
-			LinkNode(renderNode, PP);
+		PostProcessNode* PP = new PostProcessNode();
+		PP->GetInput(0)->SetStore(MainBuffer);
+		LinkNode(renderNode, PP);
 
-			DebugUINode* Debug = new DebugUINode();
-			LinkNode(PP, Debug);
-			Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
+		DebugUINode* Debug = new DebugUINode();
+		LinkNode(PP, Debug);
+		Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
 
 
-			SubmitToHMDNode* SubNode = new SubmitToHMDNode();
-			SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
-			LinkNode(Debug, SubNode);
-			return SubNode;
-		});
+		SubmitToHMDNode* SubNode = new SubmitToHMDNode();
+		SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+		LinkNode(Debug, SubNode);
+		return SubNode;
+	});
 	//LinkNode(simNode, VrStart);
 	//LinkNode(VrStart, PreZ);
 	OutputToScreenNode* Output = new OutputToScreenNode();
@@ -519,6 +519,7 @@ void RenderGraph::CreateFallbackGraph()
 	Debug->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetLink(Debug->GetOutput(0));
+	EndGraph(MainBuffer, Output);
 }
 
 void RenderGraph::CreateMGPU_TESTGRAPH()
@@ -576,6 +577,8 @@ void RenderGraph::CreateMGPU_TESTGRAPH()
 	LinkNode(CopyTo, CopyFrom);
 	LinkNode(CopyFrom, Debug);
 	LinkNode(Debug, Output);
+
+	EndGraph(MainBuffer, Output);
 }
 
 void RenderGraph::CreateSFR()
@@ -597,60 +600,60 @@ void RenderGraph::CreateSFR()
 	MultiGPULoopNode* Loop = new MultiGPULoopNode();
 	RootNode = Loop;
 	Loop->SetLoopBody([this, MainBuffer, SceneData, HostStore](RenderNode* First, DeviceContext* device)
+	{
+		FrameBufferStorageNode* TargetBuffer = MainBuffer;
+		if (device->GetDeviceIndex() != 0)
 		{
-			FrameBufferStorageNode* TargetBuffer = MainBuffer;
-			if (device->GetDeviceIndex() != 0)
-			{
-				TargetBuffer = AddStoreNode(new FrameBufferStorageNode());
-				RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
-				Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
-				Desc.AllowUnorderedAccess = true;
-				TargetBuffer->SetDevice(device);
-				TargetBuffer->SetFrameBufferDesc(Desc);
-			}
-			ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
-			ShadowDataNode->SetDevice(device);
-			ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
-			ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
-			ZPrePassNode* PreZ = new ZPrePassNode();
-			if (First != nullptr)
-			{
-				LinkNode(First, ShadowUpdate);
-			}
-			else
-			{
-				RootNode = ShadowUpdate;
-			}
-			LinkNode(ShadowUpdate, PreZ);
-			PreZ->GetInput(0)->SetStore(TargetBuffer);
-			ForwardRenderNode* FWDNode = new ForwardRenderNode();
-			LinkNode(PreZ, FWDNode);
-			FWDNode->UseLightCulling = false;
-			FWDNode->UsePreZPass = false;
-			FWDNode->UpdateSettings();
-			FWDNode->GetInput(0)->SetStore(TargetBuffer);
-			FWDNode->GetInput(1)->SetStore(SceneData);
-			FWDNode->GetInput(2)->SetStore(ShadowDataNode);
-			if (device->GetDeviceIndex() != 0)
-			{
-				BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
-				CompressData->FramebufferNode = MainBuffer;
-				CompressData->SetDevice(device);
-				CompressionNode* Compress = new CompressionNode();
-				Compress->SetCompressMode(true);
-				Compress->GetInput(0)->SetStore(TargetBuffer);
-				Compress->GetInput(1)->SetStore(CompressData);
-				LinkNode(FWDNode, Compress);
+			TargetBuffer = AddStoreNode(new FrameBufferStorageNode());
+			RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+			Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+			Desc.AllowUnorderedAccess = true;
+			TargetBuffer->SetDevice(device);
+			TargetBuffer->SetFrameBufferDesc(Desc);
+		}
+		ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
+		ShadowDataNode->SetDevice(device);
+		ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
+		ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+		ZPrePassNode* PreZ = new ZPrePassNode();
+		if (First != nullptr)
+		{
+			LinkNode(First, ShadowUpdate);
+		}
+		else
+		{
+			RootNode = ShadowUpdate;
+		}
+		LinkNode(ShadowUpdate, PreZ);
+		PreZ->GetInput(0)->SetStore(TargetBuffer);
+		ForwardRenderNode* FWDNode = new ForwardRenderNode();
+		LinkNode(PreZ, FWDNode);
+		FWDNode->UseLightCulling = false;
+		FWDNode->UsePreZPass = false;
+		FWDNode->UpdateSettings();
+		FWDNode->GetInput(0)->SetStore(TargetBuffer);
+		FWDNode->GetInput(1)->SetStore(SceneData);
+		FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+		if (device->GetDeviceIndex() != 0)
+		{
+			BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
+			CompressData->FramebufferNode = MainBuffer;
+			CompressData->SetDevice(device);
+			CompressionNode* Compress = new CompressionNode();
+			Compress->SetCompressMode(true);
+			Compress->GetInput(0)->SetStore(TargetBuffer);
+			Compress->GetInput(1)->SetStore(CompressData);
+			LinkNode(FWDNode, Compress);
 
-				InterGPUCopyNode* Copy = new InterGPUCopyNode(device);
-				Copy->CopyTo = true;
-				Copy->GetInput(1)->SetStore(HostStore);
-				Copy->GetInput(2)->SetStore(CompressData);
-				LinkNode(Compress, Copy);
-				return  (RenderNode*)Copy;
-			}
-			return (RenderNode*)FWDNode;
-		});
+			InterGPUCopyNode* Copy = new InterGPUCopyNode(device);
+			Copy->CopyTo = true;
+			Copy->GetInput(1)->SetStore(HostStore);
+			Copy->GetInput(2)->SetStore(CompressData);
+			LinkNode(Compress, Copy);
+			return  (RenderNode*)Copy;
+		}
+		return (RenderNode*)FWDNode;
+	});
 
 	BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
 	CompressData->FramebufferNode = MainBuffer;
@@ -678,4 +681,118 @@ void RenderGraph::CreateSFR()
 	Debug->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(Debug, Output);
 	Output->GetInput(0)->SetStore(MainBuffer);
+	EndGraph(MainBuffer, Output);
+}
+
+void RenderGraph::CreateMGPUShadows()
+{
+	GraphName = "Forward Renderer";
+	SceneDataNode* SceneData = AddStoreNode(new SceneDataNode());
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
+	Desc.AllowUnorderedAccess = true;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	FrameBufferStorageNode* ShadowMask = AddStoreNode(new FrameBufferStorageNode());
+	ShadowMask->SetFrameBufferDesc(Desc);
+	FrameBufferStorageNode* Other_ShadowMask = AddStoreNode(new FrameBufferStorageNode());
+	Other_ShadowMask->SetFrameBufferDesc(Desc);
+	Other_ShadowMask->SetDevice(RHI::GetDeviceContext(1));
+
+	InterGPUStorageNode* HostStore = AddStoreNode(new InterGPUStorageNode());
+
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+
+	ShadowAtlasStorageNode* ShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
+	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
+	RootNode = ShadowUpdate;
+	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+	ParticleSimulateNode* simNode = new ParticleSimulateNode();
+	if (RHI::GetDeviceCount() > 1)
+	{
+		ShadowAtlasStorageNode* OtherShadowDataNode = AddStoreNode(new ShadowAtlasStorageNode());
+		ShadowUpdateNode* OtherShadowUpdate = new ShadowUpdateNode();
+		OtherShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
+		OtherShadowUpdate->SetDevice(RHI::GetDeviceContext(1));
+		OtherShadowDataNode->SetDevice(RHI::GetDeviceContext(1));
+		LinkNode(ShadowUpdate, OtherShadowUpdate);
+		ShadowMaskNode* SM = new ShadowMaskNode();
+		SM->SetDevice(RHI::GetDeviceContext(1));
+		SM->GetInput(0)->SetStore(Other_ShadowMask);
+		SM->GetInput(1)->SetStore(OtherShadowDataNode);
+		LinkNode(OtherShadowUpdate, SM);
+		LinkNode(SM, simNode);
+	}
+	else
+	{
+		LinkNode(ShadowUpdate, simNode);
+	}
+
+	ZPrePassNode* PreZ = new ZPrePassNode();
+	ExposeItem(PreZ, StandardSettings::UsePreZ);
+
+	LinkNode(simNode, PreZ);
+	PreZ->GetInput(0)->SetStore(MainBuffer);
+	ForwardRenderNode* FWDNode = new ForwardRenderNode();
+	LinkNode(PreZ, FWDNode);
+	FWDNode->UseLightCulling = false;
+	FWDNode->UsePreZPass = false;
+	FWDNode->UpdateSettings();
+	FWDNode->GetInput(0)->SetStore(MainBuffer);
+	FWDNode->GetInput(1)->SetStore(SceneData);
+	FWDNode->GetInput(2)->SetStore(ShadowDataNode);
+
+	ParticleRenderNode* renderNode = new ParticleRenderNode();
+	renderNode->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(FWDNode, renderNode);
+
+	BufferStorageNode* CompressData = AddStoreNode(new BufferStorageNode());
+	CompressData->FramebufferNode = MainBuffer;
+	HostStore->BufferStoreTargets.push_back(CompressData);
+	BufferStorageNode* Other_CompressData = AddStoreNode(new BufferStorageNode());
+	Other_CompressData->SetDevice(RHI::GetDeviceContext(1));
+	Other_CompressData->FramebufferNode = Other_ShadowMask;
+	HostStore->BufferStoreTargets.push_back(CompressData);
+
+	CompressionNode* Compress = new CompressionNode();
+	Compress->SetCompressMode(true);
+	Compress->SetDevice(RHI::GetDeviceContext(1));
+	Compress->GetInput(0)->SetStore(Other_ShadowMask);
+	Compress->GetInput(1)->SetStore(Other_CompressData);
+	LinkNode(renderNode, Compress);
+
+	InterGPUCopyNode* CopyTo = new InterGPUCopyNode(RHI::GetDeviceContext(1));
+	CopyTo->CopyTo = true;
+	CopyTo->GetInput(1)->SetStore(HostStore);
+	CopyTo->GetInput(2)->SetStore(Other_CompressData);
+	LinkNode(Compress, CopyTo);
+
+	InterGPUCopyNode* CopyFrom = new InterGPUCopyNode(RHI::GetDeviceContext(0));
+	CopyFrom->CopyTo = false;
+	CopyFrom->GetInput(1)->SetStore(HostStore);
+	CopyFrom->GetInput(2)->SetStore(CompressData);
+	LinkNode(CopyTo, CopyFrom);
+
+	CompressionNode* DECompress = new CompressionNode();
+	DECompress->SetCompressMode(false);
+	DECompress->GetInput(0)->SetStore(ShadowMask);
+	DECompress->GetInput(1)->SetStore(CompressData);
+	LinkNode(CopyFrom, DECompress);
+
+	PostProcessNode* PP = new PostProcessNode();
+	PP->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(DECompress, PP);
+
+	OutputToScreenNode* Output = new OutputToScreenNode();
+
+	DebugUINode* Debug = new DebugUINode();
+	LinkNode(PP, Debug);
+	Debug->GetInput(0)->SetLink(renderNode->GetOutput(0));
+	LinkNode(Debug, Output);
+	Output->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+	EndGraph(MainBuffer, Output);
 }

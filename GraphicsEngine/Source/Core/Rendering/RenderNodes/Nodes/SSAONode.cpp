@@ -55,8 +55,12 @@ void SSAONode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene, "Scene");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "SSAO intermediate buffer");
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
+
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	AddFrameBufferResource(EResourceState::UAV, Desc, "SSAO output");
 }
 
 void SSAONode::OnSetupNode()

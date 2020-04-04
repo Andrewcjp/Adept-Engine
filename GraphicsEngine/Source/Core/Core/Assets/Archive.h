@@ -1,5 +1,7 @@
 #pragma once
+#pragma warning(push,0)
 #include "rapidjson\document.h"
+#pragma warning(pop)
 #include <functional>
 #include "SerialHelpers.h"
 #define SERAL_VERSION_NUMBER 1

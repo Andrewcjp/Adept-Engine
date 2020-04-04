@@ -1,23 +1,21 @@
-#include "CompressionNode.h"
-#include "../../../Shaders/Shader_Pair.h"
+#include "ShadowMaskCompressionNode.h"
 #include "../../StorageNodeFormats.h"
+#include "RHI/RHICommandList.h"
+#include "../../../Core/Screen.h"
+#include "../../../Shaders/Shader_Pair.h"
 #include "../../../Core/FrameBuffer.h"
 #include "RHI/SFRController.h"
-#include "../../../Core/Screen.h"
-#include "RHI/RHITimeManager.h"
 
-CompressionNode::CompressionNode()
+ShadowMaskCompressionNode::ShadowMaskCompressionNode()
 {
 	OnNodeSettingChange();
-	NodeEngineType = ECommandListType::Compute;
-	SetWorkType(ENodeWorkFocus::Compute);
 }
 
-CompressionNode::~CompressionNode()
+ShadowMaskCompressionNode::~ShadowMaskCompressionNode()
 {
 }
 
-void CompressionNode::OnExecute()
+void ShadowMaskCompressionNode::OnExecute()
 {
 	List->ResetList();
 	SetBeginStates(List);
@@ -31,12 +29,9 @@ void CompressionNode::OnExecute()
 		OffsetXY = glm::ivec2(rect.Left, rect.Top);
 		RectData->UpdateConstantBuffer(&OffsetXY);
 	}
-	
-
-	eTEXTURE_FORMAT TargetFormat = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? eTEXTURE_FORMAT::FORMAT_R8_UINT : eTEXTURE_FORMAT::FORMAT_R16_UINT;
+	eTEXTURE_FORMAT TargetFormat = eTEXTURE_FORMAT::FORMAT_R8_UINT;
 	if (Compress)
 	{
-		DECALRE_SCOPEDGPUCOUNTER(List, "Compress");
 		RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(FourCompCompressShader);
 		List->SetPipelineStateDesc(Desc);
 
@@ -53,7 +48,6 @@ void CompressionNode::OnExecute()
 	}
 	else
 	{
-		DECALRE_SCOPEDGPUCOUNTER(List, "Decompress");
 		RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(FourCompDeCompressShader);
 		List->SetPipelineStateDesc(Desc);
 		RHIBuffer* BufferTarget = GetBufferFromInput(1);
@@ -69,31 +63,28 @@ void CompressionNode::OnExecute()
 	}
 	SetEndStates(List);
 	List->Execute();
-
 }
 
-void CompressionNode::SetCompressMode(bool state)
-{
-	Inputs.clear();
-	Compress = state;
-	OnNodeSettingChange();
-}
-
-void CompressionNode::OnNodeSettingChange()
+void ShadowMaskCompressionNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, Compress ? EResourceState::Non_PixelShader : EResourceState::UAV, StorageFormats::DontCare, "Target RT");
 	AddResourceInput(EStorageType::Buffer, Compress ? EResourceState::UAV : EResourceState::Non_PixelShader, StorageFormats::CompressedData, "");
 }
 
-void CompressionNode::OnSetupNode()
+void ShadowMaskCompressionNode::OnSetupNode()
 {
-	std::string Use8Bit = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? "1" : "0";
-	FourCompCompressShader = new Shader_Pair(Context, { "Compression\\Compress4to3Comp" }, { EShaderType::SHADER_COMPUTE }, { ShaderProgramBase::Shader_Define("USE_8BIT",Use8Bit) });
-	FourCompDeCompressShader = new Shader_Pair(Context, { "Compression\\DeCompress4to3Comp" }, { EShaderType::SHADER_COMPUTE }, { ShaderProgramBase::Shader_Define("USE_8BIT",Use8Bit) });
+	FourCompCompressShader = new Shader_Pair(Context, { "Compression\\Compress4to3Comp" }, { EShaderType::SHADER_COMPUTE });
+	FourCompDeCompressShader = new Shader_Pair(Context, { "Compression\\DeCompress4to3Comp" }, { EShaderType::SHADER_COMPUTE });
 
 	List = RHI::CreateCommandList(ECommandListType::Compute, Context);
 	RectData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Context);
 	RectData->CreateConstantBuffer(sizeof(OffsetXY), 1);
 	OffsetXY = glm::ivec2(0, 0);
 	RectData->UpdateConstantBuffer(&OffsetXY);
+}
+void ShadowMaskCompressionNode::SetCompressMode(bool state)
+{
+	Inputs.clear();
+	Compress = state;
+	OnNodeSettingChange();
 }

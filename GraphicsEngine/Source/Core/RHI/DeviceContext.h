@@ -21,6 +21,7 @@ class FrameBuffer;
 class RHIPipeLineStateObject;
 class PipelineStateObjectCache;
 class IRHIResourse;
+class RHIFence;
 struct ERayTracingSupportType
 {
 	enum Type
@@ -100,7 +101,7 @@ public:
 
 	RHI_API int GetDeviceIndex() const;
 	RHI_API int GetCpuFrameIndex() const;
-	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
 
 	RHI_API virtual void CPUWaitForAll() = 0;
 	RHI_API virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
@@ -142,6 +143,8 @@ public:
 	bool SupportsIndirectExecute()const;
 	CommandListPool* GetListPool() { return &Pool; }
 	RHI_API virtual bool IsUMA()const = 0;
+	RHI_API int SignalCommandQueue(DeviceContextQueue::Type queue, uint64 value = -1);
+	RHI_API int InsertWaitForValue(DeviceContextQueue::Type queue, DeviceContextQueue::Type WaitingQueue, uint64 value = -1);
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();
@@ -172,12 +175,13 @@ protected:
 	int DeviceFrameNumber = 0;
 	std::vector<IRHIResourse*> DeferredDeleteQueue;
 	CommandListPool Pool;
+	RHIFence* QueueFences[DeviceContextQueue::LIMIT] = { nullptr };
 };
 
 class RHIGPUSyncEvent : public IRHIResourse
 {
 public:
-	RHI_API RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device);
+	RHI_API RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext* Device);
 	RHI_API virtual ~RHIGPUSyncEvent();
 	RHI_API virtual void Signal() = 0;
 	RHI_API virtual void Wait() = 0;

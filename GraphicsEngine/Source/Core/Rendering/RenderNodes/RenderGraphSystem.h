@@ -13,6 +13,7 @@ namespace EBuiltinRenderGraphs
 		Pathtracing,
 		TEST_MGPU,
 		MGPU_SFR,
+		MGPU_ASYNCSHADOWS,
 		Custom,
 		Limit
 	};
@@ -99,11 +100,13 @@ public:
 	RenderGraphInstance* BuildInstance(RenderGraphInstance* Inst);
 
 	RenderGraph* GetCurrentGraph();
+	RenderGraph* GetGraphBuilding();
 	void PatchGraph(RenderGraphInstance* Graph);
 	bool UseRGISSystem = false;
 private:
 	RenderGraphInstanceSet* CurrentSet = nullptr;
 	RenderGraph* CurrentGraph = nullptr;
+	RenderGraph* BuildingGraph = nullptr;
 	RenderGraphInstance* CurrentInstance = nullptr;
 	RenderGraph* CreateGraph(RenderGraphInstance* instance);
 

@@ -67,7 +67,7 @@ UIDrawBatcher::~UIDrawBatcher()
 {
 	BatchedVerts.clear();
 	EnqueueSafeRHIRelease(VertexBuffer);
-	EnqueueSafeRHIRelease(commandlist);
+	//EnqueueSafeRHIRelease(commandlist);
 }
 
 void UIRenderBatch::AddVertex(glm::vec2 vpos, bool Back, glm::vec3 frontcol, glm::vec3 backcol)
@@ -136,7 +136,7 @@ void UIDrawBatcher::SendToGPU()
 	VertexBuffer->UpdateVertexBuffer(&BatchedVerts[0], sizeof(UIVertex)*BatchedVerts.size());
 }
 
-void UIDrawBatcher::RenderBatches()
+void UIDrawBatcher::RenderBatches(RHICommandList* List)
 {
 	if (BatchedVerts.size() == 0)
 	{
@@ -145,15 +145,11 @@ void UIDrawBatcher::RenderBatches()
 	SCOPE_CYCLE_COUNTER_GROUP("Draw Batches", "UI");
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 	Shader->UpdateUniforms(projection);
-	commandlist->ResetList();
+	commandlist = List;
+
 	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, EGPUTIMERS::UI);
 	Render(commandlist);
 	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, EGPUTIMERS::UI);
-#if !BUILD_FREETTYPE
-	commandlist->GetDevice()->GetTimeManager()->EndTotalGPUTimer(commandlist);
-	RHI::MakeSwapChainReady(commandlist);
-#endif
-	commandlist->Execute();
 }
 
 void UIDrawBatcher::Render(RHICommandList * list)

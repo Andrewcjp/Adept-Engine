@@ -51,5 +51,5 @@ ShadowAtlas * ShadowAtlasStorageNode::GetAtlas()const
 
 void ShadowAtlasStorageNode::Create()
 {
-	Atlas = new ShadowAtlas(DeviceObject);
+	Atlas = new ShadowAtlas(GetDeviceObject());
 }

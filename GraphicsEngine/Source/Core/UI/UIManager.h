@@ -46,6 +46,7 @@ public:
 	static void UpdateBatches();
 	void UpdateWidgets();
 	void RenderWidgets();
+	void RenderWidgets(RHICommandList* List);
 	void RenderWidgetText();
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);

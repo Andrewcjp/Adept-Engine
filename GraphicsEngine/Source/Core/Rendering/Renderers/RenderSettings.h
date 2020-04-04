@@ -74,6 +74,7 @@ struct SFRSettings
 	bool DEBUG_ShowSplits = false;
 	//each pixel will have a colour tint which indicates to the GPU that rendered it.
 	bool DEBUG_ColourPixelsPerGPU = false;
+	bool Use8BitCompression = false;
 };
 namespace EVRHMDMode
 {
@@ -146,6 +147,7 @@ public:
 	bool ShouldRunGPUTests = false;
 	VoxelSettings& GetVoxelSet();
 	SFRSettings& GetCurrnetSFRSettings() { return CurrnetSFRSettings; }
+	bool RequestAllGPUs = false;
 private:
 	RendererSettings RSettings;
 	float RenderScale = 1;

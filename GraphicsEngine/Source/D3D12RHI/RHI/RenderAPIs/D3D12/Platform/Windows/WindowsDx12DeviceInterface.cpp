@@ -87,10 +87,9 @@ bool WindowsDx12DeviceInterface::FindAdaptors(IDXGIFactory2 * pFactory, bool For
 			if (*Device == nullptr)
 			{
 				*Device = new D3D12DeviceContext();
-				//#SLI This needs to create more Devices 
 				(*Device)->CreateDeviceFromAdaptor(adapter, CurrentDeviceIndex);
 				CurrentDeviceIndex++;
-				if (ForceSingleGPU.GetBoolValue())
+				if (ForceSingleGPU.GetBoolValue() || !RHIptr->InitAllGPUs)
 				{
 					Log::LogMessage("Forced Single Gpu Mode");
 					return true;

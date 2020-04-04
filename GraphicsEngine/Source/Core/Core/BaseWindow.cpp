@@ -251,12 +251,12 @@ void BaseWindow::Render()
 	}
 	if (UI != nullptr && ShowHud && LoadText)
 	{
-		UI->RenderWidgets();
+		//UI->RenderWidgets();
 	}
 	PerfManager::StartTimer("TEXT");
 	if (UI != nullptr && ShowHud && LoadText)
 	{
-		UI->RenderWidgetText();
+		//UI->RenderWidgetText();
 	}
 	if (LoadText)
 	{

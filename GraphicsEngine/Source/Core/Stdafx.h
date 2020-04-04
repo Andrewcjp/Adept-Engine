@@ -8,6 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_RADIANS 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #pragma warning(push,3)
 #include <algorithm>
 #include <glm/glm.hpp>

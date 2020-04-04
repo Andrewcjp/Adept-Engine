@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled;
 
-	SelectedGraph = EBuiltinRenderGraphs::MGPU_SFR;
+	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -35,10 +35,15 @@ RenderSettings::RenderSettings()
 	{
 		VoxelSet.Enabled = true;
 	}
-	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR) 
+	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR)
 	{
 		CurrnetSFRSettings.Enabled = true;
 	}
+	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR || SelectedGraph == EBuiltinRenderGraphs::MGPU_ASYNCSHADOWS || SelectedGraph == EBuiltinRenderGraphs::TEST_MGPU)
+	{
+		RequestAllGPUs = true;
+	}
+	//CurrnetSFRSettings.Use8BitCompression = true;
 }
 
 void RenderSettings::ValidateSettings()
@@ -98,7 +103,7 @@ void RenderSettings::ValidateForAPI(ERenderSystemType system)
 	}
 }
 
-RendererSettings & RenderSettings::GetSettingsForRender()
+RendererSettings& RenderSettings::GetSettingsForRender()
 {
 	return RSettings;
 }
@@ -189,17 +194,17 @@ bool RenderSettings::RaytracingEnabled() const
 	return RTSettings.Enabled;
 }
 
-RayTracingSettings & RenderSettings::GetRTSettings()
+RayTracingSettings& RenderSettings::GetRTSettings()
 {
 	return RTSettings;
 }
 
-ShadowMappingSettings & RenderSettings::GetShadowSettings()
+ShadowMappingSettings& RenderSettings::GetShadowSettings()
 {
 	return ShadowSettings;
 }
 
-DynamicResolutionSettings & RenderSettings::GetDynamicResolutionSettings()
+DynamicResolutionSettings& RenderSettings::GetDynamicResolutionSettings()
 {
 	return DRSSettings;
 }

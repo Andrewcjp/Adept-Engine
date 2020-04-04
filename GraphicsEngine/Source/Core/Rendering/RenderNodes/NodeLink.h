@@ -13,10 +13,16 @@ public:
 	~NodeLink();
 	bool SetStore(StorageNode* Target);
 	bool IsValid();
+	//[[deprecated]]
 	bool SetLink(NodeLink* link);
 	EStorageType::Type TargetType = EStorageType::Limit;
 	RenderNode* OwnerNode = nullptr;
 	StorageNode* GetStoreTarget() const;
+	template<class T>
+	T* GetTarget() const
+	{
+		return static_cast<T*>(GetStoreTarget());
+	}
 	//this is a GUIDE not a hard rule
 	std::string DataFormat = "";
 	//the link containing the data.
@@ -28,7 +34,9 @@ public:
 
 	void PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, const std::string& badformat);
 	EResourceState::Type ResourceState = EResourceState::Undefined;
+	void SetOptional();
 private:
+	bool IsOptional = false;
 	StorageNode* StoreTarget = nullptr;
 	std::string LinkName = "";
 

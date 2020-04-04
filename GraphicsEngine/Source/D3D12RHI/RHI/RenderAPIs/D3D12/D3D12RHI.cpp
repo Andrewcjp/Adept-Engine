@@ -22,6 +22,7 @@
 #include "DXMemoryManager.h"
 #include "D3D12RHITexture.h"
 #include "RHI/RHITexture.h"
+#include "DXFence.h"
 
 
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly, false);
@@ -151,6 +152,11 @@ void D3D12RHI::MakeSwapChainReady(RHICommandList* list)
 	{
 		SwapChain->m_RenderTargetResources[m_frameIndex]->SetResourceState(dlist, D3D12_RESOURCE_STATE_PRESENT);
 	}
+}
+
+RHIFence* D3D12RHI::CreateFence(DeviceContext* device, EFenceFlags::Type Flags)
+{
+	return new DXFence(device,Flags);
 }
 
 #if RHI_SUPPORTS_RT
@@ -356,7 +362,7 @@ void D3D12RHI::LoadPipeLine()
 	}	
 	ReportObjects();
 #endif
-	DX12DeviceInterface::CreateDevices(this,!ForceNoDebug.GetBoolValue());	
+	DX12DeviceInterface::CreateDevices(this,!ForceNoDebug.GetBoolValue());
 	LinkGPUs();	
 #if RUNDEBUG
 	if (!ForceNoDebug.GetBoolValue())
@@ -719,8 +725,9 @@ bool D3D12RHI::InitWindow(int w, int h)
 	return false;
 }
 
-bool D3D12RHI::InitRHI()
+bool D3D12RHI::InitRHI(bool InitAllGPUs)
 {
+	this->InitAllGPUs = InitAllGPUs;
 	LoadPipeLine();
 	return false;
 }

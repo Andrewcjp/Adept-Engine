@@ -1,4 +1,4 @@
-#include "TextureStreamingComon.h"
+#include "TextureStreamingCommon.h"
 
 void TextureStreamRequest::Validate()
 {}

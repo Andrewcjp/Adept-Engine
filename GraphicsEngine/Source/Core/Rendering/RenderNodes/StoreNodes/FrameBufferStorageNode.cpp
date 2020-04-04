@@ -43,14 +43,15 @@ void FrameBufferStorageNode::Resize()
 void FrameBufferStorageNode::Create()
 {
 	FrameBuffer::AutoUpdateSize(FramebufferDesc);
-	if (InitalResourceState == EResourceState::ComputeUse)
-	{
-		FramebufferDesc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	}
-	FBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
+	FramebufferDesc.SimpleStartingState = InitalResourceState;
+	//if (InitalResourceState == EResourceState::ComputeUse || )
+	//{
+	//	FramebufferDesc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	//}
+	FBuffer = RHI::CreateFrameBuffer(GetDeviceObject(), FramebufferDesc);
 	if (IsVRFramebuffer)
 	{
-		FRightEyeBuffer = RHI::CreateFrameBuffer(DeviceObject, FramebufferDesc);
+		FRightEyeBuffer = RHI::CreateFrameBuffer(GetDeviceObject(), FramebufferDesc);
 	}
 }
 

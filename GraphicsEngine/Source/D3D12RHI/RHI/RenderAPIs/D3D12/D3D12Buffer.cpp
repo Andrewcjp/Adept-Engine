@@ -108,30 +108,48 @@ DXDescriptor* D3D12Buffer::GetDescriptor(const RHIViewDesc& desc, DescriptorHeap
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
 		srvDesc.Buffer.FirstElement = desc.FirstElement;
+		if (desc.Format == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+			srvDesc.Buffer.StructureByteStride = ElementSize;
+		}
+		else
+		{
+			srvDesc.Format = D3D12Helpers::ConvertFormat(desc.Format);
+			srvDesc.Buffer.StructureByteStride = 0;
+		}
 		if (CurrentBufferType == ERHIBufferType::Index)
 		{
 			srvDesc.Format = DXGI_FORMAT_R16_UINT;
 			srvDesc.Buffer.StructureByteStride = 0;
 		}
+
 		Descriptor->CreateShaderResourceView(m_DataBuffer->GetResource(), &srvDesc);
 	}
 	else
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-		destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
 		destTextureUAVDesc.Buffer.FirstElement = desc.FirstElement;
 		destTextureUAVDesc.Buffer.NumElements = ElementCount;
-		destTextureUAVDesc.Buffer.StructureByteStride = ElementSize;
+		if (desc.Format == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		{
+			destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+			destTextureUAVDesc.Buffer.StructureByteStride = ElementSize;
+		}
+		else
+		{
+			destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(desc.Format);
+			destTextureUAVDesc.Buffer.StructureByteStride = 0;
+		}
 		destTextureUAVDesc.Buffer.CounterOffsetInBytes = CounterOffset;
 		destTextureUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-		Descriptor->CreateUnorderedAccessView(m_DataBuffer->GetResource(), m_DataBuffer->GetResource(), &destTextureUAVDesc);
+		Descriptor->CreateUnorderedAccessView(m_DataBuffer->GetResource(), nullptr, &destTextureUAVDesc);
 	}
 	Descriptor->Recreate();
 	return Descriptor;

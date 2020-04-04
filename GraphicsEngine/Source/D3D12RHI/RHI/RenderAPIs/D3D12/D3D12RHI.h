@@ -14,6 +14,7 @@
 #include <GFSDK_Aftermath.h>
 #endif
 #include "RHI/RHI.h"
+#include "RHI/RHIFence.h"
 #define DRED 0
 class D3D12DeviceContext;
 class D3D12GPUSyncEvent;
@@ -101,6 +102,9 @@ public:
 
 	RHI_VIRTUAL void MakeSwapChainReady(RHICommandList* list) override;
 
+
+	RHI_VIRTUAL RHIFence* CreateFence(DeviceContext* device, EFenceFlags::Type Flags = EFenceFlags::None) override;
+
 private:
 	void DestroyContext();
 	void PresentFrame();
@@ -118,7 +122,7 @@ private:
 
 	bool FindAdaptors(IDXGIFactory2 * pFactory, bool ForceFind);
 
-	bool InitRHI()override;
+	bool InitRHI(bool InitAllGPUs)override;
 	bool InitWindow(int w, int h) override;
 	bool DestoryRHI() override;
 	DeviceContext* GetDefaultDevice() override;
@@ -165,6 +169,7 @@ private:
 #endif
 	SwapchainInferface* SwapChain = nullptr;
 	friend SwapchainInferface;
+	bool InitAllGPUs = false;
 };
 #include "D3D12Helpers.h"
 //helper functions!

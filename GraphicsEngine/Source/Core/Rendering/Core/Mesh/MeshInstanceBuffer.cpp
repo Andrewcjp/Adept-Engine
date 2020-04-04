@@ -37,7 +37,7 @@ void MeshInstanceBuffer::UpdateBuffer()
 	{
 		return;
 	}
-	for (int i = 0; i < containedBatches.size(); i++)
+	for (uint i = 0; i < containedBatches.size(); i++)
 	{
 		if (i > GetInstanceCount())
 		{

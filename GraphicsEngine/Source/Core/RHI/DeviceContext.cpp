@@ -8,12 +8,13 @@
 #include "Rendering/Core/GPUStateCache.h"
 #include "Streaming/GPUTextureStreamer.h"
 #include "RHICommandList.h"
+#include "RHIFence.h"
 
 DeviceContext::DeviceContext()
 {
 	PSOCache = new PipelineStateObjectCache(this);
 	StateCache = new GPUStateCache();
-	Pool.Init(1,this);
+	Pool.Init(1, this);
 }
 
 DeviceContext::~DeviceContext()
@@ -36,12 +37,12 @@ void DeviceContext::DestoryDevice()
 	}
 }
 
-const CapabilityData & DeviceContext::GetCaps()
+const CapabilityData& DeviceContext::GetCaps()
 {
 	return Caps_Data;
 }
 
-RHICommandList * DeviceContext::GetInterGPUCopyList()
+RHICommandList* DeviceContext::GetInterGPUCopyList()
 {
 	return InterGPUCopyList;
 }
@@ -61,12 +62,12 @@ void DeviceContext::OnInsertStallTimer()
 	InsertStallTimer = false;
 }
 
-PipelineStateObjectCache * DeviceContext::GetPSOCache() const
+PipelineStateObjectCache* DeviceContext::GetPSOCache() const
 {
 	return PSOCache;
 }
 
-void DeviceContext::UpdatePSOTracker(RHIPipeLineStateObject * PSO)
+void DeviceContext::UpdatePSOTracker(RHIPipeLineStateObject* PSO)
 {
 	if (CurrentGPUPSO != PSO)
 	{
@@ -80,7 +81,7 @@ int DeviceContext::GetNodeIndex()
 	return NodeIndex;
 }
 
-GPUStateCache * DeviceContext::GetStateCache() const
+GPUStateCache* DeviceContext::GetStateCache() const
 {
 	return StateCache;
 }
@@ -100,7 +101,7 @@ bool DeviceContext::IsDeviceIntel()
 	return VendorID == 0x8086;
 }
 
-RHICommandList * DeviceContext::GetCopyList(int Index)
+RHICommandList* DeviceContext::GetCopyList(int Index)
 {
 	if (Index < 0 || Index > COPYLIST_MAX_POOL_SIZE)
 	{
@@ -114,7 +115,7 @@ RHICommandList * DeviceContext::GetCopyList(int Index)
 	return CopyListPool[Index];
 }
 
-RHICommandList * DeviceContext::GetNextFreeCopyList()
+RHICommandList* DeviceContext::GetNextFreeCopyList()
 {
 	RHICommandList* retvalue = GetCopyList(CopyListPoolFreeIndex);
 	CopyListPoolFreeIndex++;
@@ -167,7 +168,7 @@ int DeviceContext::GetTransferBytes()
 	return BytesToTransfer;
 }
 
-void DeviceContext::AddTransferBuffer(FrameBuffer * buffer)
+void DeviceContext::AddTransferBuffer(FrameBuffer* buffer)
 {
 	for (int i = 0; i < BuffersWithTransfers.size(); i++)
 	{
@@ -179,7 +180,7 @@ void DeviceContext::AddTransferBuffer(FrameBuffer * buffer)
 	BuffersWithTransfers.push_back(buffer);
 }
 
-void DeviceContext::RemoveTransferBuffer(FrameBuffer * buffer)
+void DeviceContext::RemoveTransferBuffer(FrameBuffer* buffer)
 {
 	VectorUtils::Remove(BuffersWithTransfers, buffer);
 }
@@ -226,7 +227,7 @@ void DeviceContext::OnFrameStart()
 {
 }
 
-GPUTextureStreamer * DeviceContext::GetStreamer()
+GPUTextureStreamer* DeviceContext::GetStreamer()
 {
 	return Streamer;
 }
@@ -242,16 +243,42 @@ int DeviceContext::GetDeviceFrame() const
 }
 
 void DeviceContext::TickDeferredDeleteQueue()
-{}
+{
+}
 
 bool DeviceContext::SupportsIndirectExecute() const
 {
 	return Caps_Data.SupportExecuteIndirect;
 }
 
+int DeviceContext::SignalCommandQueue(DeviceContextQueue::Type queue, uint64 value)
+{
+	if (value == -1)
+	{
+		value = QueueFences[queue]->GetValue() + 1;
+	}
+	QueueFences[queue]->Signal(queue, value);
+	return value;
+}
+
+int DeviceContext::InsertWaitForValue(DeviceContextQueue::Type queue, DeviceContextQueue::Type WaitingQueue, uint64 value)
+{
+	if (value == -1)
+	{
+		value = QueueFences[queue]->GetValue();
+	}
+	QueueFences[queue]->WaitForValue(WaitingQueue, value);
+	QueueFences[queue]->SetValue(value + 1);
+	return value;
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
+	for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+	{
+		QueueFences[i] = RHI::GetRHIClass()->CreateFence(this, (i == DeviceContextQueue::InterCopy) ? EFenceFlags::CrossAdaptor : EFenceFlags::None);
+	}
 }
 
 void DeviceContext::InitCopyListPool()
@@ -262,7 +289,7 @@ void DeviceContext::InitCopyListPool()
 	}
 }
 
-RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device)
+RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext* device)
 {
 	Device = device;
 }
@@ -286,54 +313,54 @@ std::string EGPUType::ToString(EGPUType::Type type)
 {
 	switch (type)
 	{
-		case EGPUType::Dedicated:
-			return "Dedicated";
-		case EGPUType::Intergrated:
-			return "Intergrated";
-		case EGPUType::Software:
-			return "Software";
+	case EGPUType::Dedicated:
+		return "Dedicated";
+	case EGPUType::Intergrated:
+		return "Intergrated";
+	case EGPUType::Software:
+		return "Software";
 	}
 	return "UNKNOWN";
 }
 
-const char * ERayTracingSupportType::ToString(ERayTracingSupportType::Type e)
+const char* ERayTracingSupportType::ToString(ERayTracingSupportType::Type e)
 {
 	switch (e)
 	{
-		case ERayTracingSupportType::Hardware:
-			return "Hardware";
-		case ERayTracingSupportType::DriverBased:
-			return "Driver Based";
-		case ERayTracingSupportType::None:
-			return "None";
+	case ERayTracingSupportType::Hardware:
+		return "Hardware";
+	case ERayTracingSupportType::DriverBased:
+		return "Driver Based";
+	case ERayTracingSupportType::None:
+		return "None";
 	}
 	return "NONE";
 }
 
-const char * EMGPUConnectionMode::ToString(EMGPUConnectionMode::Type e)
+const char* EMGPUConnectionMode::ToString(EMGPUConnectionMode::Type e)
 {
 	switch (e)
 	{
-		case EMGPUConnectionMode::None:
-			return "Not Supported";
-		case EMGPUConnectionMode::HostStagedTransfer:
-			return "Host Staged GPU Transfer";
-		case EMGPUConnectionMode::DirectTransfer:
-			return "Direct GPU transfer (PCIE)";
-		case EMGPUConnectionMode::AcceleratedDirectTransfer:
-			return "Accelerated Direct GPU transfer";
+	case EMGPUConnectionMode::None:
+		return "Not Supported";
+	case EMGPUConnectionMode::HostStagedTransfer:
+		return "Host Staged GPU Transfer";
+	case EMGPUConnectionMode::DirectTransfer:
+		return "Direct GPU transfer (PCIE)";
+	case EMGPUConnectionMode::AcceleratedDirectTransfer:
+		return "Accelerated Direct GPU transfer";
 	}
 	return "Unknown";
 }
 
-const char * EShaderSupportModel::ToString(EShaderSupportModel::Type e)
+const char* EShaderSupportModel::ToString(EShaderSupportModel::Type e)
 {
 	switch (e)
 	{
-		case EShaderSupportModel::SM5:
-			return "SM5";
-		case EShaderSupportModel::SM6:
-			return "SM6";
+	case EShaderSupportModel::SM5:
+		return "SM5";
+	case EShaderSupportModel::SM6:
+		return "SM6";
 	}
 	return "Unknown";
 }

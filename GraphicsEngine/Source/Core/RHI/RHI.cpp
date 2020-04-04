@@ -479,7 +479,7 @@ void RHI::InitialiseContext()
 {
 	ShaderComplier::Get();//create the Complier
 	instance->RenderPassCache = new RHIRenderPassCache();
-	GetRHIClass()->InitRHI();
+	GetRHIClass()->InitRHI(instance->Rendersettings.RequestAllGPUs);
 	PlatformWindow::TickSplashWindow(5, "Loading RHI");
 	instance->ValidateSettings();
 	RunTests.SetValue(true);

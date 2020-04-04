@@ -7,9 +7,11 @@
 #include "StorageNodeFormats.h"
 #include "StoreNodes/FrameBufferStorageNode.h"
 #include "UI/UIManager.h"
+#include "Nodes/UINode.h"
 
 RenderGraph::RenderGraph()
-{}
+{
+}
 
 RenderGraph::~RenderGraph()
 {
@@ -72,7 +74,7 @@ void RenderGraph::RefreshNodes()
 {
 	RenderNode* Node = RootNode;
 	while (Node != nullptr)
-	{		
+	{
 		Node->RefreshNode();
 		Node = Node->GetNextNode();
 	}
@@ -151,26 +153,19 @@ FrameBufferStorageNode* RenderGraph::CreateRTXBuffer()
 	return RTXBuffer;
 }
 
-//BranchNode * RenderGraph::AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName/* = std::string()*/)
-//{
-//	/*BranchNode* Node = new BranchNode();
-//	Node->Conditonal = initalstate;
-//	Start->LinkToNode(Node);
-//	Node->LinkToNode(A);
-//	Node->BranchB = B;
-//	if (ExposeName.length() > 0)
-//	{
-//		ExposeItem(Node, ExposeName);
-//	}*/
-//	return Node;
-//}
+void RenderGraph::EndGraph(FrameBufferStorageNode* MainBuffer, RenderNode* Output)
+{
+	UINode* UIRender = new UINode();
+	UIRender->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(Output, UIRender);
+}
 
 void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
 {
 	A->LinkToNode(B);
 }
 
-void RenderGraph::ToggleCondition(const std::string & name)
+void RenderGraph::ToggleCondition(const std::string& name)
 {
 	SetCondition(name, !GetCondition(name));
 }
@@ -209,14 +204,14 @@ void RenderGraph::ListNodes()
 		{
 			Log::LogMessage(Node->GetName());
 			Log::LogMessage("----- if true");
-//			RenderNode* APath = Node->GetNextNode();
-//			RenderNode* BPath = static_cast<BranchNode*>(Node)->BranchB;
-	//		RenderNode* PathITor = BPath;
-			//while (PathITor != APath && PathITor != nullptr)
-			//{
-			//	Log::LogMessage(PathITor->GetName());
-			//	PathITor = PathITor->GetNextNode();
-			//}
+			//			RenderNode* APath = Node->GetNextNode();
+			//			RenderNode* BPath = static_cast<BranchNode*>(Node)->BranchB;
+				//		RenderNode* PathITor = BPath;
+						//while (PathITor != APath && PathITor != nullptr)
+						//{
+						//	Log::LogMessage(PathITor->GetName());
+						//	PathITor = PathITor->GetNextNode();
+						//}
 			Log::LogMessage("----- if false");
 		}
 		else
@@ -260,30 +255,27 @@ void RenderGraph::ValidateGraph()
 		Node = Node->GetNextNode();
 	}
 	Log::LogMessage("Graph Validation Complete");
-	for (std::string s : Validation.Errors)
+	for (std::pair<std::string, Log::Severity> p : Validation.OutputLog)
 	{
-		Log::LogMessage(s, Log::Error);
-	}
-	for (std::string s : Validation.Warnings)
-	{
-		Log::LogMessage(s, Log::Warning);
+		Log::LogMessage(p.first, p.second);
 	}
 	ensure(!Validation.HasError());
 }
 
 void RenderGraph::ValidateArgs::AddWarning(std::string Message)
 {
-	Warnings.push_back(Message);
+	OutputLog.push_back(std::make_pair(Message, Log::Warning));
 }
 
 void RenderGraph::ValidateArgs::AddError(std::string Message)
 {
-	Errors.push_back(Message);
+	OutputLog.push_back(std::make_pair(Message, Log::Error));
+	Error = true;
 }
 
 bool RenderGraph::ValidateArgs::HasError() const
 {
-	return Errors.size();
+	return Error;
 }
 
 
@@ -337,7 +329,7 @@ std::vector<RenderNode*> RenderGraph::FindAllOf(const std::string& name)
 	return out;
 }
 
-RenderNode * RenderGraph::GetNodeAtIndex(int i)
+RenderNode* RenderGraph::GetNodeAtIndex(int i)
 {
 	RenderNode* itor = RootNode;
 	int index = 0;
@@ -401,7 +393,7 @@ void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate 
 	ExposedParms.emplace(name, Set);
 }
 
-void RenderGraph::ExposeNodeOption(RenderNode * N, std::string name, bool * data, bool Defaultstate)
+void RenderGraph::ExposeNodeOption(RenderNode* N, std::string name, bool* data, bool Defaultstate)
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);
 	Set->CVar = new ConsoleVariable("rg." + name, 0);
@@ -417,7 +409,7 @@ void RenderGraphExposedSettings::SetState(bool state)
 {
 	if (Branch != nullptr)
 	{
-//		Branch->Conditonal = state;
+		//		Branch->Conditonal = state;
 	}
 	if (TargetProp != nullptr)
 	{
@@ -436,7 +428,7 @@ bool RenderGraphExposedSettings::GetState() const
 {
 	if (Branch != nullptr)
 	{
-//		return Branch->Conditonal;
+		//		return Branch->Conditonal;
 	}
 	if (ToggleNode != nullptr)
 	{
@@ -446,7 +438,7 @@ bool RenderGraphExposedSettings::GetState() const
 }
 
 
-RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode * Node, bool Default)
+RenderGraphExposedSettings::RenderGraphExposedSettings(RenderNode* Node, bool Default)
 {
 	if (Node->IsBranchNode())
 	{
@@ -495,7 +487,7 @@ std::vector<StorageNode*> RenderGraph::GetNodesOfType(EStorageType::Type type)
 	return Out;
 }
 
-void RG_PatchMarkerCollection::AddPatchSet(RG_PatchSet * patch)
+void RG_PatchMarkerCollection::AddPatchSet(RG_PatchSet* patch)
 {
 	Sets.push_back(patch);
 }
@@ -517,7 +509,7 @@ bool RG_PatchSet::SupportsPatchType(EBuiltInRenderGraphPatch::Type type)
 	return VectorUtils::Contains(SupportedPatches, type);
 }
 
-void RG_PatchSet::AddPatchMarker(RG_PatchMarker * patch, EBuiltInRenderGraphPatch::Type type)
+void RG_PatchSet::AddPatchMarker(RG_PatchMarker* patch, EBuiltInRenderGraphPatch::Type type)
 {
 	Markers.push_back(patch);
 	SupportedPatches.push_back(type);

@@ -7,15 +7,21 @@ class DeferredLightingNode : public RenderNode
 {
 public:
 	DeferredLightingNode();
-	~DeferredLightingNode();
-	virtual void OnSetupNode() override;
+	virtual ~DeferredLightingNode();
 	virtual void OnExecute() override;
 
 	virtual void OnNodeSettingChange() override;
 	NameNode("Deferred Lighting");
 	bool UseScreenSpaceReflection = false;
+	InputData(DeferredLightingInputs,
+			NodeLink * GBuffer = nullptr;
+			NodeLink* MainBuffer = nullptr;
+			NodeLink* SceneData = nullptr;
+			NodeLink* ShadowMask = nullptr;
+			NodeLink* ShadowMaps = nullptr;
+			NodeLink* SSRData = nullptr;
+			);
 private:
-	RHICommandList* List = nullptr;
 	Shader_Deferred* DeferredShader = nullptr;
 };
 

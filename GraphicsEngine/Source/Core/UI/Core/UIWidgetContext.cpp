@@ -172,7 +172,7 @@ void UIWidgetContext::Initalise(int width, int height)
 	}
 }
 
-void UIWidgetContext::RenderWidgets()
+void UIWidgetContext::RenderWidgets(RHICommandList* List)
 {
 	if (RenderStateDirty || true)
 	{
@@ -184,7 +184,7 @@ void UIWidgetContext::RenderWidgets()
 		Quad->Render();
 	}
 	//todo: move to not run every frame?
-	DrawBatcher->RenderBatches();
+	DrawBatcher->RenderBatches(List);
 
 #if UISTATS
 	PerfManager::StartTimer("Line");

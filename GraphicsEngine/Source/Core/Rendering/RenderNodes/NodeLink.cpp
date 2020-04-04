@@ -1,8 +1,11 @@
 #include "NodeLink.h"
 #include "StorageNodeFormats.h"
+#include "StorageNode.h"
+#include "RHI/DeviceContext.h"
 
 NodeLink::NodeLink()
-{}
+{
+}
 
 NodeLink::NodeLink(EStorageType::Type Type, const std::string& format, const std::string& InputName, RenderNode* Owner)
 	:DataFormat(format)
@@ -17,10 +20,15 @@ NodeLink::NodeLink(EStorageType::Type Type, const std::string& format, const std
 }
 
 NodeLink::~NodeLink()
-{}
+{
+}
 
 bool NodeLink::SetStore(StorageNode* target)
 {
+	if (target == nullptr)
+	{
+		return true;
+	}
 	if (TargetType != target->StoreType)
 	{
 		Log::LogMessage("Incorrect Type ");
@@ -62,7 +70,7 @@ bool NodeLink::SetLink(NodeLink* link)
 	return true;
 }
 
-StorageNode * NodeLink::GetStoreTarget() const
+StorageNode* NodeLink::GetStoreTarget() const
 {
 	if (StoreLink != nullptr)
 	{
@@ -87,6 +95,19 @@ void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 	{
 		return;
 	}
+	if (GetStoreTarget() == nullptr)
+	{
+		std::string OutputMsg = "Input '" + LinkName + "' on node '" + parent->GetName() + "' Unset";
+		if (IsOptional)
+		{
+			args.AddWarning("Optional " + OutputMsg);
+		}
+		else
+		{
+			args.AddError(OutputMsg);
+		}
+		return;
+	}
 	if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat && StoreLink->DataFormat != StorageFormats::DontCare)
 	{
 		PushWrongFormat(parent, args, StoreLink->DataFormat);
@@ -97,10 +118,16 @@ void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 		{
 			PushWrongFormat(parent, args, StoreTarget->DataFormat);
 		}
+		if ((StoreTarget->GetDeviceObject() == nullptr ? 0 : StoreTarget->GetDeviceObject()->GetDeviceIndex()) != parent->GetDeviceIndex() && StoreTarget->StoreType != EStorageType::ShadowData)
+		{
+			args.AddError("Device mismatch");
+			DEBUGBREAK;
+		}
 	}
+
 }
 
-void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &args, const std::string& badformat)
+void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs& args, const std::string& badformat)
 {
 	std::string output = "Node '" + parent->GetName() + "' with NodeLink: " + GetLinkName() + " Incorrect Data Format Expected: '" + DataFormat + "' got: '" + badformat + "'";
 	if (args.ErrorWrongFormat)
@@ -111,4 +138,9 @@ void NodeLink::PushWrongFormat(RenderNode* parent, RenderGraph::ValidateArgs &ar
 	{
 		args.AddWarning(output);
 	}
+}
+
+void NodeLink::SetOptional()
+{
+	IsOptional = true;
 }

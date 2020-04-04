@@ -12,6 +12,7 @@
 #include "RHI/DeviceContext.h"
 #include "RHI/RHICommandList.h"
 #include "StoreNodes/BufferStorageNode.h"
+#include "RHI/RHITypes.h"
 
 RenderNode::RenderNode()
 {
@@ -19,18 +20,20 @@ RenderNode::RenderNode()
 }
 
 RenderNode::~RenderNode()
-{}
+{
+	SafeRHIRelease(CommandList);
+}
 
 void RenderNode::UpdateSettings()
 {
 	Inputs.clear();
 	Outputs.clear();
-	Refrences.clear();
 	OnNodeSettingChange();
 }
 
 void RenderNode::OnNodeSettingChange()
-{}
+{
+}
 
 void RenderNode::ExecuteNode()
 {
@@ -63,13 +66,13 @@ void RenderNode::ExecuteNode()
 	}
 }
 
-void RenderNode::LinkToNode(RenderNode * NextNode)
+void RenderNode::LinkToNode(RenderNode* NextNode)
 {
 	Next = NextNode;
 	NextNode->SetLastNode(this);
 }
 
-NodeLink * RenderNode::GetInput(int index)
+NodeLink* RenderNode::GetInput(int index)
 {
 	if (index >= Inputs.size())
 	{
@@ -78,18 +81,13 @@ NodeLink * RenderNode::GetInput(int index)
 	return Inputs[index];
 }
 
-NodeLink * RenderNode::GetOutput(int index)
+NodeLink* RenderNode::GetOutput(int index)
 {
 	if (index >= Outputs.size())
 	{
 		return nullptr;
 	}
 	return Outputs[index];
-}
-
-NodeLink * RenderNode::GetRefrence(int index)
-{
-	return Refrences[index];
 }
 
 uint RenderNode::GetNumInputs() const
@@ -100,11 +98,6 @@ uint RenderNode::GetNumInputs() const
 uint RenderNode::GetNumOutputs() const
 {
 	return (uint)Outputs.size();
-}
-
-uint RenderNode::GetNumRefrences() const
-{
-	return (uint)Refrences.size();
 }
 
 EViewMode::Type RenderNode::GetViewMode() const
@@ -129,7 +122,7 @@ DeviceContextQueue::Type RenderNode::GetNodeQueue() const
 	return NodeQueueType;
 }
 
-RenderNode * RenderNode::GetNextNode() const
+RenderNode* RenderNode::GetNextNode() const
 {
 	return Next;
 }
@@ -144,17 +137,9 @@ std::string RenderNode::GetName() const
 	return "UNNAMED";
 }
 
-void RenderNode::ValidateNode(RenderGraph::ValidateArgs & args)
+void RenderNode::ValidateNode(RenderGraph::ValidateArgs& args)
 {
 	for (NodeLink* NL : Inputs)
-	{
-		NL->Validate(args, this);
-	}
-	for (NodeLink* NL : Outputs)
-	{
-		NL->Validate(args, this);
-	}
-	for (NodeLink* NL : Refrences)
 	{
 		NL->Validate(args, this);
 	}
@@ -175,6 +160,10 @@ void RenderNode::SetupNode()
 	{
 		//this causes data to be passed though
 		SetNodeActive(false);
+	}
+	if (UseSeperateCommandList)
+	{
+		CommandList = RHI::CreateCommandList(NodeEngineType, Context);
 	}
 #if !BUILD_SHIPPING
 	Log::LogMessage("Node " + GetName() + " has " + std::to_string(BeginTransitions.size()) + " and " + std::to_string(EndTransitions.size()) + " transitions");
@@ -235,7 +224,7 @@ bool RenderNode::IsNodeSupported(const RenderSettings& settings)
 	return true;
 }
 
-void RenderNode::SetDevice(DeviceContext * D)
+void RenderNode::SetDevice(DeviceContext* D)
 {
 	Context = D;
 }
@@ -269,11 +258,18 @@ EEye::Type RenderNode::GetEye()
 	return TargetEye;
 }
 
-FrameBuffer * RenderNode::GetFrameBufferFromInput(int index)
+FrameBuffer* RenderNode::GetFrameBufferFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
 	FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(GetInput(index)->GetStoreTarget());
+	return Node->GetFramebuffer(GetEye());
+}
+FrameBuffer* RenderNode::GetFrameBufferFromInput(NodeLink* link)
+{
+	ensure(link->GetStoreTarget());
+	ensure(link->GetStoreTarget()->StoreType == EStorageType::Framebuffer);
+	FrameBufferStorageNode* Node = static_cast<FrameBufferStorageNode*>(link->GetStoreTarget());
 	return Node->GetFramebuffer(GetEye());
 }
 RHIBuffer* RenderNode::GetBufferFromInput(int index)
@@ -283,14 +279,19 @@ RHIBuffer* RenderNode::GetBufferFromInput(int index)
 	BufferStorageNode* Node = static_cast<BufferStorageNode*>(GetInput(index)->GetStoreTarget());
 	return Node->GetBuffer();
 }
-ShadowAtlasStorageNode * RenderNode::GetShadowDataFromInput(int index)
+ShadowAtlasStorageNode* RenderNode::GetShadowDataFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::ShadowData);
 	return static_cast<ShadowAtlasStorageNode*>(GetInput(index)->GetStoreTarget());
 }
-
-Scene * RenderNode::GetSceneDataFromInput(int index)
+ShadowAtlasStorageNode* RenderNode::GetShadowDataFromInput(NodeLink* link)
+{
+	ensure(link->GetStoreTarget());
+	ensure(link->GetStoreTarget()->StoreType == EStorageType::ShadowData);
+	return static_cast<ShadowAtlasStorageNode*>(link->GetStoreTarget());
+}
+Scene* RenderNode::GetSceneDataFromInput(int index)
 {
 	ensure(GetInput(index)->GetStoreTarget());
 	ensure(GetInput(index)->GetStoreTarget()->StoreType == EStorageType::SceneData);
@@ -298,15 +299,16 @@ Scene * RenderNode::GetSceneDataFromInput(int index)
 }
 
 
-void RenderNode::OnValidateNode(RenderGraph::ValidateArgs & args)
+void RenderNode::OnValidateNode(RenderGraph::ValidateArgs& args)
 {
 
 }
-void RenderNode::AddResourceInput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
+NodeLink* RenderNode::AddResourceInput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
 {
 	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
 	link->ResourceState = State;
 	Inputs.push_back(link);
+	return link;
 }
 
 void RenderNode::AddResourceOutput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
@@ -316,9 +318,11 @@ void RenderNode::AddResourceOutput(EStorageType::Type TargetType, EResourceState
 	Outputs.push_back(link);
 }
 
-void RenderNode::AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
+NodeLink* RenderNode::AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
 {
-	Inputs.push_back(new NodeLink(TargetType, format, InputName, this));
+	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
+	Inputs.push_back(link);
+	return link;
 }
 
 void RenderNode::AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
@@ -326,15 +330,84 @@ void RenderNode::AddOutput(EStorageType::Type TargetType, const std::string& for
 	Outputs.push_back(new NodeLink(TargetType, format, InputName, this));
 }
 
-void RenderNode::AddOutput(NodeLink * Input, const std::string& format, const std::string& InputName)
+void RenderNode::AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName)
 {
 	AddOutput(Input->TargetType, format, InputName);
 }
 
-void RenderNode::AddRefrence(EStorageType::Type TargetType, const std::string& format, const std::string&InputName)
+StorageNode* RenderNode::RequestBuffer(const RHIBufferDesc& desc, std::string Name, FrameBufferStorageNode* LinkedNode)
 {
-	Refrences.push_back(new NodeLink(TargetType, format, InputName, this));
+	BufferStorageNode* NewBuffer = RHI::GetRenderSystem()->GetGraphBuilding()->AddStoreNode(new BufferStorageNode());
+	NewBuffer->Name = Name;
+	NewBuffer->FramebufferNode = LinkedNode;
+	NewBuffer->SetDevice(Context);
+	return NewBuffer;
 }
+StorageNode* RenderNode::RequestFrameBuffer(const RHIFrameBufferDesc& desc, std::string Name)
+{
+	FrameBufferStorageNode* FrameBuffer = RHI::GetRenderSystem()->GetGraphBuilding()->AddStoreNode(new FrameBufferStorageNode(Name));
+	RHIFrameBufferDesc d = desc;
+	FrameBuffer->SetFrameBufferDesc(d);
+	FrameBuffer->SetDevice(Context);
+	return FrameBuffer;
+}
+
+NodeLink* RenderNode::AddFrameBufferResource(EResourceState::Type State, const RHIFrameBufferDesc& desc, const std::string& InputName)
+{
+	StorageNode* Node = RequestFrameBuffer(desc, InputName);
+	NodeLink* link = AddResourceInput(EStorageType::Framebuffer, State, "", InputName);
+	link->SetStore(Node);
+	return link;
+}
+
+NodeLink* RenderNode::AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName, FrameBufferStorageNode* LinkedBuffer)
+{
+	StorageNode* Node = RequestBuffer(desc, InputName, LinkedBuffer);
+	NodeLink* link = AddResourceInput(EStorageType::Buffer, State, "", InputName);
+	link->SetStore(Node);
+	return link;
+}
+
+RHICommandList* RenderNode::GetList()
+{
+	if (UseSeperateCommandList)
+	{
+		return CommandList;
+	}
+	return Context->GetListPool()->GetCMDList(NodeEngineType);
+}
+
+RHICommandList* RenderNode::GetListAndReset()
+{
+	if (UseSeperateCommandList)
+	{
+		CommandList->ResetList();
+	}
+	else
+	{
+		CommandList = Context->GetListPool()->GetCMDList(NodeEngineType);
+	}
+	SetBeginStates(CommandList);
+	return CommandList;
+}
+
+void RenderNode::ExecuteList(bool Flush)
+{
+	SetEndStates(CommandList);
+	if (UseSeperateCommandList)
+	{
+		CommandList->Execute();
+	}
+	else
+	{
+		CommandList = nullptr;
+		if (Flush)
+		{
+			Context->GetListPool()->Flush();
+		}
+	}
+}
+
 void RenderNode::LinkThough(int inputindex, int outputindex /*= -1*/)
 {
 	if (outputindex == -1)
@@ -356,7 +429,7 @@ void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::s
 	GetOutput(outputindex)->SetStore(GetInput(inputindex)->GetStoreTarget());
 }
 
-void RenderNode::SetBeginStates(RHICommandList * list)
+void RenderNode::SetBeginStates(RHICommandList* list)
 {
 	for (int i = 0; i < BeginTransitions.size(); i++)
 	{
@@ -365,7 +438,7 @@ void RenderNode::SetBeginStates(RHICommandList * list)
 	HasRunBegin = true;
 }
 
-void RenderNode::SetEndStates(RHICommandList * list)
+void RenderNode::SetEndStates(RHICommandList* list)
 {
 	for (int i = 0; i < EndTransitions.size(); i++)
 	{
@@ -374,7 +447,7 @@ void RenderNode::SetEndStates(RHICommandList * list)
 	HasRunEnd = true;
 }
 
-void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
+void ResourceTransition::Execute(RHICommandList* list, RenderNode* rnode)
 {
 	if (TransitonType == StateChange)
 	{
@@ -422,7 +495,7 @@ void ResourceTransition::Execute(RHICommandList * list, RenderNode* rnode)
 		}
 		else
 		{
-			list->GetDevice()->InsertCrossGPUWait(rnode->GetNodeQueue(),RHI::GetDeviceContext(SignalingDevice), SignalingQueue);
+			list->GetDevice()->InsertCrossGPUWait(rnode->GetNodeQueue(), RHI::GetDeviceContext(SignalingDevice), SignalingQueue);
 		}
 	}
 }
@@ -438,7 +511,8 @@ void RenderNode::AddEndTransition(const ResourceTransition& transition)
 }
 
 void RenderNode::OnResourceResize()
-{}
+{
+}
 
 int RenderNode::GetDeviceIndex() const
 {
@@ -446,7 +520,8 @@ int RenderNode::GetDeviceIndex() const
 }
 
 void RenderNode::OnGraphCreate()
-{}
+{
+}
 
 void RenderNode::SetTargetEye(EEye::Type eye)
 {

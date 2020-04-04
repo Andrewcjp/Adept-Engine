@@ -8,6 +8,7 @@
 #include "Rendering\RayTracing\RHIStateObject.h"
 #include "Core\Module\ModuleInterface.h"
 #include "RHI_inc_fwd.h"
+#include "RHIFence.h"
 #define USE_FLAT_COMPUTE 1
 #if USE_FLAT_COMPUTE
 #define FLAT_COMPUTE_START(device) device->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
@@ -47,6 +48,7 @@ class RHIBuffer;
 class RHICommandList;
 class RHITexture;
 class DynamicQualityEngine;
+class RHIFence;
 
 //RHI defines
 #define RHI_SUPPORTS_VR 1
@@ -188,7 +190,7 @@ public:
 	{
 		std::vector<GPUMemoryData> GpuData;
 	};
-	RHI_VIRTUAL bool InitRHI() = 0;
+	RHI_VIRTUAL bool InitRHI(bool InitAllGPUs) = 0;
 	RHI_VIRTUAL bool InitWindow(int w, int h) = 0;
 	RHI_VIRTUAL bool DestoryRHI() = 0;
 
@@ -230,6 +232,7 @@ public:
 	RHI_VIRTUAL RHITexture* CreateTexture2() = 0;
 	//allow an RHI to add resource transitions for the swap chain to a large list for performance.
 	RHI_VIRTUAL void MakeSwapChainReady(RHICommandList* list) = 0;
+	RHI_VIRTUAL RHIFence* CreateFence(DeviceContext* device, EFenceFlags::Type Flags = EFenceFlags::None) = 0;
 };
 
 class RHIModule : public IModuleInterface

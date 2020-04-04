@@ -16,7 +16,7 @@ void StorageNode::SetFormat(const std::string & format)
 
 void StorageNode::CreateNode()
 {
-	if (DeviceObject == nullptr)
+	if (GetDeviceObject() == nullptr)
 	{
 		DeviceObject = RHI::GetDefaultDevice();
 	}
@@ -32,5 +32,10 @@ void StorageNode::Reset()
 void StorageNode::SetDevice(DeviceContext * D)
 {
 	DeviceObject = D;
+}
+
+void StorageNode::DiscardAtEndOfNode(RenderNode* node)
+{
+	DiscardingNode = node;
 }
 

@@ -288,7 +288,18 @@ void UIManager::RenderWidgets()
 #endif
 	for (int i = 0; i < Contexts.size(); i++)
 	{
-		Contexts[i]->RenderWidgets();
+		Contexts[i]->RenderWidgets(nullptr);
+	}
+}
+
+void UIManager::RenderWidgets(RHICommandList* List)
+{
+#if EDITORUI
+	EditorLayout->Update();
+#endif
+	for (int i = 0; i < Contexts.size(); i++)
+	{
+		Contexts[i]->RenderWidgets(List);
 	}
 }
 

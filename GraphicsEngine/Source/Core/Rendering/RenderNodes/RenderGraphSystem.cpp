@@ -61,6 +61,7 @@ RenderGraph* RenderGraphSystem::CreateGraph(RenderGraphInstance* instance)
 		instance->GraphBaseType = EBuiltinRenderGraphs::DeferredRenderer;
 	}
 #endif
+	BuildingGraph = Graph;
 	InitDefaultGraph(Graph, instance->GraphBaseType);
 	PatchGraph(instance);
 	CheckGraph(Graph);
@@ -112,6 +113,9 @@ void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraph
 		break;
 	case EBuiltinRenderGraphs::MGPU_SFR:
 		Graph->CreateSFR();
+		break;
+	case EBuiltinRenderGraphs::MGPU_ASYNCSHADOWS:
+		Graph->CreateMGPUShadows();
 		break;
 	}
 }
@@ -191,6 +195,11 @@ RenderGraphInstance* RenderGraphSystem::BuildInstance(RenderGraphInstance* Inst)
 RenderGraph * RenderGraphSystem::GetCurrentGraph()
 {
 	return CurrentGraph;
+}
+
+RenderGraph* RenderGraphSystem::GetGraphBuilding()
+{
+	return BuildingGraph;
 }
 
 RenderGraphInstance * RenderGraphInstanceSet::GetInstanceForSettings(RenderSettings * set)

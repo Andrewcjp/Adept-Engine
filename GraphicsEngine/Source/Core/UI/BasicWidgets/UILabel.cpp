@@ -61,7 +61,7 @@ void UILabel::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 	float ScaleTarget = TextScale;
 	const int offset = 1;
 	const int textsize = 48;
-	int Size = GetTransfrom()->GetTransfromedSize().y - offset * 2;
+	int Size = (int)GetTransfrom()->GetTransfromedSize().y - offset * 2;
 	Size = Math::Max(Size, 1);
 	ScaleTarget = (float)(Size) / (float)textsize;
 

@@ -1,5 +1,6 @@
 #include "StringUtil.h"
 #include <locale>
+
 #include <codecvt>
 #include <algorithm>
 #include <iomanip>
@@ -11,7 +12,6 @@ void StringUtils::RemoveChar(std::string &target, std::string charater)
 		target.erase(targetnum, charater.length());
 	}
 }
-
 std::wstring StringUtils::ConvertStringToWide(std::string target)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

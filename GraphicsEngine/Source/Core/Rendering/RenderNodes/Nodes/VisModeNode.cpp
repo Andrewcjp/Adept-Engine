@@ -65,7 +65,7 @@ void VisModeNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DontCare, "OutputBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer data");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "EdgeTex");
-	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene data");
+
 
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 	LinkThough(0);

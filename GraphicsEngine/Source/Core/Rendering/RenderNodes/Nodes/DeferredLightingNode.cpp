@@ -27,25 +27,16 @@ DeferredLightingNode::DeferredLightingNode()
 
 DeferredLightingNode::~DeferredLightingNode()
 {
-	SafeRHIRelease(List);
-}
 
-void DeferredLightingNode::OnSetupNode()
-{
-	List = RHI::CreateCommandList(ECommandListType::Graphics, Context);
 }
 
 void DeferredLightingNode::OnExecute()
 {
 	NodeLink* VRXImage = GetInputLinkByName("VRX Image");
-	FrameBuffer* GBuffer = GetFrameBufferFromInput(0);
+	FrameBuffer* GBuffer = GetFrameBufferFromInput(NodeInputStruct.GBuffer);
 	FrameBuffer* MainBuffer = GetFrameBufferFromInput(1);
-	Scene* MainScene = GetSceneDataFromInput(2);
-	ensure(MainScene);
 	DeferredShader = ShaderComplier::GetShader<Shader_Deferred, int>(Context, MainBuffer->GetDescription().VarRateSettings.BufferMode);
-	List->ResetList();
-
-	SetBeginStates(List);
+	RHICommandList* List = GetListAndReset();
 	if (VRXImage != nullptr && VRXImage->IsValid())
 	{
 		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
@@ -90,9 +81,9 @@ void DeferredLightingNode::OnExecute()
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::PosTex, 0);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::NormalTex, 1);
 	List->SetFrameBufferTexture(GBuffer, DeferredLightingShaderRSBinds::AlbedoTex, 2);
-	if (UseScreenSpaceReflection && GetInput(4)->IsValid())
+	if (UseScreenSpaceReflection && NodeInputStruct.SSRData->IsValid())
 	{
-		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(4);
+		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(NodeInputStruct.SSRData);
 		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
 	}
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
@@ -100,9 +91,9 @@ void DeferredLightingNode::OnExecute()
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
 	SceneRenderer::Get()->BindLightsBufferB(List, DeferredLightingShaderRSBinds::LightDataCBV);
 	SceneRenderer::Get()->BindMvBufferB(List, DeferredLightingShaderRSBinds::MVCBV, GetEye());
-	if (GetInput(3)->IsValid() && RHI::IsD3D12())
+	if (NodeInputStruct.ShadowMaps->IsValid() && RHI::IsD3D12())
 	{
-		GetShadowDataFromInput(3)->BindPointArray(List, 6);
+		GetShadowDataFromInput(NodeInputStruct.ShadowMaps)->BindPointArray(List, 6);
 	}
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
@@ -124,27 +115,28 @@ void DeferredLightingNode::OnExecute()
 	{
 		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
 	}
-	SetEndStates(List);
-	List->Execute();
+
+	ExecuteList();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 
 }
 
 void DeferredLightingNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer");
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat, "Main buffer");
-	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
-	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
+	NodeInputStruct.GBuffer = AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer");
+	NodeInputStruct.MainBuffer = AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat, "Main buffer");
+	NodeInputStruct.ShadowMaps = AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
 	if (UseScreenSpaceReflection)
 	{
-		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ScreenReflectionData, "SSR Data");
+		NodeInputStruct.SSRData = AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ScreenReflectionData, "SSR Data");
+		NodeInputStruct.SSRData->SetOptional();
 	}
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
 	{
 		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ShadingImage, "VRX Image");
 	}
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
-	GetOutput(0)->SetLink(GetInput(1));
+
+	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
+	SetUseSeperateCommandList();
 }

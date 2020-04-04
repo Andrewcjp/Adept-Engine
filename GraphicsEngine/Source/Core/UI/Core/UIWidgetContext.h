@@ -27,7 +27,7 @@ public:
 	void CleanUpWidgets();
 	CORE_API void UpdateBatches();
 	void Initalise(int width, int height);
-	void RenderWidgets();
+	void RenderWidgets(RHICommandList* List);
 	void MarkRenderStateDirty();
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);
