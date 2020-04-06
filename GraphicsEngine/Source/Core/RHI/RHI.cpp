@@ -28,6 +28,7 @@
 #include "Rendering/Core/FrameBuffer.h"
 #include "Rendering/Core/DynamicQualityEngine.h"
 #include "Rendering/Utils/UAVFormatConverter.h"
+#include "Streaming/TextureStreamingEngine.h"
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -270,6 +271,7 @@ void RHI::Tick()
 {
 	Get()->QualityEngine->Update();
 	instance->SFR_Controller->Tick();
+	TextureStreamingEngine::Get()->Update();
 }
 
 void RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
@@ -479,6 +481,7 @@ void RHI::InitialiseContext()
 {
 	ShaderComplier::Get();//create the Complier
 	instance->RenderPassCache = new RHIRenderPassCache();
+	new TextureStreamingEngine();
 	GetRHIClass()->InitRHI(instance->Rendersettings.RequestAllGPUs);
 	PlatformWindow::TickSplashWindow(5, "Loading RHI");
 	instance->ValidateSettings();
@@ -512,6 +515,7 @@ void RHI::InitialiseContext()
 	Get()->TestManager = new GPUPerformanceTestManager();
 	Get()->TestManager->Init();
 	UAVFormatConverter::Get();
+	
 }
 
 void RHI::ValidateSettings()
@@ -644,6 +648,7 @@ void RHI::DestoryContext()
 		GetRHIClass()->WaitForGPU();
 		ParticleSystemManager::ShutDown();
 	}
+	TextureStreamingEngine::ShutDown();
 	ShaderComplier::Get()->FreeAllGlobalShaders();
 	if (Get())
 	{

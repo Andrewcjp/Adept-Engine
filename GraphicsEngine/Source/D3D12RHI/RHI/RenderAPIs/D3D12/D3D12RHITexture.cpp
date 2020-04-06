@@ -112,7 +112,14 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 	{
 		d.InitalState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 	}
-	DContext->GetMemoryManager()->AllocResource(d, &Resource);
+	if (UseReservedResouce)
+	{
+		DContext->GetMemoryManager()->CreateReservedResouce(d, &Resource);
+	}
+	else
+	{
+		DContext->GetMemoryManager()->AllocResource(d, &Resource);
+	}	
 }
 
 GPUResource * D3D12RHITexture::GetResource() const

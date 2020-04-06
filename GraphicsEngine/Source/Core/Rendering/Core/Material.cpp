@@ -8,6 +8,7 @@
 #include "../Shaders/Shader_NodeGraph.h"
 #include "../RenderNodes/Nodes/ForwardRenderNode.h"
 #include "RHI/RHIBufferGroup.h"
+#include "RHI/Streaming/TextureStreamingCommon.h"
 
 void Material::UpdateShaderData()
 {
@@ -85,7 +86,11 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 		}
 		else
 		{
-			list->SetTexture(Pair.second.TextureObj.Get(), Pair.first);
+			list->SetTexture(Pair.second.TextureObj.Get(), Pair.first);			
+		}
+		if (TestHandle != nullptr)
+		{
+			TestHandle->Bind(list, Pair.first);
 		}
 	}
 	if (!Pass.UseDeferredShaders)
@@ -180,6 +185,10 @@ void Material::SetDiffusetexture(BaseTextureRef tex)
 	{
 		UpdateBind("DiffuseMap", tex);
 	}
+}
+void Material::SetTexture(std::string name, TextureHandle* handle)
+{
+	TestHandle = handle;
 }
 
 bool Material::HasNormalMap()

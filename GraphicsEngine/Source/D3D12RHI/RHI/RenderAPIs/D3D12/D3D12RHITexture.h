@@ -24,6 +24,7 @@ public:
 	void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext) override;
 	DescriptorItemDesc GetItemDesc(const RHIViewDesc& desc)const;
 	virtual void SetState(RHICommandList* list, EResourceState::Type State);
+	bool UseReservedResouce = false;
 private:
 	GPUResource* Resource = nullptr;
 	D3D12DeviceContext* DContext = nullptr;

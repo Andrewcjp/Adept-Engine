@@ -3,7 +3,11 @@
 
 class GPUResource;
 class D3D12DeviceContext;
-
+struct ResourceTileMapping 
+{
+	int FirstSubResource = 0;
+	int NumSubResoruces = 0;
+};
 class GPUMemoryPage
 {
 public:
@@ -17,11 +21,16 @@ public:
 	bool CheckSpaceForResource(AllocDesc & desc);
 
 	void Compact();
+	void Defragment(uint64 NeededSize = -1);
 	//removes a resource from this page and frees its memory
 	void Deallocate(GPUResource* R);
+
+	
+
 	UINT64 GetSize(bool LocalOnly = false) const;
 	UINT64 GetSizeInUse(bool LocalOnly = false)const;
 	void LogReport(bool ReportResources);
+	float GetFragmentationPC();
 	bool GetIsReserved() const { return IsReserved; }
 	void SetReserved(bool val) { IsReserved = val; }
 	//!danger! This will deallocate all of this page.
@@ -35,6 +44,9 @@ public:
 		uint64 size = 0;
 		bool CanFitAllocation(const AllocDesc & desc,uint64 AddressAlignmentForce)const;
 	};
+	bool AreChunksNext(AllocationChunk* a, AllocationChunk* b);
+	void FreeChunk(AllocationChunk* R);
+	void  MapResouce(GPUResource* Resource,const ResourceTileMapping & mapping);
 private:
 	
 	AllocationChunk* FindFreeChunk(AllocDesc & desc);

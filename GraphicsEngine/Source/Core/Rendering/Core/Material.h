@@ -10,6 +10,7 @@ class Shader_NodeGraph;
 class Asset_Shader;
 class MaterialShader;
 class RHIBufferGroup;
+class TextureHandle;
 class Material
 {
 public:
@@ -27,6 +28,7 @@ public:
 	void SetDisplacementMap(BaseTexture* tex);
 	CORE_API void SetNormalMap(BaseTexture * tex);
 	CORE_API void SetDiffusetexture(BaseTextureRef tex);
+	void SetTexture(std::string name, TextureHandle* handle);
 	bool HasNormalMap();
 	static Material * GetDefaultMaterial();
 	void ProcessSerialArchive(class Archive* A);
@@ -55,5 +57,6 @@ private:
 	MaterialShader* ShaderInterface = nullptr;
 	ParmeterBindSet ParmbindSet;
 	bool CurrnetShadowState = false;
+	TextureHandle* TestHandle = nullptr;
 };
 

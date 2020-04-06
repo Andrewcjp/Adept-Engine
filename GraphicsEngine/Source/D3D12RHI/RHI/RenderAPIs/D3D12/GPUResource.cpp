@@ -6,12 +6,14 @@
 //todo: More Detailed Error checking!
 CreateChecker(GPUResource);
 GPUResource::GPUResource()
-{}
+{
+}
 
 GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState) :GPUResource(Target, InitalState, RHI::GetDefaultDevice())
-{}
+{
+}
 
-GPUResource::GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext * device)
+GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* device)
 {
 	AddCheckerRef(GPUResource, this);
 	resource = Target;
@@ -83,7 +85,7 @@ bool GPUResource::IsValidStateForList(D3D12CommandList* List)
 	return false;
 }
 
-void GPUResource::SetResourceState(D3D12CommandList*  List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode/* = EResourceTransitionMode::Direct*/)
+void GPUResource::SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode/* = EResourceTransitionMode::Direct*/)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -113,7 +115,7 @@ void GPUResource::SetResourceState(D3D12CommandList*  List, D3D12_RESOURCE_STATE
 	}
 }
 
-void GPUResource::StartResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::StartResourceTransition(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -128,7 +130,7 @@ void GPUResource::StartResourceTransition(D3D12CommandList * List, D3D12_RESOURC
 	}
 }
 
-void GPUResource::EndResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate)
+void GPUResource::EndResourceTransition(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate)
 {
 	if (newstate != CurrentResourceState)
 	{
@@ -147,7 +149,7 @@ bool GPUResource::IsTransitioning()
 	return (CurrentResourceState != TargetState);
 }
 
-void GPUResource::SetGPUPage(GPUMemoryPage * page)
+void GPUResource::SetGPUPage(GPUMemoryPage* page)
 {
 	Page = page;
 }
@@ -173,13 +175,60 @@ void GPUResource::NotifyClearComplete()
 	CurrentAliasState = EPhysicalMemoryState::Active_NoClear;
 }
 
+ResourceMipInfo* GPUResource::GetMipData(int index)
+{
+	return &m_mips[index];
+}
+
+void GPUResource::SetupMipMapping()
+{
+	UINT numTiles = 0;
+	D3D12_PACKED_MIP_INFO m_packedMipInfo;
+	D3D12_TILE_SHAPE tileShape;
+	UINT subresourceCount = GetDesc().MipLevels;
+	std::vector<D3D12_SUBRESOURCE_TILING> tilings(subresourceCount);
+	Device->GetDevice()->GetResourceTiling(GetResource(), &numTiles, &m_packedMipInfo, &tileShape, &subresourceCount, 0, &tilings[0]);
+
+
+	m_mips.resize(subresourceCount);
+	UINT heapCount = m_packedMipInfo.NumStandardMips + (m_packedMipInfo.NumPackedMips > 0 ? 1 : 0);
+	for (UINT n = 0; n < m_mips.size(); n++)
+	{
+		int SubIndex = n;
+		if (SubIndex < m_packedMipInfo.NumStandardMips)
+		{
+			m_mips[n].heapIndex = SubIndex;
+			m_mips[n].packedMip = false;
+			m_mips[n].mapped = false;
+			m_mips[n].startCoordinate = CD3DX12_TILED_RESOURCE_COORDINATE(0, 0, 0, n);
+			m_mips[n].regionSize.Width = tilings[n].WidthInTiles;
+			m_mips[n].regionSize.Height = tilings[n].HeightInTiles;
+			m_mips[n].regionSize.Depth = tilings[n].DepthInTiles;
+			m_mips[n].regionSize.NumTiles = tilings[n].WidthInTiles * tilings[n].HeightInTiles * tilings[n].DepthInTiles;
+			m_mips[n].regionSize.UseBox = TRUE;
+		}
+		else
+		{
+			// All of the packed mips will go into the last heap.
+			m_mips[n].heapIndex = heapCount - 1;
+			m_mips[n].packedMip = true;
+			m_mips[n].mapped = false;
+
+			// Mark all of the packed mips as having the same start coordinate and size.
+			m_mips[n].startCoordinate = CD3DX12_TILED_RESOURCE_COORDINATE(0, 0, 0, heapCount - 1);
+			m_mips[n].regionSize.NumTiles = m_packedMipInfo.NumTilesForPackedMips;
+			m_mips[n].regionSize.UseBox = FALSE;    // regionSize.Width/Height/Depth will be ignored.
+		}
+	}
+}
+
 D3D12_RESOURCE_STATES GPUResource::GetCurrentState()
 {
 	ensure(!IsTransitioning());
 	return CurrentResourceState;
 }
 
-ID3D12Resource * GPUResource::GetResource()
+ID3D12Resource* GPUResource::GetResource()
 {
 	return resource;
 }

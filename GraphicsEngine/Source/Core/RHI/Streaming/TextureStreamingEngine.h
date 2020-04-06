@@ -1,4 +1,6 @@
 #pragma once
+#include "GPUTextureStreamer.h"
+#include "TextureStreamingCommon.h"
 //Manages all texture streaming
 //Launches requests to GPU texture steamers on each GPU.
 class TextureStreamingEngine
@@ -10,8 +12,25 @@ public:
 	void Update();
 	//Determines what textures are needed this frame/ next.
 	void UpdateSceneTextureStreaming();
+	static TextureStreamingEngine* Get()
+	{
+		return Instance;
+	}
+	static void ShutDown()
+	{
+		SafeDelete(Instance);
+	}
+	void RegisterGPUStreamer(GPUTextureStreamer* Stream)
+	{
+		Streamers.push_back(Stream);
+	}
+	static TextureHandle* RequestTexture(std::string File);
 private:
 	uint64_t TargetMaxMemory = 0;
-
+	static TextureStreamingEngine* Instance;
+	std::vector<GPUTextureStreamer*> Streamers;
+	std::queue<TextureHandle*> NewHandles;
+	//todo: map?
+	std::vector<TextureHandle*> Handles;
 };
 

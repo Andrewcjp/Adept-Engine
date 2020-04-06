@@ -25,7 +25,7 @@ DeviceContext::~DeviceContext()
 void DeviceContext::ResetDeviceAtEndOfFrame()
 {
 	CopyListPoolFreeIndex = 0;//reset the copy pool indexer
-	Streamer->Update();
+	//Streamer->Update();
 }
 
 void DeviceContext::DestoryDevice()

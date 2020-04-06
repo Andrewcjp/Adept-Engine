@@ -75,7 +75,7 @@ public:
 	static const PlatformBuildSettings& GetSettings();
 	CORE_API static std::string GetPlatformDirName();
 	CORE_API void WriteShaderMetaFile(ShaderSourceFile* file, std::string path, EPlatforms::Type platform = EPlatforms::Limit);
-
+	static const std::string DDCName;
 private:
 	AssetManager();
 	void Init();
@@ -95,7 +95,7 @@ private:
 	std::string DDCDirPath = "";
 	std::string ScriptDirPath = "";
 	std::string GeneratedDirPath = "";
-	static const std::string DDCName;
+	
 	IniHandler* INISaver = nullptr;
 	PlatformBuildSettings PlatformSettings;
 

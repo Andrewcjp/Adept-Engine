@@ -13,13 +13,22 @@ namespace EPhysicalMemoryState
 		Active_NoClear,//we have memory but the contents are unknown.
 	};
 }
+struct ResourceMipInfo
+{
+	UINT heapIndex;
+	bool packedMip;
+	bool mapped;
+	D3D12_TILED_RESOURCE_COORDINATE startCoordinate;
+	D3D12_TILE_REGION_SIZE regionSize;
+	GPUMemoryPage::AllocationChunk* pChunk = nullptr;
+};
 class GPUResource : public IRHIResourse
 {
 public:
 
 	GPUResource();
-	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState);
-	GPUResource(ID3D12Resource * Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* Device);
+	GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState);
+	GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* Device);
 	~GPUResource();
 	void SetName(LPCWSTR name);
 
@@ -27,14 +36,14 @@ public:
 	void MakeResident();
 	bool IsResident();
 	EResourcePageState::Type GetState();
-	bool IsValidStateForList(D3D12CommandList * List);
-	void SetResourceState(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode = EResourceTransitionMode::Direct);
+	bool IsValidStateForList(D3D12CommandList* List);
+	void SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode = EResourceTransitionMode::Direct);
 	//void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion = false);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
 	void Release() override;
-	void StartResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate);
-	void EndResourceTransition(D3D12CommandList * List, D3D12_RESOURCE_STATES newstate);
+	void StartResourceTransition(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate);
+	void EndResourceTransition(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate);
 	bool IsTransitioning();
 	void SetGPUPage(GPUMemoryPage* page);
 	void UpdateUnTrackedState(D3D12_RESOURCE_STATES newstate);
@@ -45,7 +54,16 @@ public:
 	void SetCurrentAliasState(EPhysicalMemoryState::Type val);
 	bool NeedsClear() const;
 	void NotifyClearComplete();
+	D3D12_RESOURCE_DESC GetDesc() const { return Desc; }
+	void SetDesc(D3D12_RESOURCE_DESC val) { Desc = val; }
+	bool IsBacked()const { return Backed; };
+	void SetBacked(bool state) { Backed = state; };
+	ResourceMipInfo* GetMipData(int index);
+	void SetupMipMapping();
 private:
+	std::vector<ResourceMipInfo> m_mips;
+	bool Backed = true;
+	D3D12_RESOURCE_DESC Desc;
 	EResourcePageState::Type currentState = EResourcePageState::Resident;
 	ID3D12Resource* resource = nullptr;
 	D3D12_RESOURCE_STATES CurrentResourceState = {};

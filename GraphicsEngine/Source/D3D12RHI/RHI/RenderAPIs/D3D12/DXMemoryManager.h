@@ -20,12 +20,14 @@ public:
 	GPUMemoryPage* FindFreePage(AllocDesc & desc, std::vector<GPUMemoryPage*>& pages);
 	UINT64 GetTotalAllocated()const ;
 	UINT64 GetTotalReserved()const;
+	EAllocateResult::Type CreateReservedResouce(AllocDesc& desc, GPUResource** ppResource);
 private:
 	void AddPage(int size);
 	D3D12DeviceContext* Device = nullptr;
 	//all pages on this device
 	std::vector<GPUMemoryPage*> AllocatedPages;
-
+	//all pages including special ones
+	std::vector<GPUMemoryPage*> TrackedPages;
 	UINT64 TotalPageAllocated = 0;
 	UINT64 TotalPageUsed = 0;
 };

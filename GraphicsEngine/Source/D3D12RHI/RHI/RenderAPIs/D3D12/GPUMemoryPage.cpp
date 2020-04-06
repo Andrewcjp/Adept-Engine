@@ -5,7 +5,7 @@
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
 static ConsoleVariable LogPageAllocations("VMEM.LogAlloc", 0, ECVarType::ConsoleAndLaunch);
-GPUMemoryPage::GPUMemoryPage(AllocDesc & desc, D3D12DeviceContext* context)
+GPUMemoryPage::GPUMemoryPage(AllocDesc& desc, D3D12DeviceContext* context)
 {
 	AddressAlignmentForce = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 	PageDesc = desc;
@@ -20,7 +20,7 @@ GPUMemoryPage::~GPUMemoryPage()
 	SafeRelease(PageHeap);
 }
 
-EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Resource)
+EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc& desc, GPUResource** Resource)
 {
 	CalculateSpaceNeeded(desc);
 	if (!CheckSpaceForResource(desc) && !desc.UseCommittedResource)
@@ -61,14 +61,14 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc & desc, GPUResource** Re
 	return EAllocateResult::OK;
 }
 
-void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc & desc)
+void GPUMemoryPage::CalculateSpaceNeeded(AllocDesc& desc)
 {
 	desc.ResourceDesc.Alignment = 0;
 	desc.TextureAllocData = Device->GetDevice()->GetResourceAllocationInfo(0, 1, &desc.ResourceDesc);
 	desc.ResourceDesc.Alignment = desc.TextureAllocData.Alignment;
 }
 
-bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
+bool GPUMemoryPage::CheckSpaceForResource(AllocDesc& desc)
 {
 	if (desc.UseCommittedResource)
 	{
@@ -86,7 +86,101 @@ bool GPUMemoryPage::CheckSpaceForResource(AllocDesc & desc)
 	return true;
 }
 
-GPUMemoryPage::AllocationChunk * GPUMemoryPage::FindFreeChunk(AllocDesc & desc)
+
+
+void GPUMemoryPage::MapResouce(GPUResource* Resource, const ResourceTileMapping& mapping)
+{
+	std::vector<ResourceMipInfo*> m_TargetMips;
+	for (int i = 0; i < Resource->GetDesc().MipLevels; i++)
+	{
+		int index = mapping.FirstSubResource;
+		ResourceMipInfo* info = Resource->GetMipData(i);
+		if (info->packedMip)
+		{
+			if (!info->mapped)
+			{
+				m_TargetMips.push_back(info);
+			}
+			break;
+		}
+		if (i >= index)
+		{
+			if (!info->mapped)
+			{
+				m_TargetMips.push_back(info);
+			}
+		}
+		else
+		{
+			if (info->mapped)
+			{
+				m_TargetMips.push_back(info);
+			}
+		}
+	}
+	if (m_TargetMips.size() == 0)
+	{
+		return;
+	}
+
+	std::vector<D3D12_TILED_RESOURCE_COORDINATE> Tiles;
+	std::vector<D3D12_TILE_REGION_SIZE> Sizes;
+	std::vector<D3D12_TILE_RANGE_FLAGS> rangeFlags;
+	std::vector<UINT> heapRangeStartOffsets;
+	std::vector<UINT> rangeTileCounts;
+
+	for (int i = 0; i < m_TargetMips.size(); i++)
+	{
+		ResourceMipInfo* info = m_TargetMips[i];
+		Tiles.push_back(info->startCoordinate);
+		Sizes.push_back(info->regionSize);
+		rangeTileCounts.push_back(info->regionSize.NumTiles);
+		if (info->mapped)
+		{
+			info->mapped = false;
+			rangeFlags.push_back(D3D12_TILE_RANGE_FLAG_NULL);
+			FreeChunk(info->pChunk);
+			info->pChunk = nullptr;
+			heapRangeStartOffsets.push_back(0);
+			continue;
+		}
+		else
+		{
+			info->mapped = true;
+			rangeFlags.push_back(D3D12_TILE_RANGE_FLAG_NONE);
+		}
+
+		AllocDesc Desc;
+		Desc.ResourceDesc = Resource->GetDesc();
+		CalculateSpaceNeeded(Desc);
+		Desc.TextureAllocData.SizeInBytes = info->regionSize.NumTiles * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;;
+		AllocationChunk* chunk = GetChunk(Desc);
+		heapRangeStartOffsets.push_back(chunk->offset / D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+		info->pChunk = chunk;
+	}
+
+
+	Device->GetCommandQueue()->UpdateTileMappings(
+		Resource->GetResource(),
+		Tiles.size(), Tiles.data(),
+		Sizes.data(),
+		PageHeap,
+		rangeFlags.size(), rangeFlags.data(),
+		heapRangeStartOffsets.data(),
+		rangeTileCounts.data(),
+		D3D12_TILE_MAPPING_FLAGS::D3D12_TILE_MAPPING_FLAG_NONE);
+
+#if 0
+	D3D12_TILE_RANGE_FLAGS RangeFlags = D3D12_TILE_RANGE_FLAGS::D3D12_TILE_RANGE_FLAG_NONE;
+
+	Device->GetCommandQueue()->UpdateTileMappings(Resource->GetResource(),
+		1, NULL, NULL, PageHeap, 1, &RangeFlags, NULL, NULL,
+		D3D12_TILE_MAPPING_FLAGS::D3D12_TILE_MAPPING_FLAG_NONE);
+#endif
+	Resource->SetBacked(true);
+}
+
+GPUMemoryPage::AllocationChunk* GPUMemoryPage::FindFreeChunk(AllocDesc& desc)
 {
 	for (int i = 0; i < FreeChunks.size(); i++)
 	{
@@ -97,12 +191,25 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::FindFreeChunk(AllocDesc & desc)
 	}
 	return nullptr;
 }
-GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc & desc)
+
+GPUMemoryPage::AllocationChunk* GPUMemoryPage::AllocateFromFreeChunk(AllocDesc& desc)
 {
 	AllocationChunk* Source = FindFreeChunk(desc);
 	if (Source == nullptr)
 	{
-		return nullptr;
+		uint64 size = GetSizeInUse();
+		uint64 NeededSize = size + desc.TextureAllocData.SizeInBytes;
+		if (NeededSize > GetSize())
+		{
+			return nullptr;
+		}
+		//check size free.
+		Defragment(desc.TextureAllocData.SizeInBytes);
+		Source = FindFreeChunk(desc);
+		if (Source == nullptr)
+		{
+			return nullptr;
+		}
 	}
 	AllocationChunk* NewChunk = new AllocationChunk();
 	const uint64_t ResourceSize = D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes, AddressAlignmentForce);
@@ -124,17 +231,17 @@ GPUMemoryPage::AllocationChunk * GPUMemoryPage::AllocateFromFreeChunk(AllocDesc 
 	return NewChunk;
 }
 
-GPUMemoryPage::AllocationChunk * GPUMemoryPage::GetChunk(AllocDesc & desc)
+GPUMemoryPage::AllocationChunk* GPUMemoryPage::GetChunk(AllocDesc& desc)
 {
 	return AllocateFromFreeChunk(desc);
 }
 
-bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc & desc, uint64 AddressAlignmentForce) const
+bool GPUMemoryPage::AllocationChunk::CanFitAllocation(const AllocDesc& desc, uint64 AddressAlignmentForce) const
 {
 	return size > D3D12Helpers::Align(desc.TextureAllocData.SizeInBytes, AddressAlignmentForce);
 }
 
-void GPUMemoryPage::CreateResourceCommitted(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
+void GPUMemoryPage::CreateResourceCommitted(AllocationChunk* chunk, AllocDesc& desc, ID3D12Resource** Resource)
 {
 	D3D12_CLEAR_VALUE* value = nullptr;
 	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
@@ -144,7 +251,7 @@ void GPUMemoryPage::CreateResourceCommitted(AllocationChunk* chunk, AllocDesc & 
 	D3D12_HEAP_FLAGS Flags = desc.HeapFlags;
 	if (PageDesc.PageAllocationType == EPageTypes::RTAndDS_Only)
 	{
-		desc.ResourceDesc.Alignment = 0;	
+		desc.ResourceDesc.Alignment = 0;
 	}
 	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -159,7 +266,7 @@ void GPUMemoryPage::CreateResourceCommitted(AllocationChunk* chunk, AllocDesc & 
 	AllocatedChunks.push_back(NewChunk);
 }
 
-void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc & desc, ID3D12Resource** Resource)
+void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc& desc, ID3D12Resource** Resource)
 {
 	D3D12_CLEAR_VALUE* value = nullptr;
 	if (desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.ResourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
@@ -241,9 +348,71 @@ D3D12_HEAP_FLAGS GPUMemoryPage::GetFlagsForType(EPageTypes::Type T)
 void GPUMemoryPage::Compact()
 {
 	//#DXMM: Defragment the page 
+	//Defragment();
+}
+bool GPUMemoryPage::AreChunksNext(AllocationChunk* a, AllocationChunk* b)
+{
+	if (a->offset < b->offset)
+	{
+		uint64 Blockend = a->offset + a->size;
+		if (Blockend == b->offset)
+		{
+			return true;
+		}
+	}
+	//else
+	//{
+	//	uint64 Blockend = b->offset + b->size;
+	//	if (Blockend == a->offset)
+	//	{
+	//		return true;
+	//	}
+	//}
+	return false;
+}
+void GPUMemoryPage::Defragment(uint64 NeededSize)
+{
+	if (FreeChunks.size() == 0)
+	{
+		return;
+	}
+	//uint64 FreedSize = 0;
+	//std::vector<AllocationChunk*> RemoveChunks;
+	//struct
+	//{
+	//	bool operator()(AllocationChunk* a, AllocationChunk* b) const
+	//	{
+	//		return a->offset < b->offset;
+	//	}
+	//} customLess;
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	RemoveChunks.clear();
+	//	std::sort(FreeChunks.begin(), FreeChunks.end(), customLess);
+	//	for (int x = 0; x < FreeChunks.size() - 1; x++)
+	//	{
+	//		if (AreChunksNext(FreeChunks[x], FreeChunks[x + 1]))
+	//		{
+
+	//			FreeChunks[x + 1]->size += FreeChunks[x]->size;
+	//			RemoveChunks.push_back(FreeChunks[x]);
+	//			x++;
+	//		}
+	//	}
+	//	for (int i = 0; i < RemoveChunks.size(); i++)
+	//	{
+	//		/*FreeChunk(RemoveChunks[i]);*/
+	//		VectorUtils::Remove(FreeChunks, RemoveChunks[i]);
+	//		SafeDelete(RemoveChunks[i]);
+	//	}
+	//}
+	//if (FreedSize > NeededSize)
+	//{
+	//	return;
+	//}
 }
 
-void GPUMemoryPage::Deallocate(GPUResource * R)
+void GPUMemoryPage::Deallocate(GPUResource* R)
 {
 	if (IsReleaseing)
 	{
@@ -251,13 +420,35 @@ void GPUMemoryPage::Deallocate(GPUResource * R)
 	}
 	if (R->Chunk != nullptr)
 	{
-		VectorUtils::Remove(AllocatedChunks, R->Chunk);
-		FreeChunks.push_back(R->Chunk);
+		FreeChunk(R->Chunk);
 	}
 	VectorUtils::Remove(ContainedResources, R);
 	if (ContainedResources.size() == 0)
 	{
 		ResetPage();
+	}
+}
+
+void GPUMemoryPage::FreeChunk(AllocationChunk* Chunk)
+{
+	VectorUtils::Remove(AllocatedChunks, Chunk);
+	bool DidMerge = false;
+	for (int i = 0; i < FreeChunks.size(); i++)
+	{
+		AllocationChunk* b = FreeChunks[i];
+		uint64 Blockend = Chunk->offset + Chunk->size;
+		if (Blockend == b->offset)
+		{
+			b->size += Chunk->size;
+			b->offset = Chunk->offset;
+			//check this
+			DidMerge = true;
+			break;
+		}
+	}
+	if (!DidMerge)
+	{
+		FreeChunks.push_back(Chunk);
 	}
 }
 
@@ -301,6 +492,17 @@ void GPUMemoryPage::LogReport(bool ReportResources)
 #endif
 }
 
+float GPUMemoryPage::GetFragmentationPC()
+{
+	float PC = 0.0f;
+	for (int i = 1; i < FreeChunks.size(); i++)
+	{
+		float ChunkPc = (float)FreeChunks[i]->size / (float)PageDesc.Size;
+		PC += ChunkPc;
+	}
+	return PC;
+}
+
 void GPUMemoryPage::ResetPage()
 {
 	for (GPUResource* r : ContainedResources)
@@ -329,7 +531,7 @@ void GPUMemoryPage::MakeResident()
 	Device->GetDevice()->MakeResident(1, &list);
 }
 
-const AllocDesc & GPUMemoryPage::GetDesc() const
+const AllocDesc& GPUMemoryPage::GetDesc() const
 {
 	return PageDesc;
 }

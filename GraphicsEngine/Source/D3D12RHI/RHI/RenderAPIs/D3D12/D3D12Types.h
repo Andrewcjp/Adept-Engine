@@ -40,6 +40,7 @@ struct AllocDesc
 	bool IsTransient = false;//notify that this resource is used for a short amount of time.
 	bool UseCommittedResource = false;
 	bool IsReadBack = false;
+	bool AllowGeneralUse = true;
 };
 namespace EResourcePageState
 {
