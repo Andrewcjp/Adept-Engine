@@ -147,7 +147,7 @@ FrameBufferStorageNode* RenderGraph::CreateRTXBuffer()
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.LinkToBackBufferScaleFactor = 1.0f;
 	Desc.AllowUnorderedAccess = true;
-	Desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	Desc.SimpleStartingState = EResourceState::Non_PixelShader;
 	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
 	RTXBuffer->SetFrameBufferDesc(Desc);
 	return RTXBuffer;

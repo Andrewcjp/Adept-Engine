@@ -37,7 +37,7 @@ void OutputToScreenNode::OnExecute()
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::RenderTarget);
 #else
 	RHIRenderPassDesc RP = RHI::GetRenderPassDescForSwapChain(true);
-	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+	RP.InitalState = EResourceState::Undefined;
 #endif
 
 	ScreenWriteList->BeginRenderPass(RP);

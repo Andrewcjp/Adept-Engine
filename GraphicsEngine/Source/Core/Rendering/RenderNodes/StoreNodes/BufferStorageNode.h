@@ -15,7 +15,7 @@ public:
 		return GPUBuffer;
 	};
 	RHIBufferDesc Desc = RHIBufferDesc();
-	int LinkedFrameBufferRatio = 1;
+	float LinkedFrameBufferRatio = 1.0f;
 	FrameBufferStorageNode* FramebufferNode = nullptr;
 protected:
 	void Create() override;

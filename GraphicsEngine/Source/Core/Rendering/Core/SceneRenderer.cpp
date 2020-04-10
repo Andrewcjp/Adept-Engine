@@ -270,6 +270,7 @@ LightUniformBuffer SceneRenderer::CreateLightEntity(Light * L, int devindex)
 	ShadowRenderer::UpdateShadowID(L, devindex);
 	newitem.ShadowID = L->GetShadowId();
 	newitem.Range = L->GetRange();
+	newitem.PreSampled.x = true;
 	return newitem;
 }
 

@@ -86,6 +86,10 @@ void DeferredLightingNode::OnExecute()
 		FrameBuffer* ScreenSpaceData = GetFrameBufferFromInput(NodeInputStruct.SSRData);
 		List->SetFrameBufferTexture(ScreenSpaceData, DeferredLightingShaderRSBinds::ScreenSpecular);
 	}
+	if (NodeInputStruct.ShadowMask->IsValid())
+	{
+		List->SetFrameBufferTexture(GetFrameBufferFromInput(NodeInputStruct.ShadowMask) , DeferredLightingShaderRSBinds::PreSampleShadows);
+	}
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(List, true);
@@ -135,7 +139,7 @@ void DeferredLightingNode::OnNodeSettingChange()
 	{
 		AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::ShadingImage, "VRX Image");
 	}
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
+	NodeInputStruct.ShadowMask = AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
 
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
 	SetUseSeperateCommandList();

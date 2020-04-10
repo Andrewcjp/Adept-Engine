@@ -90,7 +90,7 @@ void Shader_EnvMap::ComputeEnvBRDF()
 	CmdList->SetPipelineStateDesc(desc);
 
 	RHIRenderPassDesc D = RHIRenderPassDesc(EnvBRDFBuffer);
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D.FinalState = EResourceState::PixelShader;
 	CmdList->BeginRenderPass(D);
 	CmdList->SetConstantBufferView(ShaderData, 0, 0);
 	SceneRenderer::DrawScreenQuad(CmdList);

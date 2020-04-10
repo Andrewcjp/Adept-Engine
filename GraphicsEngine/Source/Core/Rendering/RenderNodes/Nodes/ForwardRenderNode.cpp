@@ -33,7 +33,7 @@ void ForwardRenderNode::OnExecute()
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
 	CommandList->ResetList();
 	CommandList->StartTimer(EGPUTIMERS::MainPass);
-	SetBeginStates(CommandList);   
+	SetBeginStates(CommandList);
 	Scene* MainScene = GetSceneDataFromInput(1);
 	ensure(MainScene);
 	UsePreZPass = (GetInput(0)->GetStoreTarget()->DataFormat == StorageFormats::PreZData);
@@ -42,20 +42,20 @@ void ForwardRenderNode::OnExecute()
 	desc.RenderPassDesc = RHIRenderPassDesc(TargetBuffer, UsePreZPass ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
 
 	CommandList->SetPipelineStateDesc(desc);
-	 
+
 	CommandList->BeginRenderPass(desc.RenderPassDesc);
 	glm::ivec2 Res = glm::ivec2(TargetBuffer->GetWidth(), TargetBuffer->GetHeight());
 	if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
 	{
 		CommandList->SetScissorRect(SFRController::GetScissor(CommandList->GetDeviceIndex(), Res));
-	}    
+	}
 	if (!RHI::IsVulkan())
 	{
-		//CommandList->SetRootConstant(MainShaderRSBinds::ResolutionCBV, 2, &Res, 0);
+		CommandList->SetRootConstant("Resolution", 2, &Res, 0);
 	}
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(CommandList, false);
 	//SceneRenderer::Get()->GetReflectionEnviroment()->BindDynamicReflections(CommandList, false);
-	 
+
 	//CommandList->SetVRSShadingRate(VRS_SHADING_RATE::SHADING_RATE_2X2);
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye(), TargetBuffer);
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(CommandList);
@@ -71,11 +71,8 @@ void ForwardRenderNode::OnExecute()
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), CommandList, TargetBuffer, nullptr);
 	CommandList->EndTimer(EGPUTIMERS::MainPass);
-	if (CommandList->GetDeviceIndex() == 1)
-	{
-		CommandList->GetDevice()->GetTimeManager()->EndTotalGPUTimer(CommandList);
-	}
-	SetEndStates(CommandList); 
+
+	SetEndStates(CommandList);
 	CommandList->Execute();
 	PassNodeThough(0, StorageFormats::LitScene);
 }
@@ -90,6 +87,10 @@ void ForwardRenderNode::BindLightingData(RHICommandList* list, ForwardRenderNode
 	if (node->GetInput(2)->IsValid())
 	{
 		node->GetShadowDataFromInput(2)->BindPointArray(list, "g_Shadow_texture2");
+	}
+	if (node->GetInput(3)->IsValid())
+	{
+		list->SetFrameBufferTexture(node->GetFrameBufferFromInput(3), "PerSampledShadow");
 	}
 }
 
@@ -109,6 +110,7 @@ void ForwardRenderNode::OnNodeSettingChange()
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);
 	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit output");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "Shadow mask")->SetOptional();
 	//if (UseLightCulling)
 	{
 		NodeLink* lnk = AddInput(EStorageType::Buffer, StorageFormats::LightCullingData, "Light culling data");

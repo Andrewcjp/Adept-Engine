@@ -366,7 +366,7 @@ void D3D12Buffer::CreateBuffer(RHIBufferDesc desc)
 		}
 		else
 		{
-			Allocdesc.InitalState = D3D12FrameBuffer::ConvertState(Desc.StartState);
+			Allocdesc.InitalState = D3D12Helpers::ConvertRHIState(Desc.StartState);
 		}
 		if (desc.UseForExecuteIndirect)
 		{
@@ -453,5 +453,5 @@ void* D3D12Buffer::MapReadBack()
 void D3D12Buffer::SetResourceState(RHICommandList* list, EResourceState::Type State)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
-	m_DataBuffer->SetResourceState(d3dlist, D3D12FrameBuffer::ConvertState(State));
+	m_DataBuffer->SetResourceState(d3dlist, D3D12Helpers::ConvertRHIState(State));
 }

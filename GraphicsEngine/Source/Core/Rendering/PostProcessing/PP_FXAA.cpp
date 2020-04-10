@@ -47,7 +47,7 @@ void PP_FXAA::PostInitEffect(FrameBuffer* Target)
 	desc = RHIFrameBufferDesc::CreateColour(1, 1);
 	desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	desc.AllowUnorderedAccess = true;
-	desc.StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	desc.SimpleStartingState = EResourceState::Non_PixelShader;
 	TempBuffer->AutoUpdateSize(desc);
 	TempBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), desc);
 

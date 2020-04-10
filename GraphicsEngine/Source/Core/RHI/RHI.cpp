@@ -1,34 +1,35 @@
 #include "RHI.h"
+#include "Core/Assets/Archive.h"
+#include "Core/Assets/Asset_Shader.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/ImageIO.h"
 #include "Core/Assets/ShaderComplier.h"
+#include "Core/Input/Input.h"
 #include "Core/Module/ModuleManager.h"
+#include "Core/Performance/PerfManager.h"
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/PlatformCore.h"
-#include "Rendering/Core/ParticleSystemManager.h"
-#include "RHI_inc.h"
+#include "Core/Platform/Windows/WindowsWindow.h"
 #include "Core/Utils/RefChecker.h"
-#include "SFRController.h"
-#include "Core/Assets/Archive.h"
-#include "Rendering/Core/Material.h"
-#include "Core/Assets/Asset_Shader.h"
-#include "Rendering/Core/Defaults.h"
 #include "Core/Utils/VectorUtils.h"
+#include "Rendering/Core/Defaults.h"
+#include "Rendering/Core/DynamicQualityEngine.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Core/ParticleSystemManager.h"
+#include "Rendering/Performance/GPUPerformanceTestManager.h"
+#include "Rendering/RayTracing/RayTracingEngine.h"
+#include "Rendering/RenderNodes/RenderGraphSystem.h"
+#include "Rendering/Utils/UAVFormatConverter.h"
 #include "Rendering/VR/HMD.h"
 #include "Rendering/VR/HMDManager.h"
-#include "Core/Performance/PerfManager.h"
-#include "Rendering/RayTracing/RayTracingEngine.h"
-#include "RHIRenderPassCache.h"
-#include "Core/Input/Input.h"
-#include "Testing/EngineTests.h"
-#include "Rendering/RenderNodes/RenderGraphSystem.h"
+#include "RHI_inc.h"
 #include "RHIInterGPUStagingResource.h"
-#include "Core/Platform/Windows/WindowsWindow.h"
-#include "Rendering/Performance/GPUPerformanceTestManager.h"
-#include "Rendering/Core/FrameBuffer.h"
-#include "Rendering/Core/DynamicQualityEngine.h"
-#include "Rendering/Utils/UAVFormatConverter.h"
+#include "RHIRenderPassCache.h"
+#include "SFRController.h"
 #include "Streaming/TextureStreamingEngine.h"
+#include "Testing/EngineTests.h"
+
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
 RHI* RHI::instance = nullptr;
@@ -759,7 +760,7 @@ RHIRenderPassDesc RHIClass::GetRenderPassDescForSwapChain(bool ClearScreen /*= f
 	Desc.LoadOp = ClearScreen ? ERenderPassLoadOp::Clear : ERenderPassLoadOp::Load;
 	if (!ClearScreen)
 	{
-		Desc.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+		Desc.InitalState = EResourceState::RenderTarget;
 	}
 	return  Desc;
 }

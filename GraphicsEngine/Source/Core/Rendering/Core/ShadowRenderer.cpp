@@ -50,7 +50,6 @@ eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
 
 void ShadowRenderer::RenderPointShadows(RHICommandList* list)
 {
-
 	list->StartTimer(EGPUTIMERS::PointShadows);
 	int IndexOnGPU = 0;
 	std::vector<Light*> lights = SceneRenderer::Get()->GetLightCullingEngine()->GetCurrentlyRelevantLights();
@@ -106,10 +105,10 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList* list, 
 	SetPointRS(list, TargetBuffer);
 	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
 	RHIRenderPassDesc D = RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear);
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D.FinalState = EResourceState::PixelShader;
 	if (RHI::GetFrameCount() != 0)
 	{
-		D.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_UNDEFINED;
+		D.InitalState = EResourceState::Undefined;
 	}
 	list->BeginRenderPass(D);
 	TargetShader->UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU);

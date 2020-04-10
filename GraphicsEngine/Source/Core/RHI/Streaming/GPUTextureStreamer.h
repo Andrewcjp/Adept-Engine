@@ -17,6 +17,6 @@ protected:
 	RHI_API virtual void Tick(RHICommandList* list);
 	RHI_API virtual void OnInit(DeviceContext* con);
 	std::vector<TextureHandle*> Handles;
-	RHICommandList* list = nullptr;
+	RHICommandList* CmdList = nullptr;
 };
 

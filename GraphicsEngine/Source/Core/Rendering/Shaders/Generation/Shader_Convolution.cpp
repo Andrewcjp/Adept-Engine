@@ -63,7 +63,7 @@ void Shader_Convolution::ComputeConvolution(BaseTextureRef Target, FrameBuffer* 
 	CmdList->ResetList();
 	CmdList->SetPipelineStateDesc(ConvPSODesc);
 	RHIRenderPassDesc D = RHIRenderPassDesc(Buffer, ERenderPassLoadOp::Clear);
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D.FinalState = EResourceState::PixelShader;
 	CmdList->BeginRenderPass(D);
 	CmdList->SetTexture(Target, 0);
 	for (int i = 0; i < 6; i++)
@@ -79,7 +79,7 @@ void Shader_Convolution::ComputeConvolution(BaseTextureRef Target, FrameBuffer* 
 void Shader_Convolution::ComputeConvolutionProbe(RHICommandList* List, FrameBuffer* Target, FrameBuffer * Buffer)
 {		
 	RHIRenderPassDesc D = RHIRenderPassDesc(Buffer, ERenderPassLoadOp::Clear);
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D.FinalState  = EResourceState::PixelShader;
 	List->SetPipelineStateDesc(ConvPSODesc);
 	List->BeginRenderPass(D);
 	List->SetFrameBufferTexture(Target, 0);

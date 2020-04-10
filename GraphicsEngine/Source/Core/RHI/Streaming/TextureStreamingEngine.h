@@ -25,6 +25,7 @@ public:
 		Streamers.push_back(Stream);
 	}
 	static TextureHandle* RequestTexture(std::string File);
+	
 private:
 	uint64_t TargetMaxMemory = 0;
 	static TextureStreamingEngine* Instance;

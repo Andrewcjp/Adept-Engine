@@ -6,6 +6,7 @@
 class BaseTexture;
 class IniHandler;
 class BaseAsset;
+class TextureHandle;
 struct PlatformBuildSettings
 {
 	int MaxWidth = 1024;
@@ -59,6 +60,7 @@ public:
 	CORE_API bool LoadShaderMetaFile(std::string CSOpath, ShaderSourceFile ** file);
 	CORE_API ShaderSourceFile* LoadFileWithInclude(std::string name);
 	static void RegisterMeshAssetLoad(std::string name);
+	bool ProcessTexture(TextureHandle* Handle);
 	CORE_API static BaseTextureRef DirectLoadTextureAsset(std::string name, TextureImportSettings settigns = TextureImportSettings(), class DeviceContext * Device = nullptr);
 	CORE_API static const std::string GetShaderPath();
 	CORE_API static const std::string GetContentPath();

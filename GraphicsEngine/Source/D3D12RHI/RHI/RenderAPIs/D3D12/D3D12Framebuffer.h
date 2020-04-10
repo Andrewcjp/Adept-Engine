@@ -46,7 +46,6 @@ public:
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap = nullptr);
 
 	virtual uint64 GetInstanceHash() const override;
-	static	D3D12_RESOURCE_STATES ConvertState(EResourceState::Type State);
 	void PopulateDescriptor(DXDescriptor* desc, int index, const RHIViewDesc& view);
 	uint64 GetViewHash(const RHIViewDesc& desc);
 private:

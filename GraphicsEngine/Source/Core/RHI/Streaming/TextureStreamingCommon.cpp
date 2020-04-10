@@ -26,6 +26,7 @@ TextureHandle::~TextureHandle()
 void TextureHandle::InitFromFile(std::string file)
 {
 	FilePath = file;
+	ValidHandle = AssetManager::Get()->ProcessTexture(this);
 }
 
 void TextureHandle::LoadToCPUMemory()
@@ -67,14 +68,15 @@ void TextureHandle::LinkToMesh(MeshRendererComponent* Mesh)
 
 void TextureHandle::Bind(RHICommandList* List, std::string SlotName)
 {
-	if (Backing == nullptr)
+	RHITexture* Backing = GetData(List)->Backing;
+	if (Backing == nullptr || !IsValid())
 	{
 		List->SetTexture(Defaults::GetDefaultTexture(), SlotName);
 		return;
 	}
 	RHIViewDesc view = RHIViewDesc::DefaultSRV();
-	view.MipLevels = Math::Max(Description.MipLevels - TopMipState, 1);
-	view.Mip = Math::Min(TopMipState, Description.MipLevels-1);
+	view.MipLevels = Math::Max(Description.MipLevels - GetData(List)->TopMipState, 1);
+	view.Mip = Math::Min(GetData(List)->TopMipState, Description.MipLevels-1);
 	Backing->SetState(List, EResourceState::PixelShader);
 	List->SetTexture2(Backing, List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName(SlotName), view);
 }
@@ -82,4 +84,14 @@ void TextureHandle::Bind(RHICommandList* List, std::string SlotName)
 void TextureHandle::UnLoadFromCPUMemory()
 {
 	IsCPULoaded = false;
+}
+
+TextureHandle::PerGPUData* TextureHandle::GetData(RHICommandList* list)
+{
+	return &GpuData[list->GetDeviceIndex()];
+}
+
+TextureHandle::PerGPUData* TextureHandle::GetData(DeviceContext* device)
+{
+	return &GpuData[device->GetDeviceIndex()];
 }

@@ -11,14 +11,14 @@ GPUTextureStreamer::~GPUTextureStreamer()
 
 void GPUTextureStreamer::Init(DeviceContext * Con)
 {
-	list = RHI::CreateCommandList(ECommandListType::Graphics, Con);
+	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Con);
 	TextureStreamingEngine::Get()->RegisterGPUStreamer(this);
 	OnInit(Con);
 }
 
 void GPUTextureStreamer::Update()
 {
-	Tick(list);
+	Tick(CmdList);
 }
 
 void GPUTextureStreamer::RealiseHandle(TextureHandle* handle)

@@ -27,21 +27,28 @@ void TextureStreamingEngine::UpdateSceneTextureStreaming()
 		TextureHandle* h = NewHandles.front();
 		NewHandles.pop();
 		h->LoadToCPUMemory();
-		Streamers[0]->RealiseHandle(h);
+		for (int i = 0; i < Streamers.size(); i++)
+		{
+			Streamers[i]->RealiseHandle(h);
+		}
 	}
-	Streamers[0]->Update();
+
+	for (int i = 0; i < Streamers.size(); i++)
+	{
+		Streamers[i]->Update();
+	}
 	if (Input::GetKeyDown('I'))
 	{
 		for (int i = 0; i < Handles.size(); i++)
 		{
-			Handles[i]->TargetMip = 8;
+			Handles[i]->SetAllTargetMip(8);
 		}
 	}
 	if (Input::GetKeyDown('O'))
 	{
 		for (int i = 0; i < Handles.size(); i++)
 		{
-			Handles[i]->TargetMip = 0;
+			Handles[i]->SetAllTargetMip(0);
 		}
 	}
 }

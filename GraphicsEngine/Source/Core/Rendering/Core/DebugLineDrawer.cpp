@@ -125,7 +125,7 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	{
 		if (Is2DOnly)
 		{
-			RPdesc.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			RPdesc.FinalState = EResourceState::PixelShader;
 		}
 	}
 	CmdList->BeginRenderPass(RPdesc);

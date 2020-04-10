@@ -1,14 +1,16 @@
 #include "ShadowMaskCompressionNode.h"
-#include "../../StorageNodeFormats.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/Screen.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/Shaders/Shader_Pair.h"
 #include "RHI/RHICommandList.h"
-#include "../../../Core/Screen.h"
-#include "../../../Shaders/Shader_Pair.h"
-#include "../../../Core/FrameBuffer.h"
 #include "RHI/SFRController.h"
+#include "RHI/RHITimeManager.h"
 
 ShadowMaskCompressionNode::ShadowMaskCompressionNode()
 {
 	OnNodeSettingChange();
+	NodeEngineType = ECommandListType::Compute;
 }
 
 ShadowMaskCompressionNode::~ShadowMaskCompressionNode()
@@ -29,6 +31,8 @@ void ShadowMaskCompressionNode::OnExecute()
 		OffsetXY = glm::ivec2(rect.Left, rect.Top);
 		RectData->UpdateConstantBuffer(&OffsetXY);
 	}
+	int Height = Target->GetHeight();
+	Width /= 8;
 	eTEXTURE_FORMAT TargetFormat = eTEXTURE_FORMAT::FORMAT_R8_UINT;
 	if (Compress)
 	{
@@ -41,9 +45,9 @@ void ShadowMaskCompressionNode::OnExecute()
 		List->SetUAV(BufferTarget, FourCompCompressShader->GetSlotForName("OutputBuffer"), v);
 		List->SetFrameBufferTexture(Target, "InputData");
 		List->SetConstantBufferView(RectData, 0, "AreaData");
-		glm::ivec2 Res = glm::ivec2(Width, Target->GetHeight());
+		glm::ivec2 Res = glm::ivec2(Width, Height);
 		List->SetRootConstant(FourCompCompressShader->GetSlotForName("Resolution"), 1, &Res, 0);
-		List->DispatchSized(Width, Target->GetHeight(), 1);
+		List->DispatchSized(Width, Height, 1);
 		List->UAVBarrier(BufferTarget);
 	}
 	else
@@ -56,10 +60,14 @@ void ShadowMaskCompressionNode::OnExecute()
 		List->SetBuffer(BufferTarget, FourCompDeCompressShader->GetSlotForName("CompressedData"), v);
 		List->SetUAV(Target, "TargetFrameBuffer");
 		List->SetConstantBufferView(RectData, 0, "AreaData");
-		glm::ivec2 Res = glm::ivec2(Width, Target->GetHeight());
+		glm::ivec2 Res = glm::ivec2(Width, Height);
 		List->SetRootConstant(FourCompDeCompressShader->GetSlotForName("Resolution"), 1, &Res, 0);
-		List->DispatchSized(Width, Target->GetHeight(), 1);
+		List->DispatchSized(Width, Height, 1);
 		List->UAVBarrier(Target);
+	}
+	if (List->GetDeviceIndex() == 1)
+	{
+		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
 	}
 	SetEndStates(List);
 	List->Execute();
@@ -73,8 +81,8 @@ void ShadowMaskCompressionNode::OnNodeSettingChange()
 
 void ShadowMaskCompressionNode::OnSetupNode()
 {
-	FourCompCompressShader = new Shader_Pair(Context, { "Compression\\Compress4to3Comp" }, { EShaderType::SHADER_COMPUTE });
-	FourCompDeCompressShader = new Shader_Pair(Context, { "Compression\\DeCompress4to3Comp" }, { EShaderType::SHADER_COMPUTE });
+	FourCompCompressShader = new Shader_Pair(Context, { "Compression\\CompressShadowMask" }, { EShaderType::SHADER_COMPUTE });
+	FourCompDeCompressShader = new Shader_Pair(Context, { "Compression\\DecompressShadowMask" }, { EShaderType::SHADER_COMPUTE });
 
 	List = RHI::CreateCommandList(ECommandListType::Compute, Context);
 	RectData = RHI::CreateRHIBuffer(ERHIBufferType::Constant, Context);

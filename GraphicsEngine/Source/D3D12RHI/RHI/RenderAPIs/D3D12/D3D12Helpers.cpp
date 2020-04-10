@@ -839,3 +839,41 @@ bool D3D12Helpers::IsValidForQueryHeap(D3D12_QUERY_HEAP_TYPE type, EGPUQueryType
 	}
 	return false;
 }
+
+D3D12_RESOURCE_STATES D3D12Helpers::ConvertRHIState(EResourceState::Type State)
+{
+	switch (State)
+	{
+	case EResourceState::Common:
+		return D3D12_RESOURCE_STATE_COMMON;
+	case EResourceState::ComputeUse:
+		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	case EResourceState::PixelShader:
+		return  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	case EResourceState::RenderTarget:
+		return D3D12_RESOURCE_STATE_RENDER_TARGET;
+	case EResourceState::Non_PixelShader:
+		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	case EResourceState::UAV:
+		return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	case EResourceState::CopyDst:
+		return D3D12_RESOURCE_STATE_COPY_DEST;
+	case EResourceState::CopySrc:
+		return D3D12_RESOURCE_STATE_COPY_SOURCE;
+#if WIN10_1903
+	case EResourceState::ShadingRateImage:
+		return D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
+#endif
+	}
+	return D3D12_RESOURCE_STATE_COMMON;
+}
+
+D3D12_RESOURCE_STATES D3D12Helpers::ConvertRHIState_Safe(EResourceState::Type State, bool IsDepthResouce)
+{
+	D3D12_RESOURCE_STATES DXState = D3D12Helpers::ConvertRHIState(State);
+	if (DXState == D3D12_RESOURCE_STATE_RENDER_TARGET && IsDepthResouce)
+	{
+		DXState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+	}
+	return DXState;
+}

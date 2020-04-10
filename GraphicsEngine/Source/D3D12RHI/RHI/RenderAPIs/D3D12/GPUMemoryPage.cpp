@@ -86,8 +86,6 @@ bool GPUMemoryPage::CheckSpaceForResource(AllocDesc& desc)
 	return true;
 }
 
-
-
 void GPUMemoryPage::MapResouce(GPUResource* Resource, const ResourceTileMapping& mapping)
 {
 	std::vector<ResourceMipInfo*> m_TargetMips;

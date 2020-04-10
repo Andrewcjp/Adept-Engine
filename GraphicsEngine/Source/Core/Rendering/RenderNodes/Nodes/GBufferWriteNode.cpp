@@ -49,7 +49,7 @@ void GBufferWriteNode::OnExecute()
 
 	SceneRenderer::Get()->SetupBindsForForwardPass(CommandList, GetEye(), GBuffer);
 	RHIRenderPassDesc D = RHIRenderPassDesc(GBuffer, UsePreZPass ? ERenderPassLoadOp::Load : ERenderPassLoadOp::Clear);
-	D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D.FinalState = EResourceState::PixelShader;
 	CommandList->BeginRenderPass(D);
 	MeshPassRenderArgs Args;
 	Args.PassType = ERenderPass::BasePass;

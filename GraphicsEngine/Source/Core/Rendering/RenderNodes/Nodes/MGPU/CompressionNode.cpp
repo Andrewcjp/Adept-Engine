@@ -67,6 +67,10 @@ void CompressionNode::OnExecute()
 		List->DispatchSized(Width, Target->GetHeight(), 1);
 		List->UAVBarrier(Target);
 	}
+	if (List->GetDeviceIndex() == 1)
+	{
+		List->GetDevice()->GetTimeManager()->EndTotalGPUTimer(List);
+	}
 	SetEndStates(List);
 	List->Execute();
 

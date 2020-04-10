@@ -58,41 +58,14 @@ struct  EResourceState
 		Undefined,
 		Common,
 		ShadingRateImage,
+		IndirectArg,
 		Limit
 	};
 	static std::string ToString(EResourceState::Type state);
 	static bool IsStateValidForList(ECommandListType::Type listtype, EResourceState::Type state);
 };
 
-namespace GPU_RESOURCE_STATES
-{
-	enum Type
-	{
-		RESOURCE_STATE_COMMON = 0,
-		RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER = 0x1,
-		RESOURCE_STATE_INDEX_BUFFER = 0x2,
-		RESOURCE_STATE_RENDER_TARGET = 0x4,
-		RESOURCE_STATE_UNORDERED_ACCESS = 0x8,
-		RESOURCE_STATE_DEPTH_WRITE = 0x10,
-		RESOURCE_STATE_DEPTH_READ = 0x20,
-		RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE = 0x40,
-		RESOURCE_STATE_PIXEL_SHADER_RESOURCE = 0x80,
-		RESOURCE_STATE_STREAM_OUT = 0x100,
-		RESOURCE_STATE_INDIRECT_ARGUMENT = 0x200,
-		RESOURCE_STATE_COPY_DEST = 0x400,
-		RESOURCE_STATE_COPY_SOURCE = 0x800,
-		RESOURCE_STATE_RESOLVE_DEST = 0x1000,
-		RESOURCE_STATE_RESOLVE_SOURCE = 0x2000,
-		RESOURCE_STATE_GENERIC_READ = (((((0x1 | 0x2) | 0x40) | 0x80) | 0x200) | 0x800),
-		RESOURCE_STATE_PRESENT = 0,
-		RESOURCE_STATE_PREDICATION = 0x200,
-		RESOURCE_STATE_VIDEO_DECODE_READ = 0x10000,
-		RESOURCE_STATE_VIDEO_DECODE_WRITE = 0x20000,
-		RESOURCE_STATE_VIDEO_PROCESS_READ = 0x40000,
-		RESOURCE_STATE_VIDEO_PROCESS_WRITE = 0x80000,
-		RESOURCE_STATE_UNDEFINED = 0x90000
-	};
-}
+
 enum eTEXTURE_FORMAT
 {
 	FORMAT_UNKNOWN = 0,
@@ -364,8 +337,8 @@ struct RHIRenderPassDesc
 	ERenderPassLoadOp::Type StencilLoadOp = ERenderPassLoadOp::DontCare;
 	ERenderPassStoreOp::Type StencilStoreOp = ERenderPassStoreOp::DontCare;
 
-	GPU_RESOURCE_STATES::Type InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
-	GPU_RESOURCE_STATES::Type FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
+	EResourceState::Type InitalState = EResourceState::RenderTarget;
+	EResourceState::Type FinalState = EResourceState::RenderTarget;
 	RHIPipeRenderTargetDesc RenderDesc;
 	int SubResourceIndex = 0;
 	RHI_API void Build();
@@ -661,7 +634,6 @@ public:
 	int MipCount = 1;
 	int DepthMipCount = 1;
 	bool CubeMapAddressAsOne = true;
-	GPU_RESOURCE_STATES::Type StartingState = GPU_RESOURCE_STATES::RESOURCE_STATE_COMMON;
 	EResourceState::Type SimpleStartingState = EResourceState::Common;
 	glm::vec4 ViewPort = glm::vec4();
 	glm::vec4 ScissorRect = glm::vec4();

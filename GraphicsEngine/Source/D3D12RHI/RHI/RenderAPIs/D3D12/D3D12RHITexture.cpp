@@ -19,11 +19,13 @@
 
 
 D3D12RHITexture::D3D12RHITexture()
-{}
+{
+}
 
 
 D3D12RHITexture::~D3D12RHITexture()
-{}
+{
+}
 
 void D3D12RHITexture::Release()
 {
@@ -107,7 +109,7 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 	d.ResourceDesc = ResourceDesc;
 	d.ClearValue = ClearValue;
 	d.Name = Desc.Name;
-	d.InitalState = D3D12FrameBuffer::ConvertState(Desc.InitalState);
+	d.InitalState = D3D12Helpers::ConvertRHIState_Safe(Desc.InitalState, Desc.IsDepthStencil);
 	if (Desc.InitalState == EResourceState::RenderTarget && Desc.IsDepthStencil)
 	{
 		d.InitalState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
@@ -119,7 +121,7 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 	else
 	{
 		DContext->GetMemoryManager()->AllocResource(d, &Resource);
-	}	
+	}
 }
 
 GPUResource * D3D12RHITexture::GetResource() const
@@ -158,7 +160,7 @@ void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHI
 	{
 		Host->GetCopyableFootprints(&renderTargetDesc, 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
 		CD3DX12_TEXTURE_COPY_LOCATION dest(DXres->GetViewOnDevice(CurrentDevice->GetDeviceIndex())->GetResource(), renderTargetLayout);
-		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);		
+		CD3DX12_TEXTURE_COPY_LOCATION src(TargetResource->GetResource(), i);
 		list->GetCommandList()->CopyTextureRegion(&dest, rect.Left, rect.Top, 0, &src, &box);
 	}
 	GetResource()->SetResourceState(list, D3D12_RESOURCE_STATE_COMMON);
@@ -311,12 +313,8 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) co
 
 void D3D12RHITexture::SetState(RHICommandList* list, EResourceState::Type State)
 {
-	D3D12_RESOURCE_STATES DXState = D3D12FrameBuffer::ConvertState(State);
-	if (DXState == D3D12_RESOURCE_STATE_RENDER_TARGET)
-	{
-		DXState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-	}
-	GetResource()->SetResourceState(D3D12RHI::DXConv(list), DXState);
+
+	GetResource()->SetResourceState(D3D12RHI::DXConv(list), D3D12Helpers::ConvertRHIState_Safe(State));
 }
 
 

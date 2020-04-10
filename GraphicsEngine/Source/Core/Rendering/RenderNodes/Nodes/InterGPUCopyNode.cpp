@@ -20,7 +20,45 @@ InterGPUCopyNode::InterGPUCopyNode(DeviceContext* con)
 
 
 InterGPUCopyNode::~InterGPUCopyNode()
-{}
+{
+}
+
+void InterGPUCopyNode::ExecuteCopyTo(RHICommandList* List, InterGPUStorageNode* Node, RHIInterGPUStagingResource* InterRes)
+{
+	if (GetInput(0)->IsValid())
+	{
+		FrameBuffer* FB = GetFrameBufferFromInput(0);
+		FB->GetRenderTexture()->CopyToStagingResource(InterRes, List, SFRController::GetScissor(1, Screen::GetScaledRes()));
+		List->ResolveTimers();
+	}
+	if (GetInput(2)->IsValid())
+	{
+		RHIBuffer* Buffer = GetBufferFromInput(2);
+		Buffer->CopyToStagingResource(InterRes, List);
+		List->ResolveTimers();
+	}
+
+}
+void InterGPUCopyNode::ExecuteCopyFrom(RHICommandList* List, InterGPUStorageNode* Node, RHIInterGPUStagingResource* InterRes)
+{
+	if (GetInput(0)->IsValid())
+	{
+		FrameBuffer* FB = GetFrameBufferFromInput(0);
+		FB->GetRenderTexture()->CopyFromStagingResource(InterRes, List, SFRController::GetScissor(1, Screen::GetScaledRes()));
+		CopyList->ResolveTimers();
+	}
+	if (GetInput(2)->IsValid())
+	{
+		RHIBuffer* Buffer = GetBufferFromInput(2);
+		Buffer->CopyFromStagingResource(InterRes, List);
+		List->ResolveTimers();
+	}
+}
+
+void InterGPUCopyNode::ExecuteDirectCopy(RHICommandList* List, InterGPUStorageNode* Node, RHIInterGPUStagingResource* InterRes)
+{
+
+}
 
 void InterGPUCopyNode::OnExecute()
 {
@@ -28,47 +66,17 @@ void InterGPUCopyNode::OnExecute()
 	RHIInterGPUStagingResource* InterRes = Node->GetStore(0)->Resource;
 	CopyList->ResetList();
 	SetBeginStates(CopyList);
-
-	if (GetInput(0)->IsValid())
+	if (Mode == CopyFromStage)
 	{
-		FrameBuffer* FB = GetFrameBufferFromInput(0);
-		//todo: target sub resources in FBs
-		if (CopyTo)
-		{
-
-			//FB->CopyToStagingResource(InterRes, CopyList);
-			FB->GetRenderTexture()->CopyToStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
-			CopyList->ResolveTimers();
-		}
-		else
-		{
-			//if (CopyNode != nullptr)
-			{
-				FB->GetRenderTexture()->CopyFromStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
-			}
-			/*else
-			{
-				FB->CopyFromStagingResource(InterRes, CopyList);
-			}*/
-			CopyList->ResolveTimers();
-		}
+		ExecuteCopyFrom(CopyList, Node, InterRes);
 	}
-	if (GetInput(2)->IsValid())
+	else if (Mode == CopyToStage)
 	{
-		RHIBuffer* Buffer = GetBufferFromInput(2);
-		//todo: target sub resources in FBs
-		if (CopyTo) 
-		{
-			Buffer->CopyToStagingResource(InterRes, CopyList);
-			//FB->GetRenderTexture()->CopyToStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()))
-			
-		}
-		else
-		{
-			Buffer->CopyFromStagingResource(InterRes, CopyList);
-				//FB->GetRenderTexture()->CopyFromStagingResource(InterRes, CopyList, SFRController::GetScissor(1, Screen::GetScaledRes()));
-		}
-		CopyList->ResolveTimers();
+		ExecuteCopyTo(CopyList, Node, InterRes);
+	}
+	else if (Mode == CopyAcross)
+	{
+		ExecuteDirectCopy(CopyList, Node, InterRes);
 	}
 	SetEndStates(CopyList);
 	CopyList->Execute(DeviceContextQueue::InterCopy);

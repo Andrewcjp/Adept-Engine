@@ -67,27 +67,27 @@ void DXGPUTextureStreamer::OnRealiseTexture(TextureHandle* handle)
 	ImageDesc.MipCount = handle->Description.MipLevels;
 	Texture->Create(ImageDesc, Device);
 
-	handle->Backing = Texture;
-	handle->TopMipState = handle->Description.MipLevels;
-	handle->TargetMip = 0;
+	handle->GetData(Device)->Backing = Texture;
+	handle->GetData(Device)->TopMipState = handle->Description.MipLevels;
+	handle->GetData(Device)->TargetMip = 0;
 }
 
 void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list)
 {
-	D3D12RHITexture* Tex = D3D12RHI::DXConv(handle->Backing);
+	D3D12RHITexture* Tex = D3D12RHI::DXConv(handle->GetData(Device)->Backing);
 	TextureDescription& D = handle->Description;
 
-	if (handle->TargetMip == handle->TopMipState)
+	if (handle->GetData(Device)->TargetMip == handle->GetData(Device)->TopMipState)
 	{
 		return;
 	}
 	const int maxMips = 1;
-	int MipUpdatecount = handle->TopMipState - handle->TargetMip;
+	int MipUpdatecount = handle->GetData(Device)->TopMipState - handle->GetData(Device)->TargetMip;
 	if (MipUpdatecount > maxMips)
 	{
 		MipUpdatecount = maxMips;
 	}
-	int TargetMip = handle->TopMipState - MipUpdatecount;
+	int TargetMip = handle->GetData(Device)->TopMipState - MipUpdatecount;
 
 	ResourceTileMapping map;
 	map.FirstSubResource = TargetMip;
@@ -95,7 +95,7 @@ void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list
 	Page->MapResouce(Tex->GetResource(), map);
 	if (MipUpdatecount < 0)
 	{
-		handle->TopMipState -= MipUpdatecount;
+		handle->GetData(Device)->TopMipState -= MipUpdatecount;
 		return;
 	}
 
@@ -124,5 +124,5 @@ void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list
 	list->FlushBarriers();
 	UpdateSubresources(D3D12RHI::DXConv(list)->GetCommandList(), Tex->GetResource()->GetResource(), textureUploadHeap->GetResource(), 0, TargetMip, /*SubResourceDesc.size()*/MipUpdatecount, &SubResourceDesc[TargetMip]);
 	Tex->SetState(list, EResourceState::PixelShader);
-	handle->TopMipState -= MipUpdatecount;
+	handle->GetData(Device)->TopMipState -= MipUpdatecount;
 }

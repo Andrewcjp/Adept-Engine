@@ -58,12 +58,12 @@ GameHud * Game::CreateGameHUD()
 std::vector<std::string> Game::GetPreLoadAssets()
 {
 	std::vector<std::string> debug;
-	debug.push_back("Props\\Crate_2\\Crate_Diffuse.png");
+	/*debug.push_back("Props\\Crate_2\\Crate_Diffuse.png");
 	debug.push_back("\\texture\\MarsSky.dds");
 	debug.push_back("Props\\Crate_1\\low_default_AlbedoTransparency.png");
 	debug.push_back("\\texture\\BoxObject.png");
 	debug.push_back("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
 	debug.push_back("\\texture\\bricks2.jpg");
-	debug.push_back("\\Terrain\\DoorTex.png");
+	debug.push_back("\\Terrain\\DoorTex.png");*/
 	return debug;
 }

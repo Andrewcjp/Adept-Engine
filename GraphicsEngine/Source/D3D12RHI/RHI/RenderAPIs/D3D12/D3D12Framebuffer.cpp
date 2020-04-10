@@ -184,36 +184,7 @@ void D3D12FrameBuffer::SetState(RHICommandList* List, D3D12_RESOURCE_STATES stat
 	}
 }
 
-D3D12_RESOURCE_STATES D3D12FrameBuffer::ConvertState(EResourceState::Type State)
-{
-	switch (State)
-	{
-	case EResourceState::Common:
-		return D3D12_RESOURCE_STATE_COMMON;
-	case EResourceState::ComputeUse:
-		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	case EResourceState::PixelShader:
-		return  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	case EResourceState::RenderTarget:
-		return D3D12_RESOURCE_STATE_RENDER_TARGET;
-	case EResourceState::Non_PixelShader:
-		return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-	case EResourceState::UAV:
-		return D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-	case EResourceState::CopyDst:
-		return D3D12_RESOURCE_STATE_COPY_DEST;
-	case EResourceState::CopySrc:
-		return D3D12_RESOURCE_STATE_COPY_SOURCE;
-#if WIN10_1903
-	case EResourceState::ShadingRateImage:
-		return D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
-#endif
-	default:
-		break;
 
-	}
-	return D3D12_RESOURCE_STATE_COMMON;
-}
 
 void D3D12FrameBuffer::PopulateDescriptor(DXDescriptor * desc, int index, const RHIViewDesc& view)
 {
@@ -243,7 +214,7 @@ uint64 D3D12FrameBuffer::GetViewHash(const RHIViewDesc & desc)
 
 void D3D12FrameBuffer::SetResourceState(RHICommandList* List, EResourceState::Type State, bool ChangeDepth /*= false*/, EResourceTransitionMode::Type TransitionMode /*= EResourceTransitionMode::Direct*/)
 {
-	SetState(List, D3D12FrameBuffer::ConvertState(State), ChangeDepth, TransitionMode);
+	SetState(List, D3D12Helpers::ConvertRHIState(State), ChangeDepth, TransitionMode);
 	CurrentState = State;
 }
 

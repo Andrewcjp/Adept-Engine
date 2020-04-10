@@ -4,10 +4,10 @@
 class Shader_Pair;
 class ShadowMaskCompressionNode : public RenderNode
 {
+public:
 	ShadowMaskCompressionNode();
 	~ShadowMaskCompressionNode();
 
-public:
 	void OnExecute() override;
 	void SetCompressMode(bool state);
 protected:

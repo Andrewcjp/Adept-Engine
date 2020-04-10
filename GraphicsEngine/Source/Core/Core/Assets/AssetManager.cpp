@@ -9,13 +9,14 @@
 #endif
 #include "Packaging/Cooker.h"
 #include "Archive.h"
+#include "RHI/Streaming/TextureStreamingCommon.h"
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
 {
 	std::string path = GetShaderPath();
 #ifdef PLATFORM_WINDOWS
-	for (auto & p : std::filesystem::directory_iterator(path))
+	for (auto& p : std::filesystem::directory_iterator(path))
 	{
 		LoadFileWithInclude(p.path().filename().string());
 	}
@@ -106,8 +107,6 @@ const std::string AssetManager::GetSettingsDir()
 	return instance->SettingsDir;
 }
 
-
-
 BaseAsset* AssetManager::CreateOrGetAsset(std::string path)
 {
 	BaseAsset* Asset = nullptr;
@@ -133,7 +132,7 @@ void AssetManager::TestAsset()
 	ensure(CreationTest);
 }
 
-const PlatformBuildSettings & AssetManager::GetSettings()
+const PlatformBuildSettings& AssetManager::GetSettings()
 {
 	return Get()->PlatformSettings;
 }
@@ -149,7 +148,7 @@ std::string AssetManager::GetPlatformDirName()
 	return  EPlatforms::ToString(PlatformApplication::GetPlatform());
 }
 
-void AssetManager::WriteShaderMetaFile(ShaderSourceFile * file, std::string path,EPlatforms::Type platform)
+void AssetManager::WriteShaderMetaFile(ShaderSourceFile* file, std::string path, EPlatforms::Type platform)
 {
 	if (file->RootConstants.size() == 0)
 	{
@@ -267,7 +266,7 @@ void AssetManager::InitAssetSettings(EPlatforms::Type Platform)
 	}
 }
 
-AssetManager * AssetManager::Get()
+AssetManager* AssetManager::Get()
 {
 	if (instance == nullptr)
 	{
@@ -277,14 +276,15 @@ AssetManager * AssetManager::Get()
 }
 
 AssetManager::~AssetManager()
-{}
+{
+}
 
 ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 {
 #if BUILD_PACKAGE
 	return new ShaderSourceFile();
 #else
-	ShaderSourceFile*  output;
+	ShaderSourceFile* output;
 	if (ShaderSourceMap.find(name) == ShaderSourceMap.end())
 	{
 		output = new ShaderSourceFile();
@@ -311,6 +311,70 @@ void AssetManager::RegisterMeshAssetLoad(std::string name)
 	}
 }
 
+bool AssetManager::ProcessTexture(TextureHandle* Handle)
+{
+	AssetPathRef Fileref = AssetPathRef(Handle->GetFilePath());
+#if WITH_EDITOR
+	if (!FileUtils::File_ExistsTest(Fileref.GetFullPathToAsset()))
+	{
+		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
+		return false;
+	}
+#else
+	Fileref.IsDDC = true;
+#endif
+	TextureImportSettings Settings;
+	std::string DDCRelFilepath = "\\" + DDCName + "\\" + Fileref.BaseName + ".DDS";
+	Fileref.DDCPath = DDCRelFilepath;
+	if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath) && !PlatformApplication::CheckFileSrcNewer(GetRootDir() + DDCRelFilepath, Fileref.GetFullPathToAsset()) || Fileref.IsDDC)
+	{
+		Fileref.IsDDC = true;
+		return true;
+		//return RHI::CreateTexture(Fileref, Device, Desc);
+	}
+	else
+	{
+		//File is not a DDS
+#if BUILD_PACKAGE
+		std::string Message = "File '" + Fileref.Name + "' Is missing from the cooked data";
+		Log::LogMessage(Message, Log::Severity::Error);
+		PlatformApplication::DisplayMessageBox("Error", Message);
+#else
+		Log::OutS << "File '" << Fileref.Name << "' Does not exist in the DDC Generating Now" << Log::OutS;
+		//generate one! BC1_UNORM  
+		std::string Args = " ";
+		if (Settings.ForceMipCount == 1)
+		{
+			Args.append(" -m 1 ");
+		}
+		else
+		{
+			Args.append("-pow2");
+		}
+		if (GetSettings().ClampTextures)
+		{
+			Args.append(" -w " + std::to_string(GetSettings().MaxWidth));
+			Args.append(" -h " + std::to_string(GetSettings().MaxHeight));
+		}
+		Args.append(" -y ");
+		Args.append(" -f " + Settings.GetTypeString());
+		Args.append('"' + Fileref.GetFullPathToAsset() + '"' + " ");
+		//Log::LogMessage("Started Texconv.exe with: " + Args);
+		PlatformApplication::ExecuteHostScript(GetScriptPath() + "Texconv.exe", Args, GetDDCPath(), false);
+		if (FileUtils::File_ExistsTest(GetRootDir() + DDCRelFilepath))
+		{
+			Fileref.IsDDC = true;
+			return true;
+			/*return RHI::CreateTexture(Fileref, Device, Desc);*/
+		}
+		else
+		{
+			Log::OutS << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
+		}
+#endif
+	}
+	return false;
+}
 //#Files: Check time stamps!
 BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImportSettings settings, DeviceContext* Device)
 {

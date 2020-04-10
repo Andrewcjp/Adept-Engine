@@ -30,15 +30,21 @@ void BufferStorageNode::Create()
 	if (FramebufferNode != nullptr)
 	{
 		int Size = FramebufferNode->GetFrameBufferDesc().Width * FramebufferNode->GetFrameBufferDesc().Height;
+		int compCount = RHIUtils::GetComponentCount(FramebufferNode->GetFrameBufferDesc().RTFormats[0]);
 		if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
 		{
 			RHIScissorRect r = SFRController::GetScissor(1, Screen::GetScaledRes());
 			int Width = abs(r.Right - r.Left);
 			Size = Width * r.Bottom;
+			compCount = 3;
 		}
-		int compCount = RHIUtils::GetComponentCount(FramebufferNode->GetFrameBufferDesc().RTFormats[0]);
-		compCount = 3;
-		Desc.ElementCount = Math::Max(1, (Size * compCount) * LinkedFrameBufferRatio);
+		else
+		{
+			compCount = 1; 
+			LinkedFrameBufferRatio = 1.0 / 8.0f;
+			//Size = FramebufferNode->GetFrameBufferDesc().Width/8 * FramebufferNode->GetFrameBufferDesc().Height;
+		}	
+		Desc.ElementCount = Math::Max(1, int((Size * compCount) * LinkedFrameBufferRatio));
 		Desc.Stride = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? 1 : 2;
 	}
 	Desc.AllowUnorderedAccess = true;

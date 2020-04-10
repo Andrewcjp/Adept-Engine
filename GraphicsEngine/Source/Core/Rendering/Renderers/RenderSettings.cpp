@@ -17,9 +17,9 @@ RenderSettings::RenderSettings()
 	RTSettings.Enabled = true;
 	CurrentAAMode = AAMode::NONE;
 	EnableGPUParticles = true;
-	VRHMDMode = EVRHMDMode::Disabled;
+	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::ForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::MGPU_ASYNCSHADOWS;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;

@@ -57,6 +57,8 @@ public:
 	static D3D12_INDIRECT_ARGUMENT_DESC ConvertArg(INDIRECT_ARGUMENT_DESC desc);
 	static D3D12_QUERY_HEAP_TYPE ConvertQuerryType(EGPUQueryType::Type type);
 	static bool IsValidForQueryHeap(D3D12_QUERY_HEAP_TYPE type, EGPUQueryType::Type QuerryType);
+	static D3D12_RESOURCE_STATES ConvertRHIState(EResourceState::Type State);
+	static D3D12_RESOURCE_STATES ConvertRHIState_Safe(EResourceState::Type State,bool IsDepthResouce = false);
 };
 
 //Used to Copy Back resources for read

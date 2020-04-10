@@ -72,7 +72,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 	if (DepthSourceBuffer != nullptr)
 	{
 		RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
-		D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		D.FinalState = EResourceState::PixelShader;
 		D.DepthSourceBuffer = DepthSourceBuffer;
 		list->BeginRenderPass(D);
 	}
@@ -81,7 +81,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		if (!Cubemap)
 		{
 			RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
-			D.FinalState = GPU_RESOURCE_STATES::RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			D.FinalState = EResourceState::PixelShader;
 			list->BeginRenderPass(D);
 		}
 	}
@@ -117,10 +117,10 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 		{
 			Buffer->MakeReadyForCopy(list);
 		}
-		if (list->GetDeviceIndex() == 1)
-		{
-			list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
-		}
+		//if (list->GetDeviceIndex() == 1)
+		//{
+		//	list->GetDevice()->GetTimeManager()->EndTotalGPUTimer(list);
+		//}
 		//if (RHI::GetMGPUSettings()->MainPassSFR && list->GetDeviceIndex() == 0)
 		//{
 		//	list->InsertGPUStallTimer();

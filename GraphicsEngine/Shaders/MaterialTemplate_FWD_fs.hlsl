@@ -67,7 +67,7 @@ Texture2D envBRDFTexture: register(t12);
 //PreSampled
 Texture2D PerSampledShadow: register(t13);
 #if !VULKAN
-cbuffer Resolution : register(b5)
+PUSHCONST cbuffer Resolution : register(b5)
 {
 	int2 Res;
 };

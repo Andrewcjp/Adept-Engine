@@ -118,7 +118,6 @@ GameObject* Scene::SpawnBox(glm::vec3 pos)
 {
 	GameObject *go = new GameObject("Rock");
 	Material *mat = Material::CreateDefaultMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_2\\Crate_Diffuse.png"));
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("Props\\Crate_2\\Crate_Diffuse.png"));
 	MeshLoader::FMeshLoadingSettings set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
@@ -168,13 +167,11 @@ void Scene::LoadExampleScene()
 #if 0
 	go = new GameObject("Terrain");
 	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\textures_terrain_ground_marsrock_ground_01_tiled_c.dds"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.UVScale = glm::vec2(20);
 	const char* Name = "models\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
 	mat = Material::GetDefaultMaterial();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 	r->SetMaterial(mat, 1);
 	go->AttachComponent(new LightComponent());
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
@@ -240,10 +237,8 @@ void Scene::LoadExampleScene()
 	mat = Material::CreateDefaultMaterialInstance();
 	MeshLoader::FMeshLoadingSettings set;
 #if 0
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\MeduimMap.png"));
 	set.UVScale = glm::vec2(1);
 #else
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	set.UVScale = glm::vec2(20);
 #endif
@@ -251,11 +246,9 @@ void Scene::LoadExampleScene()
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
 	mat = Material::CreateDefaultMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	r->SetMaterial(mat, 1);
 	mat = Material::CreateDefaultMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\BoxObject.png"));
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\BoxObject.png"));
 	r->SetMaterial(mat, 2);
 	go->GetTransform()->SetPos(glm::vec3(0, 0, 0));
@@ -270,7 +263,6 @@ void Scene::LoadExampleScene()
 #endif
 	go = new GameObject("Rock");
 	mat = Material::CreateDefaultMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"/*, setting*/));//Crate_Diffuse
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
@@ -291,7 +283,6 @@ void Scene::LoadExampleScene()
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetFloat("Roughness",0.99);
 	mat->SetFloat("Metallic", 1.0f);
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	set = MeshLoader::FMeshLoadingSettings();
 	MeshRendererComponent* m = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\WallBox.Obj", set), mat));
@@ -329,7 +320,6 @@ void Scene::LoadExampleScene()
 				{
 					go = new GameObject("Test box");
 					mat = Material::CreateDefaultMaterialInstance();
-					mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
 					mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
 					set = MeshLoader::FMeshLoadingSettings();
 					set.FlipUVs = true;
@@ -370,8 +360,6 @@ void Scene::LoadExampleScene()
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetRenderType(EMaterialRenderType::Transparent);
 	mat->UpdateShaderData();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
-
 	MeshLoader::FMeshLoadingSettings s;
 	//s.AllowInstancing = false;
 	MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\RenderPlane.obj", s), mat));
@@ -394,7 +382,6 @@ void Scene::PadUntil(int target)
 		GameObject* go = new GameObject("Water");
 		//go->SetMoblity(GameObject::Dynamic);
 		Material* mat = Material::CreateDefaultMaterialInstance();
-		mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 		mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\bricks2.jpg"));
 		MeshLoader::FMeshLoadingSettings s;
 		//s.AllowInstancing = false;
@@ -424,7 +411,6 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride,bool OneD)
 				Material* mat = Material::CreateDefaultMaterialInstance();
 				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
 				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
-				mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\texture\\bricks2.jpg"));
 				mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\bricks2.jpg"));
 				MeshLoader::FMeshLoadingSettings s;
 				//s.AllowInstancing = false;
@@ -442,8 +428,7 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride,bool OneD)
 void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 {
 	GameObject* go = new GameObject(name);
-	Material* mat = Material::CreateDefaultMaterialInstance();
-	mat->SetDiffusetexture(AssetManager::DirectLoadTextureAsset("\\Terrain\\DoorTex.png"));
+	Material* mat = Material::CreateDefaultMaterialInstance();	
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\DoorTex.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;

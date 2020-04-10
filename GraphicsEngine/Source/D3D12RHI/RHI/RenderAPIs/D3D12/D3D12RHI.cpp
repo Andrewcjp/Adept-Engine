@@ -725,9 +725,9 @@ bool D3D12RHI::InitWindow(int w, int h)
 	return false;
 }
 
-bool D3D12RHI::InitRHI(bool InitAllGPUs)
+bool D3D12RHI::InitRHI(bool initAllGPUs)
 {
-	this->InitAllGPUs = InitAllGPUs;
+	InitAllGPUs = initAllGPUs;
 	LoadPipeLine();
 	return false;
 }

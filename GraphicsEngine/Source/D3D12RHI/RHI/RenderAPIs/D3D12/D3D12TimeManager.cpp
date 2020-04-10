@@ -252,6 +252,7 @@ void D3D12TimeManager::StartTimer(D3D12CommandList* ComandList, int index, bool 
 void D3D12TimeManager::EndTimer(D3D12CommandList* ComandList, int index, bool IsCopy)
 {
 	TimerQ* timer = GetTimer(TimerNames[index]);
+	//ensure(timer->TimerQueries.size());
 	if (timer == nullptr)
 	{
 		TimerQ q;
