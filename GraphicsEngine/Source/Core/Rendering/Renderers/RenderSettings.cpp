@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::MGPU_ASYNCSHADOWS;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -31,9 +31,13 @@ RenderSettings::RenderSettings()
 	{
 		SelectedGraph = (EBuiltinRenderGraphs::Type)GraphSet.GetIntValue();
 	}
-	if (SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX_RT)
+	if (SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX_RT || SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX)
 	{
 		VoxelSet.Enabled = true;
+		if (SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX)
+		{
+			VoxelSet.UseConeTracing = true;
+		}
 	}
 	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR)
 	{

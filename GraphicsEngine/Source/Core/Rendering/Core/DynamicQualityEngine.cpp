@@ -29,6 +29,9 @@ void DynamicQualityEngine::UpdateVXRTCrossover()
 	RTQualityData.VX_RT_BlendStart = RTQualityData.RT_RoughnessThreshold - BlendSize / 2;
 	RTQualityData.VX_RT_BlendEnd = RTQualityData.VX_MaxRoughness;
 	RTQualityData.FrameCount = RHI::GetFrameCount();
+#if 1
+	RTQualityData.VX_MaxRoughness = 1.0;
+#endif
 	RTBuffer->UpdateConstantBuffer(&RTQualityData);
 }
 

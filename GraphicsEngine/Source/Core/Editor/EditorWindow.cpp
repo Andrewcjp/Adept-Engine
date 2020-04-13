@@ -19,6 +19,7 @@
 #include "Core/Performance/PerfManager.h"
 #include "Core/Assets/Scene.h"
 #include "Rendering/Core/ShadowRenderer.h"
+#include "RHI/Streaming/TextureStreamingEngine.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -70,6 +71,7 @@ void EditorWindow::PostInitWindow(int w, int h)
 	selector->init();
 
 	CurrentScene->LoadExampleScene();
+	TextureStreamingEngine::Get()->Update();
 	SceneRenderer::Get()->SetScene(CurrentScene);
 	RefreshScene();
 
@@ -214,6 +216,7 @@ void EditorWindow::Update()
 	{
 		EditorCamera->Update(DeltaTime);
 	}
+
 	if (mEditorCore->GetSelectedObject() != nullptr && !IsPlayingScene)
 	{
 		gizmos->Update(0);

@@ -186,6 +186,9 @@ void Scene::LoadExampleScene()
 
 
 #endif
+	go = CreateDebugSphere(nullptr);
+	go->SetPosition(glm::vec3(0, 10, 0));
+	AddGameobjectToScene(go);
 	go = new GameObject("Camera");
 	go->GetTransform()->SetPos(glm::vec3(0, 10, 0));
 	go->GetTransform()->SetEulerRot(glm::vec3(0, 0, 0));
@@ -281,7 +284,7 @@ void Scene::LoadExampleScene()
 
 	go = new GameObject("Wall ");
 	mat = Material::CreateDefaultMaterialInstance();
-	mat->SetFloat("Roughness",0.99);
+	mat->SetFloat("Roughness", 0.99);
 	mat->SetFloat("Metallic", 1.0f);
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
 	set = MeshLoader::FMeshLoadingSettings();
@@ -394,7 +397,7 @@ void Scene::PadUntil(int target)
 	}
 }
 
-void Scene::CreateGrid(int size, glm::vec3 startPos, float stride,bool OneD)
+void Scene::CreateGrid(int size, glm::vec3 startPos, float stride, bool OneD)
 {
 	for (int y = 0; y < size; y++)
 	{
@@ -428,7 +431,7 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride,bool OneD)
 void Scene::SpawnDoor(std::string name, glm::vec3 pos)
 {
 	GameObject* go = new GameObject(name);
-	Material* mat = Material::CreateDefaultMaterialInstance();	
+	Material* mat = Material::CreateDefaultMaterialInstance();
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\DoorTex.png"));
 	MeshLoader::FMeshLoadingSettings set;
 	set.FlipUVs = true;

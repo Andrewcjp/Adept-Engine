@@ -46,6 +46,8 @@ struct RayTracingSettings
 struct VoxelSettings
 {
 	bool Enabled = false;
+	bool UseConeTracing = false;
+	bool UseDXR = false;
 };
 struct ShadowMappingSettings
 {

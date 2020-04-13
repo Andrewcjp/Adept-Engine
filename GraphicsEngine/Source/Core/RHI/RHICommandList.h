@@ -1,6 +1,7 @@
 #pragma once
 #include "RHITypes.h"
 #include "RHITemplates.h"
+#include "RHITexture.h"
 
 
 class DeviceContext;
@@ -237,6 +238,8 @@ public:
 	RHI_API RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
 	RHI_API RHI_VIRTUAL void Clear() = 0;
 	RHI_API RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc) = 0;
+	RHI_API RHI_VIRTUAL void AddTexture(RHITexture* Tex, int Index) = 0;
+	RHI_API RHI_VIRTUAL void SetTextureFormat(const RHITextureDesc2& Desc) = 0;
 
 protected:
 	int NumEntries = 1;

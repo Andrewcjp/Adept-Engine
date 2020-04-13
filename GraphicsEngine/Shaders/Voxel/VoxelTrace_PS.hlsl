@@ -4,7 +4,7 @@ inline float4 ConeTrace(in Texture3D<float4> voxels, in float3 P, in float3 N, i
 {
 	float3 color = 0;
 	float alpha = 0;
-
+	
 	// We need to offset the cone start position to avoid sampling its own voxel (self-occlusion):
 	//	Unfortunately, it will result in disconnection between nearby surfaces :(
 	float dist = VoxelSize; // offset by cone dir so that first sample of all cones are not the same

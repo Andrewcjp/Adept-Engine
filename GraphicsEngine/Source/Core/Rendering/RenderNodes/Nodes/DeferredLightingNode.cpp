@@ -13,7 +13,7 @@
 #include "Rendering/Shaders/Shader_Skybox.h"
 #include "RHI/RHITimeManager.h"
 #include "../../Core/VRXEngine.h"
-#include "../../RayTracing/VoxelTracingEngine.h"
+#include "../../RayTracing/Voxel/VoxelTracingEngine.h"
 #include "../../Renderers/Terrain/TerrainRenderer.h"
 #include "RHI/RHITexture.h"
 #include "RHI/SFRController.h"

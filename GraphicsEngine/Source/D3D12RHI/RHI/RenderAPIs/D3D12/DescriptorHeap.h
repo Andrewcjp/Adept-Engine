@@ -42,5 +42,7 @@ private:
 	uint32 DescriptorCount = 0;
 	//Offset indicating the point at with CPU frame 1 starts.
 	uint64 FrameBoundEnd = 0;
+	uint NextFreeIndex = 0;
+	uint CachedSize = 0;
 };
 

@@ -18,11 +18,11 @@ DXMemoryManager::DXMemoryManager(D3D12DeviceContext* D)
 
 void DXMemoryManager::Compact()
 {
-	
+
 	for (int i = AllocatedPages.size() - 1; i >= 0; i--)
 	{
 		if (AllocatedPages[i]->GetSizeInUse() == 0)
-		{		
+		{
 			for (int x = 0; x < TrackedPages.size(); x++)
 			{
 				if (TrackedPages[x] == AllocatedPages[i])
@@ -146,7 +146,7 @@ GPUMemoryPage* DXMemoryManager::FindFreePage(AllocDesc& desc, std::vector<GPUMem
 	}
 	GPUMemoryPage* newpage = nullptr;
 	const UINT64 PageMinSize = 256 * 1024 * 1024u;
-	desc.Size = Math::Max(desc.TextureAllocData.SizeInBytes, PageMinSize);
+	desc.Size = Math::Max(desc.TextureAllocData.SizeInBytes + desc.TextureAllocData.Alignment, PageMinSize);
 	if (desc.UseCommittedResource)
 	{
 		desc.Size = desc.TextureAllocData.SizeInBytes;

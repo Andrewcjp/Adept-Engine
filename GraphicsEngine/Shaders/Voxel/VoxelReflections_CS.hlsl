@@ -39,7 +39,8 @@ float3 LaunchSample(float3 origin, uint seed, float SmoothNess, float3 normal, f
 	float3 H = getGGXMicrofacet(seed, 1.0 - SmoothNess, normal);
 	float3 coneDirection = normalize(2.f * dot(V, H) * H - V);
 	//coneDirection = reflect(-V, normal);
-	TracePayload payload = ConeTrace_FixedMip_Loop2(voxelTex, origin, normalize(normal), coneDirection);
+	TracePayload payload = (TracePayload)0;
+	payload  = ConeTrace_FixedMip_Loop2(voxelTex, origin, normalize(normal), coneDirection);
 	if (payload.alpha == 0.0f)
 	{
 		return SpecularBlurMap.SampleLevel(Textures, payload.Normal, SmoothNess * (MAX_REFLECTION_LOD)).rgb;
@@ -55,16 +56,17 @@ float3 LaunchSample(float3 origin, uint seed, float SmoothNess, float3 normal, f
 		}
 		OutColor += LightColour;
 	}
-	return OutColor;
+	return  OutColor;
 }
+
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
 	float2 crd = float2(DTid.xy);
 	float2 dims = float2(Res.xy);
 	float2 NrmPos = crd / dims;
-	const float Roughness = GBUFFER_BaseSpec.SampleLevel(g_Clampsampler, NrmPos, 0).w;
-	if (Roughness >= VX_MinRoughness && Roughness < VX_MaxRoughness)
+	float Roughness = GBUFFER_BaseSpec.SampleLevel(g_Clampsampler, NrmPos, 0).w;
+	if (Roughness >= VX_MinRoughness && Roughness <= VX_MaxRoughness)
 	{
 		float3 Pos = GBUFFER_Pos.SampleLevel(g_Clampsampler, NrmPos, 0).xyz;
 		float3 Normal = GBUFFER_Normal.SampleLevel(g_Clampsampler, NrmPos, 0).xyz;

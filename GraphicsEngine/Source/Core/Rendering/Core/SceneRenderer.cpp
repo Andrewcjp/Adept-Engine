@@ -23,6 +23,7 @@
 #include "ShadowRenderer.h"
 #include "../Renderers/Terrain/TerrainRenderer.h"
 #include "RHI/RHIBufferGroup.h"
+#include "../RayTracing/Voxel/VoxelScene.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -64,6 +65,10 @@ SceneRenderer::SceneRenderer()
 	QuadBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4, EBufferAccessType::Dynamic);
 	QuadBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
 	TerrainRenderer::Get();
+	if (RHI::GetRenderSettings()->GetVoxelSet().Enabled)
+	{
+		mVoxelScene = new VoxelScene();
+	}
 }
 
 
@@ -109,6 +114,10 @@ void SceneRenderer::PrepareSceneForRender()
 	UpdateLightBuffer(TargetScene->GetLights());
 	//#todo:move this to node
 	ParticleSystemManager::Get()->PreRenderUpdate(CurrentCamera);
+	if (mVoxelScene != nullptr)
+	{
+		mVoxelScene->Update();
+	}
 	SceneChanged = false;
 }
 
@@ -270,7 +279,7 @@ LightUniformBuffer SceneRenderer::CreateLightEntity(Light * L, int devindex)
 	ShadowRenderer::UpdateShadowID(L, devindex);
 	newitem.ShadowID = L->GetShadowId();
 	newitem.Range = L->GetRange();
-	newitem.PreSampled.x = true;
+	//newitem.PreSampled.x = true;
 	return newitem;
 }
 
@@ -311,12 +320,17 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	TargetScene = NewScene;
 	MeshController->TargetScene = TargetScene;
 	ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
+	
 	//run update on scene data
 	SceneChanged = true;
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
 		ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
 		RayTracingEngine::Get()->UpdateFromScene(TargetScene);
+	}
+	if (mVoxelScene != nullptr)
+	{
+		mVoxelScene->Create(NewScene);
 	}
 }
 

@@ -5,13 +5,16 @@
 #include "Rendering/Shaders/Raytracing/Reflections/Shader_ReflectionRaygen.h"
 #include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
 #include "Rendering/Shaders/Raytracing/Shader_Skybox_Miss.h"
+#include "RHI/Streaming/TextureStreamingCommon.h"
 
 ReflectionsBindingTable::ReflectionsBindingTable()
-{}
+{
+}
 
 
 ReflectionsBindingTable::~ReflectionsBindingTable()
-{}
+{
+}
 
 void ReflectionsBindingTable::InitTable()
 {
@@ -47,5 +50,10 @@ void ReflectionsBindingTable::InitTable()
 
 void ReflectionsBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
 {
-	Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"),RHIViewDesc::DefaultSRV());
+	if (Mesh->GetMaterial(0)->TestHandle == nullptr)
+	{
+		return;
+	}
+	//Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"),RHIViewDesc::DefaultSRV());
+	Shader->LocalRootSig.SetTexture2(2, Mesh->GetMaterial(0)->TestHandle->GetData(RHI::GetDefaultDevice())->Backing, RHIViewDesc::DefaultSRV());
 }

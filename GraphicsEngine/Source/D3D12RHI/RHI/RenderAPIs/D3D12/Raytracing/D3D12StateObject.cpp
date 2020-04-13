@@ -12,6 +12,8 @@
 #include "../GPUResource.h"
 #include "../DXDescriptor.h"
 #include "../DXMemoryManager.h"
+#include "RHI/RHIRootSigniture.h"
+#include "../D3D12RHITexture.h"
 #if WIN10_1809
 D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :RHIStateObject(D, desc)
 {
@@ -22,7 +24,8 @@ D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :R
 
 
 D3D12StateObject::~D3D12StateObject()
-{}
+{
+}
 
 void D3D12StateObject::Build()
 {
@@ -224,6 +227,15 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 			D3D12FrameBuffer* DTex = D3D12RHI::DXConv(bind->Framebuffer);
 			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View)->GetGPUAddress().ptr);
 			Pointers.push_back(heapPointer);
+		}
+		else if (bind->BindType == ERSBindType::Texture2)
+		{
+			D3D12RHITexture* DTex = D3D12RHI::DXConv(bind->Texture2);
+			if (DTex != nullptr)
+			{
+				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View, nullptr)->GetGPUAddress().ptr);
+				Pointers.push_back(heapPointer);
+			}
 		}
 	}
 }

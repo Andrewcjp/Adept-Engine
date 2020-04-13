@@ -68,6 +68,7 @@ void DescriptorHeap::AddDescriptor(DXDescriptor* desc, bool Create /*= true*/)
 		desc->Recreate();
 	}
 	ContainedDescriptors.push_back(desc);
+	NextFreeIndex += desc->GetSize();
 }
 
 uint64 DescriptorHeap::GetNumberOfDescriptors()
@@ -87,12 +88,7 @@ UINT DescriptorHeap::GetMaxSize()
 
 uint DescriptorHeap::GetNextFreeIndex()
 {
-	uint Count = 0;
-	for (uint i = 0; i < ContainedDescriptors.size(); i++)
-	{
-		Count += ContainedDescriptors[i]->GetSize();
-	}
-	return Count;
+	return NextFreeIndex;
 }
 
 void DescriptorHeap::CopyToHeap(DescriptorHeap * heap)
@@ -133,6 +129,7 @@ void DescriptorHeap::ClearHeap()
 	MemoryUtils::DeleteVector(ContainedDescriptors);
 	ContainedDescriptors.clear();
 	FrameBoundEnd = 0;
+	NextFreeIndex = 0;
 }
 
 DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)

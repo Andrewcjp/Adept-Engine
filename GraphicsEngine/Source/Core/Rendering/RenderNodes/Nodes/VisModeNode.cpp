@@ -5,14 +5,16 @@
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/PostProcess/Shader_DebugOutput.h"
-#include "../../RayTracing/VoxelTracingEngine.h"
+#include "../../RayTracing/Voxel/VoxelTracingEngine.h"
 #include "../../Shaders/Shader_Pair.h"
+#include "../../RayTracing/Voxel/VoxelScene.h"
+#include "../../Core/SceneRenderer.h"
 
 VisModeNode::VisModeNode()
 {
 	SetNodeActive(false);
 	OnNodeSettingChange();
-//	RHI::GetRenderSettings()->SetDebugRenderMode(ERenderDebugOutput::Scene_EdgeDetect);
+	//RHI::GetRenderSettings()->SetDebugRenderMode(ERenderDebugOutput::Scene_Voxel);
 }
 
 VisModeNode::~VisModeNode()
@@ -43,7 +45,8 @@ void VisModeNode::OnExecute()
 		RenderForwardMode(mode);
 		break;
 	case ERenderDebugOutput::Scene_Voxel:
-		VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB);
+		SceneRenderer::Get()->GetVoxelScene()->RenderVoxelDebug(DebugList, FB);
+		//VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB,VoxelTracingEngine::Get()->VoxelMap);
 		break;
 	case ERenderDebugOutput::Scene_EdgeDetect:	
 		VisTexturesimple(mode);

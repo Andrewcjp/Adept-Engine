@@ -260,9 +260,8 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 	textureUploadHeap->SetName(L"Upload");
 }
 
-DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) const
+void D3D12RHITexture::WriteToItemDesc(DescriptorItemDesc& ItemDesc, const RHIViewDesc & viewDesc) const
 {
-	DescriptorItemDesc ItemDesc;
 	if (viewDesc.ViewType == EViewType::SRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC d = {};
@@ -272,7 +271,7 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) co
 			d.Format = D3D12Helpers::ConvertFormat(Desc.RenderFormat);
 		}
 		d.ViewDimension = D3D12Helpers::ConvertDimension(Desc.Dimension);
-		if (Desc.Depth > 1)
+		if (Desc.Depth > 1 && d.ViewDimension != D3D12_SRV_DIMENSION_TEXTURE3D)
 		{
 			d.ViewDimension = D3D12Helpers::ConvertDimension(eTextureDimension::DIMENSION_TEXTURECUBE);
 		}
@@ -308,6 +307,12 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) co
 		}
 		ItemDesc.CreateUnorderedAccessView(Resource->GetResource(), nullptr, &destTextureUAVDesc, viewDesc.OffsetInDescriptor);
 	}
+}
+
+DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) const
+{
+	DescriptorItemDesc ItemDesc;
+	WriteToItemDesc(ItemDesc, viewDesc);
 	return ItemDesc;
 }
 

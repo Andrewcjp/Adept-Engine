@@ -58,6 +58,10 @@ public:
 	uint64 GetHash()const;
 	static uint64 GetItemDescHash(const DescriptorItemDesc & descdesc);
 	void SetItemDesc(DescriptorItemDesc itemdesc);
+	DescriptorItemDesc& GetItemDesc()
+	{
+		return ItemDesc;
+	};
 private:
 	D3D12_DESCRIPTOR_HEAP_TYPE Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	DescriptorItemDesc ItemDesc;

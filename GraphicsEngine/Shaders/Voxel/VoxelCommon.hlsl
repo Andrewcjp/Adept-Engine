@@ -1,13 +1,22 @@
-static const float3 VoxelGridCenter = float3(0, 0, 0);
-static const float VoxelSize = 1;
-static const float VoxelSize_INV = 1.0 / VoxelSize;
-static const float VoxelRes = 250;
-static const float VoxelRes_INV = 1.0/ VoxelRes;
+//static const float3 VoxelGridCenter = float3(0, 0, 0);
+//static const float VoxelSize = 0.1;
+//static const float VoxelSize_INV = 1.0 / VoxelSize;
+//static const float VoxelRes = 50;
+//static const float VoxelRes_INV = 1.0/ VoxelRes;
 static const uint  VoxelConeMaxMIPs = 5;
-static const float VoxelRayStepDistance = VoxelSize;
+
 static const float SQRT2 = 1.41421356237309504880;
 static const float VoxelMaxDistance = 250;
 static const float __hdrRange = 10.0f;
+cbuffer VoxelDataBuffer : register(b66)
+{
+	float3 VoxelGridCenter;
+	float VoxelSize;
+	float VoxelSize_INV;
+	uint3 VoxelRes;
+	float3 VoxelRes_INV;
+};
+static const float VoxelRayStepDistance = VoxelSize;
 uint EncodeColor(in float4 color)
 {
 	// normalize color to LDR

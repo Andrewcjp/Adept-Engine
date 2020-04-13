@@ -3,6 +3,7 @@
 #include "../Material.h"
 #include "../Defaults.h"
 #include "RHI/RHICommandList.h"
+#include "RHI/Streaming/TextureStreamingCommon.h"
 
 void VoxelPassMeshProcessor::AddBatch(MeshBatch* Batch)
 {
@@ -25,5 +26,9 @@ void VoxelPassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComm
 	//	List->SetConstantBufferView(Command->MaterialInstanceBuffer, 0, "MateralConstantBuffer");
 	//}
 
-	List->SetTexture(Command->TargetMaterial->GetTexturebind("DiffuseMap"), "BaseTex");
+	//List->SetTexture(Command->TargetMaterial->GetTexturebind("DiffuseMap"), "BaseTex");
+	if (Command->TargetMaterial->TestHandle != nullptr)
+	{
+		Command->TargetMaterial->TestHandle->Bind(List, "BaseTex");
+	}
 }

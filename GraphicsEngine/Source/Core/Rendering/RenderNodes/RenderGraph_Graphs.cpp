@@ -181,14 +181,14 @@ void RenderGraph::CreateDefGraphWithRT_VOXEL()
 	LinkNode(VXNode, RTNode);
 	LinkNode(RTNode, FilterNode);
 	LinkNode(FilterNode, LightNode);
-	LightNode->GetInput(4)->SetLink(FilterNode->GetOutput(0));
+	LightNode->GetData().SSRData->SetLink(FilterNode->GetOutput(0));
 }
 
 void RenderGraph::CreateDefGraphWithVoxelRT()
 {
 	GraphName += "(Voxel)";
 	RG_PatchSet* Patch = FindMarker(EBuiltInRenderGraphPatch::RT_Reflections);
-
+	ShadowAtlasStorageNode* ShadowDataNode = StorageNode::NodeCast<ShadowAtlasStorageNode>(GetNodesOfType(EStorageType::ShadowData)[0]);
 	//find nodes
 	DeferredLightingNode* LightNode = RenderNode::NodeCast<DeferredLightingNode>(Patch->Markers[0]->ExecuteOut);
 	FrameBufferStorageNode* RTXBuffer = CreateRTXBuffer();
@@ -197,10 +197,11 @@ void RenderGraph::CreateDefGraphWithVoxelRT()
 	VoxelReflectionsNode* RTNode = new VoxelReflectionsNode();
 	LinkNode(UpdateProbesNode, RTNode);
 	RTNode->GetInput(0)->SetStore(RTXBuffer);
+	RTNode->GetInput(2)->SetStore(ShadowDataNode);
 	RTNode->GetInput(1)->SetLink(Patch->Markers[0]->Inputs[ERG_Patch_Reflections::In_GBuffer]);
 	LightNode->UseScreenSpaceReflection = true;
 	LinkNode(RTNode, LightNode);
-	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
+	LightNode->GetData().SSRData->SetLink(RTNode->GetOutput(0));
 
 }
 #define USE_VEL 1

@@ -4,6 +4,7 @@
 #include "Core/Utils/RefChecker.h"
 #include "RHI/BaseTexture.h"
 #include "RHI/RHIRootSigniture.h"
+#include "D3D12RHITextureArray.h"
 
 class DescriptorGroup;
 class CommandAllocator;
@@ -167,25 +168,7 @@ protected:
 #endif
 };
 
-class D3D12RHITextureArray : public RHITextureArray
-{
-public:
-	//#RHI: Ensure Framebuffer srv matches!
-	D3D12RHITextureArray(DeviceContext* device, int inNumEntries);
-	virtual ~D3D12RHITextureArray();
-	RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot)override;
-	RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot)override;
-	RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr);
-	RHI_VIRTUAL void SetFrameBufferFormat(const RHIFrameBufferDesc & desc);
-	DXDescriptor* GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap = nullptr);
-	uint64 GetHash();
-private:
-	void Release() override;
-	void Clear() override;
-	std::vector<D3D12FrameBuffer*> LinkedBuffers;
-	D3D12_SHADER_RESOURCE_VIEW_DESC NullHeapDesc = {};
-	D3D12DeviceContext* Device = nullptr;
-};
+
 CreateChecker(D3D12CommandList);
 CreateChecker(D3D12RHITextureArray);
 CreateChecker(D3D12RHIUAV);

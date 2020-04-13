@@ -14,6 +14,7 @@ class Editor_Camera;
 class ReflectionEnviroment;
 class Scene;
 class RHIBufferGroup;
+class VoxelScene;
 
 #include "LightInterop.h"
 typedef LightEntry LightUniformBuffer;
@@ -100,6 +101,10 @@ public:
 	ReflectionEnviroment* GetReflectionEnviroment();
 	static void DrawScreenQuad(RHICommandList* list);
 	RHIBufferGroup* GetLastMVData() const { return LastMVData; }
+	VoxelScene* GetVoxelScene()const
+	{
+		return mVoxelScene;
+	};
 private:
 	bool SceneChanged = false;
 	ReflectionEnviroment* Enviroment = nullptr;
@@ -117,5 +122,6 @@ private:
 	Camera* CurrentCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
 	RHIBufferGroup* QuadBuffer = nullptr;
+	VoxelScene* mVoxelScene;
 };
 

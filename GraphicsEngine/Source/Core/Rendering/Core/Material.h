@@ -49,6 +49,7 @@ public:
 	bool IsValidForInstancing();
 	void* GetDataPtr();
 	Asset_Shader* GetShaderAsset();
+	TextureHandle* TestHandle = nullptr;
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;
@@ -57,6 +58,5 @@ private:
 	MaterialShader* ShaderInterface = nullptr;
 	ParmeterBindSet ParmbindSet;
 	bool CurrnetShadowState = false;
-	TextureHandle* TestHandle = nullptr;
 };
 

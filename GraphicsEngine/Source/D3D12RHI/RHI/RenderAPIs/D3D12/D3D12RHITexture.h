@@ -22,6 +22,7 @@ public:
 	virtual void CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICommandList * List, const RHICopyRect & rect) override;
 
 	void CreateWithUpload(const TextureDescription & idesc, DeviceContext * iContext) override;
+	void WriteToItemDesc(DescriptorItemDesc & desc, const RHIViewDesc & viewDesc)const;
 	DescriptorItemDesc GetItemDesc(const RHIViewDesc& desc)const;
 	virtual void SetState(RHICommandList* list, EResourceState::Type State);
 	bool UseReservedResouce = false;
