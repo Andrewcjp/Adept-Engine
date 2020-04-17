@@ -3,11 +3,13 @@
 
 
 VRLoopNode::VRLoopNode()
-{}
+{
+}
 
 
 VRLoopNode::~VRLoopNode()
-{}
+{
+}
 
 void VRLoopNode::SetLoopBody(LoopBodyFunction func)
 {
@@ -16,9 +18,8 @@ void VRLoopNode::SetLoopBody(LoopBodyFunction func)
 
 void VRLoopNode::OnExecute()
 {
-	
-}
 
+}
 
 void VRLoopNode::OnGraphCreate()
 {
@@ -26,9 +27,10 @@ void VRLoopNode::OnGraphCreate()
 	for (int i = 0; i < 2; i++)
 	{
 		RenderNode* itor = Before;
-		Before = LoopBodyFunctionPtr(Before);
+		Before = LoopBodyFunctionPtr(Before, i == 1);
 		if (i == 1)
 		{			
+			itor = itor->GetNextNode();
 			while (itor != nullptr)
 			{
 				itor->SetTargetEye(EEye::Right);

@@ -1,6 +1,5 @@
 #pragma once
 #include "Rendering/Core/FrameBuffer.h"
-#include "Core/Utils/RefChecker.h"
 class DescriptorHeap;
 class GPUResource;
 class D3D12DeviceContext;
@@ -76,4 +75,3 @@ private:
 
 };
 
-CreateChecker(D3D12FrameBuffer);

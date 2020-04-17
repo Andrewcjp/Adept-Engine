@@ -58,7 +58,7 @@ class CoreTargetRules : TargetRules
             "assimpBuild",
            "nvapiBuild", 
            // "WWiseBuild",
-            //"OpenVRBuild",
+            "OpenVRBuild",
             //"AfterMathBuild",
            // "PixBuild"
             };

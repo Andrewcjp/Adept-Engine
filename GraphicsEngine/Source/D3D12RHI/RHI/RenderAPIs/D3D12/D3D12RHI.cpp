@@ -8,7 +8,7 @@
 #include "D3D12InterGPUStagingResource.h"
 #include "D3D12Query.h"
 #include "GPUResource.h"
-#if SUPPORT_OPENVR 
+#ifdef SUPPORT_OPENVR 
 #include "OpenVR/headers/openvr.h"
 #endif
 #include "Raytracing/D3D12HighLevelAccelerationStructure.h"
@@ -429,7 +429,7 @@ RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue
 
 void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 {
-#if SUPPORT_OPENVR 
+#ifdef SUPPORT_OPENVR 
 	//#dx12: check state is pixel shader resource 
 	vr::VRTextureBounds_t bounds;
 	bounds.uMin = 0.0f;
@@ -440,8 +440,8 @@ void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 	vr::D3D12TextureData_t texture = {};
 	texture.m_pResource = DXConv(fb)->GetResource(0)->GetResource();
 	texture.m_pCommandQueue = DeviceContexts[0]->GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
-	vr::Texture_t leftEyeTexture = { (void *)&texture, vr::TextureType_DirectX12, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit((vr::Hmd_Eye)eye, &leftEyeTexture, &bounds, vr::Submit_Default);
+	vr::Texture_t EyeTexture = { (void *)&texture, vr::TextureType_DirectX12, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit((vr::Hmd_Eye)eye, &EyeTexture, &bounds, vr::Submit_Default);
 #endif
 }
 

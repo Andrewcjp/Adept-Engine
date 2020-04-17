@@ -4,7 +4,7 @@
 #include "Core\Performance\PerfManager.h"
 #include "D3D12CommandList.h"
 //todo: More Detailed Error checking!
-CreateChecker(GPUResource);
+
 GPUResource::GPUResource()
 {
 }
@@ -15,7 +15,7 @@ GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalSta
 
 GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* device)
 {
-	AddCheckerRef(GPUResource, this);
+
 	resource = Target;
 	SetName(L"GPU Resource");
 	SetDebugName("GPU Resource");
@@ -85,28 +85,66 @@ bool GPUResource::IsValidStateForList(D3D12CommandList* List)
 	return false;
 }
 
-void GPUResource::SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode/* = EResourceTransitionMode::Direct*/)
+void GPUResource::SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode/* = EResourceTransitionMode::Direct*/, int SubResource/* = -1*/)
 {
-	if (newstate != CurrentResourceState)
+	if (newstate != CurrentResourceState || SubResource != -1 || SubResourceStates.size())
 	{
 #if LOG_RESOURCE_TRANSITIONS
 		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
 			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
 #endif
+		
 		if (Mode == EResourceTransitionMode::Direct)
 		{
 			ensure(!IsTransitioning());
-			List->AddTransition(CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate));
-			CurrentResourceState = newstate;
-			TargetState = newstate;
+			if (SubResource != -1)
+			{
+				SubResouceState* pState = nullptr;
+				for (int i = 0; i < SubResourceStates.size(); i++)
+				{
+					if (SubResourceStates[i].Index == SubResource)
+					{
+						pState = &SubResourceStates[i];
+						break;
+					}
+				}
+				if (pState == nullptr)
+				{
+					SubResouceState State;
+					State.Index = SubResource;
+					State.State = CurrentResourceState;
+					SubResourceStates.push_back(State);
+					pState = &SubResourceStates[SubResourceStates.size() - 1];
+				}
+				List->AddTransition(CD3DX12_RESOURCE_BARRIER::Transition(resource, pState->State, newstate, SubResource));
+				pState->State = newstate;
+			}
+			if (SubResource == -1 && SubResourceStates.size())
+			{
+				for (int i = 0; i < SubResourceStates.size(); i++)
+				{
+					List->AddTransition(CD3DX12_RESOURCE_BARRIER::Transition(resource, SubResourceStates[i].State, CurrentResourceState, SubResourceStates[i].Index));
+				}
+				SubResourceStates.clear();
+				CurrentResourceState = newstate;
+				TargetState = newstate;
+			}
+			if (SubResource == -1 && newstate != CurrentResourceState)
+			{
+				List->AddTransition(CD3DX12_RESOURCE_BARRIER::Transition(resource, CurrentResourceState, newstate, SubResource));
+				CurrentResourceState = newstate;
+				TargetState = newstate;
+			}
 		}
 		else if (Mode == EResourceTransitionMode::Start)
 		{
+			ensure(SubResource == -1);
 			ensure(!IsTransitioning());
 			StartResourceTransition(List, newstate);
 		}
 		else if (Mode == EResourceTransitionMode::End)
 		{
+			ensure(SubResource == -1);
 			ensure(IsTransitioning());
 			EndResourceTransition(List, newstate);
 		}
@@ -242,8 +280,7 @@ void GPUResource::Release()
 	}
 	//if the driver crashes here then (most likely) there is a resource contention issue with gpu 0 and 1 
 	//where GPU will move forward and delete resources before GPU 1 has finished with resource.
-	SafeRelease(resource);
-	RemoveCheckerRef(GPUResource, this);
+	SafeRelease(resource);	
 }
 
 

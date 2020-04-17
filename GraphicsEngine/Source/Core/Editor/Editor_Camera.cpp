@@ -31,7 +31,7 @@ Editor_Camera::~Editor_Camera()
 
 void Editor_Camera::Update(float delatime)
 {
-	if (RHI::IsRenderingVR())
+	if (RHI::IsRenderingVR() && false)
 	{
 		Controller->Target = RHI::GetHMD()->GetVRCamera()->GetTransfrom();
 	}

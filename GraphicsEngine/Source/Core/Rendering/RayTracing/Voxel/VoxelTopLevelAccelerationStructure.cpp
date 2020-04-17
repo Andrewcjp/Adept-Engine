@@ -60,6 +60,8 @@ void VoxelTopLevelAccelerationStructure::Init()
 	//ControlData = VoxelTracingEngine::Get()->ControlData;
 	VoxelMapControlBuffer->UpdateConstantBuffer(&ControlData);
 
+
+	VolumeDownSample = new Shader_Pair(RHI::GetDefaultDevice(), { "Voxel\\VoxelMipCS" }, { EShaderType::SHADER_COMPUTE });
 }
 
 void VoxelTopLevelAccelerationStructure::AddStructure(VoxelBottomLevelAccelerationStructureInstance * Structure)
@@ -102,7 +104,7 @@ void VoxelTopLevelAccelerationStructure::Build(RHICommandList * list)
 	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(BuildTopLevelVXShader);
 	list->SetPipelineStateDesc(PSOD);
 	//list->SetBuffer(InstanceBuffer, "Descs");
-	list->SetConstantBufferView(ControlBuffer, 0, "ControlData");
+//	list->SetConstantBufferView(ControlBuffer, 0, "ControlData");
 	list->SetUAV(VoxelBuffer, "TopLevelStructure");
 	list->SetUAV(VoxelAlphaMap, "TopLevelAlphaMap");
 	//list->SetTextureArray(SturctureArray, list->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("Structures"), RHIViewDesc::DefaultSRV());	
@@ -113,6 +115,9 @@ void VoxelTopLevelAccelerationStructure::Build(RHICommandList * list)
 		BuildInstance(list, ContainedInstances[i], i);
 	}
 	list->UAVBarrier(VoxelBuffer);
+	list->UAVBarrier(VoxelAlphaMap);
+	GenerateMipMaps(list);
+
 	VoxelBuffer->SetState(list, EResourceState::Non_PixelShader);
 	VoxelAlphaMap->SetState(list, EResourceState::Non_PixelShader);
 }
@@ -129,4 +134,36 @@ void VoxelTopLevelAccelerationStructure::BuildInstance(RHICommandList* list, Vox
 	list->SetRootConstant("IndexData", 3, &Data);
 	list->DispatchSized(instance->AcclerationData->GetMapSize().x, instance->AcclerationData->GetMapSize().y, instance->AcclerationData->GetMapSize().z);
 
+}
+
+void VoxelTopLevelAccelerationStructure::GenerateMipMaps(RHICommandList* list)
+{
+	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(VolumeDownSample);
+	list->SetPipelineStateDesc(PSOD);
+	int SrcSlot = VolumeDownSample->GetSlotForName("SrcTexture");
+	int DstSlot = VolumeDownSample->GetSlotForName("DstTexture");
+
+	for (int i = 0; i < MipCount - 1; i++)
+	{
+		int CurrentMip = i;
+		int TargetMip = i + 1;
+		VoxelAlphaMap->SetState(list, EResourceState::Non_PixelShader);
+		VoxelAlphaMap->SetState(list, EResourceState::UAV, TargetMip);
+		glm::ivec3 MipSize = MapSize / (2 * (i + 1));
+
+		glm::vec3 InvRes = 1.0f / glm::vec3(MipSize);
+		list->SetRootConstant("CB", 3, &InvRes, 0);
+		RHIViewDesc SRC = RHIViewDesc::DefaultSRV(eTextureDimension::DIMENSION_TEXTURE3D);
+		SRC.Mip = CurrentMip;
+		SRC.MipLevels = 1;
+		list->SetTexture2(VoxelAlphaMap, SrcSlot, SRC);
+
+		RHIViewDesc DST = RHIViewDesc::DefaultUAV(eTextureDimension::DIMENSION_TEXTURE3D);
+		DST.Mip = TargetMip;
+		DST.MipLevels = 1;
+		list->SetUAV(VoxelAlphaMap, DstSlot, DST);
+
+		list->DispatchSized(MipSize.x, MipSize.y, MipSize.z);
+		list->UAVBarrier(VoxelAlphaMap);
+	}
 }

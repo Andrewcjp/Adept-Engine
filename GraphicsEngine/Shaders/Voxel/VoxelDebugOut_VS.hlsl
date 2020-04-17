@@ -17,7 +17,7 @@ inline uint3 unflatten3D(uint idx, uint3 dim)
 #if READENCODED
 Texture3D<uint4> voxelTex;
 #else
-Texture3D<uint> voxelTex;
+Texture3D<float> voxelTex;
 #endif
 VSOut main(uint vertexID : SV_VERTEXID)
 {
@@ -29,7 +29,7 @@ VSOut main(uint vertexID : SV_VERTEXID)
 	uint4 vox = voxelTex[coord];
 	o.col = float4(DecodeColor(vox.r).xyz, vox.a);
 #else
-	uint vox = voxelTex[coord];
+	float vox = voxelTex[coord];
 	o.col = float4(1, 1, 1, vox);
 #endif
 	uint3 maxv = VoxelRes - 1;

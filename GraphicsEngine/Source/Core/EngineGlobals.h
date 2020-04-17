@@ -150,12 +150,19 @@ extern void ADNOP();
 
 #if !defined(PLATFORM_WINDOWS)
 #define BUILD_WISE 0
-#define BUILD_STEAMVR 0
+
 #define SUPPORTS_COOK 0
 #else
 #define BUILD_WISE 0
-#define BUILD_STEAMVR 0
+
 #define SUPPORTS_COOK 1
+#endif
+#if defined(PLATFORM_WINDOWS)
+#ifdef SUPPORT_OPENVR
+#define BUILD_STEAMVR 1
+#else
+#define BUILD_STEAMVR 0
+#endif
 #endif
 
 #ifdef SUPPORT_FREETYPE

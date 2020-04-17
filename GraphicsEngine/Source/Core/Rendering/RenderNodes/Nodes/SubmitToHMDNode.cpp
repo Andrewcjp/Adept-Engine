@@ -17,7 +17,7 @@ void SubmitToHMDNode::OnExecute()
 	HasRunEnd = true;
 	if (RHI::GetRenderSettings()->VRHMDMode == EVRHMDMode::SteamVR)
 	{
-		//RHI::SubmitToVRComposter(GetFrameBufferFromInput(0), VRBranchContext->GetCurrentEye());
+		RHI::SubmitToVRComposter(GetFrameBufferFromInput(0), GetEye());
 	}
 }
 

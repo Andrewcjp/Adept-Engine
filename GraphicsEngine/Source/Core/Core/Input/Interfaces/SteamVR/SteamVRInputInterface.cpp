@@ -3,14 +3,17 @@
 #include "Core/Utils/DebugDrawers.h"
 #include "Rendering/VR/ViveHMD.h"
 #include "Core/Assets/AssetManager.h"
+#pragma  optimize("",off)
 
 SteamVRInputInterface::SteamVRInputInterface()
 {
+	Offset = glm::vec3(0, 3, 0);
 	Init();
 }
 
 SteamVRInputInterface::~SteamVRInputInterface()
-{}
+{
+}
 
 bool SteamVRInputInterface::CanInit()
 {
@@ -34,7 +37,8 @@ void SteamVRInputInterface::Init()
 
 InputController* SteamVRInputInterface::GetController(int Index)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return nullptr;
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
 int SteamVRInputInterface::GetNumOfControllers() const
@@ -99,7 +103,7 @@ static float _copysign(float sizeval, float signval)
 {
 	return glm::sign(signval) == 1 ? glm::abs(sizeval) : -glm::abs(sizeval);
 }
-
+#include <glm/gtx/matrix_decompose.hpp>
 static glm::quat GetRotation(glm::mat4 matrix)
 {
 	glm::quat q;// = new Quaternion();
@@ -110,12 +114,25 @@ static glm::quat GetRotation(glm::mat4 matrix)
 	q.x = _copysign(q.x, matrix[2][1] - matrix[1][2]);
 	q.y = _copysign(q.y, matrix[0][2] - matrix[2][0]);
 	q.z = _copysign(q.z, matrix[1][0] - matrix[0][1]);
+	q = glm::normalize(q);
+	//q = glm::conjugate(q);
 	return q;
 }
-
+static glm::quat GetRot2(glm::mat4 transformation)
+{
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(transformation, scale, rotation, translation, skew, perspective);
+	rotation = glm::conjugate(rotation);
+	rotation = glm::normalize(rotation);
+	return rotation;
+}
 glm::vec3 SteamVRInputInterface::Getpos(glm::mat4 matMVP)
 {
-	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])+Offset;
+	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3]) + Offset;
 }
 
 vr::IVRSystem * SteamVRInputInterface::GetSystem()
@@ -156,7 +173,7 @@ void SteamVRInputInterface::Tick()
 			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
 		}
 	}
-	vr::VRCompositor()->SetTrackingSpace(vr::ETrackingUniverseOrigin::TrackingUniverseSeated);
+	vr::VRCompositor()->SetTrackingSpace(vr::ETrackingUniverseOrigin::TrackingUniverseStanding);
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
@@ -165,7 +182,7 @@ void SteamVRInputInterface::Tick()
 			poses[nDevice] = ConvertSteamVRMatrixToMatrix4_T(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 			if (system->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_HMD)
 			{
-				HMD->SetPosAndRot(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)), GetRotation(glm::inverse(poses[nDevice])));
+				HMD->SetPosAndRot(Getpos(ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking)), GetRot2(glm::inverse(poses[nDevice])));
 			}
 			else
 			{

@@ -11,7 +11,6 @@
 //Texture Array
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)
 {
-	AddCheckerRef(D3D12RHITextureArray, this);
 	Device = D3D12RHI::DXConv(device);
 }
 
@@ -131,7 +130,6 @@ void D3D12RHITextureArray::SetTextureFormat(const RHITextureDesc2& Desc)
 void D3D12RHITextureArray::Release()
 {
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12RHITextureArray, this);
 }
 
 void D3D12RHITextureArray::Clear()

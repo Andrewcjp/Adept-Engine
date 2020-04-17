@@ -43,7 +43,7 @@ public:
 	void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list);
 	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect);
 	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list, const RHICopyRect & rect);
-	RHI_API virtual void SetState(RHICommandList* list, EResourceState::Type State) = 0;
+	RHI_API virtual void SetState(RHICommandList* list, EResourceState::Type State,int SubResource = -1) = 0;
 protected:
 	RHITextureDesc2 Desc;
 	TextureDescription	UploadDesc;

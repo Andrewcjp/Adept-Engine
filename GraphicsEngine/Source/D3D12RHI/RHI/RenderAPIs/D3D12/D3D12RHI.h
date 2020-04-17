@@ -5,7 +5,7 @@
 #include "d3d12Shader.h"
 #include "D3D12Texture.h"
 #include "D3D12Helpers.h"
-#include "Core/Utils/RefChecker.h"
+
 #include "Core/Module/ModuleManager.h"
 #include "Core/Platform/PlatformCore.h"
 #define FORCE_RENDER_PASS_USE 0

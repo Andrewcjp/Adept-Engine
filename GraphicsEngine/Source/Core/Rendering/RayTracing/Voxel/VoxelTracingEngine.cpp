@@ -48,6 +48,7 @@ void VoxelTracingEngine::RenderVoxelDebug(RHICommandList* list, FrameBuffer* buf
 	list->BeginRenderPass(RHIRenderPassDesc(buffer, ERenderPassLoadOp::Load));
 	RHIViewDesc d = RHIViewDesc::DefaultSRV();
 	d.Dimension = DIMENSION_TEXTURE3D;
+//	d.Mip = 4;
 	list->SetTexture2(Texture, list->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("voxelTex"), d);
 	SceneRenderer::Get()->BindMvBuffer(list);
 	list->SetConstantBufferView(CBV, 0, "VoxelDataBuffer");

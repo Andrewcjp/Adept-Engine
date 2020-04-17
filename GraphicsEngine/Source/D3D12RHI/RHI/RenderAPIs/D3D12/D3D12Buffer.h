@@ -53,4 +53,3 @@ private:
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 	UINT8* m_pCbvDataBegin[2];
 };
-CreateChecker(D3D12Buffer);

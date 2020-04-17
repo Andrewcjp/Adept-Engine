@@ -457,7 +457,7 @@ void RenderGraph::CreateVRFWDGraph()
 
 	VRLoopNode* VrStart = new VRLoopNode();
 	LinkNode(simNode, VrStart);
-	VrStart->SetLoopBody([this, MainBuffer, SceneData, ShadowDataNode](RenderNode* first)
+	VrStart->SetLoopBody([this, MainBuffer, SceneData, ShadowDataNode](RenderNode* first, bool Righteye)
 	{
 		ZPrePassNode* PreZ = new ZPrePassNode();
 		PreZ->GetInput(0)->SetStore(MainBuffer);
@@ -486,6 +486,7 @@ void RenderGraph::CreateVRFWDGraph()
 
 		SubmitToHMDNode* SubNode = new SubmitToHMDNode();
 		SubNode->GetInput(0)->SetLink(FWDNode->GetOutput(0));
+		//SubNode->SetTargetEye(Righteye ? EEye::Right : EEye::Left);
 		LinkNode(Debug, SubNode);
 		return SubNode;
 	});
@@ -660,7 +661,7 @@ void RenderGraph::CreateSFR()
 	CompressData->FramebufferNode = MainBuffer;
 	HostStore->BufferStoreTargets.push_back(CompressData);
 	InterGPUCopyNode* Copy = new InterGPUCopyNode(RHI::GetDefaultDevice());
-	Copy-> Mode = InterGPUCopyNode::CopyFromStage;
+	Copy->Mode = InterGPUCopyNode::CopyFromStage;
 	Copy->GetInput(2)->SetStore(CompressData);
 	Copy->GetInput(1)->SetStore(HostStore);
 

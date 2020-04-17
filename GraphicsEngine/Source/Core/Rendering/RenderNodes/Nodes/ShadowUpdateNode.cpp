@@ -29,7 +29,10 @@ void ShadowUpdateNode::OnExecute()
 	ShadowRenderer::RenderPointShadows(ShadowList);
 	ShadowRenderer::RenderDirectionalShadows(ShadowList);
 	VoxelTracingEngine::Get()->VoxliseTest(ShadowList);
-	SceneRenderer::Get()->GetVoxelScene()->ProcessUpdatesToAcclerationStuctures(ShadowList);
+	if (SceneRenderer::Get()->GetVoxelScene())
+	{
+		SceneRenderer::Get()->GetVoxelScene()->ProcessUpdatesToAcclerationStuctures(ShadowList);
+	}
 	SetEndStates(ShadowList);
 	ShadowList->Execute();
 }

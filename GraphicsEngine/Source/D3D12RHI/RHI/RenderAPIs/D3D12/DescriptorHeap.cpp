@@ -4,7 +4,7 @@
 #include "D3D12RHI.h"
 #include "D3D12CommandList.h"
 #include "DXDescriptor.h"
-CreateChecker(DescriptorHeap);
+
 DescriptorHeap::DescriptorHeap(DescriptorHeap * other, int newsize) :
 	DescriptorHeap(other->Device, newsize, other->HeapDesc.Type, other->HeapDesc.Flags)
 {
@@ -22,7 +22,6 @@ DescriptorHeap::DescriptorHeap(DeviceContext* inDevice, int Num, D3D12_DESCRIPTO
 	HeapDesc.Flags = flags;
 	CreateHeap();
 
-	AddCheckerRef(DescriptorHeap, this);
 }
 
 void DescriptorHeap::CreateHeap()
@@ -170,7 +169,6 @@ void DescriptorHeap::Release()
 	IRHIResourse::Release();
 	if (mHeap)
 	{
-		RemoveCheckerRef(DescriptorHeap, this);
 		SafeRelease(mHeap);
 	}
 }

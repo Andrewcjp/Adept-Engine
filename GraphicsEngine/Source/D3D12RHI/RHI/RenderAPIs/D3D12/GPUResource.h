@@ -37,7 +37,7 @@ public:
 	bool IsResident();
 	EResourcePageState::Type GetState();
 	bool IsValidStateForList(D3D12CommandList* List);
-	void SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode = EResourceTransitionMode::Direct);
+	void SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES newstate, EResourceTransitionMode::Type Mode = EResourceTransitionMode::Direct, int SubResource = -1);
 	//void SetResourceState(ID3D12GraphicsCommandList * List, D3D12_RESOURCE_STATES newstate, bool QueueTranstion = false);
 	D3D12_RESOURCE_STATES GetCurrentState();
 	ID3D12Resource* GetResource();
@@ -71,5 +71,12 @@ private:
 	class D3D12DeviceContext* Device;
 	GPUMemoryPage* Page = nullptr;
 	EPhysicalMemoryState::Type CurrentAliasState = EPhysicalMemoryState::Active;
+	struct SubResouceState 
+	{
+		D3D12_RESOURCE_STATES State = D3D12_RESOURCE_STATE_COMMON;
+		int Index = 0;
+	};
+	std::vector<SubResouceState> SubResourceStates;
+	bool SubresouceSyncOut = false;
 };
 

@@ -7,7 +7,7 @@ ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
-	SetRes(BBTestMode::HD);
+//	SetRes(BBTestMode::HD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
@@ -19,7 +19,7 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX;
+	SelectedGraph = EBuiltinRenderGraphs::VRForwardRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;
@@ -46,6 +46,11 @@ RenderSettings::RenderSettings()
 	if (SelectedGraph == EBuiltinRenderGraphs::MGPU_SFR || SelectedGraph == EBuiltinRenderGraphs::MGPU_ASYNCSHADOWS || SelectedGraph == EBuiltinRenderGraphs::TEST_MGPU)
 	{
 		RequestAllGPUs = true;
+	}
+	if (SelectedGraph == EBuiltinRenderGraphs::VRForwardRenderer)
+	{
+		VRHMDMode = EVRHMDMode::SteamVR;
+		//VRHMDMode = EVRHMDMode::Debug;
 	}
 	//CurrnetSFRSettings.Use8BitCompression = true;
 }

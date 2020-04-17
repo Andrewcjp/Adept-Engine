@@ -22,7 +22,6 @@
 
 D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::Type ListType) :RHICommandList(ListType, inDevice)
 {
-	AddCheckerRef(D3D12CommandList, this);
 	mDeviceContext = D3D12RHI::DXConv(inDevice);
 	//CommandAlloc = new CommandAllocator(ListType, mDeviceContext);
 	if (ListType == ECommandListType::Copy)
@@ -36,7 +35,6 @@ D3D12CommandList::D3D12CommandList(DeviceContext * inDevice, ECommandListType::T
 void D3D12CommandList::Release()
 {
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12CommandList, this);
 	SafeRelease(CurrentCommandList);
 	//SafeDelete(CommandAlloc);
 	//	SafeRelease(CommandSig);

@@ -1,5 +1,5 @@
 #include "D3D12Buffer.h"
-#include "Core/Utils/RefChecker.h"
+
 #include "RHI/DeviceContext.h"
 #include "D3D12DeviceContext.h"
 #include "RHI/RHICommandList.h"
@@ -16,7 +16,6 @@
 
 D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext* inDevice) :RHIBuffer(type)
 {
-	AddCheckerRef(D3D12Buffer, this);
 	if (inDevice == nullptr)
 	{
 		Device = D3D12RHI::DXConv(RHI::GetDefaultDevice());
@@ -31,7 +30,6 @@ D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext* inDevice) :RH
 void D3D12Buffer::Release()
 {
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12Buffer, this);
 	Device = nullptr;
 	SafeRelease(m_DataBuffer);
 	SafeRelease(m_DataBufferDouble[0]);

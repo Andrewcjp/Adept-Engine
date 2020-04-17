@@ -5,7 +5,7 @@ class VRLoopNode : public RenderNode
 public:
 	VRLoopNode();
 	~VRLoopNode();
-	typedef  std::function<RenderNode* (RenderNode* FirstNode)> LoopBodyFunction;
+	typedef  std::function<RenderNode* (RenderNode* FirstNode,bool RightEye)> LoopBodyFunction;
 	void SetLoopBody(LoopBodyFunction func);
 	void OnExecute() override;
 	NameNode("VRLoopNode");

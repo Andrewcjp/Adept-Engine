@@ -10,7 +10,6 @@
 #include "Core/Platform/ConsoleVariable.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
-#include "Core/Utils/RefChecker.h"
 #include "Core/Utils/VectorUtils.h"
 #include "Rendering/Core/Defaults.h"
 #include "Rendering/Core/DynamicQualityEngine.h"

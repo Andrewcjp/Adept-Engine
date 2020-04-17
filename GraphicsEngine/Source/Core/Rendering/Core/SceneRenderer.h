@@ -122,6 +122,6 @@ private:
 	Camera* CurrentCamera = nullptr;
 	Editor_Camera* EditorCam = nullptr;
 	RHIBufferGroup* QuadBuffer = nullptr;
-	VoxelScene* mVoxelScene;
+	VoxelScene* mVoxelScene = nullptr;
 };
 

@@ -949,10 +949,10 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 	// Set the fence value for the next frame.
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 }
-CreateChecker(D3D12GPUSyncEvent);
+
 D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext* device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
 {
-	AddCheckerRef(D3D12GPUSyncEvent, this);
+	
 	D3D12DeviceContext* d3dc = D3D12RHI::DXConv(Device);
 	if (OtherDevice == nullptr)
 	{
@@ -977,9 +977,8 @@ D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, 
 }
 
 D3D12GPUSyncEvent::~D3D12GPUSyncEvent()
-{
-	RemoveCheckerRef(D3D12GPUSyncEvent, this);
-}
+{}
+
 void D3D12GPUSyncEvent::SignalWait()
 {
 	Point[Device->GetCpuFrameIndex()].CrossGPUCreateSyncPoint(SignalQueue, WaitingQueue);

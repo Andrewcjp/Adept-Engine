@@ -30,12 +30,12 @@ struct ERenderDebugOutput
 		GBuffer_Metallic,
 		Scene_EdgeDetect,
 		Scene_EdgeDetectCount,
+		Scene_Voxel,
 		Scene_Metallic,
 		Scene_RoughNess,
 		Scene_LightRange,
 		Scene_UVs,
 		Scene_ShaderInstructionCount,
-		Scene_Voxel,
 		Limit
 	};
 };

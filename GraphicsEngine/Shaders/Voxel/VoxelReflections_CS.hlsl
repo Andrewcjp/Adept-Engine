@@ -72,6 +72,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 		float3 Normal = GBUFFER_Normal.SampleLevel(g_Clampsampler, NrmPos, 0).xyz;
 		float3 ViewDir = normalize(CameraPos-Pos);
 		int SampleCount = Max_VXRayCount;
+		Roughness = 1.0f;
 		if (Roughness > 0.9)
 		{
 			SampleCount = 1;

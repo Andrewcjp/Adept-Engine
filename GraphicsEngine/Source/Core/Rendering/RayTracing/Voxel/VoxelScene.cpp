@@ -89,5 +89,6 @@ void VoxelScene::RenderVoxelDebug(RHICommandList * list, FrameBuffer * buffer)
 	VoxelTracingEngine::Get()->RenderVoxelDebug(list, buffer, BottomStructuresToUpdate[DebugIndex]->GetVoxelBuffer(), BottomStructuresToUpdate[DebugIndex]->VxControlData);
 #else
 	VoxelTracingEngine::Get()->RenderVoxelDebug(list, buffer, TopLevelAcc->GetVoxelBuffer(), TopLevelAcc->VoxelMapControlBuffer);
+	//VoxelTracingEngine::Get()->RenderVoxelDebug(list, buffer, TopLevelAcc->VoxelAlphaMap, TopLevelAcc->VoxelMapControlBuffer);
 #endif
 }

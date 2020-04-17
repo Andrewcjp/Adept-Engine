@@ -1,7 +1,6 @@
 #pragma once
 #include "RHI/RHICommandList.h"
 #include "D3D12Shader.h"
-#include "Core/Utils/RefChecker.h"
 #include "RHI/BaseTexture.h"
 #include "RHI/RHIRootSigniture.h"
 #include "D3D12RHITextureArray.h"
@@ -169,9 +168,7 @@ protected:
 };
 
 
-CreateChecker(D3D12CommandList);
-CreateChecker(D3D12RHITextureArray);
-CreateChecker(D3D12RHIUAV);
+
 
 
 class D3D12CommandSigniture :public RHICommandSigniture

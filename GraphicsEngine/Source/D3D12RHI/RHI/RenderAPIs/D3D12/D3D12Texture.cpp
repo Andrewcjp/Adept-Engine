@@ -15,10 +15,9 @@
 #include "DXDescriptor.h"
 #include "Core/Maths/Math.h"
 #include "D3D12RHITexture.h"
-CreateChecker(D3D12Texture);
+
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 {
-	AddCheckerRef(D3D12Texture, this);
 	Context = inDevice;
 	if (inDevice == nullptr)
 	{
@@ -38,7 +37,6 @@ D3D12Texture::D3D12Texture(DeviceContext* inDevice)
 void D3D12Texture::Release()
 {
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12Texture, this);
 }
 
 D3D12Texture::~D3D12Texture()

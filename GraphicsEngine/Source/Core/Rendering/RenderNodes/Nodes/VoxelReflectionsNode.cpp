@@ -1,20 +1,20 @@
 #include "VoxelReflectionsNode.h"
-#include "Rendering/RenderNodes/StorageNodeFormats.h"
-#include "Rendering/Shaders/Shader_Pair.h"
-#include "../../Core/FrameBuffer.h"
-#include "../../RayTracing/Voxel/VoxelTracingEngine.h"
-#include "../../Core/SceneRenderer.h"
-#include "../../Core/Screen.h"
-#include "../../Core/Camera.h"
-#include "RHI/RHITimeManager.h"
-#include "../../Core/LightCulling/LightCullingEngine.h"
-#include "RHI/RHICommandList.h"
 #include "Core/Assets/Scene.h"
-#include "../../Core/DynamicQualityEngine.h"
-#include "../StoreNodes/ShadowAtlasStorageNode.h"
+#include "Rendering/Core/Camera.h"
+#include "Rendering/Core/DynamicQualityEngine.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Core/Screen.h"
+#include "Rendering/RayTracing/Voxel/VoxelScene.h"
+#include "Rendering/RayTracing/Voxel/VoxelTopLevelAccelerationStructure.h"
+#include "Rendering/RayTracing/Voxel/VoxelTracingEngine.h"
+#include "Rendering/RenderNodes/StorageNodeFormats.h"
+#include "Rendering/RenderNodes/StoreNodes/ShadowAtlasStorageNode.h"
+#include "Rendering/Shaders/Shader_Pair.h"
 #include "RHI/RHIBufferGroup.h"
-#include "../../RayTracing/Voxel/VoxelScene.h"
-#include "../../RayTracing/Voxel/VoxelTopLevelAccelerationStructure.h"
+#include "RHI/RHICommandList.h"
+#include "RHI/RHITimeManager.h"
 
 VoxelReflectionsNode::VoxelReflectionsNode()
 {
@@ -34,7 +34,6 @@ void VoxelReflectionsNode::OnExecute()
 	VXS->UpdateTopLevel(List);
 	if (RHI::GetRenderSettings()->GetVoxelSet().Enabled)
 	{
-
 		if (RHI::GetRenderSettings()->GetVoxelSet().UseConeTracing)
 		{
 			ExecuteVoxelConeTracing(Target, Gbuffer);
@@ -91,6 +90,8 @@ void VoxelReflectionsNode::ExecuteVoxelConeTracing(FrameBuffer* Target, FrameBuf
 	List->SetUAV(Target, "gOutput");//
 	List->SetConstantBufferView(SceneRenderer::Get()->GetVoxelScene()->TopLevelAcc->VoxelMapControlBuffer, 0, "VoxelDataBuffer");
 	DynamicQualityEngine::Get()->BindRTBuffer(List, "RTBufferData");
+	SceneRenderer::Get()->BindLightsBuffer(List, "LightBuffer");
+	List->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(List), "LightList");
 	int index = List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("voxelTex");
 	List->SetTexture2(SceneRenderer::Get()->GetVoxelScene()->TopLevelAcc->GetVoxelBuffer(), index, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
 	index = List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("VoxelTransferMap");

@@ -2,6 +2,7 @@
 #if BUILD_STEAMVR
 #include "../../InputInterface.h"
 #include "..\headers\openvr.h"
+#include "Core/Transform.h"
 
 class ViveHMD;
 //handles the VRsystem

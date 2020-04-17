@@ -125,7 +125,6 @@ void D3D12FrameBuffer::Release()
 {
 	FrameBuffer::Release();
 	IRHIResourse::Release();
-	RemoveCheckerRef(D3D12FrameBuffer, this);
 	if (BufferDesc.NeedsDepthStencil)
 	{
 		//DepthStencil->Release();
@@ -238,7 +237,6 @@ D3D12FrameBuffer::D3D12FrameBuffer(DeviceContext * device, const RHIFrameBufferD
 {
 	CurrentDevice = D3D12RHI::DXConv(device);
 	Init();
-	AddCheckerRef(D3D12FrameBuffer, this);
 	PostInit();
 }
 

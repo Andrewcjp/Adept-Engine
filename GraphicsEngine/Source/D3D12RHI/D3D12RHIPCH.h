@@ -26,7 +26,7 @@
 #ifndef OVERRIDE_DX_CONFIG
 typedef ID3D12GraphicsCommandList CopyCMDListType;
 #endif
-#define SUPPORT_OPENVR 0
+
 class GPUResource;
 
 #ifdef PLATFORM_WINDOWS

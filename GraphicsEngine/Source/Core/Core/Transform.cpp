@@ -16,17 +16,17 @@ Transform::Transform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::ve
 }
 glm::vec3 Transform::GetForward()
 {
-	return TransformDirection(glm::vec3(0, 0, 1), GetModel());
+	return glm::normalize(TransformDirection(glm::vec3(0, 0, 1), GetModel()));
 }
 
 glm::vec3 Transform::GetUp()
 {
-	return TransformDirection(glm::vec3(0, 1, 0), GetModel());
+	return glm::normalize(TransformDirection(glm::vec3(0, 1, 0), GetModel()));
 }
 
 glm::vec3 Transform::GetRight()
 {
-	return TransformDirection(glm::vec3(1, 0, 0), GetModel());
+	return glm::normalize(TransformDirection(glm::vec3(1, 0, 0), GetModel()));
 }
 
 glm::vec3 Transform::TransfromToLocalSpace(glm::vec3 & direction)

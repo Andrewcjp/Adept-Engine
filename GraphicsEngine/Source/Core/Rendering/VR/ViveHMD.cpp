@@ -6,6 +6,7 @@
 #include "Core/Input/Input.h"
 #include "Core/Input/Interfaces/SteamVR/SteamVRInputInterface.h"
 #include "HMDManager.h"
+#pragma optimize("",off)
 #if BUILD_STEAMVR
 ViveHMD::ViveHMD()
 {
@@ -66,20 +67,65 @@ glm::mat4 ConvertRHToLH(glm::mat4x4 RH)
 	LH = glm::rowMajor4(LH);
 	return LH;
 }
+const float Rad2Deg = 57.29578F;
+float  aspectr;
 glm::mat4 ViveHMD::getRaw(vr::Hmd_Eye nEye)
 {
 	float Left, Right, Top, Bottom;
-	VRInterface->GetSystem()->GetProjectionRaw(nEye, &Right, &Left, &Top, &Bottom);
+	//VRInterface->GetSystem()->GetProjectionRaw(nEye, &Right, &Left, &Top, &Bottom);
 	glm::vec2 tanHalfFov = glm::vec2(glm::max(Left, Right), glm::max(Top, Bottom));
-	float  fieldOfView =(2.0f * glm::atan(tanHalfFov.y));// *Mathf.Rad2Deg;
+
+
+	float l_left = 0.0f, l_right = 0.0f, l_top = 0.0f, l_bottom = 0.0f;
+	VRInterface->GetSystem()->GetProjectionRaw(vr::Eye_Left, &l_left, &l_right, &l_top, &l_bottom);
+
+	float r_left = 0.0f, r_right = 0.0f, r_top = 0.0f, r_bottom = 0.0f;
+	VRInterface->GetSystem()->GetProjectionRaw(vr::Eye_Right, &r_left, &r_right, &r_top, &r_bottom);
+
+	tanHalfFov = glm::vec2(
+		glm::max(glm::max(-l_left, l_right), glm::max(-r_left, r_right)),
+		glm::max(glm::max(-l_top, l_bottom), glm::max(-r_top, r_bottom)));
+	uint32_t Width, height;
+	VRInterface->GetSystem()->GetRecommendedRenderTargetSize(&Width, &height);
+	sceneWidth = (float)Width;
+	sceneHeight = (float)height;
+	vr::VRTextureBounds_t textureBounds[2];
+
+	textureBounds[0].uMin = 0.5f + 0.5f * l_left / tanHalfFov.x;
+	textureBounds[0].uMax = 0.5f + 0.5f * l_right / tanHalfFov.x;
+	textureBounds[0].vMin = 0.5f - 0.5f * l_bottom / tanHalfFov.y;
+	textureBounds[0].vMax = 0.5f - 0.5f * l_top / tanHalfFov.y;
+
+	textureBounds[1].uMin = 0.5f + 0.5f * r_left / tanHalfFov.x;
+	textureBounds[1].uMax = 0.5f + 0.5f * r_right / tanHalfFov.x;
+	textureBounds[1].vMin = 0.5f - 0.5f * r_bottom / tanHalfFov.y;
+	textureBounds[1].vMax = 0.5f - 0.5f * r_top / tanHalfFov.y;
+
+	// Grow the recommended size to account for the overlapping fov
+	sceneWidth = sceneWidth / glm::max(textureBounds[0].uMax - textureBounds[0].uMin, textureBounds[1].uMax - textureBounds[1].uMin);
+	sceneHeight = sceneHeight / glm::max(textureBounds[0].vMax - textureBounds[0].vMin, textureBounds[1].vMax - textureBounds[1].vMin);
+
+
+	float  fieldOfView = (2.0f * glm::atan(tanHalfFov.y));// *Mathf.Rad2Deg;
+	float FOVDEG = fieldOfView * Rad2Deg;
+	//111.6932
 	float  aspect = tanHalfFov.x / tanHalfFov.y;
+	aspectr = aspect;
+	//aspect 0.947466 FOV:111.6932
+
+	//aspect = 0.947466;
+	aspect = ((float)Width / (float)height);
+	if (Input::GetKey(' '))
+	{
+		fieldOfView = fieldOfView;
+	}
 	glm::mat4 Mat = glm::perspectiveLH(fieldOfView, aspect, 0.1f, 1000.0f);
 	return Mat;
 }
 float ViveHMD::GetIPD()
 {
-	vr::ETrackedPropertyError Error  = vr::TrackedProp_Success;
-	float out = VRInterface->GetSystem()->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_UserIpdMeters_Float,&Error);
+	vr::ETrackedPropertyError Error = vr::TrackedProp_Success;
+	float out = VRInterface->GetSystem()->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_UserIpdMeters_Float, &Error);
 	ensure(Error == vr::TrackedProp_Success);
 	return out;
 }
@@ -87,12 +133,17 @@ float ViveHMD::GetIPD()
 void ViveHMD::Update()
 {
 #if 1
-	UpdateProjection((float)GetDimentions().x / (float)GetDimentions().y);
+	UpdateProjection(aspectr);
 	HMD::Update();
 	CameraInstance->UpdateDebugTracking(GetIPD());
 #if 1
-	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(getRaw(vr::Eye_Left));
-	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(getRaw(vr::Eye_Right));
+	glm::mat4 proj = getRaw(vr::Eye_Left);
+	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Left)*proj);
+	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Right)*proj);
+	//VRInterface->GetSystem()->GetEyeToHeadTransform(vr::Eye_Left);
+
+
+	//CameraInstance->GetEyeCam(EEye::Left)->SetUpAndForward(transfrom.GetForward(), transfrom.GetUp());
 #endif
 #else
 	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(ConvertRHToLH(GetHMDMatrixProjectionEye(vr::Eye_Left)));
@@ -101,6 +152,8 @@ void ViveHMD::Update()
 
 	CameraInstance->GetEyeCam(EEye::Right)->SetViewTransFrom(ConvertRHToLH(GetHMDMatrixPoseEye(vr::Eye_Right))* glm::inverse(ConvertRHToLH(VRInterface->poses[vr::k_unTrackedDeviceIndex_Hmd])));
 #endif
+
+	//HiddenAreaMesh_t GetHiddenAreaMesh( Hmd_Eye eEye )
 }
 
 void ViveHMD::OutputToEye(FrameBuffer* buffer, EEye::Type eye)
@@ -112,7 +165,9 @@ glm::ivec2 ViveHMD::GetDimentions()
 {
 	uint32_t Width, height;
 	VRInterface->GetSystem()->GetRecommendedRenderTargetSize(&Width, &height);
-	return glm::ivec2(Width, height);
+	getRaw(vr::Eye_Left);
+
+	return glm::ivec2(Width, sceneHeight);
 }
 
 void ViveHMD::SetPosAndRot(glm::vec3 pos, glm::quat Rot)

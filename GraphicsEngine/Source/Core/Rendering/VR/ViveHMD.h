@@ -37,7 +37,8 @@ public:
 	SteamVRInputInterface* VRInterface = nullptr;
 private:
 	float RenderScale = 1.0f;
-
+	float sceneWidth = 0;
+	float sceneHeight = 0;
 };
 
 #endif

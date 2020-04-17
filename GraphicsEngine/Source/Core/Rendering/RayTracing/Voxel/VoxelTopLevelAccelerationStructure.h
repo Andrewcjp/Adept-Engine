@@ -22,16 +22,19 @@ public:
 	void BuildInstances();
 	void Build(RHICommandList* list);
 	void BuildInstance(RHICommandList * list, VoxelBottomLevelAccelerationStructureInstance* instance, int Index);
+	void GenerateMipMaps(RHICommandList * list);
 	DeviceContext* Device = nullptr;
 	RHITexture* GetVoxelBuffer() const { return VoxelBuffer; }
 	RHIBuffer* VoxelMapControlBuffer = nullptr;
 	RHITextureArray* SturctureArray = nullptr;
 	RHIBuffer* InstanceBuffer = nullptr;
 	RHITexture* VoxelAlphaMap= nullptr;
+	static const int MipCount = 5;
 private:
 	std::vector<VoxelBottomLevelAccelerationStructureInstance*> ContainedInstances;
 	RHITexture* VoxelBuffer = nullptr;
 	Shader_Pair* BuildTopLevelVXShader = nullptr;
+	Shader_Pair* VolumeDownSample = nullptr;
 	glm::ivec3 MapSize = glm::ivec3(1, 1, 1);
 	RHIBuffer* ControlBuffer = nullptr;
 	std::vector<GPUVXInstanceDesc> Instances;
