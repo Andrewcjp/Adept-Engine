@@ -68,7 +68,7 @@ void VoxelScene::Update()
 void VoxelScene::ProcessUpdatesToAcclerationStuctures(RHICommandList * list)
 {
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "Build Voxel Structures");
+		DECALRE_SCOPEDGPUCOUNTER(list, "Voxel.Build Structures");
 		for (int i = 0; i < BottomStructuresToUpdate.size(); i++)
 		{
 			BottomStructuresToUpdate[i]->Build(list);
@@ -79,7 +79,7 @@ void VoxelScene::ProcessUpdatesToAcclerationStuctures(RHICommandList * list)
 
 void VoxelScene::UpdateTopLevel(RHICommandList* List)
 {
-	DECALRE_SCOPEDGPUCOUNTER(List, "Build Voxel Top Level");
+	DECALRE_SCOPEDGPUCOUNTER(List, "Voxel.Build Top Level");
 	TopLevelAcc->Build(List);
 }
 

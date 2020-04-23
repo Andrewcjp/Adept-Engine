@@ -4,6 +4,7 @@
 #include "D3D12Helpers.h"
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
+
 static ConsoleVariable LogPageAllocations("VMEM.LogAlloc", 0, ECVarType::ConsoleAndLaunch);
 GPUMemoryPage::GPUMemoryPage(AllocDesc& desc, D3D12DeviceContext* context)
 {
@@ -279,7 +280,7 @@ void GPUMemoryPage::CreateResource(AllocationChunk* chunk, AllocDesc& desc, ID3D
 			desc.ResourceDesc.Alignment = 0;
 		}
 	}
-
+	ensure(PageHeap != nullptr);
 	ThrowIfFailed(Device->GetDevice()->CreatePlacedResource(PageHeap, D3D12Helpers::Align(chunk->offset, AddressAlignmentForce), &desc.ResourceDesc, desc.InitalState, value, ID_PASS(Resource)));
 #else
 	ensure(PageHeap);

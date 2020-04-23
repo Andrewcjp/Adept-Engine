@@ -11,7 +11,23 @@ namespace EWidgetBatchMode
 }
 class UIWidgetContext;
 struct UIRenderBatch;
+struct UIInputEvent
+{
+	glm::ivec2 Pos = glm::ivec2();
+	bool LeftMouse = false;
+	bool RightMoude = false;
 
+	void SetHandled()
+	{
+		Handled = true;
+	}
+	bool IsHandled()const
+	{
+		return Handled;
+	}
+private:
+	bool Handled = false;
+};
 typedef unsigned long long UINT_PTR;
 #define USE_BATCHED_DRAW 1
 
@@ -86,7 +102,9 @@ public:
 	UITransform* GetTransfrom();
 	void DebugRenderBounds();
 	bool RenderWidgetBounds = false;
+	void ReceiveUIInputEvent(UIInputEvent& e);
 protected:
+	virtual void ProcessUIInputEvent(UIInputEvent& e) {};
 	UITransform Transform;
 	EWidgetBatchMode::Type BatchMode = EWidgetBatchMode::Auto;
 	UIWidgetContext* OwningContext = nullptr;

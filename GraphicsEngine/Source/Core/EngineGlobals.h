@@ -198,3 +198,4 @@ namespace EPlatforms
 #endif
 
 #include "PlatformConfig.h"
+#include "Core/Maths/Math.h"

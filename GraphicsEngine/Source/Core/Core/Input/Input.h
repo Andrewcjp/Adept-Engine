@@ -30,7 +30,7 @@ public:
 	bool   ProcessKeyDown(unsigned int key);
 	bool   ProcessKeyUp(unsigned int key);
 	void   ProcessMouseWheel(float Delta);
-	CORE_API static void ReciveMouseDownMessage(int Button, bool state);
+	CORE_API static void ReceiveMouseMessage(int Button, bool state);
 	CORE_API static bool GetMouseButtonDown(int button);
 	CORE_API static void SetCursorVisible(bool state);
 	bool IsUsingHPMI()

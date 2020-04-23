@@ -345,9 +345,10 @@ void UIEditField::UpdateScaled()
 	//UIBox::ResizeView(w, h, x, y);
 	Namelabel->TextScale = 0.3f;
 	Textlabel->TextScale = 0.3f;
-	Namelabel->SetRootSpaceSize(w, h, 0, 0);
 	int gap = 25;
-	Textlabel->SetRootSpaceSize(((w / 3) * 2) - gap, h / 2, (w / 3) + gap, 0);
+	Namelabel->RenderWidgetBounds = true;
+	Namelabel->SetRootSpaceSize((w / 3), h, 0, 0);
+	Textlabel->SetRootSpaceSize((w / 3) + gap, h, (w / 3) + gap, 0);
 	if (FilterType == EditValueType::Bool)
 	{
 		Toggle->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
@@ -362,4 +363,16 @@ void UIEditField::UpdateScaled()
 	}
 	Rect = CollisionRect(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
 	//ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
+}
+
+void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
+{
+	if (e.LeftMouse)
+	{
+		PlatformContextMenu Menu;
+		Menu.AddItem("Play");
+		Menu.AddItem("exit");
+		uint Option = PlatformWindow::ShowContextMenu(Menu);
+		e.SetHandled();
+	}
 }

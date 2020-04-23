@@ -20,6 +20,7 @@
 #include "EditorUI/UILayoutManager.h"
 #include "EditorUI/EditorOutliner.h"
 #include "Core/Performance/PerfManager.h"
+#include "Core/Input/Input.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -27,21 +28,28 @@ UIManager * UIManager::Get()
 {
 	return instance;
 }
-UIManager::UIManager()
-{}
 
-UIManager::UIManager(int w, int h)
+UIManager::UIManager()
 {
 	instance = this;
 	BottomHeight = 0.2f;
 	TopHeight = 0.1f;
 	RightWidth = 0.2f;
 	LeftWidth = 0.2f;
+
+	InitBars();
+}
+
+void UIManager::InitBars()
+{
+	EditUI = new EditorUI();
+}
+
+void UIManager::Init(int w, int h)
+{
 	m_width = w;
 	m_height = h;
-	EditUI = new EditorUI();
 	Initalise(w, h);
-
 	InitCommonUI();
 #if EDITORUI
 	InitEditorUI();
@@ -60,6 +68,7 @@ void UIManager::InitCommonUI()
 #if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
+
 	EditUI->ViewPortImage = new UIImage(0, 0, 0, 0);
 	ViewportArea = glm::ivec4(1920, 1080, 0, 0);
 	SetFullscreen(false);
@@ -271,9 +280,24 @@ void UIManager::UpdateBatches()
 		instance->Contexts[i]->MarkRenderStateDirty();
 	}
 }
-
+void UIManager::UpdateInput()
+{
+	UIInputEvent E;
+	if (Input::GetKeyDown('A'))
+	{
+		E.LeftMouse = true;
+		E.RightMoude = true;
+		SendUIInputEvent(E);
+	}
+	if (Input::GetMouseButtonDown(0))
+	{
+		E.LeftMouse = true;
+		SendUIInputEvent(E);
+	}
+}
 void UIManager::UpdateWidgets()
 {
+	UpdateInput();
 	SCOPE_CYCLE_COUNTER_GROUP("Update Widgets", "UI");
 	for (int i = 0; i < Contexts.size(); i++)
 	{
@@ -301,6 +325,7 @@ void UIManager::RenderWidgets(RHICommandList* List)
 	{
 		Contexts[i]->RenderWidgets(List);
 	}
+	DebugLineDrawer::Get2()->RenderLines2DScreen(List);
 }
 
 void UIManager::RenderWidgetText()
@@ -326,6 +351,14 @@ void UIManager::MouseClick(int x, int y)
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->MouseClick(x, y);
+	}
+}
+
+void UIManager::SendUIInputEvent(UIInputEvent& e)
+{
+	for (int i = 0; i < Contexts.size(); i++)
+	{
+		Contexts[i]->ReceiveUIInputEvent(e);
 	}
 }
 

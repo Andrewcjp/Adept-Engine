@@ -54,6 +54,5 @@ void ReflectionsBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_
 	{
 		return;
 	}
-	//Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"),RHIViewDesc::DefaultSRV());
-	Shader->LocalRootSig.SetTexture2(2, Mesh->GetMaterial(0)->TestHandle->GetData(RHI::GetDefaultDevice())->Backing, RHIViewDesc::DefaultSRV());
+	Shader->LocalRootSig.SetTexture2(2, Mesh->GetMaterial(0)->TestHandle->GetData(RHI::GetDefaultDevice())->Backing, Mesh->GetMaterial(0)->TestHandle->GetCurrentView(0));
 }

@@ -3,7 +3,7 @@
 class RHIPipeLineStateObject;
 class FrameBuffer;
 class BaseTexture;
-#define MAX_MRTS 8
+
 class GPUStateCache
 {
 public:

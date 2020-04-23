@@ -1,6 +1,6 @@
 #include "MovingAverage.h"
 #include "Core/Platform/PlatformCore.h"
-#include "../Maths/Math.h"
+
 MovingAverage::MovingAverage(unsigned short filterLength)
 {
 	FilterLength = filterLength;

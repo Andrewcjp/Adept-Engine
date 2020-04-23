@@ -56,5 +56,9 @@ typedef D3D12WindowSwapChain SwapchainInferface;
 #include "RHI/RenderAPIs/D3D12/Platform/Windows/WindowsDx12DeviceInterface.h"
 typedef WindowsDx12DeviceInterface DX12DeviceInterface;
 #endif
-
+#if __has_include(<pix3.h>) && defined(PLATFORM_WINDOWS)
+#define PIX_ENABLED 1
+#else
+#define PIX_ENABLED 0
+#endif
 

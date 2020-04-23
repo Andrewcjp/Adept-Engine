@@ -35,6 +35,7 @@ WindowsWindow::WindowsWindow()
 	Cursor = SetCursor(Cursor);
 	Cursors[GenericWindow::CursorType::IBeam] = LoadCursor(NULL, IDC_IBEAM);
 	Cursors[GenericWindow::CursorType::Normal] = LoadCursor(NULL, IDC_ARROW);
+	hMenubar = CreateMenu();
 }
 
 
@@ -258,6 +259,22 @@ void WindowsWindow::TickSplashWindow(int amt /*= 1*/, std::string Section /*= st
 #endif
 }
 
+uint WindowsWindow::ShowContextMenu(const PlatformContextMenu& menu)
+{
+	HMENU hPopupMenu = CreatePopupMenu();
+	for (int i = 0; i < menu.MenuItems.size(); i++)
+	{
+		InsertMenu(hPopupMenu, i, MF_BYPOSITION | MF_STRING, i, StringUtils::ConvertStringToWide(menu.MenuItems[i]).c_str());
+	}
+	SetForegroundWindow(app->HWindow);
+
+	uint value = TrackPopupMenuEx(hPopupMenu, TPM_RIGHTBUTTON | TPM_RETURNCMD, Input::GetMousePos().x, Input::GetMousePos().y, app->HWindow, NULL);
+
+	DestroyMenu(hPopupMenu);
+	return value;
+}
+
+
 void WindowsWindow::DestorySplashWindow()
 {
 #if WITH_EDITOR
@@ -322,14 +339,14 @@ void WindowsWindow::SetCursorType(GenericWindow::CursorType Type)
 {
 	switch (Type)
 	{
-		case GenericWindow::CursorType::IBeam:
-			SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::IBeam]);
-			break;
-		default:
-		case GenericWindow::CursorType::Drag:
-		case GenericWindow::CursorType::Normal:
-			SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::Normal]);
-			break;
+	case GenericWindow::CursorType::IBeam:
+		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::IBeam]);
+		break;
+	default:
+	case GenericWindow::CursorType::Drag:
+	case GenericWindow::CursorType::Normal:
+		SetCursor(GetApplication()->Cursors[GenericWindow::CursorType::Normal]);
+		break;
 	}
 }
 
@@ -361,104 +378,138 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 {
 	switch (msg)
 	{
-		case WM_CREATE:
-			break;
-		case WM_SIZE:
-			if (app->m_engine->GetRenderWindow())
-			{
-				const int Width = LOWORD(lparam);
-				const int Height = HIWORD(lparam);
-				if (Screen::NeedsWindowUpdate(Width, Height))
-				{
-					Screen::Resize(Width, Height);
-					app->m_engine->GetRenderWindow()->Resize(Width, Height);
-					RHI::Get()->ResizeSwapChain(Width, Height);
-				}
-			}
-			break;
-		case WM_CLOSE:
-			PostQuitMessage(0);
-			break;
-		case WM_NCMOUSEMOVE:
-		case WM_MOUSEMOVE:
-			if (app->m_engine->GetRenderWindow())
-			{
-				app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-			Input::ReciveMouseDownMessage(0, false);
-			break;
-		case WM_LBUTTONDOWN:
-			app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-			Input::ReciveMouseDownMessage(0, true);
-			break;
-		case WM_RBUTTONUP:
-			app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-			Input::ReciveMouseDownMessage(1, false);
-			break;
-		case WM_RBUTTONDOWN:
-			app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-			Input::ReciveMouseDownMessage(1, true);
-			break;
-		case WM_KEYDOWN:
+	case WM_CREATE:
+		break;
+	case WM_SIZE:
+		if (app->m_engine->GetRenderWindow())
 		{
-			//From MSDN The repeat count for the current message. https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-keydown
-			// LPARAM bit 30 will be ZERO for new presses, or ONE if this is a repeat
-			bool bIsRepeat = (lparam & 0x40000000) != 0;
-			if (!bIsRepeat)
+			const int Width = LOWORD(lparam);
+			const int Height = HIWORD(lparam);
+			if (Screen::NeedsWindowUpdate(Width, Height))
 			{
-				app->m_engine->HandleInput(LOWORD(wparam));
-			}
-			break;
-		}
-		case WM_KEYUP:
-		{
-			//key up doesn't repeat!
-			app->m_engine->HandleKeyUp(LOWORD(wparam));
-			break;
-		}
-		case WM_INPUT:
-		{
-			UINT dwSize = 40;
-			static BYTE lpb[40];
-
-			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
-
-			RAWINPUT* raw = (RAWINPUT*)lpb;
-
-			if (raw->header.dwType == RIM_TYPEMOUSE)
-			{
-				int xPosRelative = raw->data.mouse.lLastX;
-				int yPosRelative = raw->data.mouse.lLastY;
-				if (Input::Get())
-				{
-					Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));
-				}
-			}
-			break;
-		}
-		case WM_MOUSEWHEEL:
-		{
-			const float SpinFactor = 1 / 120.0f;
-			const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
-
-			if (Input::Get())
-			{
-				Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
+				Screen::Resize(Width, Height);
+				app->m_engine->GetRenderWindow()->Resize(Width, Height);
+				RHI::Get()->ResizeSwapChain(Width, Height);
 			}
 		}
 		break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
-		default:
-			return DefWindowProc(hwnd, msg, wparam, lparam);
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		break;
+	case WM_NCMOUSEMOVE:
+	case WM_MOUSEMOVE:
+		if (app->m_engine->GetRenderWindow())
+		{			
+			//app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+			IntPoint point = PlatformWindow::GetApplication()->GetMousePos();
+			app->m_engine->GetRenderWindow()->MouseMove(point.x, Math::Max(point.y,0));
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReceiveMouseMessage(0, false);
+		break;
+	case WM_LBUTTONDOWN:
+		app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReceiveMouseMessage(0, true);
+		break;
+	case WM_RBUTTONUP:
+		app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReceiveMouseMessage(1, false);
+		break;
+	case WM_RBUTTONDOWN:
+		app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+		Input::ReceiveMouseMessage(1, true);
+		break;
+	case WM_KEYDOWN:
+	{
+		//From MSDN The repeat count for the current message. https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-keydown
+		// LPARAM bit 30 will be ZERO for new presses, or ONE if this is a repeat
+		bool bIsRepeat = (lparam & 0x40000000) != 0;
+		if (!bIsRepeat)
+		{
+			app->m_engine->HandleInput(LOWORD(wparam));
+		}
+		break;
+	}
+	case WM_KEYUP:
+	{
+		//key up doesn't repeat!
+		app->m_engine->HandleKeyUp(LOWORD(wparam));
+		break;
+	}
+	case WM_INPUT:
+	{
+		UINT dwSize = 40;
+		static BYTE lpb[40];
+
+		GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+
+		if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			int xPosRelative = raw->data.mouse.lLastX;
+			int yPosRelative = raw->data.mouse.lLastY;
+			if (Input::Get())
+			{
+				Input::Get()->ReciveMouseAxisData(glm::vec2(xPosRelative, yPosRelative));
+			}
+		}
+		break;
+	}
+	case WM_MOUSEWHEEL:
+	{
+		const float SpinFactor = 1 / 120.0f;
+		const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
+
+		if (Input::Get())
+		{
+			Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
+		}
+	}
+	break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 
 	return 0;
 }
-
+void WindowsWindow::AddMenuBar(const PlatformMenuBar & MenuBar)
+{
+	HMENU NewMenu = CreateMenu();
+	//MenuBar.MenuCMDOffset = 0;
+	for (int i = 0; i < MenuBar.MenuItems.size(); i++)
+	{
+		AppendMenuW(NewMenu, MF_STRING, MenuBar.MenuCMDOffset + i, StringUtils::ConvertStringToWide(MenuBar.MenuItems[i]).c_str());
+	}
+	AppendMenuW(app->hMenubar, MF_POPUP, (UINT_PTR)NewMenu, StringUtils::ConvertStringToWide(MenuBar.MenuName).c_str());
+	SetMenu(app->HWindow, app->hMenubar);
+}
+//void WindowsWindow::AddMenus(HWND hwnd)
+//{
+//	HMENU hMenu;
+//	HMENU hGOMenu = CreateMenu();
+//	HMENU hdebugMenu = CreateMenu();
+//	HMENU hRenderMenu = CreateMenu();
+//	HMENU hMenubar = CreateMenu();
+//	hMenu = CreateMenu();
+//	//file menu
+//	AppendMenuW(hMenu, MF_STRING, 5, L"&Save Scene");
+//	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
+//	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
+//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
+//
+//	//Gameobject menu
+//	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
+//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
+//	AppendMenuW(hdebugMenu, MF_STRING, 10, L"&Load DebugScene ");
+//	AppendMenuW(hdebugMenu, MF_STRING, 11, L"&Run Cook ");
+//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
+//	SetMenu(hwnd, hMenubar);
+//}
 #endif

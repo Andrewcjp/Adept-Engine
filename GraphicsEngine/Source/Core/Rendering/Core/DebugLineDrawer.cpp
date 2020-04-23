@@ -9,6 +9,7 @@
 
 #include "SceneRenderer.h"
 #include "FrameBuffer.h"
+#include "Screen.h"
 #if _DEBUG
 #pragma optimize("g",on)
 #pragma runtime_checks( "sc", off )  
@@ -143,8 +144,31 @@ void DebugLineDrawer::RenderLines(FrameBuffer* Buffer, RHICommandList* CmdList, 
 	}
 	else
 	{
-		LineShader->SetParameters(CmdList, DataBuffer);		
+		LineShader->SetParameters(CmdList, DataBuffer);
 	}
+	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
+	CmdList->EndRenderPass();
+}
+
+void DebugLineDrawer::RenderLines2DScreen(RHICommandList* CmdList)
+{
+	if (VertsOnGPU == 0)
+	{
+		return;
+	}
+	OnResize(Screen::GetWindowWidth(), Screen::GetWindowHeight());
+	RHIPipeLineStateDesc desc;
+	desc.DepthStencilState.DepthEnable = false;
+	desc.RasterMode = PRIMITIVE_TOPOLOGY_TYPE::PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	desc.ShaderInUse = LineShader;
+	desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
+	CmdList->SetPipelineStateDesc(desc);
+	RHIRenderPassDesc RPdesc(RHI::GetRenderPassDescForSwapChain());
+
+	CmdList->BeginRenderPass(RPdesc);
+	CmdList->SetVertexBuffer(VertexBuffer);
+	SceneRenderer::Get()->BindMvBufferB(CmdList, 0);
+	LineShader->SetParameters(CmdList, DataBuffer);
 	CmdList->DrawPrimitive((int)VertsOnGPU, 1, 0, 0);
 	CmdList->EndRenderPass();
 }
@@ -156,6 +180,7 @@ void DebugLineDrawer::FlushDebugLines()
 
 void DebugLineDrawer::ClearLines()
 {
+	HadWorkLastFrame = Lines.size();
 	for (int i = (int)Lines.size() - 1; i >= 0; i--)
 	{
 		if (Lines[i].Time > 0.0f || Lines[i].Persistent)
@@ -245,7 +270,7 @@ DebugLineDrawer * DebugLineDrawer::Get2()
 }
 bool DebugLineDrawer::HasWork() const
 {
-	return Lines.size() > 0;
+	return Lines.size() > 0 || HadWorkLastFrame;//some lines are added in render node etc. just before render 
 }
 #if _DEBUG
 #pragma auto_inline( off ) 

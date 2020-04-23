@@ -36,6 +36,6 @@ public:
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	float RenderScale = 1.0f;
 	glm::vec3 Offset = glm::vec3(0, 10, 0);
-	glm::vec3 Scale = glm::vec3(1);
+	float Scale = 1.0f;
 };
 #endif

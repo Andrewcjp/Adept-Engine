@@ -29,6 +29,9 @@ public:
 
 	void UpdateScaled() override;
 
+
+	void ProcessUIInputEvent(UIInputEvent& e) override;
+
 private:
 	UILabel* Namelabel = nullptr;
 	UILabel* Textlabel = nullptr;

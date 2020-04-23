@@ -3,7 +3,7 @@
 #include "Core/EngineTypes.h"
 #include <functional>
 #define UISTATS 0
-#define EDITORUI 0 //WITH_EDITOR
+#define EDITORUI 1 //WITH_EDITOR
 class TextRenderer;
 class UIWidget;
 class GameObject;
@@ -21,13 +21,16 @@ class UIImage;
 class EditorUI;
 class UILayoutManager;
 class EditorOutliner;
+struct UIInputEvent;
+
 class UIManager
 {
 public:
 	static UIManager* instance;
 	CORE_API static UIManager* Get();
 	UIManager();
-	UIManager(int w, int h);
+	void InitBars();
+	void Init(int w, int h);
 	void InitCommonUI();
 #if WITH_EDITOR
 	void InitEditorUI();
@@ -44,12 +47,14 @@ public:
 	void UpdateSize(int width, int height);
 	void AddWidget(UIWidget* widget);
 	static void UpdateBatches();
+	void UpdateInput();
 	void UpdateWidgets();
 	void RenderWidgets();
 	void RenderWidgets(RHICommandList* List);
 	void RenderWidgetText();
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);
+	void SendUIInputEvent(UIInputEvent& e);
 	void MouseClickUp(int x, int y);
 	void InitGameobjectList(std::vector<GameObject*>& gos);
 	void UpdateGameObjectList(std::vector<GameObject*>& gos);

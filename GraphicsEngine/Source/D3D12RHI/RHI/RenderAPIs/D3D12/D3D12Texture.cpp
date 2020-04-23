@@ -13,7 +13,6 @@
 #include "DescriptorHeapManager.h"
 #include "DXMemoryManager.h"
 #include "DXDescriptor.h"
-#include "Core/Maths/Math.h"
 #include "D3D12RHITexture.h"
 
 D3D12Texture::D3D12Texture(DeviceContext* inDevice)

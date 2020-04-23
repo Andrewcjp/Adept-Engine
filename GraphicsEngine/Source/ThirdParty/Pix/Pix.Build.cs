@@ -10,5 +10,7 @@ class PixBuild : ExternalModuleDef
         DLLs.Add("WinPixEventRuntime.dll");
         LibDirs.Add("../source/ThirdParty/Pix/");
         StaticLibraries.Add(new LibDependency("WinPixEventRuntime.lib", "win64"));
+        UnsupportedPlatforms.Add("X*");
+        IncludeDir = "\\Pix\\Include\\WinPixEventRuntime\\";
     }
 }

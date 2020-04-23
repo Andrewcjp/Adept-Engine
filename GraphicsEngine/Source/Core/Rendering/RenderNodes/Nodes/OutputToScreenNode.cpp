@@ -33,7 +33,6 @@ void OutputToScreenNode::OnExecute()
 	SetBeginStates(ScreenWriteList);
 #if EDITORUI
 	RHIRenderPassDesc RP = RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear);
-	RP.InitalState = GPU_RESOURCE_STATES::RESOURCE_STATE_RENDER_TARGET;
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::RenderTarget);
 #else
 	RHIRenderPassDesc RP = RHI::GetRenderPassDescForSwapChain(true);
@@ -85,9 +84,12 @@ void OutputToScreenNode::OnExecute()
 	}
 	RenderingUtils::RenderScreenQuad(ScreenWriteList);
 	ScreenWriteList->EndRenderPass();
+
 #if EDITORUI
 	GetFrameBufferFromInput(1)->SetResourceState(ScreenWriteList, EResourceState::PixelShader);
 	UIManager::Get()->SetEditorViewPortRenderTarget(GetFrameBufferFromInput(1));
+#else
+	DebugLineDrawer::Get2()->RenderLines2DScreen(ScreenWriteList);
 #endif
 	SetEndStates(ScreenWriteList);
 	Context->GetListPool()->Flush();

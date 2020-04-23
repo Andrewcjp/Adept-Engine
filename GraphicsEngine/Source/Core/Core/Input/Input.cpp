@@ -216,7 +216,7 @@ void Input::LockCursor(bool state)
 	instance->LockMouse = state;
 }
 
-void Input::ReciveMouseDownMessage(int Button, bool state)
+void Input::ReceiveMouseMessage(int Button, bool state)
 {
 	if (instance->DidJustPause)
 	{

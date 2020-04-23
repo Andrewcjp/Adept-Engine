@@ -13,7 +13,6 @@ public:
 	D3D12RHITexture();
 	virtual ~D3D12RHITexture();
 	void Release() override;
-	size_t GetSizeOnGPU() override;
 	DXDescriptor * GetDescriptor(const RHIViewDesc & desc, DescriptorHeap * heap);
 	void Create(const RHITextureDesc2& Desc, DeviceContext* Context) override;
 	GPUResource* GetResource()const;

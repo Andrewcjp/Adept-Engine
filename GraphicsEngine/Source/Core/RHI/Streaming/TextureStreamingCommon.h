@@ -42,6 +42,7 @@ public:
 	void InitFromFile(std::string file);
 	void LoadToCPUMemory();
 	void LinkToMesh(MeshRendererComponent* Mesh);
+	RHIViewDesc GetCurrentView(int List);
 	bool IsResident()const
 	{
 		return Resident;

@@ -20,6 +20,7 @@ public:
 	void UpdateLineBuffer(int offset);
 	void CreateLineVerts(WLine & line);
 	void RenderLines(FrameBuffer * Buffer, RHICommandList * list, EEye::Type eye);
+	void RenderLines2DScreen(RHICommandList * CmdList);
 	CORE_API void AddLine(glm::vec3 Start, glm::vec3 end, glm::vec3 colour, float time = 0);
 	void OnResize(int newwidth, int newheight);
 	void FlushDebugLines();
@@ -27,6 +28,7 @@ public:
 	CORE_API static DebugLineDrawer* Get2();
 	bool HasWork()const;
 private:
+	bool HadWorkLastFrame = false;
 	void ReallocBuffer(int NewSize);
 
 	void RegenerateVertBuffer();

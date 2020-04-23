@@ -167,10 +167,7 @@ void D3D12TimeManager::StartTimer(RHICommandList* CommandList, int index)
 	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
 	GetOrCreateTimer(GetTimerName(index), CommandList->GetDevice(), CommandList->GetListType());
 	StartTimer(List, index, List->IsCopyList());
-#if PIX_ENABLED
-	//PIXSetMarker(0, GetTimerNameForPIX(index));
-	PIXBeginEvent(List->GetCommandList(), index, GetTimerName(index).c_str());
-#endif
+	List->PushDebugMarker(GetTimerName(index), index);
 #if AFTERMATH
 	const char* t = TimeDeltas[index].name.c_str();
 	GFSDK_Aftermath_SetEventMarker(List->AMHandle, &(t), TimeDeltas[index].name.size());
@@ -189,9 +186,7 @@ void D3D12TimeManager::EndTimer(RHICommandList* CommandList, int index)
 	D3D12CommandList* List = D3D12RHI::DXConv(CommandList);
 	List->FlushBarriers();
 	EndTimer(List, index, List->IsCopyList());
-#if PIX_ENABLED
-	PIXEndEvent(List->GetCommandList());
-#endif
+	List->PopDebugMarker();
 #endif
 }
 

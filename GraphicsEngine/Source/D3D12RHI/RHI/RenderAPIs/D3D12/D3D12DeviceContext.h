@@ -144,6 +144,7 @@ public:
 #endif
 	ID3D12CommandQueue* GetCommandQueue();
 	CopyCMDListType* GetCopyList();
+	D3D12CommandList * GetCopyListDx();
 	void NotifyWorkForCopyEngine();
 	void UpdateCopyEngine();
 	void ResetCopyEngine();

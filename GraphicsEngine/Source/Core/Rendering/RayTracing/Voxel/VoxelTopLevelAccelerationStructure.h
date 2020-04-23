@@ -33,8 +33,7 @@ public:
 private:
 	std::vector<VoxelBottomLevelAccelerationStructureInstance*> ContainedInstances;
 	RHITexture* VoxelBuffer = nullptr;
-	Shader_Pair* BuildTopLevelVXShader = nullptr;
-	Shader_Pair* VolumeDownSample = nullptr;
+
 	glm::ivec3 MapSize = glm::ivec3(1, 1, 1);
 	RHIBuffer* ControlBuffer = nullptr;
 	std::vector<GPUVXInstanceDesc> Instances;

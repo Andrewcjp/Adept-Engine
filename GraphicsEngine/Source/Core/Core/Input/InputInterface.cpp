@@ -21,6 +21,26 @@ int InputInterface::GetNumOfControllers() const
 	return 0;
 }
 
+int InputInterface::GetNumOfKeyBoards()const
+{
+	return 0;
+}
+
+InputKeyboard * InputInterface::GetKeyboard(int Index)
+{
+	return nullptr;
+}
+
+int InputInterface::GetNumOfMice() const
+{
+	return 0;
+}
+
+InputMouse * InputInterface::GetMouse(int Index)
+{
+	return nullptr;
+}
+
 bool InputInterface::HasHMD() const
 {
 	return false;

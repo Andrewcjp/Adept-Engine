@@ -1,18 +1,16 @@
 #include "D3D12Buffer.h"
-
-#include "RHI/DeviceContext.h"
-#include "D3D12DeviceContext.h"
-#include "RHI/RHICommandList.h"
-#include "GPUResource.h"
-
 #include "D3D12CommandList.h"
-#include "DescriptorHeapManager.h"
-#include "DXMemoryManager.h"
-#include "DXDescriptor.h"
-#include "D3D12Helpers.h"
-#include "DescriptorHeap.h"
-#include "D3D12InterGPUStagingResource.h"
+#include "D3D12DeviceContext.h"
 #include "D3D12Framebuffer.h"
+#include "D3D12Helpers.h"
+#include "D3D12InterGPUStagingResource.h"
+#include "DescriptorHeap.h"
+#include "DescriptorHeapManager.h"
+#include "DXDescriptor.h"
+#include "DXMemoryManager.h"
+#include "GPUResource.h"
+#include "RHI/DeviceContext.h"
+#include "RHI/RHICommandList.h"
 
 D3D12Buffer::D3D12Buffer(ERHIBufferType::Type type, DeviceContext* inDevice) :RHIBuffer(type)
 {
@@ -194,6 +192,7 @@ void D3D12Buffer::UpdateVertexBuffer(void* data, size_t length, int InVertexCoun
 void D3D12Buffer::BindBufferReadOnly(RHICommandList* list, int RSSlot)
 {
 	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
+	//UpdateBufferDataGPU(d3dlist);
 	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
 	{
 		m_DataBuffer->SetResourceState(d3dlist, PostUploadState);
@@ -266,20 +265,43 @@ void D3D12Buffer::UpdateData(void* data, size_t length, D3D12_RESOURCE_STATES En
 	}
 	else
 	{
-		ensure(!UploadComplete && "Uploading More than once to a GPU only buffer is not allowed!");
-		// store vertex buffer in upload heap
-		D3D12_SUBRESOURCE_DATA Data = {};
-		Data.pData = reinterpret_cast<BYTE*>(data); // pointer to our index array
-		Data.RowPitch = TotalByteSize; // size of all our index buffer
-		Data.SlicePitch = TotalByteSize; // also the size of our index buffer
+		UpdateBufferDataGPU(data, TotalByteSize, Device->GetCopyListDx());
+	}
+}
 
-											// we are now creating a command with the command list to copy the data from
-											// the upload heap to the default heap
-		UpdateSubresources(Device->GetCopyList(), m_DataBuffer->GetResource(), m_UploadBuffer->GetResource(), 0, 0, 1, &Data);
+void D3D12Buffer::UpdateBufferDataGPU(void* data, size_t length, D3D12CommandList* list)
+{
+	AllocDesc D = AllocDesc();
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	D.Segment = EGPUMemorysegment::Non_Local;
+	if (Desc.UseForExecuteIndirect)
+	{
+		D.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
+	}
+	Device->GetMemoryManager()->AllocResource(D, &m_UploadBuffer);
+	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
+	void* BufferData;
+	CD3DX12_RANGE readRange(0, 0);		// We do not intend to read from this resource on the CPU.
+	ThrowIfFailed(m_UploadBuffer->GetResource()->Map(0, &readRange, &BufferData));
+	memcpy(BufferData, data, length);
+	m_UploadBuffer->GetResource()->Unmap(0, nullptr);
+	if (list != nullptr)
+	{
+		PushDataUpLoad(list);
+	}
+}
 
-		UploadComplete = true;
-		Device->NotifyWorkForCopyEngine();
+void D3D12Buffer::PushDataUpLoad(D3D12CommandList * list)
+{
+	if (m_UploadBuffer != nullptr)
+	{
+		D3D12_RESOURCE_STATES BeforeState = m_DataBuffer->GetCurrentState();
+		m_DataBuffer->SetResourceState(list, D3D12_RESOURCE_STATE_COPY_DEST);
+		list->GetCommandList()->CopyResource(m_DataBuffer->GetResource(), m_UploadBuffer->GetResource());
+		m_DataBuffer->SetResourceState(list, BeforeState);
 		RHI::AddToDeferredDeleteQueue(m_UploadBuffer);
+		m_UploadBuffer = nullptr;
 	}
 }
 
@@ -305,17 +327,6 @@ void D3D12Buffer::CreateStaticBuffer(int ByteSize)
 	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize, Desc.AllowUnorderedAccess ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE);
 	D.InitalState = D3D12_RESOURCE_STATE_COPY_DEST;
 	Device->GetMemoryManager()->AllocResource(D, &m_DataBuffer);
-
-	D = AllocDesc();
-	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(TotalByteSize);
-	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	D.Segment = EGPUMemorysegment::Non_Local;
-	if (Desc.UseForExecuteIndirect)
-	{
-		D.ResourceDesc.Flags |= D3D12RHIConfig::IndirectBufferResouceFlag;
-	}
-	Device->GetMemoryManager()->AllocResource(D, &m_UploadBuffer);
-	D3D12Helpers::NameRHIObject(m_UploadBuffer, this, "(UPLOAD)");
 }
 
 void D3D12Buffer::CreateDynamicBuffer(int ByteSize)

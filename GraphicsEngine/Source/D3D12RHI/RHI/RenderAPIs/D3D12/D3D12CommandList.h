@@ -111,13 +111,21 @@ public:
 
 	CopyCMDListType* GetCopyList();
 
-	 RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) override;
-	 RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) override;
+	RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) override;
+	RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) override;
 
-	 RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) override;
+	RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) override;
 
 
-	 RHI_VIRTUAL void SetScissorRect(const RHIScissorRect& rect) override;
+	RHI_VIRTUAL void SetScissorRect(const RHIScissorRect& rect) override;
+
+
+	void SetDebugMarker(std::string text, uint64 PaletteColour = 0) override;
+	void PushDebugMarker(std::string text, uint64 PaletteColour = 0) override;
+	void PopDebugMarker() override;
+
+
+	RHI_VIRTUAL void UpdateBufferData(RHIBuffer* Buffer, void * data, size_t length) override;
 
 private:
 

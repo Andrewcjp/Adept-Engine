@@ -87,10 +87,6 @@ void IRHIResourse::Release()
 	DebugEnsure(!IsReleased);
 	IsReleased = true;
 }
-size_t IRHIResourse::GetSizeOnGPU()
-{
-	return 0;
-}
 #if NAME_RHI_PRIMS
 void IRHIResourse::SetDebugName(std::string Name)
 {
@@ -725,4 +721,22 @@ DeviceContextQueue::Type DeviceContextQueue::GetFromCommandListType(ECommandList
 		break;
 	}
 	return DeviceContextQueue::LIMIT;
+}
+
+RHIPipeRenderTargetDesc RHIRenderOutputSet::GetRTDesc()
+{
+	RHIPipeRenderTargetDesc Desc;
+	for (int i = 0; i < MRT_MAX; i++)
+	{
+		if (Targets[i] != nullptr)
+		{
+			Desc.RTVFormats[i] = Targets[i]->GetDescription().Format;
+			Desc.NumRenderTargets++;
+		}
+	}
+	if (DepthTarget != nullptr)
+	{
+		Desc.DSVFormat = DepthTarget->GetDescription().Format;
+	}
+	return Desc;
 }

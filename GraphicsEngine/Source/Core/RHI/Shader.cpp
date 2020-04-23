@@ -82,7 +82,7 @@ int Shader::GetSlotForName(const std::string & name)
 		}
 	}
 #if _DEBUG
-	LogEnsureMsgf(false, "failed to find name in shader");
+	AD_ERROR("Failed to find variable '%s' in shader",name.c_str());
 #endif
 	return -1;
 }

@@ -14,6 +14,7 @@
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 #include "RHI/Shader.h"
 #include "RHI/ShaderComplierModule.h"
+#include "Rendering/Shaders/GlobalShaderLibrary.h"
 
 ShaderComplier * ShaderComplier::Instance = nullptr;
 static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly);
@@ -50,6 +51,7 @@ void ShaderComplier::ComplieAllGlobalShaders()
 		CurrentCount++;
 		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
 	}
+	GlobalShaderLibrary::Init();
 	for (auto it = SingleShaderMapDefinitions.begin(); it != SingleShaderMapDefinitions.end(); ++it)
 	{
 		ShaderComplieItem Item;

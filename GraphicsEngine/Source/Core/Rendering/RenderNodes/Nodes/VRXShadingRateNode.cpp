@@ -5,7 +5,6 @@
 #include "Rendering/Shaders/Shader_Pair.h"
 #include "RHI/RHITimeManager.h"
 #include "Core/Input/Input.h"
-#include "Core/Maths/Math.h"
 #include "RHI/RHITexture.h"
 REGISTER_SHADER_CS_ONEARG(vrxGen16, "VRX/VRXGScreen", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(16)));
 REGISTER_SHADER_CS_ONEARG(vrxGen8, "VRX/VRXGScreen", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", std::to_string(8)));

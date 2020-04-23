@@ -12,7 +12,7 @@
 #include "DXGPUTextureStreamer.h"
 #include "DescriptorHeap.h"
 #include "DescriptorCache.h"
-#include "Core/Maths/Math.h"
+
 #include "GPUResource.h"
 
 #if NAME_RHI_PRIMS
@@ -616,7 +616,10 @@ CopyCMDListType* D3D12DeviceContext::GetCopyList()
 {
 	return D3D12RHI::DXConv(GPUCopyList)->GetCopyList();
 }
-
+D3D12CommandList* D3D12DeviceContext::GetCopyListDx()
+{
+	return D3D12RHI::DXConv(GPUCopyList);
+}
 void D3D12DeviceContext::NotifyWorkForCopyEngine()
 {
 	CopyEngineHasWork = true;

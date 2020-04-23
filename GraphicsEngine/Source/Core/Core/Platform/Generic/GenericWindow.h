@@ -2,7 +2,34 @@
 #include "MinWindows.h"
 
 struct IntPoint;
-
+struct PlatformContextMenu
+{
+	std::vector<std::string> MenuItems;
+	glm::ivec2 MenuPos = glm::ivec2();
+	void AddItem(std::string name)
+	{
+		MenuItems.push_back(name);
+	}
+};
+struct PlatformMenuBar
+{
+	std::string MenuName;
+	std::vector<std::string> MenuItems;
+	std::function<void(int CMDIndex)> SingleHandleFuncPTR;
+	void AddItem(std::string name)
+	{
+		MenuItems.push_back(name);
+	}
+	//Internal data
+	int MenuCMDOffset;
+	void Execute(int index)
+	{
+		if (SingleHandleFuncPTR != nullptr)
+		{
+			SingleHandleFuncPTR(index);
+		}
+	}
+};
 class GenericWindow
 {
 public:

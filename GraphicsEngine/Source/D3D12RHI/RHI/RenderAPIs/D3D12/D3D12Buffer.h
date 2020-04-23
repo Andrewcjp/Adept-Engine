@@ -31,6 +31,8 @@ public:
 
 	RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) override;
 
+	void UpdateBufferDataGPU(void * data, size_t length, D3D12CommandList * list);
+	void PushDataUpLoad(D3D12CommandList * list);
 protected:
 	void UpdateData(void * data, size_t length, D3D12_RESOURCE_STATES EndState);
 	void Release() override;
@@ -48,7 +50,6 @@ private:
 	GPUResource* m_DataBufferDouble[2] = {  };
 	int ElementCount = 0;
 	int ElementSize = 0;
-	bool UploadComplete = false;
 	D3D12DeviceContext* Device = nullptr;
 	D3D12_RESOURCE_STATES PostUploadState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 	UINT8* m_pCbvDataBegin[2];

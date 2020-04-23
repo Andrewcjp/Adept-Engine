@@ -293,7 +293,7 @@ void TextRenderer::NotifyFrameEnd()
 #if BUILD_FREETTYPE
 TextRenderer::atlas::atlas(FT_Face face, int height)
 {
-	FT_Set_Pixel_Sizes(face, 0, height);
+	FT_Set_Pixel_Sizes(face, height, height);
 	FT_GlyphSlot g = face->glyph;
 
 	unsigned int roww = 0;

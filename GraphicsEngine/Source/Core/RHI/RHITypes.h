@@ -323,6 +323,13 @@ enum TMP_BlendMode
 	Full
 };
 
+struct RHIRenderOutputSet
+{
+	RHITexture* Targets[MRT_MAX] = { nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr };
+	RHITexture* DepthTarget = nullptr;
+	RHIPipeRenderTargetDesc GetRTDesc();
+};
+
 //defines a render pass pointers to framebuffer optional
 struct RHIRenderPassDesc
 {
@@ -668,7 +675,7 @@ public:
 #if NAME_RHI_PRIMS	
 	RHI_API const char* GetDebugName();
 #endif
-	RHI_API virtual size_t GetSizeOnGPU();
+
 private:
 #if NAME_RHI_PRIMS
 	const char* FinalName = "";
@@ -676,7 +683,7 @@ private:
 #endif
 	bool PendingKill = false;
 	friend class RHI;
-
+	uint Karma = 253;
 };
 //Releases the GPU side and deletes the CPU object
 #define SafeRHIRelease(Target) if(Target != nullptr){Target->Release(); delete Target; Target= nullptr;}

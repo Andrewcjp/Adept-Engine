@@ -60,7 +60,7 @@ class CoreTargetRules : TargetRules
            // "WWiseBuild",
             "OpenVRBuild",
             //"AfterMathBuild",
-           // "PixBuild"
+            "PixBuild"
             };
         CoreModule.ThirdPartyModules.AddRange(ThirdPartyModules);
 

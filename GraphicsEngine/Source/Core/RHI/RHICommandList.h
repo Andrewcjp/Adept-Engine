@@ -19,6 +19,7 @@ struct RHIBufferDesc
 	bool UseForExecuteIndirect = false;
 	bool UseForReadBack = false;
 	EResourceState::Type StartState = EResourceState::Undefined;
+	bool TEST = false;
 };
 
 class  RHIBuffer : public IRHIResourse, public IRHISharedDeviceObject<RHIBuffer>
@@ -36,13 +37,14 @@ public:
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
 	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
-	RHI_API RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) = 0;	
+	RHI_API RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) = 0;
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
 	RHI_API RHI_VIRTUAL void* MapReadBack() = 0;
 	RHI_API RHI_VIRTUAL void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
 	RHI_API RHI_VIRTUAL void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
 	RHI_API RHI_VIRTUAL ~RHIBuffer()
-	{}
+	{
+	}
 	size_t GetVertexCount()
 	{
 		return VertexCount;
@@ -87,7 +89,8 @@ struct RHIScissorRect
 		, Top(top)
 		, Right(right)
 		, Bottom(bottom)
-	{}
+	{
+	}
 	LONG Left;
 	LONG Top;
 	LONG Right;
@@ -183,9 +186,11 @@ public:
 	RHI_API void ResolveTimers();
 	//MultiGPU
 	RHI_API RHI_VIRTUAL void CopyResourceToSharedMemory(FrameBuffer* Buffer)
-	{};
+	{
+	};
 	RHI_API RHI_VIRTUAL void CopyResourceFromSharedMemory(FrameBuffer* Buffer)
-	{};
+	{
+	};
 	RHI_API bool IsGraphicsList()const;
 	RHI_API bool IsCopyList() const;
 	RHI_API bool IsComputeList() const;
@@ -214,6 +219,12 @@ public:
 
 	RHI_API RHI_VIRTUAL void CopyResource(RHITexture* Source, RHITexture* Dest) = 0;
 	RHI_API RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) = 0;
+	RHI_API RHI_VIRTUAL void PushDebugMarker(std::string text, uint64 PaletteColour = 0) = 0;
+	RHI_API RHI_VIRTUAL void PopDebugMarker() = 0;
+	RHI_API RHI_VIRTUAL void SetDebugMarker(std::string text, uint64 PaletteColour = 0) = 0;
+
+
+	RHI_API RHI_VIRTUAL void UpdateBufferData(RHIBuffer* Buffer,void * data, size_t length) = 0;
 protected:
 	RHI_API virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate);
 	RHI_API virtual void SetVRSShadingRateImageNative(RHITexture* Target);
@@ -232,7 +243,8 @@ class RHITextureArray : public IRHIResourse
 public:
 	RHI_API RHITextureArray(DeviceContext* device, int inNumEntries);;
 	RHI_API RHI_VIRTUAL ~RHITextureArray()
-	{};
+	{
+	};
 	RHI_API RHI_VIRTUAL void AddFrameBufferBind(FrameBuffer* Buffer, int slot) = 0;
 	RHI_API RHI_VIRTUAL void BindToShader(RHICommandList* list, int slot) = 0;
 	RHI_API RHI_VIRTUAL void SetIndexNull(int TargetIndex, FrameBuffer* Buffer = nullptr) = 0;
@@ -251,7 +263,8 @@ public:
 	FrameBuffer* ColourTargets[MAX_RENDERTARGETS] = { nullptr };
 	FrameBuffer* DepthTarget = { nullptr };
 	void Validate()
-	{};
+	{
+	};
 };
 
 class RHIRenderPass

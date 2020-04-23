@@ -1,4 +1,5 @@
 #pragma once
+#include "VoxelTracingEngine.h"
 
 class RHITexture;
 class MeshRendererComponent;

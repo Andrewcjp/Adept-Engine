@@ -7,11 +7,13 @@
 
 
 EditorCameraController::EditorCameraController()
-{}
+{
+}
 
 
 EditorCameraController::~EditorCameraController()
-{}
+{
+}
 
 
 void EditorCameraController::TickController(float dt)
@@ -46,7 +48,7 @@ void EditorCameraController::TickController(float dt)
 	ensure(!glm::isnan(RotY));
 	glm::quat rot = glm::quat();
 	rot = glm::angleAxis(glm::radians(-RotY), glm::vec3(0, 1, 0));
-	rot *= glm::angleAxis(glm::radians(Rotx), glm::vec3(0, 0, 1));
+	rot *= glm::angleAxis(glm::radians(Rotx), glm::vec3(1, 0, 0));
 	Target->SetQrot(rot);
 	MovedThisFrame = true;
 }

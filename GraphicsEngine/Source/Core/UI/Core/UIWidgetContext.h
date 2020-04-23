@@ -2,6 +2,7 @@
 #include "UI/Core/CollisionRect.h"
 #include "RHI/BaseTexture.h"
 #include "Core/EngineTypes.h"
+#include "UI/UIManager.h"
 
 class UIWidget;
 class DebugLineDrawer;
@@ -32,6 +33,7 @@ public:
 	void MouseMove(int x, int y);
 	void MouseClick(int x, int y);
 	void MouseClickUp(int x, int y);
+	void ReceiveUIInputEvent(UIInputEvent& e);
 	UIDrawBatcher* GetBatcher() const;
 	CORE_API DebugLineDrawer* GetLineBatcher()const;
 	void SetOffset(glm::ivec2 newoff);

@@ -20,6 +20,29 @@ struct TimerData
 	MovingAverage* AVG = nullptr;
 	std::string name = "";
 	int GroupId = 0;
+	std::vector<int> GroupIds;
+	void AddToGroup(int id)
+	{
+		for (int i = 0; i < GroupIds.size(); i++)
+		{
+			if (GroupIds[i] == id)
+			{
+				return;
+			}
+		}
+		GroupIds.push_back(id);
+	}
+	bool IsInGroup(int id)
+	{
+		for (int i = 0; i < GroupIds.size(); i++)
+		{
+			if (GroupIds[i] == id)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	bool Active = false;
 	bool DirectUpdate = false;
 	int CallCount = 0;
@@ -45,7 +68,8 @@ struct TimerData
 	TimerData(std::string kname, int groupid)
 	{
 		name = kname;
-		GroupId = groupid;
+	
+		AddToGroup(groupid);
 		AVG = new MovingAverage(50);
 		MAXAVG = new MovingAverage(50);
 	}

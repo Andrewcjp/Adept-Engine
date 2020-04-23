@@ -90,3 +90,19 @@ void UIButton::OnOwnerSet(UIWidgetContext * wc)
 {
 	Label->SetOwner(wc);
 }
+
+void UIButton::ProcessUIInputEvent(UIInputEvent& e)
+{
+	if (!GetEnabled())
+	{
+		return;
+	}
+	if (Rect.Contains(e.Pos.x, e.Pos.y))
+	{
+		if (Target)
+		{
+			Target();
+			e.SetHandled();
+		}
+	}
+}

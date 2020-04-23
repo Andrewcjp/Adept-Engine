@@ -39,14 +39,10 @@ RHICommandList::~RHICommandList()
 {}
 
 void RHICommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
-{
-
-}
+{}
 
 void RHICommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation)
-{
-
-}
+{}
 
 void RHICommandList::SetRootConstant(std::string SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {

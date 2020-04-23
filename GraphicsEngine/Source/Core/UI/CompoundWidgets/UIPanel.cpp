@@ -52,7 +52,7 @@ void UIPanel::UpdateScaled()
 	{
 		TextHeight = 30;
 		title->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
-		title->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, TextHeight, 0, TextHeight / 3);
+		title->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, TextHeight, 0, 0);
 	}
 	UIUtils::ArrangeHorizontal(GetTransfrom()->GetSizeRootSpace().x - EdgeShrink * 2, GetTransfrom()->GetSizeRootSpace().y - TextHeight, EdgeShrink, TextHeight + TopAlignGap, SubWidgets, -1, AlignGap);
 }

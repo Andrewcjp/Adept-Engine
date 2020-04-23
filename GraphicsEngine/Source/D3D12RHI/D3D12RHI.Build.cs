@@ -16,6 +16,7 @@ class D3D12RHIModule : ModuleDef
         
         ThirdPartyModules.Add("Dx12Build");
         ThirdPartyModules.Add("OpenVRBuild");
+        ThirdPartyModules.Add("PixBuild");
         NuGetPackages.Add("WinPixEventRuntime");
         UnsupportedPlatforms.Add("Win64_VK");
         UnsupportedPlatforms.Add("Linux");

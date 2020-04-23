@@ -3,6 +3,7 @@
 #include "../../Shaders/Shader_Pair.h"
 #include "RHI/RHITexture.h"
 #include "VoxelTracingEngine.h"
+#include "../../Shaders/GlobalShaderLibrary.h"
 
 
 VoxelTopLevelAccelerationStructure::VoxelTopLevelAccelerationStructure()
@@ -19,7 +20,7 @@ void VoxelTopLevelAccelerationStructure::Init()
 {
 	const float size = 250;
 	MapSize = glm::ivec3(size, 150, size);
-	BuildTopLevelVXShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Voxel\\BuildTopLevelVoxel" }, { EShaderType::SHADER_COMPUTE });
+	
 	RHITextureDesc2 TextureDesc;
 	TextureDesc.Width = MapSize.x;
 	TextureDesc.Height = MapSize.y;
@@ -59,9 +60,6 @@ void VoxelTopLevelAccelerationStructure::Init()
 	ControlData.Update();
 	//ControlData = VoxelTracingEngine::Get()->ControlData;
 	VoxelMapControlBuffer->UpdateConstantBuffer(&ControlData);
-
-
-	VolumeDownSample = new Shader_Pair(RHI::GetDefaultDevice(), { "Voxel\\VoxelMipCS" }, { EShaderType::SHADER_COMPUTE });
 }
 
 void VoxelTopLevelAccelerationStructure::AddStructure(VoxelBottomLevelAccelerationStructureInstance * Structure)
@@ -101,7 +99,7 @@ void VoxelTopLevelAccelerationStructure::Build(RHICommandList * list)
 	BuildInstances();
 	VoxelBuffer->SetState(list, EResourceState::UAV);
 	VoxelAlphaMap->SetState(list, EResourceState::UAV);
-	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(BuildTopLevelVXShader);
+	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::BuildTopLevelVXShader);
 	list->SetPipelineStateDesc(PSOD);
 	//list->SetBuffer(InstanceBuffer, "Descs");
 //	list->SetConstantBufferView(ControlBuffer, 0, "ControlData");
@@ -138,11 +136,10 @@ void VoxelTopLevelAccelerationStructure::BuildInstance(RHICommandList* list, Vox
 
 void VoxelTopLevelAccelerationStructure::GenerateMipMaps(RHICommandList* list)
 {
-	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(VolumeDownSample);
+	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VolumeDownSample);
 	list->SetPipelineStateDesc(PSOD);
-	int SrcSlot = VolumeDownSample->GetSlotForName("SrcTexture");
-	int DstSlot = VolumeDownSample->GetSlotForName("DstTexture");
-
+	int SrcSlot = GlobalShaderLibrary::VolumeDownSample->GetSlotForName("SrcTexture");
+	int DstSlot = GlobalShaderLibrary::VolumeDownSample->GetSlotForName("DstTexture");
 	for (int i = 0; i < MipCount - 1; i++)
 	{
 		int CurrentMip = i;

@@ -50,7 +50,7 @@ void VoxelReflectionsNode::OnExecute()
 
 void VoxelReflectionsNode::ExecuteVoxelTracing(FrameBuffer* Target, FrameBuffer* Gbuffer)
 {
-	DECALRE_SCOPEDGPUCOUNTER(List, "Voxel Reflections");
+	DECALRE_SCOPEDGPUCOUNTER(List, "Voxel.Trace");
 	DataSet.CameraPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	DataSet.res = glm::ivec2(Target->GetWidth(), Target->GetHeight());
 	DataSet.FrameCount = RHI::GetFrameCount();
@@ -76,7 +76,7 @@ void VoxelReflectionsNode::ExecuteVoxelTracing(FrameBuffer* Target, FrameBuffer*
 
 void VoxelReflectionsNode::ExecuteVoxelConeTracing(FrameBuffer* Target, FrameBuffer* Gbuffer)
 {
-	DECALRE_SCOPEDGPUCOUNTER(List, "Voxel Cone Trace");
+	DECALRE_SCOPEDGPUCOUNTER(List, "Voxel.Cone Trace");
 	DataSet.CameraPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	DataSet.res = glm::ivec2(Target->GetWidth(), Target->GetHeight());
 	DataSet.FrameCount = RHI::GetFrameCount();

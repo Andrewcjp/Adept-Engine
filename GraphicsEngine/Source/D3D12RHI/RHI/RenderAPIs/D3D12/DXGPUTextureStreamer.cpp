@@ -5,7 +5,6 @@
 #include "D3D12Types.h"
 #include "DXMemoryManager.h"
 #include "D3D12DeviceContext.h"
-#include "Core/Maths/Math.h"
 #include "GPUMemoryPage.h"
 #include "D3D12Helpers.h"
 #include "GPUResource.h"

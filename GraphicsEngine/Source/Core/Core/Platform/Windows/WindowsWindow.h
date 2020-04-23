@@ -37,6 +37,9 @@ public:
 	static void					DestorySplashWindow();
 
 	static void					TickSplashWindow(int amt = 1, std::string Section = std::string());
+
+	static uint					ShowContextMenu(const PlatformContextMenu& menu);
+	static void					AddMenuBar(const PlatformMenuBar& MenuBar);
 private:
 	static void					EmptyMessageQueue();
 	static WindowsWindow*		app;
@@ -55,6 +58,7 @@ private:
 	HWND						ProgressBar;
 	HWND						Label;
 	int							CurrentProgress = 0;
+	HMENU hMenubar;
 };
 typedef WindowsWindow PlatformWindow;
 #endif

@@ -14,6 +14,7 @@
 #include "DescriptorCache.h"
 #include "RHI/RHITexture.h"
 #include "D3D12RHITexture.h"
+#include "pix3.h"
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -282,6 +283,10 @@ void D3D12CommandList::PrepareforDraw()
 			if (bind->IsBound())
 			{
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
+				if (bind->BufferTarget != nullptr)
+				{
+					D3D12RHI::DXConv(bind->BufferTarget)->PushDataUpLoad(this);
+				}
 			}
 			if (IsGraphicsList())
 			{
@@ -466,7 +471,8 @@ D3D12PipeLineStateObject::D3D12PipeLineStateObject(const RHIPipeLineStateDesc& d
 }
 
 D3D12PipeLineStateObject::~D3D12PipeLineStateObject()
-{}
+{
+}
 
 void D3D12PipeLineStateObject::Complie()
 {
@@ -481,7 +487,7 @@ void D3D12PipeLineStateObject::Complie()
 	int VertexDesc_ElementCount = 0;
 	D3D12Shader* target = D3D12RHI::DXConv(Desc.ShaderInUse->GetShaderProgram());
 	ensure(target != nullptr);
-	
+
 	D3D12_INPUT_ELEMENT_DESC* desc;
 	if (Desc.InputLayout.Elements.size() != 0)
 	{
@@ -780,6 +786,33 @@ void D3D12CommandList::SetScissorRect(const RHIScissorRect& rect)
 {
 	CD3DX12_RECT ScissorR = CD3DX12_RECT(rect.Left, rect.Top, rect.Right, rect.Bottom);
 	CurrentCommandList->RSSetScissorRects(1, &ScissorR);
+}
+
+void D3D12CommandList::SetDebugMarker(std::string text, uint64 PaletteColour /*= 0*/)
+{
+#if PIX_ENABLED
+	PIXSetMarker(GetCommandList(), PaletteColour, text.c_str());
+#endif
+}
+
+void D3D12CommandList::PushDebugMarker(std::string text, uint64 PaletteColour /*= 0*/)
+{
+#if PIX_ENABLED
+	PIXBeginEvent(GetCommandList(), PaletteColour, text.c_str());
+#endif
+}
+
+void D3D12CommandList::PopDebugMarker()
+{
+#if PIX_ENABLED
+	PIXEndEvent(GetCommandList());
+#endif
+}
+
+void D3D12CommandList::UpdateBufferData(RHIBuffer* Buffer, void * data, size_t length)
+{
+	D3D12Buffer* DXBuffer = D3D12RHI::DXConv(Buffer);
+	DXBuffer->UpdateBufferDataGPU(data, length, this);
 }
 
 void D3D12CommandList::ExecuteIndirect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)

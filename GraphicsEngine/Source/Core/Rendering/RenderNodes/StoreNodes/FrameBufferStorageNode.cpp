@@ -32,7 +32,7 @@ void FrameBufferStorageNode::Resize()
 	FBuffer->AutoResize();
 	if (OwnerGraph != nullptr)
 	{
-		OwnerGraph->TotalResourceSize += FBuffer->GetSizeOnGPU();
+		//OwnerGraph->TotalResourceSize += FBuffer->GetSizeOnGPU();
 	}
 	if (FRightEyeBuffer != nullptr)
 	{

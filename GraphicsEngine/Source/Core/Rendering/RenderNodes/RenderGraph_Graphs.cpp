@@ -150,9 +150,7 @@ void RenderGraph::CreateDefGraphWithRT_VOXEL()
 	Desc.SimpleStartingState = EResourceState::UAV;
 	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
 	SPPList->SetFrameBufferDesc(Desc);
-
-
-
+	   
 	RenderNode* UpdateProbesNode = Patch->Markers[0]->ExecuteIn;
 	UpdateAccelerationStructuresNode* UpdateAcceleration = new UpdateAccelerationStructuresNode();
 	LinkNode(UpdateProbesNode, UpdateAcceleration);
@@ -326,8 +324,6 @@ void RenderGraph::CreateDefTestgraph()
 	Output->GetInput(0)->SetLink(VisNode->GetOutput(0));
 
 	EndGraph(MainBuffer, Output);
-
-
 
 
 	//VRS

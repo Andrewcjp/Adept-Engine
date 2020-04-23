@@ -6,6 +6,7 @@
 #include "Core/Input/Input.h"
 #include "Core/Input/Interfaces/SteamVR/SteamVRInputInterface.h"
 #include "HMDManager.h"
+#include <directxmath.h>
 #pragma optimize("",off)
 #if BUILD_STEAMVR
 ViveHMD::ViveHMD()
@@ -29,6 +30,8 @@ void ViveHMD::Init()
 	VRInterface = (SteamVRInputInterface*)Input::GetInputManager()->GetActiveVRInterface();
 	VRInterface->HMD = this;
 }
+const float Rad2Deg = 57.29578F;
+float ProjectFOV = 0;
 glm::mat4 ViveHMD::GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye)
 {
 
@@ -40,8 +43,9 @@ glm::mat4 ViveHMD::GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye)
 		mat.m[0][2], mat.m[1][2], mat.m[2][2], mat.m[3][2],
 		mat.m[0][3], mat.m[1][3], mat.m[2][3], mat.m[3][3]
 	);
-
-	//out = glm::rowMajor4(out);
+	float fov = glm::atan(1.0f / out[1][1]) * 2 * Rad2Deg;
+	ProjectFOV = fov;
+	out = glm::inverse(out);
 	return out;
 }
 
@@ -67,13 +71,13 @@ glm::mat4 ConvertRHToLH(glm::mat4x4 RH)
 	LH = glm::rowMajor4(LH);
 	return LH;
 }
-const float Rad2Deg = 57.29578F;
+
 float  aspectr;
 glm::mat4 ViveHMD::getRaw(vr::Hmd_Eye nEye)
 {
-	float Left, Right, Top, Bottom;
+	//float Left, Right, Top, Bottom;
 	//VRInterface->GetSystem()->GetProjectionRaw(nEye, &Right, &Left, &Top, &Bottom);
-	glm::vec2 tanHalfFov = glm::vec2(glm::max(Left, Right), glm::max(Top, Bottom));
+	glm::vec2 tanHalfFov/* = glm::vec2(glm::max(Left, Right), glm::max(Top, Bottom))*/;
 
 
 	float l_left = 0.0f, l_right = 0.0f, l_top = 0.0f, l_bottom = 0.0f;
@@ -119,6 +123,7 @@ glm::mat4 ViveHMD::getRaw(vr::Hmd_Eye nEye)
 	{
 		fieldOfView = fieldOfView;
 	}
+	fieldOfView = ProjectFOV / Rad2Deg;
 	glm::mat4 Mat = glm::perspectiveLH(fieldOfView, aspect, 0.1f, 1000.0f);
 	return Mat;
 }
@@ -129,7 +134,32 @@ float ViveHMD::GetIPD()
 	ensure(Error == vr::TrackedProp_Success);
 	return out;
 }
+glm::mat4 ViveHMD::GetOffCentreRaw(vr::Hmd_Eye eye)
+{
+	float l_left = 0.0f, l_right = 0.0f, l_top = 0.0f, l_bottom = 0.0f;
+	VRInterface->GetSystem()->GetProjectionRaw(eye, &l_left, &l_right, &l_top, &l_bottom);
 
+
+	DirectX::XMMATRIX  output = DirectX::XMMatrixPerspectiveOffCenterLH(l_left, l_right, l_bottom, l_top, 0.1, 1000.0f);
+	glm::mat4 matrixObj(
+		output.r[0].m128_f32[0], output.r[0].m128_f32[1], output.r[0].m128_f32[2], output.r[0].m128_f32[3],
+		output.r[1].m128_f32[0], output.r[1].m128_f32[1], output.r[1].m128_f32[2], output.r[1].m128_f32[3],
+		output.r[2].m128_f32[0], output.r[2].m128_f32[1], output.r[2].m128_f32[2], output.r[2].m128_f32[3],
+		output.r[3].m128_f32[0], output.r[3].m128_f32[1], output.r[3].m128_f32[2], output.r[3].m128_f32[3]
+	);
+	matrixObj = glm::rowMajor4(matrixObj);
+
+
+	const vr::HmdMatrix44_t vrHmdMatrix34 = VRInterface->GetSystem()->GetProjectionMatrix(static_cast<vr::Hmd_Eye>(eye), 0.1f, 1000.0f);
+	return glm::mat4(
+		vrHmdMatrix34.m[0][0], vrHmdMatrix34.m[1][0], vrHmdMatrix34.m[2][0], vrHmdMatrix34.m[3][0],
+		vrHmdMatrix34.m[0][1], vrHmdMatrix34.m[1][1], vrHmdMatrix34.m[2][1], vrHmdMatrix34.m[3][1],
+		-vrHmdMatrix34.m[0][2], -vrHmdMatrix34.m[1][2], -vrHmdMatrix34.m[2][2], -vrHmdMatrix34.m[3][2],
+		vrHmdMatrix34.m[0][3], vrHmdMatrix34.m[1][3], vrHmdMatrix34.m[2][3], vrHmdMatrix34.m[3][3]
+	);
+	return matrixObj;
+
+}
 void ViveHMD::Update()
 {
 #if 1
@@ -137,9 +167,15 @@ void ViveHMD::Update()
 	HMD::Update();
 	CameraInstance->UpdateDebugTracking(GetIPD());
 #if 1
+#if 1
+	GetHMDMatrixProjectionEye(vr::Eye_Right);
 	glm::mat4 proj = getRaw(vr::Eye_Left);
 	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Left)*proj);
 	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Right)*proj);
+#else
+	CameraInstance->GetEyeCam(EEye::Left)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Left)*GetHMDMatrixProjectionEye(vr::Eye_Left));
+	CameraInstance->GetEyeCam(EEye::Right)->SetProjection(GetHMDMatrixPoseEye(vr::Eye_Right)*GetHMDMatrixProjectionEye(vr::Eye_Right));
+#endif
 	//VRInterface->GetSystem()->GetEyeToHeadTransform(vr::Eye_Left);
 
 

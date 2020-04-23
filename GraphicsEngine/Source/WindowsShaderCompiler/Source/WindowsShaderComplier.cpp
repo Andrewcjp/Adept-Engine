@@ -2,8 +2,6 @@
 #include "RHI/ShaderComplierModule.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Maths/Math.h"
-
 
 WindowsShaderComplier::WindowsShaderComplier()
 {

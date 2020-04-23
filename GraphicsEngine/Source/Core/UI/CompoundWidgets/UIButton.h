@@ -35,5 +35,8 @@ private:
 	std::function<void()> Target;
 	UILabel* Label = nullptr;
 
+protected:
+	void ProcessUIInputEvent(UIInputEvent& e) override;
+
 };
 

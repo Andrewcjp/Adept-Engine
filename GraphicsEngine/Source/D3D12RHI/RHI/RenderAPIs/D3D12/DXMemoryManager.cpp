@@ -2,7 +2,7 @@
 #include "GPUResource.h"
 #include "D3D12DeviceContext.h"
 #include "GPUMemoryPage.h"
-#include "Core\Maths\Math.h"
+
 static ConsoleVariable LogAllocations("VMEM.LogPages", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable MemReport("VMEM.Report", ECVarType::ConsoleAndLaunch, [] { D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetMemoryManager()->LogMemoryReport(); });
 static ConsoleVariable FullMemReport("VMEM.Reportall", ECVarType::ConsoleAndLaunch, [] { D3D12RHI::DXConv(RHI::GetDefaultDevice())->GetMemoryManager()->LogMemoryReport(true); });

@@ -1,4 +1,5 @@
 #pragma once
+#include "../../Shaders/Shader_Pair.h"
 
 class Shader_Pair;
 struct VXData

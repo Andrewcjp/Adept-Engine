@@ -9,6 +9,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "RHI/BaseTexture.h"
 #include "Core/Performance/PerfManager.h"
+
 UIWidgetContext::UIWidgetContext()
 {
 	Quad = new Shader_TexturedUI(RHI::GetDefaultDevice());
@@ -156,9 +157,9 @@ void UIWidgetContext::UpdateBatches()
 
 void UIWidgetContext::Initalise(int width, int height)
 {
-	ensure((width > 0 && height > 0));
-	m_width = width;
-	m_height = height;
+	//ensure((width > 0 && height > 0));
+	m_width = Math::Max(width, 1);
+	m_height = Math::Max(height, 1);;
 	TextRender = new TextRenderer(m_width, m_height);
 	TextRender->UpdateSize(width, height);
 	DrawBatcher = new UIDrawBatcher();
@@ -231,6 +232,17 @@ void UIWidgetContext::MouseClickUp(int x, int y)
 		if (!widgets[i]->IsPendingKill)
 		{
 			widgets[i]->MouseClickUp(x, y);
+		}
+	}
+}
+
+void UIWidgetContext::ReceiveUIInputEvent(UIInputEvent& e)
+{
+	for (int i = 0; i < widgets.size(); i++)
+	{
+		if (!widgets[i]->IsPendingKill)
+		{
+			widgets[i]->ReceiveUIInputEvent(e);
 		}
 	}
 }

@@ -275,11 +275,29 @@ void UIWidget::DebugRenderBounds()
 	}
 	glm::ivec2 Size = GetTransfrom()->GetTransfromedSize();
 	glm::ivec2 Pos = GetTransfrom()->GetPositionForWidget();
+	DebugColour = glm::vec3(1, 0, 0);
 	DebugLineDrawer::Get2()->AddLine(glm::vec3(Pos.x, Pos.y, 0), glm::vec3(Pos.x + Size.x, Pos.y, 0), DebugColour);
 	DebugLineDrawer::Get2()->AddLine(glm::vec3(Pos.x + Size.x, Pos.y, 0), glm::vec3(Pos.x + Size.x, Pos.y + Size.y, 0), DebugColour);
 
 	DebugLineDrawer::Get2()->AddLine(glm::vec3(Pos.x, Pos.y + Size.y, 0), glm::vec3(Pos.x + Size.x, Pos.y + Size.y, 0), DebugColour);
 	DebugLineDrawer::Get2()->AddLine(glm::vec3(Pos.x, Pos.y, 0), glm::vec3(Pos.x, Pos.y + Size.y, 0), DebugColour);
+}
+
+void UIWidget::ReceiveUIInputEvent(UIInputEvent & e)
+{
+	if (e.IsHandled())
+	{
+		return;
+	}
+	ProcessUIInputEvent(e);
+	if (e.IsHandled())
+	{
+		return;
+	}
+	for (int i = 0; i < Children.size(); i++)
+	{
+		Children[i]->ReceiveUIInputEvent(e);
+	}
 }
 
 void UIWidget::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)

@@ -2,7 +2,8 @@
 #include "Core/BaseWindow.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "RHI/DeviceContext.h"
-#include "Core/Maths/Math.h"
+
+
 ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
@@ -19,7 +20,7 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::VRForwardRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 	//VRXSet.EnableVRX = true;

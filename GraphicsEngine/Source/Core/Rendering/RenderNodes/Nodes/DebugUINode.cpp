@@ -26,7 +26,7 @@ void DebugUINode::OnExecute()
 	if (CommandList->GetDeviceIndex() == 0)
 	{
 		DebugLineDrawer::Get()->RenderLines(FB, CommandList, GetEye());
-		DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());
+		//DebugLineDrawer::Get2()->RenderLines(FB, CommandList, GetEye());
 	}
 	SetEndStates(CommandList);
 	Context->GetListPool()->Flush();

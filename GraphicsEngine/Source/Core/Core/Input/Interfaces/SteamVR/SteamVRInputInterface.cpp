@@ -7,7 +7,8 @@
 
 SteamVRInputInterface::SteamVRInputInterface()
 {
-	Offset = glm::vec3(0, 3, 0);
+	Offset = glm::vec3(0, 0, -5);
+	Scale = 1.0f;
 	Init();
 }
 
@@ -132,7 +133,7 @@ static glm::quat GetRot2(glm::mat4 transformation)
 }
 glm::vec3 SteamVRInputInterface::Getpos(glm::mat4 matMVP)
 {
-	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3]) + Offset;
+	return glm::vec3(matMVP[0][3], matMVP[1][3], -matMVP[2][3])*Scale + Offset;
 }
 
 vr::IVRSystem * SteamVRInputInterface::GetSystem()

@@ -1,12 +1,12 @@
 #include "VoxelBottomLevelAccelerationStructure.h"
 #include "Core/Components/MeshRendererComponent.h"
-#include "VoxelTracingEngine.h"
-#include "RHI/RHITexture.h"
-#include "../../Core/Material.h"
-#include "RHI/Streaming/TextureStreamingCommon.h"
-#include "../../Core/Mesh/MeshBatch.h"
+#include "Rendering/Core/Material.h"
+#include "Rendering/Core/Mesh/MeshBatch.h"
+#include "Rendering/Core/SceneRenderer.h"
 #include "RHI/RHIBufferGroup.h"
-#include "../../Core/SceneRenderer.h"
+#include "RHI/RHITexture.h"
+#include "RHI/Streaming/TextureStreamingCommon.h"
+#include "VoxelTracingEngine.h"
 
 
 VoxelBottomLevelAccelerationStructure::VoxelBottomLevelAccelerationStructure()

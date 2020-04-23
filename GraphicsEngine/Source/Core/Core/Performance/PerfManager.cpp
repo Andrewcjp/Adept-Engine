@@ -93,12 +93,18 @@ int PerfManager::AddTimer(const char * countername, const char* group)
 int PerfManager::AddGPUTimer(const char * countername, int group)
 {
 	int id = AddTimer(GetTimerIDByName(countername), group);
-
 	TimerData* data = GetTimerData(id);
 	if (data != nullptr)
 	{
 		data->IsGPUTimer = true;
 		//data->TimerType = T;
+		std::string name = countername;
+		int pos = name.find('.');
+		if (pos != std::string::npos)
+		{
+			name.erase(name.begin() + pos, name.end());
+			data->AddToGroup(GetGroupId(name));
+		}
 	}
 	return id;
 }
@@ -513,7 +519,7 @@ std::vector<TimerData*> PerfManager::GetAllGPUTimers(std::string group)
 	const int GroupFilterId = GetGroupId(group);
 	for (auto it = AVGTimers.begin(); it != AVGTimers.end(); ++it)
 	{
-		if (it->second.GroupId != GroupFilterId || !it->second.IsGPUTimer)
+		if (!it->second.IsInGroup(GroupFilterId) || !it->second.IsGPUTimer)
 		{
 			continue;
 		}
@@ -575,7 +581,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	{
 		if (GroupFilterId != -1)
 		{
-			if (it->second.GroupId != GroupFilterId)
+			if (!it->second.IsInGroup(GroupFilterId))
 			{
 				continue;
 			}
@@ -583,7 +589,7 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 		else
 		{
 			//ignore Stats in a group
-			if (it->second.GroupId != -1)
+			if (!it->second.IsInGroup(-1))
 			{
 				continue;
 			}

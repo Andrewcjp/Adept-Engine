@@ -10,7 +10,7 @@ public:
 	static Shader_Pair* CreateComputeShader(std::string Compute, DeviceContext* context = nullptr);
 
 	virtual const std::string GetName() override;
-
+	static bool IsPartOfGlobalShaderLibrary;
 private:
 	void Init();
 	std::vector<std::string> Names;

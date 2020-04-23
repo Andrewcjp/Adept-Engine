@@ -9,7 +9,6 @@
 #include "DescriptorHeap.h"
 #include "DescriptorHeapManager.h"
 #include "GPUResource.h"
-#include "Core\Maths\Math.h"
 #include "D3D12Framebuffer.h"
 #include "Core\Performance\PerfManager.h"
 #include "RHI\RHICommandList.h"
@@ -30,15 +29,6 @@ D3D12RHITexture::~D3D12RHITexture()
 void D3D12RHITexture::Release()
 {
 	EnqueueSafeRHIRelease(Resource);
-}
-
-size_t D3D12RHITexture::GetSizeOnGPU()
-{
-	if (Resource != nullptr)
-	{
-		return  Resource->GetSizeOnGPU();
-	}
-	return 0;
 }
 
 DXDescriptor* D3D12RHITexture::GetDescriptor(const RHIViewDesc & desc, DescriptorHeap* heap)

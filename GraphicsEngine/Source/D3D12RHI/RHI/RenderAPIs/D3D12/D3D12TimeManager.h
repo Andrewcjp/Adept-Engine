@@ -4,11 +4,7 @@
 #include "RHI/RHITypes.h"
 #define AVGTIME 50
 #define ENABLE_GPUTIMERS 1
-#if __has_include(<pix3.h>) && defined(PLATFORM_WINDOWS)
-#define PIX_ENABLED 1
-#else
-#define PIX_ENABLED 0
-#endif
+
 
 class DeviceContext;
 class D3D12DeviceContext;

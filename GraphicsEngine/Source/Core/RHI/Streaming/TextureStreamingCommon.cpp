@@ -6,7 +6,6 @@
 #include "gli/load.hpp"
 #include "../RHITexture.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Maths/Math.h"
 #include "../BaseTexture.h"
 #include "Rendering/Core/Defaults.h"
 
@@ -66,6 +65,14 @@ void TextureHandle::LinkToMesh(MeshRendererComponent* Mesh)
 	LinkedMesh = Mesh;
 }
 
+RHIViewDesc TextureHandle::GetCurrentView(int index)
+{
+	RHIViewDesc view = RHIViewDesc::DefaultSRV();
+	view.MipLevels = Math::Max(Description.MipLevels - GetData(RHI::GetDeviceContext(index))->TopMipState, 1);
+	view.Mip = Math::Min(GetData(RHI::GetDeviceContext(index))->TopMipState, Description.MipLevels - 1);
+	return view;
+}
+
 void TextureHandle::Bind(RHICommandList* List, std::string SlotName)
 {
 	RHITexture* Backing = GetData(List)->Backing;
@@ -74,11 +81,8 @@ void TextureHandle::Bind(RHICommandList* List, std::string SlotName)
 		List->SetTexture(Defaults::GetDefaultTexture(), SlotName);
 		return;
 	}
-	RHIViewDesc view = RHIViewDesc::DefaultSRV();
-	view.MipLevels = Math::Max(Description.MipLevels - GetData(List)->TopMipState, 1);
-	view.Mip = Math::Min(GetData(List)->TopMipState, Description.MipLevels-1);
 	Backing->SetState(List, EResourceState::PixelShader);
-	List->SetTexture2(Backing, List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName(SlotName), view);
+	List->SetTexture2(Backing, List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName(SlotName), GetCurrentView(List->GetDeviceIndex()));
 }
 
 void TextureHandle::UnLoadFromCPUMemory()

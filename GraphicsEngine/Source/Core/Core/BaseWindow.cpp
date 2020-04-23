@@ -66,7 +66,8 @@ void BaseWindow::InitilseWindow()
 	SceneRenderer::StartUp();
 	RHI::GetRenderSystem()->InitGraph();
 #if !BASIC_RENDER_ONLY
-	UI = new UIManager(Screen::GetWindowWidth(), Screen::GetWindowHeight());
+	UI = new UIManager();
+	UI->Init(Screen::GetWindowWidth(), Screen::GetWindowHeight());
 #endif
 
 	Log::LogMessage("Scene initialized");
