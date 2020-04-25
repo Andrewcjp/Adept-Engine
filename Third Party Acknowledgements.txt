@@ -27,3 +27,6 @@ Khronos Group Inc, https://www.khronos.org/vulkan/
 
 RapidJson
 Tencent ,https://github.com/Tencent/rapidjson
+
+Assimp
+http://www.assimp.org/index.php

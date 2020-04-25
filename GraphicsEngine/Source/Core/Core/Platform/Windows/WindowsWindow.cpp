@@ -181,6 +181,7 @@ int WindowsWindow::Run()
 		}
 		if (m_engine->GetWindowValid() && !m_terminate)
 		{
+			AttemptResize();
 			m_engine->OnRender();
 		}
 	}
@@ -383,14 +384,8 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_SIZE:
 		if (app->m_engine->GetRenderWindow())
 		{
-			const int Width = LOWORD(lparam);
-			const int Height = HIWORD(lparam);
-			if (Screen::NeedsWindowUpdate(Width, Height))
-			{
-				Screen::Resize(Width, Height);
-				app->m_engine->GetRenderWindow()->Resize(Width, Height);
-				RHI::Get()->ResizeSwapChain(Width, Height);
-			}
+			app->TargetWidth = LOWORD(lparam);
+			app->TargetHeight = HIWORD(lparam);		
 		}
 		break;
 	case WM_CLOSE:
@@ -409,6 +404,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_LBUTTONUP:
 		app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
 		Input::ReceiveMouseMessage(0, false);
+		AttemptResize();
 		break;
 	case WM_LBUTTONDOWN:
 		app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
@@ -479,6 +475,24 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 
 	return 0;
 }
+
+void WindowsWindow::AttemptResize()
+{
+	if (app->TargetHeight != 0 && app->TargetWidth != 0)
+	{
+		const int Width = app->TargetWidth;
+		const int Height = app->TargetHeight;
+		if (Screen::NeedsWindowUpdate(Width, Height))
+		{
+			Screen::Resize(Width, Height);
+			app->m_engine->GetRenderWindow()->Resize(Width, Height);
+			RHI::Get()->ResizeSwapChain(Width, Height);
+		}
+		app->TargetWidth = 0;
+		app->TargetHeight = 0;
+	}
+}
+
 void WindowsWindow::AddMenuBar(const PlatformMenuBar & MenuBar)
 {
 	HMENU NewMenu = CreateMenu();

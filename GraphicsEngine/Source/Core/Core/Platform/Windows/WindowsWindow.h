@@ -34,6 +34,8 @@ public:
 
 	static	LRESULT CALLBACK	WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+	static void AttemptResize();
+
 	static void					DestorySplashWindow();
 
 	static void					TickSplashWindow(int amt = 1, std::string Section = std::string());
@@ -59,6 +61,8 @@ private:
 	HWND						Label;
 	int							CurrentProgress = 0;
 	HMENU hMenubar;
+	int TargetWidth = 0;
+	int TargetHeight = 0;
 };
 typedef WindowsWindow PlatformWindow;
 #endif
