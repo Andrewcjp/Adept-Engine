@@ -79,3 +79,17 @@ GraphicsEngine/Source/ThirdParty/vulkan/Lib/debug/OGLCompilerd.lib
 GraphicsEngine/Shaders/VKan/
 GraphicsEngine/Source/ThirdParty/vulkan/Lib/
 GraphicsEngine/Source/premake.lua
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_stereo.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_salend.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_d3dext.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_common.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvShaderExtnEnums.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvHLSLExtnsInternal.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/NvApiDriverSettings.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/NvApiDriverSettings.c
+GraphicsEngine/Source/ThirdParty/nvapi/nvapi64.lib
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_surround.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_salstart.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvHLSLExtns.h
+GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_sli.h
