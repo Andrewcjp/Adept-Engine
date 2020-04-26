@@ -93,3 +93,9 @@ GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_salstart.h
 GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi.h
 GraphicsEngine/Source/ThirdParty/nvapi/Include/nvHLSLExtns.h
 GraphicsEngine/Source/ThirdParty/nvapi/Include/nvapi_lite_sli.h
+GraphicsEngine/Source/Core/Core/Input/Interfaces/Extra/
+GraphicsEngine/Source/Core/Core/Platform/Extra/ExtraPlatformCore.h
+GraphicsEngine/Source/Core/Core/Platform/Extra/
+GraphicsEngine/Source/D3D12RHI/RHI/RenderAPIs/D3D12/Platform/Extra
+GraphicsEngine/Source/ExtraPlatforms
+GraphicsEngine/ExtraScripts/

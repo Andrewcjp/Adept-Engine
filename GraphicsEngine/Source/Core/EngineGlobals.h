@@ -171,11 +171,6 @@ extern void ADNOP();
 #define BUILD_FREETTYPE 0
 #endif
 #include "AdditionalPlatforms.h"
-#ifndef GEN_ADD_PLATFORMS
-#define GEN_ADD_PLATFORMS
-#define STRING_ADD_PLATFORMS
-#define PARSE_ADD_PLATFORMS
-#endif
 namespace EPlatforms
 {
 	enum Type

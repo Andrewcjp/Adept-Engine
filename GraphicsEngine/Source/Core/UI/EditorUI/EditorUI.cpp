@@ -19,6 +19,7 @@ EditorUI::~EditorUI()
 
 void EditorUI::Init()
 {	
+#ifdef PLATFORM_WINDOWS
 	PlatformMenuBar Menu;
 	Menu.SingleHandleFuncPTR = &EditorUI::HandleCMD;
 	Menu.MenuName = "File";
@@ -26,6 +27,7 @@ void EditorUI::Init()
 	Menu.AddItem("Load");
 	Menu.AddItem("Exit");
 	WindowsWindow::AddMenuBar(Menu);
+#endif
 
 	UIManager::Get()->AddWidgetContext(new UIWidgetContext());
 }

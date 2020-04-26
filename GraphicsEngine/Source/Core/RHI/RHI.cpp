@@ -501,8 +501,11 @@ void RHI::InitialiseContext()
 	ShaderComplier::Get()->Init();
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
 	PlatformWindow::TickSplashWindow(10, "Loading Render Graph");
-	ParticleSystemManager::Get();
-	instance->SFR_Controller = new SFRController();
+	if (!Engine::GetIsCooking())
+	{
+		ParticleSystemManager::Get();
+		instance->SFR_Controller = new SFRController();
+	}
 	Defaults::Start();
 	Input::Startup();
 	instance->DetectAndInitVR();

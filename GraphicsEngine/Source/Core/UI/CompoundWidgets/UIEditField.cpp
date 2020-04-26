@@ -372,7 +372,9 @@ void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
 		PlatformContextMenu Menu;
 		Menu.AddItem("Play");
 		Menu.AddItem("exit");
+#ifdef PLATFORM_WINDOWS
 		uint Option = PlatformWindow::ShowContextMenu(Menu);
+#endif
 		e.SetHandled();
 	}
 }
