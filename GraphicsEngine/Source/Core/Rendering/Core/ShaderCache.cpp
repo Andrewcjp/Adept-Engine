@@ -68,12 +68,12 @@ ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 		}
 	}
 #endif
-	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage))
+	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage,PlatformApplication::GetPlatform()))
 	{
 		item->CacheHit = true;
 		return item->Blob;
 	}
-	ShaderComplier::Get()->ComplieShaderNew(item);
+	ShaderComplier::Get()->ComplieShaderNew(item, PlatformApplication::GetPlatform());
 	WriteBlobToFile(item);
 	return item->Blob;
 }

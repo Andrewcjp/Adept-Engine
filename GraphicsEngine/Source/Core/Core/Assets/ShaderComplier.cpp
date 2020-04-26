@@ -196,8 +196,8 @@ void ShaderComplier::Init()
 {
 #ifdef PLATFORM_WINDOWS
 	ShaderComplierNames.push_back("WindowsShaderCompiler");
-#endif
 	FindAndLoadCompliers();
+#endif
 }
 
 void ShaderComplier::FindAndLoadCompliers()

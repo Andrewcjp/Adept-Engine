@@ -479,7 +479,7 @@ void PerfManager::UpdateStats()
 
 void PerfManager::SampleSlowStats()
 {
-#ifdef PLATFORM_WINDOWS
+#if NVAPI_PRESENT
 	NVApiManager->SampleClocks();
 #endif
 }
