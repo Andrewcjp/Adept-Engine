@@ -269,6 +269,21 @@ void D3D12DeviceContext::CheckFeatures()
 	Caps_Data.SupportExecuteIndirect = true;//all D3D12 GPUs support draw indirect etc.
 	LogDeviceData("InterGPU mode " + std::string(EMGPUConnectionMode::ToString(Caps_Data.ConnectionMode)));
 	CheckNVAPISupport();
+#if 0
+	ID3D12VideoDevice * VideoDevice;
+	m_Device->QueryInterface(ID_PASS(&VideoDevice));
+	D3D12_FEATURE_DATA_VIDEO_DECODE_PROFILE_COUNT  FMT;
+	ZeroMemory(&FMT, sizeof(FMT));
+	FMT.NodeIndex = 0;
+	HRESULT r = VideoDevice->CheckFeatureSupport(D3D12_FEATURE_VIDEO::D3D12_FEATURE_VIDEO_DECODE_PROFILE_COUNT, &FMT, sizeof(FMT));
+
+	D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT Data;
+	Data.NodeIndex = 0;
+	Data.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN;
+	Data.Configuration.BitstreamEncryption = D3D12_BITSTREAM_ENCRYPTION_TYPE_NONE;
+	Data.Configuration.InterlaceType = D3D12_VIDEO_FRAME_CODED_INTERLACE_TYPE_NONE;
+	VideoDevice->CheckFeatureSupport(D3D12_FEATURE_VIDEO::D3D12_FEATURE_VIDEO_DECODE_SUPPORT, &Data, sizeof(Data));
+#endif
 
 }
 
@@ -998,7 +1013,7 @@ void D3D12GPUSyncEvent::Wait()
 
 void D3D12DeviceContext::CheckNVAPISupport()
 {
-#if 0
+#if NVAPI_PRESENT
 	NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS Par = {};
 	Par.version = NV_QUERY_SINGLE_PASS_STEREO_SUPPORT_PARAMS_VER1;
 	NvAPI_Status ret = NVAPI_OK;

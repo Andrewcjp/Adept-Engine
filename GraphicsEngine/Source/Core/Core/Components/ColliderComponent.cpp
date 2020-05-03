@@ -250,20 +250,20 @@ void ColliderComponent::SetTriangleMeshAssetName(std::string name)
 #if WITH_EDITOR
 void ColliderComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
-	group.SubProps.push_back(Inspector::CreateProperty("Type", EditValueType::Int, &CollisionShapeType, true));
-	if (CollisionShapeType == EShapeType::eBOX)
-	{
-		group.SubProps.push_back(Inspector::CreateProperty("Extents", EditValueType::Vector, &BoxExtents));
-	}
-	else if (CollisionShapeType == EShapeType::eSPHERE)
-	{
-		group.SubProps.push_back(Inspector::CreateProperty("Radius", EditValueType::Float, &Radius));
-	}
-	else if (CollisionShapeType == EShapeType::ePLANE)
-	{
-		group.SubProps.push_back(Inspector::CreateProperty("Scale", EditValueType::Vector, &BoxExtents));
-	}
-	props.push_back(group);
+	//InspectorProperyGroup group = Inspector::CreatePropertyGroup("Collider Component");
+	//group.SubProps.push_back(Inspector::CreateProperty("Type", EditValueType::Int, &CollisionShapeType, true));
+	//if (CollisionShapeType == EShapeType::eBOX)
+	//{
+	//	group.SubProps.push_back(Inspector::CreateProperty("Extents", EditValueType::Vector, &BoxExtents));
+	//}
+	//else if (CollisionShapeType == EShapeType::eSPHERE)
+	//{
+	//	group.SubProps.push_back(Inspector::CreateProperty("Radius", EditValueType::Float, &Radius));
+	//}
+	//else if (CollisionShapeType == EShapeType::ePLANE)
+	//{
+	//	group.SubProps.push_back(Inspector::CreateProperty("Scale", EditValueType::Vector, &BoxExtents));
+	//}
+	//props.push_back(group);
 }
 #endif

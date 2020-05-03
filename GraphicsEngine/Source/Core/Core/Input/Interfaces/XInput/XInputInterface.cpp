@@ -6,7 +6,7 @@
 #include <Xinput.h>
 
 
-static ClassRegister<InputInterface, InputManager> Register([]() { return new XInputInterface(); });
+static ClassRegister<InputInterface, InputManager> RegisterXinput([]() { return new XInputInterface(); });
 XInputInterface::XInputInterface()
 {
 	CreateController();

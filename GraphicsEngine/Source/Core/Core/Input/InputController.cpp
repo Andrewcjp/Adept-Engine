@@ -11,7 +11,7 @@ InputController::~InputController()
 
 void InputController::Update()
 {
-	memcpy(&ButtonState, &LastButtonState, GamePadButtons::Limit);
+	memcpy(&LastButtonState, &ButtonState, GamePadButtons::Limit);
 	memset(&ButtonState, 0, GamePadButtons::Limit);
 	memset(&InputAxis, 0, sizeof(glm::vec2)*MaxControllerAxisNum);
 	UpdateState();
@@ -29,12 +29,17 @@ glm::vec2 InputController::GetRightThumbStickAxis() const
 
 bool InputController::GetButtonDown(GamePadButtons::Type button)
 {
-	return ButtonState[button];
+	return ButtonState[button] && !LastButtonState[button];
 }
 
 bool InputController::GetButton(GamePadButtons::Type button)
 {
 	return  ButtonState[button];
+}
+
+bool InputController::GetButtonUp(GamePadButtons::Type button)
+{
+	return  !ButtonState[button] && LastButtonState[button];
 }
 
 float InputController::DeadZone(float V, float Threshold)const

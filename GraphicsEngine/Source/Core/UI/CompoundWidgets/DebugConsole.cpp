@@ -158,7 +158,7 @@ void DebugConsole::ProcessKeyDown(UINT_PTR key)
 void DebugConsole::UpdateData()
 {
 #ifdef PLATFORM_WINDOWS
-	if (Input::GetKeyDown(VK_OEM_8))
+	if (Input::GetKeyDown(KeyCode::Tidle))
 	{
 		Open();
 	}

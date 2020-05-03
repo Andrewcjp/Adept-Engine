@@ -24,21 +24,21 @@ VRXShadingRateNode::~VRXShadingRateNode()
 
 void VRXShadingRateNode::OnExecute()
 {
-	if (Input::GetKey(']'))
+	if (Input::GetKey(KeyCode::RightSquareBracket))
 	{
 		FullResThreshold.SetValue(FullResThreshold.GetIntValue() + 1);
 		HalfResThreshold.SetValue(FullResThreshold.GetIntValue() / 2);
 	}
-	if (Input::GetKey('['))
+	if (Input::GetKey(KeyCode::LeftSquareBracket))
 	{
 		FullResThreshold.SetValue(FullResThreshold.GetIntValue() - 1);
 		HalfResThreshold.SetValue(FullResThreshold.GetIntValue() / 2);
 	}
-	if (Input::GetKey('#'))
+	if (Input::GetKey(KeyCode::Hash))
 	{
 		Threshold.SetValueF(Threshold.GetFloatValue() + 0.1f);
 	}
-	if (Input::GetKey('\''))
+	if (Input::GetKey(KeyCode::Backslash))
 	{
 		Threshold.SetValueF(Threshold.GetFloatValue() - 0.1f);
 	}

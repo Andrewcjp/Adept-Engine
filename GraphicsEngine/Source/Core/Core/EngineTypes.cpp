@@ -58,7 +58,7 @@ std::string EPlatforms::ToString(EPlatforms::Type type)
 	switch (type)
 	{
 	case EPlatforms::Windows:
-		return "Windows";
+		return "Win64";
 	case EPlatforms::Linux:
 		return "Linux";
 	case EPlatforms::Android:

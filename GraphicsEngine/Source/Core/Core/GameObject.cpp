@@ -9,7 +9,7 @@
 #include "Components/ColliderComponent.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
-
+#include "Core/GameObject.generated.h"
 
 GameObject::GameObject(std::string name, EMoblity stat, int oid) :
 	Name(name)
@@ -22,6 +22,7 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid) :
 	//AudioEngine::RegisterObject(this);
 
 	LayerMask.SetFlags(0xfffff);
+	CALL_CONSTRUCTOR();
 }
 
 void GameObject::OnRemoveFromScene()
@@ -326,13 +327,15 @@ std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<InspectorProperyGroup> test;
 	InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
+	//RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
+	RootGroup.Nodes = AccessReflection()->Data;
 	test.push_back(RootGroup);
-	RootGroup = Inspector::CreatePropertyGroup("Transform");
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", EditValueType::Float, &PositionDummy.x));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", EditValueType::Float, &PositionDummy.y));
-	RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", EditValueType::Float, &PositionDummy.z));
-	test.push_back(RootGroup);
+	//RootGroup = Inspector::CreatePropertyGroup("Transform");
+	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", EditValueType::Float, &PositionDummy.x));
+	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", EditValueType::Float, &PositionDummy.y));
+	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", EditValueType::Float, &PositionDummy.z));
+	//test.push_back(RootGroup);
+
 	for (int i = 0; i < m_Components.size(); i++)
 	{
 		m_Components[i]->GetInspectorProps(test);

@@ -39,7 +39,7 @@ void SteamVRInputInterface::Init()
 InputController* SteamVRInputInterface::GetController(int Index)
 {
 	return nullptr;
-	//throw std::logic_error("The method or operation is not implemented.");
+	//
 }
 
 int SteamVRInputInterface::GetNumOfControllers() const

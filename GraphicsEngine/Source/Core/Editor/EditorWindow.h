@@ -22,7 +22,6 @@ public:
 	void EnterPlayMode();
 	void ExitPlayMode();
 	virtual void DestroyRenderWindow() override final;
-	bool MouseLBDown(int x, int y) override;
 	static EditorCore* GetEditorCore();
 	bool UseSmallerViewPort();
 	IntRect GetViewPortRect();

@@ -20,7 +20,11 @@ void Component::FixedUpdate(float)
 
 #if WITH_EDITOR
 void Component::GetInspectorProps(std::vector<InspectorProperyGroup> &props)
-{}
+{
+	InspectorProperyGroup h;
+	h.Nodes = AccessReflection()->Data;
+	props.push_back(h);
+}
 #endif
 
 GameObject * Component::GetOwner()

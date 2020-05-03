@@ -96,6 +96,7 @@ void VoxelReflectionsNode::ExecuteVoxelConeTracing(FrameBuffer* Target, FrameBuf
 	List->SetTexture2(SceneRenderer::Get()->GetVoxelScene()->TopLevelAcc->GetVoxelBuffer(), index, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
 	index = List->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("VoxelTransferMap");
 	List->SetTexture2(SceneRenderer::Get()->GetVoxelScene()->TopLevelAcc->VoxelAlphaMap, index, RHIViewDesc::DefaultSRV(DIMENSION_TEXTURE3D));
+	List->SetTexture(SceneRenderer::Get()->GetScene()->GetLightingData()->SkyBox, "SpecularBlurMap");
 	List->DispatchSized(Target->GetWidth(), Target->GetHeight(), 1);
 	List->UAVBarrier(Target);
 }

@@ -30,6 +30,7 @@ public:
 	static const int TriggerAxis = 2;
 	bool GetButtonDown(GamePadButtons::Type button);
 	bool GetButton(GamePadButtons::Type button);
+	bool GetButtonUp(GamePadButtons::Type button);
 	float DeadZone(const float V, float Threshold) const;
 	glm::vec2 DeadZone(const glm::vec2 V, float threshold)const;
 	float GetLeftTriggerAxis()const;

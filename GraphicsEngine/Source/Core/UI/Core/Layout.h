@@ -15,7 +15,7 @@ namespace UIUtils
 			int Currenty = y;
 			for (int i = 0; i < widgets.size(); i++)
 			{
-				int height = (widgets[i]->AligmentStruct.SizeMax);
+				int height = int(widgets[i]->AligmentStruct.SizeMax);
 				if (MaxHeight != -1 && height > MaxHeight)
 				{
 					height = MaxHeight;

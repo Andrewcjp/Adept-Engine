@@ -45,9 +45,9 @@ Material *MeshRendererComponent::GetMaterial(int index)
 #if WITH_EDITOR
 void MeshRendererComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
-	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Float, nullptr));
-	props.push_back(group);
+//	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
+////	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Float, nullptr));
+//	props.push_back(group);
 }
 #endif
 

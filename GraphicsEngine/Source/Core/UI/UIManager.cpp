@@ -68,7 +68,6 @@ void UIManager::InitCommonUI()
 #if WITH_EDITOR
 void UIManager::InitEditorUI()
 {
-
 	EditUI->ViewPortImage = new UIImage(0, 0, 0, 0);
 	ViewportArea = glm::ivec4(1920, 1080, 0, 0);
 	SetFullscreen(false);
@@ -149,14 +148,14 @@ void UIManager::InitEditorUI()
 	EditorLayout->SetWidget(UILayoutManager::Top, TopWin);
 	EditorLayout->SetWidget(UILayoutManager::Centre, EditUI->ViewPortImage);
 
-
 	inspector = new Inspector(0, 0, 0, 0);
 	inspector->SetRootSpaceScaled(0, 0, 0, 0);
 	RightWin->AddTab(inspector);
 #endif
-	const int Small = GetScaledWidth(0.2);
+	const int Small = GetScaledWidth(0.3);
 	ViewportArea = glm::ivec4(1920 - Small, 1080 - Small, GetScaledWidth(0.2f), Small);
 	ViewportRect = CollisionRect(ViewportArea.x, ViewportArea.x, ViewportArea.z, ViewportArea.w);
+	SetFullscreen(true);
 }
 
 void UIManager::SetFullscreen(bool state)
@@ -280,21 +279,34 @@ void UIManager::UpdateBatches()
 		instance->Contexts[i]->MarkRenderStateDirty();
 	}
 }
+
 void UIManager::UpdateInput()
 {
-	UIInputEvent E;
-	if (Input::GetKeyDown('A'))
+	glm::vec4 size = EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
+	CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
+	Blocking = !c.Contains(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
+	if (Blocking)
 	{
-		E.LeftMouse = true;
-		E.RightMoude = true;
-		SendUIInputEvent(E);
+		for (int i = 0; i < Input::Get()->Events.size(); i++)
+		{
+			UIInputEvent& E = Input::Get()->Events[i];
+			if (E.Mouse == MouseButton::ButtonLeft)
+			{
+				if (E.PressType == InputButtonPressType::Press)
+				{
+					MouseClick(E.Pos.x, E.Pos.y);
+				}
+				else
+				{
+					MouseClickUp(E.Pos.x, E.Pos.y);
+				}
+			}
+			SendUIInputEvent(E);
+		}
 	}
-	if (Input::GetMouseButtonDown(0))
-	{
-		E.LeftMouse = true;
-		SendUIInputEvent(E);
-	}
+	Input::Get()->Events.clear();
 }
+
 void UIManager::UpdateWidgets()
 {
 	UpdateInput();
@@ -343,7 +355,6 @@ void UIManager::MouseMove(int x, int y)
 	{
 		Contexts[i]->MouseMove(x, y);
 	}
-
 }
 
 void UIManager::MouseClick(int x, int y)

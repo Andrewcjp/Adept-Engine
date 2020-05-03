@@ -60,15 +60,15 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 void EditorGizmos::UpdateAxis(float amt)
 {
 
-	if (Input::GetKey('x'))
+	if (Input::GetKey(KeyCode::X))
 	{
 		UpdateAxis(amt, AxisY);
 	}
-	else if (Input::GetKey('z'))
+	else if (Input::GetKey(KeyCode::Z))
 	{
 		UpdateAxis(amt, AxisX);
 	}
-	else if (Input::GetKey('c'))
+	else if (Input::GetKey(KeyCode::C))
 	{
 		UpdateAxis(amt, AxisZ);
 	}
@@ -77,11 +77,11 @@ void EditorGizmos::UpdateAxis(float amt)
 void EditorGizmos::Update(float deltatime)
 {
 	TickNew();
-	if (Input::GetKey('x') || Input::GetKey('z') || Input::GetKey('c'))
+	if (Input::GetKey(KeyCode::X) || Input::GetKey(KeyCode::Z) || Input::GetKey(KeyCode::C))
 	{
 		if (target != nullptr && DidFirst)
 		{
-			if (Input::GetKey('z'))
+			if (Input::GetKey(KeyCode::Z))
 			{
 				UpdateAxis((float)(XStartPos - Input::GetMousePos().x)*Scale);
 			}
@@ -162,7 +162,7 @@ void EditorGizmos::TickNew()
 		}
 	}
 	glm::vec3 ProjectPoint = glm::vec3(0);
-	if (Input::GetMouseButtonDown(0))
+	if (Input::GetMouseButton(MouseButton::ButtonLeft))
 	{
 		if (CurrentAxis != Limit)
 		{

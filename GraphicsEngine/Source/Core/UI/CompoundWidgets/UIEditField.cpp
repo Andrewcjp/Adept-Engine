@@ -20,11 +20,11 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 #if WITH_EDITOR
 UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(0, 0, 0, 0)
 {
-	FilterType = Targetprop->type;
+//	FilterType = Targetprop->type;
 	Namelabel->SetText(Targetprop->name);
 	Valueptr = Targetprop->ValuePtr;
 	Property = *Targetprop;
-	if (Targetprop->type == EditValueType::Bool)
+	if (Targetprop->type == MemberValueType::Bool)
 	{
 		Textlabel->SetEnabled(false);
 
@@ -34,7 +34,7 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		Textlabel->SetText(nextext);
 	}
 
-	if (FilterType != EditValueType::Bool)
+	if (FilterType != MemberValueType::Bool)
 	{
 		TextBox = new UIBox(0, 0, 0, 0);
 
@@ -42,7 +42,7 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		TextBox->Colour = glm::vec3(0.7f);
 		AddChild(TextBox);
 	}
-	else if (FilterType == EditValueType::Bool)
+	else if (FilterType == MemberValueType::Bool)
 	{
 		Toggle = new UIButton(0, 0, 0, 0);
 		Toggle->BackgoundColour = glm::vec3(0.25f);
@@ -50,7 +50,47 @@ UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(
 		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
 		AddChild(Toggle);
 	}
-	SupportsScroll = (FilterType == EditValueType::Float);//todo: int
+	SupportsScroll = (FilterType == MemberValueType::Float);//todo: int
+	if (Valueptr != nullptr)
+	{
+		GetValueText(nextext);
+		Textlabel->SetText(nextext);
+	}
+	AddChild(Namelabel);
+	AddChild(Textlabel);
+}
+UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0, 0)
+{
+	FilterType = Targetprop->m_Type;
+	Namelabel->SetText(Targetprop->GetDisplayName());
+	Valueptr = Targetprop->m_pDataPtr;
+	Node = Targetprop;
+	if (Targetprop->m_Type == MemberValueType::Bool)
+	{
+		Textlabel->SetEnabled(false);
+	}
+	else
+	{
+		Textlabel->SetText(nextext);
+	}
+
+	if (FilterType != MemberValueType::Bool)
+	{
+		TextBox = new UIBox(0, 0, 0, 0);
+
+		TextBox->BackgoundColour = glm::vec3(0.25f);
+		TextBox->Colour = glm::vec3(0.7f);
+		AddChild(TextBox);
+	}
+	else if (FilterType == MemberValueType::Bool)
+	{
+		Toggle = new UIButton(0, 0, 0, 0);
+		Toggle->BackgoundColour = glm::vec3(0.25f);
+		Toggle->Colour = glm::vec3(0.7f);
+		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
+		AddChild(Toggle);
+	}
+	SupportsScroll = (FilterType == MemberValueType::Float);//todo: int
 	if (Valueptr != nullptr)
 	{
 		GetValueText(nextext);
@@ -89,7 +129,7 @@ void UIEditField::MouseMove(int x, int y)
 			return;
 		}
 	}
-	if (FilterType == EditValueType::Bool)
+	if (FilterType == MemberValueType::Bool)
 	{
 		Toggle->MouseMove(x, y);
 		return;
@@ -109,26 +149,29 @@ void UIEditField::MouseMove(int x, int y)
 			WasSelected = false;
 		}
 	}
-
-
 }
+
 void UIEditField::GetValueText(std::string & string)
 {
-	if (FilterType == EditValueType::Float)
+	if (FilterType == MemberValueType::Float)
 	{
-		float t = *((float*)Valueptr);
+		float t = Node->GetAsFloat();
 		string = std::to_string(t);
 	}
-	if (FilterType == EditValueType::Bool)
+	if (FilterType == MemberValueType::Bool)
 	{
-		Toggle->SetText(*((bool*)(Valueptr)) ? "True " : "False");
+		Toggle->SetText(Node->GetAsBool() ? "True " : "False");
 	}
 }
 bool UIEditField::MouseClick(int x, int y)
 {
-	if (FilterType == EditValueType::Bool)
+	if (FilterType == MemberValueType::Bool)
 	{
 		Toggle->MouseClick(x, y);
+		return false;
+	}
+	if (TextBox == nullptr)
+	{
 		return false;
 	}
 	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
@@ -159,7 +202,7 @@ bool UIEditField::MouseClick(int x, int y)
 		//__debugbreak();
 		if (Valueptr != nullptr)
 		{
-			if (FilterType == EditValueType::Float)
+			if (FilterType == MemberValueType::Float)
 			{
 				Scrolling = true;
 				startx = x;
@@ -178,12 +221,12 @@ void UIEditField::MouseClickUp(int x, int y)
 void UIEditField::Render()
 {
 	UIBox::Render();
-	if (FilterType != EditValueType::Label && FilterType != EditValueType::Bool)
+	if (FilterType != MemberValueType::String && FilterType != MemberValueType::Bool)
 	{
 		TextBox->Render();
 		Textlabel->Render();
 	}
-	if (FilterType == EditValueType::Bool)
+	if (FilterType == MemberValueType::Bool)
 	{
 		Toggle->Render();
 	}
@@ -199,7 +242,7 @@ void UIEditField::SendValue()
 {
 	if (Valueptr != nullptr)
 	{
-		if (FilterType == EditValueType::String)
+		if (FilterType == MemberValueType::String)
 		{
 			//nextext.copy((char*)Valueptr, nextext.length());
 			//std::string Target = *((std::string*)Valueptr);
@@ -207,18 +250,18 @@ void UIEditField::SendValue()
 			//Target.append(nextext);
 			*((std::string*)Valueptr) = nextext;
 		}
-		else if (FilterType == EditValueType::Float)
+		else if (FilterType == MemberValueType::Float)
 		{
 			float out = (float)atof(nextext.c_str());
 
 			*((float*)Valueptr) = out;
 		}
-		else if (FilterType == EditValueType::Bool)
+		else if (FilterType == MemberValueType::Bool)
 		{
 			*((bool*)(Valueptr)) = !*((bool*)(Valueptr));
 			Toggle->SetText(*((bool*)(Valueptr)) ? "True" : "False");
 		}
-		else if (FilterType == EditValueType::Int)
+		else if (FilterType == MemberValueType::Int)
 		{
 			int out = (int)atoi(nextext.c_str());
 
@@ -315,19 +358,19 @@ void UIEditField::ProcessKeyDown(WPARAM key)
 #endif
 bool UIEditField::CheckValidInput(char c)
 {
-	if (FilterType == EditValueType::String)
+	if (FilterType == MemberValueType::String)
 	{
 		return true;
 	}
-	else if (FilterType == EditValueType::Int || FilterType == EditValueType::Float)
+	else if (FilterType == MemberValueType::Int || FilterType == MemberValueType::Float)
 	{
 		std::string Filter = "1234567890.";
 		std::string IntFilter = "1234567890";
-		if (FilterType == EditValueType::Float)
+		if (FilterType == MemberValueType::Float)
 		{
 			return (Filter.find(c) != -1);
 		}
-		else if (FilterType == EditValueType::Int)
+		else if (FilterType == MemberValueType::Int)
 		{
 			return (IntFilter.find(c) != -1);
 		}
@@ -349,11 +392,11 @@ void UIEditField::UpdateScaled()
 	Namelabel->RenderWidgetBounds = true;
 	Namelabel->SetRootSpaceSize((w / 3), h, 0, 0);
 	Textlabel->SetRootSpaceSize((w / 3) + gap, h, (w / 3) + gap, 0);
-	if (FilterType == EditValueType::Bool)
+	if (FilterType == MemberValueType::Bool)
 	{
 		Toggle->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
 	}
-	if (TextBox != nullptr && FilterType != EditValueType::Label)
+	if (TextBox != nullptr && FilterType != MemberValueType::String)
 	{
 		TextBox->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
 	}
@@ -367,7 +410,7 @@ void UIEditField::UpdateScaled()
 
 void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
 {
-	if (e.LeftMouse)
+	if (e.Mouse == MouseButton::ButtonRight)
 	{
 		PlatformContextMenu Menu;
 		Menu.AddItem("Play");

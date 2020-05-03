@@ -3,13 +3,8 @@ namespace EditValueType
 {
 	enum Type
 	{
-		Int,
-		Float,
-		String,
-		Vector,
-		Bool,
+		Value,
 		Slider,
-		Colour,
-		Label
+		Colour
 	};
 };

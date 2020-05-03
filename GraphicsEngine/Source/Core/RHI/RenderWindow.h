@@ -15,10 +15,5 @@ public:
 
 	virtual RenderEngine*	GetCurrentRenderer();
 	virtual void			DestroyRenderWindow() = 0;
-	virtual bool			MouseLBDown(int x, int y) = 0;
-	virtual bool			MouseLBUp(int x, int y) = 0;
-	virtual bool			MouseRBDown(int x, int y) = 0;
-	virtual bool			MouseRBUp(int x, int y) = 0;
-	virtual bool			MouseMove(int x, int y) = 0;
 	virtual void			OnWindowContextLost() = 0;
 };

@@ -29,9 +29,16 @@ void DynamicQualityEngine::UpdateVXRTCrossover()
 	RTQualityData.VX_RT_BlendStart = RTQualityData.RT_RoughnessThreshold - BlendSize / 2;
 	RTQualityData.VX_RT_BlendEnd = RTQualityData.VX_MaxRoughness;
 	RTQualityData.FrameCount = RHI::GetFrameCount();
-#if 1
-	RTQualityData.VX_MaxRoughness = 1.0;
-#endif
+	if (RHI::GetRenderSettings()->SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_RT)
+	{
+		RTQualityData.VX_MaxRoughness = 0.0f;
+		RTQualityData.VX_MinRoughness = 0.0f;
+		RTQualityData.RT_RoughnessThreshold = 0.0f;		
+	}
+	if (RHI::GetRenderSettings()->SelectedGraph == EBuiltinRenderGraphs::DeferredRenderer_VX)
+	{
+		RTQualityData.VX_MaxRoughness = 1.0;
+	}
 	RTBuffer->UpdateConstantBuffer(&RTQualityData);
 }
 

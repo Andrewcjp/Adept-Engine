@@ -23,7 +23,8 @@ void VoxelBottomLevelAccelerationStructure::Init(MeshRendererComponent * object)
 	CullingAABB* bounds = object->GetMesh()->GetBounds();
 	MapSize = glm::ivec3((bounds->GetHalfExtends() * 2.1) / VoxelTracingEngine::Get()->ControlData.VoxelSize) + glm::ivec3(1, 1, 1);
 	MapSize = glm::max(MapSize, glm::ivec3(1, 1, 1));
-	MapSize = glm::min(MapSize, glm::ivec3(300, 300, 300));
+	const float MaxBound = 1500;
+	MapSize = glm::min(MapSize, glm::ivec3(MaxBound, MaxBound, MaxBound));
 	VoxelBuffer = RHI::GetRHIClass()->CreateTexture2();
 	RHITextureDesc2 TextureDesc;
 	TextureDesc.Width = GetMapSize().x;

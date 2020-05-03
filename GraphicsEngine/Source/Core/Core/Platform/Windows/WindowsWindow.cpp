@@ -15,6 +15,8 @@
 #include "Core/Utils/StringUtil.h"
 #include "Rendering/Core/Screen.h"
 #include <commctrl.h>
+#include "Core/Input/Interfaces/Windows/WindowsInputInterface.h"
+#include "UI/UIManager.h"
 
 
 
@@ -395,28 +397,10 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_MOUSEMOVE:
 		if (app->m_engine->GetRenderWindow())
 		{			
-			//app->m_engine->GetRenderWindow()->MouseMove(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
 			IntPoint point = PlatformWindow::GetApplication()->GetMousePos();
-			app->m_engine->GetRenderWindow()->MouseMove(point.x, Math::Max(point.y,0));
+			Input::Get()->MouseMove(point.x, Math::Max(point.y, 0));
+			UIManager::Get()->MouseMove(point.x, Math::Max(point.y, 0));
 		}
-		break;
-
-	case WM_LBUTTONUP:
-		app->m_engine->GetRenderWindow()->MouseLBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReceiveMouseMessage(0, false);
-		AttemptResize();
-		break;
-	case WM_LBUTTONDOWN:
-		app->m_engine->GetRenderWindow()->MouseLBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReceiveMouseMessage(0, true);
-		break;
-	case WM_RBUTTONUP:
-		app->m_engine->GetRenderWindow()->MouseRBUp(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReceiveMouseMessage(1, false);
-		break;
-	case WM_RBUTTONDOWN:
-		app->m_engine->GetRenderWindow()->MouseRBDown(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
-		Input::ReceiveMouseMessage(1, true);
 		break;
 	case WM_KEYDOWN:
 	{
@@ -460,9 +444,9 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		const float SpinFactor = 1 / 120.0f;
 		const short WheelDelta = GET_WHEEL_DELTA_WPARAM(wparam);
 
-		if (Input::Get())
+		if (WindowsInputInterface::Get())
 		{
-			Input::Get()->ProcessMouseWheel(static_cast<float>(WheelDelta)*SpinFactor);
+			WindowsInputInterface::Get()->ProcessMouseMSG(static_cast<float>(WheelDelta)*SpinFactor);
 		}
 	}
 	break;
@@ -504,26 +488,4 @@ void WindowsWindow::AddMenuBar(const PlatformMenuBar & MenuBar)
 	AppendMenuW(app->hMenubar, MF_POPUP, (UINT_PTR)NewMenu, StringUtils::ConvertStringToWide(MenuBar.MenuName).c_str());
 	SetMenu(app->HWindow, app->hMenubar);
 }
-//void WindowsWindow::AddMenus(HWND hwnd)
-//{
-//	HMENU hMenu;
-//	HMENU hGOMenu = CreateMenu();
-//	HMENU hdebugMenu = CreateMenu();
-//	HMENU hRenderMenu = CreateMenu();
-//	HMENU hMenubar = CreateMenu();
-//	hMenu = CreateMenu();
-//	//file menu
-//	AppendMenuW(hMenu, MF_STRING, 5, L"&Save Scene");
-//	AppendMenuW(hMenu, MF_STRING, 6, L"&Load Scene");
-//	AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
-//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
-//
-//	//Gameobject menu
-//	AppendMenuW(hGOMenu, MF_STRING, 4, L"&Add GameObject ");
-//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hGOMenu, L"&GameObjects");
-//	AppendMenuW(hdebugMenu, MF_STRING, 10, L"&Load DebugScene ");
-//	AppendMenuW(hdebugMenu, MF_STRING, 11, L"&Run Cook ");
-//	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hdebugMenu, L"&DEBUG");
-//	SetMenu(hwnd, hMenubar);
-//}
 #endif

@@ -52,18 +52,19 @@ void EditorCameraController::TickController(float dt)
 	Target->SetQrot(rot);
 	MovedThisFrame = true;
 }
+
 void EditorCameraController::Update()
 {
 	const float dt = Engine::GetDeltaTime();
 	TickController(dt);
 #ifdef PLATFORM_WINDOWS
-	if (Input::GetVKey(0x02))
+	if (Input::GetMouseButton(MouseButton::ButtonRight))
 #endif
 	{
 		Input::LockCursor(true);
 		Input::SetCursorVisible(false);
 		float movespeed = BaseTranslateSpeed;
-		if (Input::GetVKey(0xA0))
+		if (Input::GetKey(KeyCode::Shift))
 		{
 			movespeed = FastTranslateSpeed;
 		}
@@ -71,27 +72,27 @@ void EditorCameraController::Update()
 		{
 			movespeed = BaseTranslateSpeed;
 		}
-		if (Input::GetKey('w'))
+		if (Input::GetKey(KeyCode::W))
 		{
 			Target->Translate(Target->GetForward(), movespeed*dt);
 		}
-		if (Input::GetKey('s'))
+		if (Input::GetKey(KeyCode::S))
 		{
 			Target->Translate(Target->GetForward(), -movespeed * dt);
 		}
-		if (Input::GetKey('a'))
+		if (Input::GetKey(KeyCode::A))
 		{
 			Target->Translate(Target->GetRight(), -movespeed * dt);
 		}
-		if (Input::GetKey('d'))
+		if (Input::GetKey(KeyCode::D))
 		{
 			Target->Translate(Target->GetRight(), movespeed * dt);
 		}
-		if (Input::GetKey('e'))
+		if (Input::GetKey(KeyCode::E))
 		{
 			Target->Translate(Target->GetUp(), movespeed*dt);
 		}
-		if (Input::GetKey('q'))
+		if (Input::GetKey(KeyCode::Q))
 		{
 			Target->Translate(Target->GetUp(), -movespeed * dt);
 		}

@@ -74,6 +74,7 @@ void ParticleSystemManager::InitCommon()
 	pdesc.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
 	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
+
 #if USE_INDIRECTRENDER
 	RenderSig = RHICommandSignitureDescription();
 	RenderSig.ArgumentDescs.resize(2);

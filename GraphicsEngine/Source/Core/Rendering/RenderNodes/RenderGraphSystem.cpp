@@ -156,20 +156,20 @@ void RenderGraphSystem::Render()
 
 void RenderGraphSystem::Update()
 {
-	if (Input::GetKeyDown('U'))
+	if (Input::GetKeyDown(KeyCode::U))
 	{
 		CurrentGraph->ToggleCondition("PREZ");
 	}
-	if (Input::GetKeyDown('Y'))
+	if (Input::GetKeyDown(KeyCode::Y))
 	{
 		CurrentGraph->ToggleCondition("Debug");
 	}
-	if (Input::GetKeyDown('R'))
+	if (Input::GetKeyDown(KeyCode::R))
 	{
 		RHI::GetRenderSettings()->SetVRXActive(!RHI::GetRenderSettings()->GetVRXSettings().VRXActive);
 	}
 #if 0
-	if (Input::GetKeyDown('I'))
+	if (Input::GetKeyDown(KeyCode::I))
 	{
 		RenderGraph* Test = new RenderGraph();
 		Test->CreateVRFWDGraph();

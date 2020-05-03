@@ -45,14 +45,14 @@ class CoreTargetRules : TargetRules
         CoreModule.UseUnity = true;
         CoreModule.OutputObjectName = "Core";
 
-        CoreModule.IsCoreModule = true;
+        CoreModule.IsCoreModule = true; 
         CoreModule.SystemLibNames.Add("winmm.lib");
         CoreModule.SystemLibNames.Add("shlwapi.lib");
         CoreModule.SystemLibNames.Add("dbghelp.lib");
         CoreModule.StaticLibraries.Add(new LibDependency("Xinput9_1_0.lib", "win64"));
         CoreModule.ExcludedFolders.Add("**/ThirdParty/Audio/**");
         CoreModule.UnityBuildExcludedFolders.Add("\\Core\\Platform\\Extra\\");
-
+       // CoreModule.ExcludedFoldersNew.Add(new FolderPlatformPair("**/Windows/**", "!win64"));
         string[] ThirdPartyModules = new string[] {
             "freetypeBuild",
             "assimpBuild",

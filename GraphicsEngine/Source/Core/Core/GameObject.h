@@ -8,15 +8,18 @@
 #include "Physics/PhysicsTypes.h"
 #include "EngineTypes.h"
 #include "Types/WeakObjectPtr.h"
+#include "Reflection/IReflect.h"
 class Component;
 class MeshRendererComponent;
+UCLASS()
 class GameObject :
-	public IGarbageCollectable<GameObject>
+	public IGarbageCollectable<GameObject>,public IReflect
 #if WITH_EDITOR
 	, public IEdtiorInspectable
 #endif
 {
 public:
+	CLASS_BODY_Reflect();
 	TagContainer Tags;
 	enum EMoblity
 	{
@@ -101,6 +104,7 @@ private:
 	//all object created from scene will have id 
 	//other wise -1 is value for non scene objects 
 	int ObjectID = 0;
+	PROPERTY();
 	std::string Name = "";
 	glm::vec3 PositionDummy;
 

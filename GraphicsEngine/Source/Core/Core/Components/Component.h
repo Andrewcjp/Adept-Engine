@@ -1,11 +1,12 @@
 #pragma once
 #include "Editor/EditorTypes.h"
 #include "Physics/PhysicsTypes.h"
-
+#include "Core/Reflection/ClassReflectionNode.h"
+#include "Core/Reflection/IReflect.h"
 struct InspectorProperyGroup;
 class Scene;
 class GameObject;
-class Component
+class Component : public IReflect
 {
 public:
 	CORE_API Component();
@@ -35,6 +36,7 @@ public:
 	{};
 	CORE_API virtual void OnDestroy();
 protected:
+
 	int TypeID = -1;
 	void Internal_SetOwner(GameObject* ptr);
 	bool DoesUpdate = true;

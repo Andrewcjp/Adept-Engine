@@ -123,15 +123,17 @@ void Inspector::CreateEditor()
 	TabPanelArea->AlignGap = 40;
 	TabPanelArea->TopAlignGap = 20;
 	TabPanelArea->EdgeShrink = 10;
-	if (TabPanelArea->Children.size() != 0)
+	/*if (TabPanelArea->Children.size() != 0)
 	{
 		for (int i = 0; i < TabPanelArea->Children.size(); i++)
 		{
 			TabPanelArea->RemoveChild(TabPanelArea->Children[i]);
 		}
-	}
+	}*/
+	TabPanelArea->RemoveAllChildren();
 	if (target != nullptr)
 	{
+#if 0
 		std::vector<InspectorProperyGroup> Fields = target->GetInspectorFields();
 		for (int i = 0; i < Fields.size(); i++)
 		{
@@ -166,6 +168,42 @@ void Inspector::CreateEditor()
 			//Panel->AligmentStruct.SizeMax = 40;
 			TabPanelArea->AddChild(Panel);
 		}
+#else
+		std::vector<InspectorProperyGroup> Fields = target->GetInspectorFields();
+		for (int i = 0; i < Fields.size(); i++)
+		{
+			UIPanel* Panel = new UIPanel(0, 0, 0, 0);
+			Panel->AlignGap = 10;
+			Panel->TopAlignGap = 0;
+			Panel->EdgeShrink = 2;
+			for (int j = 0; j < Fields[i].Nodes.size(); j++)
+			{
+				UIWidget* newwidget = nullptr;
+				switch (Fields[i].Nodes[j]->m_Type)
+				{
+				case MemberValueType::Int:
+				case MemberValueType::Float:
+				case MemberValueType::String:
+				case MemberValueType::Vector2:
+				case MemberValueType::Vector3:
+				case MemberValueType::Bool:
+					newwidget = new UIEditField(Fields[i].Nodes[j]);
+					break;
+				default:
+					break;
+				}
+				if (newwidget != nullptr)
+				{
+					newwidget->AligmentStruct.SizeMax = 30;
+					Panel->AddSubWidget(newwidget);
+				}
+			}
+			Panel->SetTitle(Fields[i].name);
+			Panel->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+			//Panel->AligmentStruct.SizeMax = 40;
+			TabPanelArea->AddChild(Panel);
+		}
+#endif
 		button = new UIButton(mwidth, 30, 0, 0);
 		button->SetRootSpaceSize(250, 50, 0, 0);
 		button->SetText("Add Component");

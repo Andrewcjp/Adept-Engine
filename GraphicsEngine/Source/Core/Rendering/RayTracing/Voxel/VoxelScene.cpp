@@ -58,7 +58,7 @@ void VoxelScene::Update()
 	{
 		//todo some logic here!		
 	}
-	if (Input::GetKeyDown('V'))
+	if (Input::GetKeyDown(KeyCode::V))
 	{
 		DebugIndex++;
 		DebugIndex = DebugIndex % BottomStructuresToUpdate.size();

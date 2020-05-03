@@ -125,7 +125,7 @@ void UIWidget::MouseClickUp(int x, int y)
 {
 	for (int i = 0; i < Children.size(); i++)
 	{
-		Children[i]->MouseMove(x, y);
+		Children[i]->MouseClickUp(x, y);
 	}
 }
 
@@ -241,6 +241,16 @@ void UIWidget::RemoveChild(UIWidget* w)
 	VectorUtils::Remove(Children, w);
 }
 
+void UIWidget::RemoveAllChildren()
+{
+	for (int i = 0; i < Children.size(); i++)
+	{
+		Children[i]->Parent = nullptr;
+		SafeDelete(Children[i]);
+		
+	}
+	Children.clear();
+}
 void UIWidget::InvalidateTransform()
 {
 	TransfromDirty = true;

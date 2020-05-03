@@ -128,7 +128,7 @@ void RenderGraph::CreateDefGraphWithRT()
 
 	LightNode->UseScreenSpaceReflection = true;
 	LinkNode(RTNode, LightNode);
-	LightNode->GetInput(4)->SetLink(RTNode->GetOutput(0));
+	LightNode->GetData().SSRData->SetStore(RTXBuffer);
 }
 
 void RenderGraph::CreateDefGraphWithRT_VOXEL()
@@ -201,6 +201,11 @@ void RenderGraph::CreateDefGraphWithVoxelRT()
 	LinkNode(RTNode, LightNode);
 	LightNode->GetData().SSRData->SetLink(RTNode->GetOutput(0));
 
+	VisModeNode* Vis = RenderNode::NodeCast<VisModeNode>(FindFirstOf(VisModeNode::GetNodeName()));
+	if (Vis != nullptr)
+	{
+		Vis->GetInput(2)->SetStore(RTXBuffer);
+	}
 }
 #define USE_VEL 1
 void RenderGraph::CreateDefTestgraph()

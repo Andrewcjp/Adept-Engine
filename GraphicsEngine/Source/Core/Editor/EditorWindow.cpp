@@ -151,13 +151,6 @@ void EditorWindow::DestroyRenderWindow()
 	BaseWindow::DestroyRenderWindow();
 }
 
-bool EditorWindow::MouseLBDown(int x, int y)
-{
-	BaseWindow::MouseLBDown(x, y);
-
-	return 0;
-}
-
 EditorCore * EditorWindow::GetEditorCore()
 {
 	if (instance != nullptr)
@@ -236,29 +229,29 @@ void EditorWindow::Update()
 		}
 #endif
 	}
-	if (!Input::GetMouseButtonDown(1))
+	if (!Input::GetMouseButton(MouseButton::ButtonRight))
 	{
-		if (Input::GetKeyDown('W'))
+		if (Input::GetKeyDown(KeyCode::W))
 		{
 			gizmos->SwitchMode(CurrentGizmoMode::Translate);
 		}
-		if (Input::GetKeyDown('E'))
+		if (Input::GetKeyDown(KeyCode::E))
 		{
 			gizmos->SwitchMode(CurrentGizmoMode::Rotate);
 		}
-		if (Input::GetKeyDown('R'))
+		if (Input::GetKeyDown(KeyCode::R))
 		{
 			gizmos->SwitchMode(CurrentGizmoMode::Scale);
 		}
 	}
-	if (Input::GetKeyDown('T'))
+	if (Input::GetKeyDown(KeyCode::T))
 	{
 		int currentmode = RHI::GetRenderSettings()->GetDebugRenderMode();
 		currentmode++;   
 		currentmode = currentmode % (ERenderDebugOutput::Limit);
 		RHI::GetRenderSettings()->SetDebugRenderMode((ERenderDebugOutput::Type)currentmode);
 	}
-	if (Input::GetKeyDown('N'))
+	if (Input::GetKeyDown(KeyCode::N))
 	{
 		if (RHI::GetRenderSettings()->CurrentAAMode != AAMode::NONE) 
 		{    
@@ -269,64 +262,56 @@ void EditorWindow::Update()
 			RHI::GetRenderSettings()->CurrentAAMode = AAMode::FXAA;
 		}
 	}
-	if (Input::GetKeyDown(VK_ESCAPE))
+	if (Input::GetKeyDown(KeyCode::Escape))
 	{
 		ExitPlayMode();
 	} 
-	if (Input::GetKeyDown('P'))
+	if (Input::GetKeyDown(KeyCode::P))
 	{  
 		ShadowRenderer::InvalidateAllBakedShadows();
 	}
-	if (Input::GetVKey(VK_CONTROL))
+	if (Input::GetKey(KeyCode::Control))
 	{
-		if (Input::GetKeyDown('S'))
+		if (Input::GetKeyDown(KeyCode::S))
 		{
 			SaveScene();
 		}
 	}
-	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('P'))
+	if (Input::GetKey(KeyCode::Control) && Input::GetKeyDown(KeyCode::P))
 	{
 		EnterPlayMode();
 	}
-	if (Input::GetVKey(VK_CONTROL) && Input::GetKeyDown('O'))
+	if (Input::GetKey(KeyCode::Control) && Input::GetKeyDown(KeyCode::O))
 	{
 		StartSimulate = true;
 		EnterPlayMode();
 	}
-	if (Input::GetKeyDown(VK_F8))
+	if (Input::GetKeyDown(KeyCode::F8))
 	{
 		UIManager::Get()->SetFullscreen(!UIManager::Get()->IsFullScreen());
 		StaticResize();
 	}
-	if (Input::GetKeyDown(VK_F4))
+	if (Input::GetKeyDown(KeyCode::F4))
 	{
 		Eject();
 	}
-	if (Input::GetMouseButtonDown(0) && UI != nullptr && !UI->IsUIBlocking() && IsEditorEjected())
+	if (Input::GetMouseButtonDown(MouseButton::ButtonLeft) && UI != nullptr && !UI->IsUIBlocking() && IsEditorEjected())
 	{
 		//mEditorCore->SetSelectedObject(selector->RayCastScene(Input::GetMousePos().x, Input::GetMousePos().y, EditorCamera->GetCamera(), *CurrentScene->GetObjects()));
 	}
 	if (RHI::SupportVR())
 	{
-		if (Input::GetKeyDown('L'))
+		if (Input::GetKeyDown(KeyCode::L))
 		{
 			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Right;
 		}
-		if (Input::GetKeyDown('K'))
+		if (Input::GetKeyDown(KeyCode::K))
 		{
 			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Left;
 		}
-		if (Input::GetKeyDown('B'))
+		if (Input::GetKeyDown(KeyCode::B))
 		{
 			RHI::GetVrSettings()->MirrorMode = EVRMirrorMode::Both;
-		}
-		if (Input::GetKeyDown(219))
-		{
-			RHI::GetVrSettings()->EyeDistance -= 1.0f;
-		}
-		if (Input::GetKeyDown(221))
-		{
-			RHI::GetVrSettings()->EyeDistance += 1.0f;
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "UI/BasicWidgets/UIBox.h"
 #include "UI/Core/CollisionRect.h"
 #include "Editor/Inspector.h"
+#include "Core/Reflection/ClassReflectionNode.h"
 class UILabel;
 class UIEditField :
 	public UIBox
@@ -11,6 +12,7 @@ public:
 	UIEditField(int, int, int, int);
 #if WITH_EDITOR
 	UIEditField(Inspector::InspectorPropery * Targetprop);
+	UIEditField(ClassReflectionNode* Targetprop);
 #endif
 	~UIEditField();
 	void SetLabel(std::string lavel);
@@ -43,7 +45,8 @@ private:
 	std::string nextext;
 	std::string LastText;
 	bool WasSelected = false;
-	EditValueType::Type FilterType = EditValueType::String;
+	MemberValueType::Type FilterType = MemberValueType::Limit;
+	EditValueType::Type EditMode = EditValueType::Value;
 	int CursorPos = 0;
 	std::string DisplayText;
 	bool IsEditing = false;
@@ -56,6 +59,7 @@ private:
 	float ScrollScale = 0.001f;
 #if WITH_EDITOR
 	Inspector::InspectorPropery Property;
+	ClassReflectionNode* Node = nullptr;
 #endif
 
 };

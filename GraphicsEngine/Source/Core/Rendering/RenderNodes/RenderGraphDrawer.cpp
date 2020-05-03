@@ -43,11 +43,11 @@ void RenderGraphDrawer::Draw(RenderGraph* G)
 void RenderGraphDrawer::Update()
 {
 	const float movesize = 10;
-	if (Input::GetKey('i'))
+	if (Input::GetKey(KeyCode::I))
 	{
 		StartPos.x -= movesize;
 	}
-	if (Input::GetKey('o'))
+	if (Input::GetKey(KeyCode::O))
 	{
 		StartPos.x += movesize;
 	}

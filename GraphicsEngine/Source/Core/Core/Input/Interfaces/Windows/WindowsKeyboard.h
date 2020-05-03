@@ -1,8 +1,15 @@
 #pragma once
-class WindowsKeyboard
+#include "Core/Input/InputKeyboard.h"
+class WindowsKeyboard  :public InputKeyboard
 {
 public:
 	WindowsKeyboard();
 	~WindowsKeyboard();
+
+
+
+protected:
+	void UpdateState() override;
+
 };
 

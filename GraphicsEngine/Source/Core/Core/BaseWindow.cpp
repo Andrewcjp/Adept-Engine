@@ -149,15 +149,15 @@ void BaseWindow::Render()
 		}
 		PerfManager::EndTimer("FTick");
 	}
-	if (Input::Get()->GetKeyDown(VK_F11))
+	if (Input::Get()->GetKeyDown(KeyCode::F11))
 	{
 		RHI::ToggleFullScreenState();
 	}
-	if (Input::Get()->GetKeyDown(VK_F9))
+	if (Input::Get()->GetKeyDown(KeyCode::F9))
 	{
 		RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
-	if (Input::Get()->GetKeyDown(VK_F6))
+	if (Input::Get()->GetKeyDown(KeyCode::F6))
 	{
 #if ALLOW_RESOURCE_CAPTURE
 		RHI::GetRHIClass()->TriggerWriteBackResources();
@@ -165,22 +165,22 @@ void BaseWindow::Render()
 	}
 	InputController* con = Input::GetInputManager()->GetController(0);
 
-	if (Input::GetKeyDown(VK_F1) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonRight)))
+	if (Input::GetKeyDown(KeyCode::F1) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonRight)))
 	{
 		ShowText = !ShowText;
 	}
 
-	if (Input::GetKeyDown(VK_F2) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonUp)))
+	if (Input::GetKeyDown(KeyCode::F2) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonUp)))
 	{
 		ShowStats.SetValue(!ShowStats.GetBoolValue());
 	}
 
-	if (Input::GetKeyDown(VK_F3) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonLeft)))
+	if (Input::GetKeyDown(KeyCode::F3) || (con != nullptr && con->GetButtonDown(GamePadButtons::FaceButtonLeft)))
 	{
 		GPUPerfGraph->SetEnabled(!GPUPerfGraph->IsEnabled());
 	}
 
-	if (Input::GetKeyDown(VK_F8))
+	if (Input::GetKeyDown(KeyCode::F8))
 	{
 		SetPauseState(!PauseState);
 	}
@@ -189,12 +189,12 @@ void BaseWindow::Render()
 		PauseState = true;
 		StepOnce = false;
 	}
-	if (Input::GetKeyDown(VK_F7) && PauseState)
+	if (Input::GetKeyDown(KeyCode::F7) && PauseState)
 	{
 		PauseState = false;
 		StepOnce = true;
 	}
-	if (Input::GetKeyDown('O'))
+	if (Input::GetKeyDown(KeyCode::O))
 	{
 		ConsoleVariableManager::ToggleVar("vrr.showrate");
 	}
@@ -442,66 +442,6 @@ void BaseWindow::DestroyRenderWindow()
 	Input::ShutDown();
 }
 
-bool BaseWindow::MouseLBDown(int x, int y)
-{
-	if (UI != nullptr)
-	{
-		UI->MouseClick(x, y);
-	}
-	return true;
-}
-
-bool BaseWindow::MouseLBUp(int x, int y)
-{
-	if (UI != nullptr)
-	{
-		UI->MouseClickUp(x, y);
-	}
-	return true;
-}
-
-bool BaseWindow::MouseRBDown(int x, int y)
-{
-	if (UI != nullptr)
-	{
-		if (!UI->IsUIBlocking())
-		{
-			Input::Get()->MouseLBDown(x, y);
-		}
-	}
-	else
-	{
-		Input::Get()->MouseLBDown(x, y);
-	}
-	return 0;
-}
-
-bool BaseWindow::MouseRBUp(int x, int y)
-{
-	if (UI)
-	{
-		if (!UI->IsUIBlocking())
-		{
-			Input::Get()->MouseLBUp(x, y);
-		}
-	}
-	else
-	{
-		Input::Get()->MouseLBUp(x, y);
-	}
-	return 0;
-}
-
-bool BaseWindow::MouseMove(int x, int y)
-{
-	Input::Get()->MouseMove(x, y, DeltaTime);
-	if (UI != nullptr)
-	{
-		UI->MouseMove(x, y);
-	}
-	return true;
-}
-
 void BaseWindow::StaticResize()
 {
 	Instance->Resize(Screen::GetWindowWidth(), Screen::GetWindowHeight());
@@ -520,7 +460,7 @@ void BaseWindow::RenderText()
 		stream << "Ratio " << RHI::GetRenderSettings()->GetCurrentRenderScale() << "X ";
 		stream << "GPU :" << PerfManager::GetGPUTime() << "ms ";
 		stream << "CPU " << std::setprecision(2) << PerfManager::GetCPUTime() << "ms ";
-		if (Input::GetKeyDown('P'))
+		if (Input::GetKeyDown(KeyCode::P))
 		{
 			Log::LogMessage(stream.str());
 		}
@@ -558,7 +498,7 @@ void BaseWindow::RenderText()
 		UI->RenderTextToScreen(offset, "BlockCommandlistExec Enabled", Colours::RED);
 	}
 	Log::Get()->RenderText(UI, offset);
-	if (Input::GetKeyDown('P'))
+	if (Input::GetKeyDown(KeyCode::P))
 	{
 		LogPerfCounters();
 	}

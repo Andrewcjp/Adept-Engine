@@ -73,3 +73,47 @@ InputController* InputManager::GetController(int index, int interfaceindex /*= -
 	}
 	return nullptr;
 }
+
+InputKeyboard * InputManager::GetKeyboard(int index, int interfaceindex)
+{
+	if (interfaceindex != -1)
+	{
+		return Interfaces[interfaceindex]->GetKeyboard(index);
+	}
+	int Accum = 0;
+	for (int i = 0; i < Interfaces.size(); i++)
+	{
+		if (Interfaces[i]->GetNumOfKeyBoards() == 0)
+		{
+			continue;
+		}
+		if (Accum + Interfaces[i]->GetNumOfKeyBoards() >= index)
+		{
+			return Interfaces[i]->GetKeyboard(index - Accum);
+		}
+		Accum += Interfaces[i]->GetNumOfKeyBoards();
+	}
+	return nullptr;
+}
+
+InputMouse* InputManager::GetMouse(int index, int interfaceindex /*= -1*/)
+{
+	if (interfaceindex != -1)
+	{
+		return Interfaces[interfaceindex]->GetMouse(index);
+	}
+	int Accum = 0;
+	for (int i = 0; i < Interfaces.size(); i++)
+	{
+		if (Interfaces[i]->GetNumOfMice() == 0)
+		{
+			continue;
+		}
+		if (Accum + Interfaces[i]->GetNumOfMice() >= index)
+		{
+			return Interfaces[i]->GetMouse(index - Accum);
+		}
+		Accum += Interfaces[i]->GetNumOfMice();
+	}
+	return nullptr;
+}

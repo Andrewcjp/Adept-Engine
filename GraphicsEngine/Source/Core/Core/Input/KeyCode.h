@@ -1,13 +1,13 @@
 #pragma once
-class KeyCode
-{
-public:
-	const static int SPACE = 0x20;
-	const static int DOWNARROW = 0x28;
-	const static int UPARROW = 0x26;
-	const static int RIGHTARROW = 0x27;
-	const static int LEFTARROW = 0x25;
-};
+//class KeyCode
+//{
+//public:
+//	const static int SPACE = 0x20;
+//	const static int DOWNARROW = 0x28;
+//	const static int UPARROW = 0x26;
+//	const static int RIGHTARROW = 0x27;
+//	const static int LEFTARROW = 0x25;
+//};
 
 #define VK_NUMPAD0        0x60
 #define VK_NUMPAD1        0x61

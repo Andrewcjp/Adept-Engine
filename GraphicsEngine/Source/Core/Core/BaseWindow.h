@@ -14,11 +14,6 @@ public:
 
 	virtual void Resize(int width, int height, bool force = false) override final;
 	virtual void DestroyRenderWindow() override;
-	bool MouseLBDown(int x, int y) override;
-	bool MouseLBUp(int x, int y) override;
-	bool MouseRBDown(int x, int y) override;
-	bool MouseRBUp(int x, int y) override;
-	bool MouseMove(int x, int y) override final;
 	CORE_API static void StaticResize();
 	bool ShowHud = true;
 	bool ShowText = false;

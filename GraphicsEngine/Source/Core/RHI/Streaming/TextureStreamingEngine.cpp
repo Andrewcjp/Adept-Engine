@@ -37,14 +37,14 @@ void TextureStreamingEngine::UpdateSceneTextureStreaming()
 	{
 		Streamers[i]->Update();
 	}
-	if (Input::GetKeyDown('I'))
+	if (Input::GetKeyDown(KeyCode::I))
 	{
 		for (int i = 0; i < Handles.size(); i++)
 		{
 			Handles[i]->SetAllTargetMip(8);
 		}
 	}
-	if (Input::GetKeyDown('O'))
+	if (Input::GetKeyDown(KeyCode::O))
 	{
 		for (int i = 0; i < Handles.size(); i++)
 		{

@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Input/InputMouse.h"
 namespace EWidgetBatchMode
 {
 	enum Type
@@ -14,9 +15,8 @@ struct UIRenderBatch;
 struct UIInputEvent
 {
 	glm::ivec2 Pos = glm::ivec2();
-	bool LeftMouse = false;
-	bool RightMoude = false;
-
+	MouseButton::Type Mouse = MouseButton::Limit;
+	InputButtonPressType::Type PressType = InputButtonPressType::Press;
 	void SetHandled()
 	{
 		Handled = true;
@@ -93,6 +93,7 @@ public:
 	std::vector<UIWidget*> Children;
 	void AddChild(UIWidget* W);
 	void RemoveChild(UIWidget * w);
+	void RemoveAllChildren();
 	void InvalidateTransform();
 	EWidgetBatchMode::Type GetBatchMode();
 	bool IgnoreboundsCheck = false;

@@ -6,6 +6,7 @@ class LightComponent :
 	public Component
 {
 public:
+	CLASS_BODY();
 	LightComponent();
 	~LightComponent();
 	void InitComponent() override final;
@@ -28,7 +29,7 @@ private:
 	PROPERTY();
 	float CurrentIntensity = 0.0f;
 	ELightType::Type CurrentType = ELightType::Point;
-	PROPERTY();
+	PROPERTY(Name = "Light Color");
 	glm::vec3 CurrentColour = glm::vec3(1);
 	PROPERTY();
 	bool DoesShadow = false;
@@ -37,6 +38,5 @@ private:
 #if WITH_EDITOR
 	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
 #endif
-	virtual void ProcessSerialArchive(class Archive* Arch) override;
 };
 

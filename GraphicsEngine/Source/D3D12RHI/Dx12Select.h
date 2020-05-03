@@ -4,5 +4,6 @@
 #include <DXGI1_4.h>
 #include <dxcapi.h>
 #include <d3dcompiler.h>
+#include <d3d12video.h>
 #endif
 

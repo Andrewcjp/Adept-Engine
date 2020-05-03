@@ -119,10 +119,10 @@ glm::mat4 ViveHMD::getRaw(vr::Hmd_Eye nEye)
 
 	//aspect = 0.947466;
 	aspect = ((float)Width / (float)height);
-	if (Input::GetKey(' '))
+	/*if (Input::GetKey(' '))
 	{
 		fieldOfView = fieldOfView;
-	}
+	}*/
 	fieldOfView = ProjectFOV / Rad2Deg;
 	glm::mat4 Mat = glm::perspectiveLH(fieldOfView, aspect, 0.1f, 1000.0f);
 	return Mat;

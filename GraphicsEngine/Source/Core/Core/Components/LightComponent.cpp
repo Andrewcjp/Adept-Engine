@@ -10,6 +10,7 @@
 LightComponent::LightComponent() :Component()
 {
 	TypeID = ComponentRegistry::BaseComponentTypes::LightComp;
+	CALL_CONSTRUCTOR();
 }
 
 LightComponent::~LightComponent()
@@ -105,10 +106,11 @@ void LightComponent::PostChangeProperties()
 #if WITH_EDITOR
 void LightComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
+	/*InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
 	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Bool, &DoesShadow));
 	group.SubProps.push_back(Inspector::CreateProperty("Intensity", EditValueType::Float, &CurrentIntensity));
-	props.push_back(group);
+	props.push_back(group);*/
+	Component::GetInspectorProps(props);
 }
 #endif
 

@@ -20,6 +20,6 @@ public:
 	virtual bool HasHMD()const;
 	virtual void ShutDown();
 protected:
-	//std::vector<InputController*> Controllers;
+
 };
 

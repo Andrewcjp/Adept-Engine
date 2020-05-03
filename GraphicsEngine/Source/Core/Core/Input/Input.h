@@ -1,6 +1,9 @@
 #pragma once
 #include "Core/EngineTypes.h"
 #include "KeyCode.h"
+#include "InputKeyboard.h"
+#include "InputMouse.h"
+#include "UI/Core/UIWidget.h"
 
 class InputManager;
 const int MAX_MOUSE_BUTTON_COUNT = 10;
@@ -15,23 +18,18 @@ public:
 
 	void ForceClear();
 
-	//input processing
-	CORE_API static bool GetKeyDown(int c);
-	CORE_API static bool GetKeyUp(int c);
-	CORE_API static bool GetKey(char c);
-	CORE_API static bool GetVKey(short key);
 	CORE_API static glm::vec2 GetMouseInputAsAxis();
 	CORE_API static IntPoint GetMousePos();
-
+	CORE_API static bool GetKeyDown(KeyCode::Type key);
+	CORE_API static bool GetKey(KeyCode::Type key);
+	CORE_API static bool GetKeyUp(KeyCode::Type key);
+	CORE_API static bool GetMouseButtonDown(MouseButton::Type button);
+	float GetMouseWheelAxis();
+	static bool GetMouseButton(MouseButton::Type button);
 	void ProcessInput();
-	bool   MouseLBDown(int x, int y);
-	bool   MouseLBUp(int x, int y);
-	bool   MouseMove(int x, int y, double deltatime);
+	bool   MouseMove(int x, int y);
 	bool   ProcessKeyDown(unsigned int key);
 	bool   ProcessKeyUp(unsigned int key);
-	void   ProcessMouseWheel(float Delta);
-	CORE_API static void ReceiveMouseMessage(int Button, bool state);
-	CORE_API static bool GetMouseButtonDown(int button);
 	CORE_API static void SetCursorVisible(bool state);
 	bool IsUsingHPMI()
 	{
@@ -47,7 +45,9 @@ public:
 	int MouseSampleCount = 0;
 	bool DidJustPause = false;
 	static InputManager* GetInputManager();
-	float GetMouseWheelAxis() const { return MouseWheelDelta; }
+	static bool SendInputEvents();
+	static void AddUIEvent(UIInputEvent Event);
+	std::vector<UIInputEvent> Events;
 private:
 	InputManager* IManager = nullptr;
 	static Input* instance;
@@ -59,12 +59,9 @@ private:
 	std::map<int, bool> KeyMap;
 	bool IsActiveWindow = true;
 	IntPoint CentrePoint;
-	bool MouseKeyData[MAX_MOUSE_BUTTON_COUNT] = { false };
 	bool UseHighPrecisionMouseInput = true;
 	int CurrentFrame = 0;
-	bool MouseWheelUpThisFrame = false;
-	bool MouseWheelDownThisFrame = false;
-	float MouseWheelDelta = 0;
+
 };
 
 

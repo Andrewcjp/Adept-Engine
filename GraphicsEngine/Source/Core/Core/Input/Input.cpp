@@ -6,6 +6,8 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Editor/EditorWindow.h"
 #include "InputManager.h"
+#include "InputKeyboard.h"
+#include "InputMouse.h"
 
 Input* Input::instance = nullptr;
 
@@ -33,11 +35,11 @@ Input::Input()
 	UseHighPrecisionMouseInput = false;
 	IManager = new InputManager();
 	IManager->InitInterfaces();
-	//ProcessInput();
 }
 
 Input::~Input()
-{}
+{
+}
 
 Input * Input::Get()
 {
@@ -47,30 +49,23 @@ Input * Input::Get()
 void Input::Clear()
 {
 	KeyMap.clear();
-	MouseWheelUpThisFrame = false;
-	MouseWheelDownThisFrame = false;
 	DidJustPause = false;
-	MouseWheelDelta = 0;
 }
 
 void Input::ForceClear()
 {
 	Clear();
-	for (int i = 0; i < MAX_MOUSE_BUTTON_COUNT; i++)
-	{
-		instance->MouseKeyData[i] = false;
-	}
 	DidJustPause = true;
 }
 
 bool Input::GetMouseWheelUp()
 {
-	return Get()->MouseWheelUpThisFrame;
+	return GetInputManager()->GetMouse(0)->GetMouseWheelUp();
 }
 
 bool Input::GetMouseWheelDown()
 {
-	return Get()->MouseWheelDownThisFrame;
+	return GetInputManager()->GetMouse(0)->GetMouseWheelDown();
 }
 
 void Input::ResetMouse()
@@ -84,9 +79,18 @@ InputManager * Input::GetInputManager()
 	return instance->IManager;
 }
 
+bool Input::SendInputEvents()
+{
+	return true;
+}
+
+void Input::AddUIEvent(UIInputEvent Event)
+{
+	instance->Events.push_back(Event);
+}
+
 void Input::ProcessInput()
 {
-
 	IManager->Tick();
 	bool PreviousValue = IsActiveWindow;
 	IsActiveWindow = PlatformWindow::IsActiveWindow();
@@ -102,17 +106,7 @@ void Input::ProcessInput()
 	}
 }
 
-bool Input::MouseLBDown(int, int)
-{
-	return true;
-}
-
-bool Input::MouseLBUp(int, int)
-{
-	return true;
-}
-
-bool Input::MouseMove(int x, int y, double)
+bool Input::MouseMove(int x, int y)
 {
 	if (!PlatformWindow::IsActiveWindow())
 	{
@@ -173,20 +167,6 @@ bool Input::ProcessKeyUp(unsigned int key)
 	return true;
 }
 
-void Input::ProcessMouseWheel(float Delta)
-{
-	MouseWheelDelta = Delta;
-	const float DeltaMin = 0.5f;
-	if (Delta > DeltaMin)
-	{
-		MouseWheelUpThisFrame = true;
-	}
-	if (Delta < -DeltaMin)
-	{
-		MouseWheelDownThisFrame = true;
-	}
-}
-
 
 void Input::SetCursorState(bool Locked, bool Visible)
 {
@@ -216,31 +196,27 @@ void Input::LockCursor(bool state)
 	instance->LockMouse = state;
 }
 
-void Input::ReceiveMouseMessage(int Button, bool state)
+bool Input::GetMouseButtonDown(MouseButton::Type button)
 {
-	if (instance->DidJustPause)
+	if (UIManager::Get()->IsUIBlocking())
 	{
-		return;
+		return false;
 	}
-	if (instance != nullptr)
-	{
-		if (MAX_MOUSE_BUTTON_COUNT > Button && Button >= 0)
-		{
-			instance->MouseKeyData[Button] = state;
-		}
-	}
+	return GetInputManager()->GetMouse(0)->GetButtonDown(button);
 }
 
-bool Input::GetMouseButtonDown(int button)
+float Input::GetMouseWheelAxis()
 {
-	if (instance != nullptr)
+	return GetInputManager()->GetMouse()->GetMouseWheelDelta();
+}
+
+bool Input::GetMouseButton(MouseButton::Type button)
+{
+	if (UIManager::Get()->IsUIBlocking())
 	{
-		if (MAX_MOUSE_BUTTON_COUNT > button && button >= 0)
-		{
-			return instance->MouseKeyData[button];
-		}
+		return false;
 	}
-	return false;
+	return GetInputManager()->GetMouse(0)->GetButton(button);
 }
 
 void Input::SetCursorVisible(bool state)
@@ -267,65 +243,28 @@ IntPoint Input::GetMousePos()
 	return IntPoint();
 }
 
-bool Input::GetKeyDown(int c)
+bool Input::GetKeyDown(KeyCode::Type key)
 {
-	if (instance != nullptr)
-	{
-		//#Input use array of keys?
-		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
-		{
-			return instance->KeyMap.at((int)c);
-		}
-	}
-	return false;
-}
-//A key is in the keymap only if we recived an event for it this frame so false is key up in this case.
-bool Input::GetKeyUp(int c)
-{
-	if (instance != nullptr)
-	{
-		//#Input: use array of keys?
-		if (instance->KeyMap.find((int)c) != instance->KeyMap.end())
-		{
-			return !instance->KeyMap.at((int)c);
-		}
-	}
-	return false;
+	return GetInputManager()->GetKeyboard(0)->IsKeyDown(key);
 }
 
-bool Input::GetKey(char c)
+bool Input::GetKey(KeyCode::Type key)
 {
-	if (instance == nullptr)
-	{
-		return false;
-	}
-	if (!instance->IsActiveWindow)
-	{
-		return false;
-	}
-	short key = PlatformWindow::GetApplication()->GetCharAsVirtualKey(c);
-	return GetVKey(key);
+	return GetInputManager()->GetKeyboard(0)->IsKey(key);
 }
 
-bool Input::GetVKey(short key)
+bool Input::GetKeyUp(KeyCode::Type key)
 {
-	if (instance == nullptr)
-	{
-		return false;
-	}
-	if (!instance->IsActiveWindow)
-	{
-		return false;
-	}
-	if (UIManager::GetCurrentContext() != nullptr)
-	{
-		return false;
-	}
-	return PlatformWindow::GetApplication()->IsKeyDown(key);
+	return GetInputManager()->GetKeyboard(0)->IsKeyUp(key);
 }
+
 
 glm::vec2 Input::GetMouseInputAsAxis()
 {
+	//if (GetInputManager() && GetInputManager()->GetMouse(0))
+	//{
+	//	return GetInputManager()->GetMouse(0)->GetMouseDeltaAxis();
+	//}
 	if (instance != nullptr)
 	{
 		if (glm::length2(instance->MouseAxis) > 0.0f)

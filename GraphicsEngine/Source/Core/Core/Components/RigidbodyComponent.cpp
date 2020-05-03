@@ -112,9 +112,9 @@ glm::vec3 RigidbodyComponent::GetVelocity()
 #if WITH_EDITOR
 void RigidbodyComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	InspectorProperyGroup group = Inspector::CreatePropertyGroup("RigidBody Component");
-	group.SubProps.push_back(Inspector::CreateProperty("Mass", EditValueType::Float, &mass));
-	props.push_back(group);
+//	InspectorProperyGroup group = Inspector::CreatePropertyGroup("RigidBody Component");
+////	group.SubProps.push_back(Inspector::CreateProperty("Mass", EditValueType::Float, &mass));
+//	props.push_back(group);
 }
 #endif
 void RigidbodyComponent::ProcessSerialArchive(Archive * A)

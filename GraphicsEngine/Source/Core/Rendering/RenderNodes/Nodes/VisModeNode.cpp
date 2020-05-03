@@ -48,6 +48,9 @@ void VisModeNode::OnExecute()
 		SceneRenderer::Get()->GetVoxelScene()->RenderVoxelDebug(DebugList, FB);
 		//VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB,VoxelTracingEngine::Get()->VoxelMap);
 		break;
+	case ERenderDebugOutput::RelfectionBuffer:
+		VisTexturesimple(mode);
+		break;
 	case ERenderDebugOutput::Scene_EdgeDetect:	
 		VisTexturesimple(mode);
 		break;
@@ -80,7 +83,7 @@ void VisModeNode::OnSetupNode()
 }
 void VisModeNode::VisTexturesimple(ERenderDebugOutput::Type mode)
 {
-	if (!RHI::GetRenderSettings()->GetVRXSettings().UseVRX())
+	if (!RHI::GetRenderSettings()->GetVRXSettings().UseVRX() && mode != ERenderDebugOutput::RelfectionBuffer)
 	{
 		return;
 	}
@@ -110,6 +113,10 @@ void VisModeNode::VisTexturesimple(ERenderDebugOutput::Type mode)
 		}
 		desc.ShaderInUse = Pair;
 		DebugList->SetPipelineStateDesc(desc);
+		DebugList->SetFrameBufferTexture(target, 0);
+	}
+	if (mode == ERenderDebugOutput::RelfectionBuffer)
+	{
 		DebugList->SetFrameBufferTexture(target, 0);
 	}
 	DebugList->BeginRenderPass(RHIRenderPassDesc(FB, ERenderPassLoadOp::Clear));

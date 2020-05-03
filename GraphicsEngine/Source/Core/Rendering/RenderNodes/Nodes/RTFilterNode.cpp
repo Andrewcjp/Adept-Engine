@@ -75,7 +75,7 @@ void RTFilterNode::OnExecute()
 void RTFilterNode::RefreshNode()
 {
 	Params.Clear = 0;	
-	if (Input::GetKeyDown('L') 
+	if (Input::GetKeyDown(KeyCode::L)
 #if 0//WITH_EDITOR
 		|| EditorWindow::GetInstance()->EditorCamera->Controller->IsMoving()
 #endif
