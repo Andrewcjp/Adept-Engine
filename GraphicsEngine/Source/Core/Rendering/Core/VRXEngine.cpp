@@ -144,7 +144,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->VRRClassifyShader);
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Classify");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Classify");
 		list->SetPipelineStateDesc(Desc);
 		list->SetTexture2(ShadingImage, "RateImage");
 		Get()->TileData->SetBufferState(list, EBufferResourceState::UnorderedAccess);
@@ -167,7 +167,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 #if 0
 	if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Copy Step");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Copy Step");
 		if (Get()->TempResolveSpace == nullptr || Get()->TempResolveSpace->GetDescription().Width != Target->GetWidth() || Get()->TempResolveSpace->GetDescription().Height != Target->GetHeight())
 		{
 			if (Get()->TempResolveSpace)
@@ -193,7 +193,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	UAVFormatConverter::UnPackToTmpResource(&Get()->TempResolveSpace, list, Target->GetDescription().RenderTargets[0]);
 #endif
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve|Varable Write");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Varable Write");
 		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 		list->SetPipelineStateDesc(Desc);
 		RHICommandSignitureDescription SigDesc;

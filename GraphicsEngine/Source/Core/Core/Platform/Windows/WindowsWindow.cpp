@@ -17,6 +17,7 @@
 #include <commctrl.h>
 #include "Core/Input/Interfaces/Windows/WindowsInputInterface.h"
 #include "UI/UIManager.h"
+#include "Core/Input/TextInputHandler.h"
 
 
 
@@ -387,7 +388,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		if (app->m_engine->GetRenderWindow())
 		{
 			app->TargetWidth = LOWORD(lparam);
-			app->TargetHeight = HIWORD(lparam);		
+			app->TargetHeight = HIWORD(lparam);
 		}
 		break;
 	case WM_CLOSE:
@@ -396,7 +397,7 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_NCMOUSEMOVE:
 	case WM_MOUSEMOVE:
 		if (app->m_engine->GetRenderWindow())
-		{			
+		{
 			IntPoint point = PlatformWindow::GetApplication()->GetMousePos();
 			Input::Get()->MouseMove(point.x, Math::Max(point.y, 0));
 			UIManager::Get()->MouseMove(point.x, Math::Max(point.y, 0));
@@ -410,6 +411,10 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 		if (!bIsRepeat)
 		{
 			app->m_engine->HandleInput(LOWORD(wparam));
+			if (TextInputHandler::Get())
+			{
+				TextInputHandler::Get()->ProcessKeyDown(LOWORD(wparam));
+			}
 		}
 		break;
 	}
@@ -453,6 +458,18 @@ LRESULT CALLBACK WindowsWindow::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	case WM_COMMAND:
+	{
+		int wID = LOWORD(wparam);
+		for (int i = 0; i < app->MenuBars.size(); i++)
+		{
+			if (app->MenuBars[i].Execute(wID))
+			{
+				break;
+			}
+		}
+	}
+	break;
 	default:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
@@ -480,12 +497,15 @@ void WindowsWindow::AttemptResize()
 void WindowsWindow::AddMenuBar(const PlatformMenuBar & MenuBar)
 {
 	HMENU NewMenu = CreateMenu();
-	//MenuBar.MenuCMDOffset = 0;
+	PlatformMenuBar MenuCopy = MenuBar;
+	MenuCopy.MenuCMDOffset = app->MenuBars.size() * 100;
 	for (int i = 0; i < MenuBar.MenuItems.size(); i++)
 	{
-		AppendMenuW(NewMenu, MF_STRING, MenuBar.MenuCMDOffset + i, StringUtils::ConvertStringToWide(MenuBar.MenuItems[i]).c_str());
+		AppendMenuW(NewMenu, MF_STRING, MenuCopy.MenuCMDOffset + MenuCopy.GetIdForMenuItem(i), StringUtils::ConvertStringToWide(MenuCopy.MenuItems[i]).c_str());
 	}
-	AppendMenuW(app->hMenubar, MF_POPUP, (UINT_PTR)NewMenu, StringUtils::ConvertStringToWide(MenuBar.MenuName).c_str());
+	AppendMenuW(app->hMenubar, MF_POPUP, (UINT_PTR)NewMenu, StringUtils::ConvertStringToWide(MenuCopy.MenuName).c_str());
 	SetMenu(app->HWindow, app->hMenubar);
+	app->MenuBars.push_back(MenuCopy);
+
 }
 #endif

@@ -70,5 +70,6 @@ private:
 	Shader_TexturedUI* Quad = nullptr;
 	BaseTextureRef LoadingTex = nullptr;
 	BaseTextureRef PauseTex = nullptr;
+	friend class UIManager;
 };
 

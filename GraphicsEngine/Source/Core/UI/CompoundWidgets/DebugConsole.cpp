@@ -9,6 +9,7 @@
 #include "UI/UIManager.h"
 #include "UIGraph.h"
 #include <cctype>
+#include "Core/Input/TextInputHandler.h"
 
 DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 {
@@ -16,6 +17,16 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 	Textlabel = new UILabel(">", w, h / 2, x, y);
 	SuggestBox = new UILabel("", w, h / 2, x, y);
 	ResponseLabel = new UILabel("", w, h / 2, x, y);
+	EditField->SetRootSpaceSize(w, h, 0, 0);
+	Textlabel->SetRootSpaceSize(w, h / 2, 0, 0);
+	SuggestBox->SetRootSpaceSize(w, h / 2, 0, h / 2);
+	ResponseLabel->SetRootSpaceSize(w, h / 2, 0, h / 2);
+	Textlabel->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
+	EditField->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
+	SuggestBox->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
+	ResponseLabel->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
+
+
 	Textlabel->TextScale = 0.3f;
 	EditField->SetEnabled(false);
 	LastText = ">";
@@ -30,6 +41,7 @@ DebugConsole::DebugConsole(int w, int h, int  x, int  y) :UIWidget(w, h, x, y)
 	GetTransfrom()->SetStretchMode(EAxisStretch::Width);
 	Close();
 	BatchMode = EWidgetBatchMode::On;
+	DisplayStartChar = ">";
 }
 
 
@@ -46,28 +58,28 @@ void DebugConsole::Render()
 void DebugConsole::Open()
 {
 	IsOpen = true;
-	UIManager::SetCurrentcontext(this);
 
-	nextext = ">";
+	m_CurrentValue = "";
 	EditField->SetEnabled(IsOpen);
 	SetEnabled(true);
+	TextInputHandler::Get()->SetInputContext(this);
 }
 
-void DebugConsole::ResizeView(int w, int h, int x, int y)
-{
-	EditField->ResizeView(w, h, x, y);
-	const int size = h / 2;
-	Textlabel->ResizeView(w, size, x, y + h / 3);
-	ResponseLabel->ResizeView(w, size, x, y);
-	SuggestBox->ResizeView(w, size, x, y);
-}
+//void DebugConsole::ResizeView(int w, int h, int x, int y)
+//{
+//	EditField->ResizeView(w, h, x, y);
+//	const int size = h / 2;
+//	Textlabel->ResizeView(w, size, x, y + h / 3);
+//	ResponseLabel->ResizeView(w, size, x, y);
+//	SuggestBox->ResizeView(w, size, x, y);
+//}
 
 static ConsoleVariable showgraph("ui.showgraph", 0, ECVarType::ConsoleAndLaunch);
 void DebugConsole::ExecCommand(std::string command)
 {
 	Log::LogMessage("Exec: " + command);
 	SuggestBox->SetText("");
-	nextext = "";
+	m_CurrentValue = "";
 	LastCommand = command;
 	StringUtils::RemoveChar(command, ">");
 	ConsoleVariable* Var = nullptr;
@@ -86,81 +98,39 @@ void DebugConsole::Close()
 	IsOpen = false;
 	EditField->SetEnabled(false);
 	ClearInput();
-	Textlabel->SetText(nextext);
+	Textlabel->SetText(m_CurrentValue);
+	if (TextInputHandler::Get()->IsUsing(this))
+	{
+		TextInputHandler::Get()->AcceptValue();
+	}
 
-	UIManager::SetCurrentcontext(nullptr);
 	SetEnabled(false);
 }
 
 void DebugConsole::ClearInput()
 {
-	nextext = ">";
-	LastText = ">";
-	Textlabel->SetText(nextext);
+	m_CurrentValue = "";
+	LastText = "";
+	Textlabel->SetText(m_CurrentValue);
 }
 
 #ifdef PLATFORM_WINDOWS
 #include "Core/MinWindows.h"
 #endif
-void DebugConsole::ProcessKeyDown(UINT_PTR key)
-{
-#ifdef PLATFORM_WINDOWS
-	if (key == VK_DELETE)
-	{
-		nextext = ">";
-	}
-	else if (key == VK_RETURN)
-	{
-		ExecCommand(nextext);
-		return;
-	}
-	else if (key == VK_ESCAPE)
-	{
-		nextext = LastText;
-		UIManager::SetCurrentcontext(nullptr);
-		Close();
-	}
-	else if (key == VK_BACK)
-	{
-		if (nextext.length() > 1)
-		{
-			nextext.erase(nextext.end() - 1);
-		}
-	}
-	else if (key == VK_UP)
-	{
-		nextext = LastCommand;
-	}
-	else if (key == VK_TAB)
-	{
-		if (CurrentTopCvar != nullptr)
-		{
-			nextext = ">" + CurrentTopCvar->GetName();
-		}
-	}
-	else
-	{
-		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
-		if (c == '`')
-		{
-			Close();
-		}
-		else if (c != 0)
-		{
-			nextext.append(1, (char)std::tolower(c));
-		}
-	}
-	//todo: Cursor Movement
-	Textlabel->SetText(nextext);
-	UpdateSugestions();
-#endif
-}
+
 void DebugConsole::UpdateData()
 {
 #ifdef PLATFORM_WINDOWS
-	if (Input::GetKeyDown(KeyCode::Tidle))
+	if (Input::GetKeyDown(KeyCode::Tidle, EInputChannel::Global))
 	{
-		Open();
+		if (IsOpen)
+		{
+			Close();
+		}
+		else
+		{
+			Open();
+		}
 	}
 #endif
 }
@@ -169,8 +139,8 @@ void DebugConsole::UpdateSugestions()
 	const int maxsuggestions = 10;
 	std::string output;
 	int Count = 0;
-	std::string cmd = nextext;
-	cmd.erase(0, 1);
+	std::string cmd = m_CurrentValue;
+	//cmd.erase(0, 1);
 	for (int i = 0; i < ConsoleVariableManager::Instance->ConsoleVars.size(); i++)
 	{
 		ConsoleVariable* cv = ConsoleVariableManager::Instance->ConsoleVars[i];
@@ -205,4 +175,22 @@ bool DebugConsole::MatchStart(std::string A, std::string B)
 		}
 	}
 	return true;
+}
+
+void DebugConsole::ReceiveCommitedText(const std::string& text)
+{
+	m_CurrentValue = text;
+	ExecCommand(text);
+}
+
+std::string DebugConsole::GetStartValue()
+{
+	return m_CurrentValue;
+}
+
+void DebugConsole::OnUpdate(const std::string & DisplayText)
+{
+	m_CurrentValue = TextInputHandler::Get()->GetCurrentValue();
+	UpdateSugestions();
+	Textlabel->SetText(DisplayText);
 }

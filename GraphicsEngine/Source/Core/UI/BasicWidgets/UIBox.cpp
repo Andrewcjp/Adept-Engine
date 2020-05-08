@@ -75,7 +75,7 @@ void UIBox::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 	float ypos = (float)Y;
 	const float h = mheight;
 	const float w = mwidth;
-	if (GetOwningContext() != nullptr)
+	if (GetOwningContext() != nullptr && !SkipRender)
 	{
 		UIRenderBatch* RenderBatch = nullptr;
 		if (Groupbatchptr != nullptr)

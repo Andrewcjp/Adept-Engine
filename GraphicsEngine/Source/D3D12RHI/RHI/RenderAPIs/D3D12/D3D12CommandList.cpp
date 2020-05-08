@@ -707,6 +707,7 @@ void D3D12CommandList::FlushBarriers()
 void D3D12CommandList::AddTransition(D3D12_RESOURCE_BARRIER transition)
 {
 	QueuedBarriers.push_back(transition);
+	//FlushBarriers();
 }
 
 void D3D12CommandList::ClearUAVFloat(RHIBuffer* buffer)

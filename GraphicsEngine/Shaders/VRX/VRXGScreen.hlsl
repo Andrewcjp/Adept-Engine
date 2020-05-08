@@ -116,7 +116,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 	}
 	else
 	{
-		RateData[DTid.xy] = SHADING_RATE_2X2;// DetmineRate(Origin);
+		RateData[DTid.xy] = DetmineRate(Origin);
 	}
 }
 

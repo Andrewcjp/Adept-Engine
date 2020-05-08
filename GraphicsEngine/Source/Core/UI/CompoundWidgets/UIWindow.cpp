@@ -19,6 +19,7 @@ UIWindow::UIWindow() :UIBox(0, 0, 0, 0)
 	UpdateSize();
 	Priority = 1000;
 	IsFloating = true;
+
 }
 
 void UIWindow::UpdateSize()

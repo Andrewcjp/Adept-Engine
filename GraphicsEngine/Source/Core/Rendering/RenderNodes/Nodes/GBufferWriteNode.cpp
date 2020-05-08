@@ -65,13 +65,14 @@ void GBufferWriteNode::OnExecute()
 		{
 			Test = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRX_EdgeDetect_PS" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
 		}
+		FrameBuffer* TargetBuffer = GetFrameBufferFromInput(1);
 		GBuffer->SetResourceState(CommandList, EResourceState::PixelShader);
-		GetFrameBufferFromInput(1)->SetResourceState(CommandList, EResourceState::RenderTarget);
+		TargetBuffer->SetResourceState(CommandList, EResourceState::RenderTarget);
 		desc = RHIPipeLineStateDesc::CreateDefault(Test, GetFrameBufferFromInput(1));
 		desc.DepthStencilState.DepthEnable = false;
 		desc.InitOLD(false, false, false);
 		CommandList->SetPipelineStateDesc(desc);
-		CommandList->BeginRenderPass(RHIRenderPassDesc(GetFrameBufferFromInput(1), ERenderPassLoadOp::Clear));
+		CommandList->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 		CommandList->SetFrameBufferTexture(GBuffer, "GBuffer_Normal", 1);
 		glm::ivec2 Resoloution = Screen::GetScaledRes();
 		CommandList->SetRootConstant("ResData", 2, &Resoloution);
@@ -80,7 +81,7 @@ void GBufferWriteNode::OnExecute()
 	//	CommandList->SetFrameBufferTexture(GBuffer, "GBuffer_Depth", 2);
 		SceneRenderer::DrawScreenQuad(CommandList);
 		CommandList->EndRenderPass();
-		GetFrameBufferFromInput(1)->SetResourceState(CommandList, EResourceState::Non_PixelShader);
+		TargetBuffer->SetResourceState(CommandList, EResourceState::Non_PixelShader);
 		GBuffer->GetDepthStencil()->SetState(CommandList, EResourceState::RenderTarget);
 	}
 #endif

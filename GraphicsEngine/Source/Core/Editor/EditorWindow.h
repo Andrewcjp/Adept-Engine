@@ -29,7 +29,7 @@ public:
 	CORE_API bool IsEditorEjected();
 	bool IsInPlayMode();;
 	class Editor_Camera* EditorCamera = nullptr;
-protected:
+
 	bool IsSceneRunning();
 	Scene* GetCurrentScene() override;
 	void PrePhysicsUpdate();
@@ -41,6 +41,7 @@ protected:
 	void WindowUI() override;
 	void Update() override;
 	void SaveScene();
+	void NewScene();
 private:
 	bool StartSimulate = false;
 	static EditorWindow* instance;

@@ -47,6 +47,7 @@ public:
 	void UpdateSize(int width, int height);
 	void AddWidget(UIWidget* widget);
 	static void UpdateBatches();
+	bool AnyWindowBlocks(int x, int y);
 	void UpdateInput();
 	void UpdateWidgets();
 	void RenderWidgets();

@@ -21,13 +21,22 @@ struct PlatformMenuBar
 		MenuItems.push_back(name);
 	}
 	//Internal data
-	int MenuCMDOffset;
-	void Execute(int index)
+	int MenuCMDOffset = 0;
+	bool Execute(int index)
 	{
+		if (index < MenuCMDOffset || MenuCMDOffset + MenuItems.size() < index)
+		{
+			return false;
+		}
 		if (SingleHandleFuncPTR != nullptr)
 		{
-			SingleHandleFuncPTR(index);
+			SingleHandleFuncPTR(abs(index - MenuCMDOffset));
+			return true;
 		}
+	}
+	int GetIdForMenuItem(int i)const
+	{
+		return i;
 	}
 };
 class GenericWindow

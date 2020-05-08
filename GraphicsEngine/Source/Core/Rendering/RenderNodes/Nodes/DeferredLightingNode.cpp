@@ -103,10 +103,8 @@ void DeferredLightingNode::OnExecute()
 	List->EndRenderPass();
 
 
-#if !TEST_VRR
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
-#endif
 	List->EndTimer(EGPUTIMERS::DeferredLighting);
 #if USEPS_VRR
 	if (VRXImage != nullptr)

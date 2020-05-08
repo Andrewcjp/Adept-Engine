@@ -56,15 +56,12 @@ class RHIFence;
 #define MAX_GPU_DEVICE_COUNT 3
 #define ALLOW_RESOURCE_CAPTURE 0
 #define LOG_RESOURCE_TRANSITIONS 0
-#define NOSHADOW 0 //BASIC_RENDER_ONLY
 #define MAX_RENDERTARGETS 8
 #ifdef PLATFORM_RT
 #define RHI_SUPPORTS_RT 1
 #else
 #define RHI_SUPPORTS_RT 0
 #endif
-#define TEST_VRR 0
-#define TEST_VRS 1
 class RHI
 {
 public:

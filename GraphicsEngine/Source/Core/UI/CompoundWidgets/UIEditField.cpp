@@ -7,63 +7,22 @@
 #include "UI/CompoundWidgets/UIButton.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
+#include "Core/Input/TextInputHandler.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;
-	Namelabel = new UILabel("name ", w / 2, h, x, y);
-	Textlabel = new UILabel(" data", w / 2, h, x + w / 2, y);
-	AddChild(Namelabel);
+	//Namelabel = new UILabel("name ", w / 2, h, x, y);
+	Textlabel = new UILabel(" data", w, h, x, y);
+	//AddChild(Namelabel);
 	AddChild(Textlabel);
 	Rect = CollisionRect(w, h, x, y);
 	Enabled = true;
 }
 #if WITH_EDITOR
-UIEditField::UIEditField(Inspector::InspectorPropery* Targetprop) : UIEditField(0, 0, 0, 0)
-{
-//	FilterType = Targetprop->type;
-	Namelabel->SetText(Targetprop->name);
-	Valueptr = Targetprop->ValuePtr;
-	Property = *Targetprop;
-	if (Targetprop->type == MemberValueType::Bool)
-	{
-		Textlabel->SetEnabled(false);
-
-	}
-	else
-	{
-		Textlabel->SetText(nextext);
-	}
-
-	if (FilterType != MemberValueType::Bool)
-	{
-		TextBox = new UIBox(0, 0, 0, 0);
-
-		TextBox->BackgoundColour = glm::vec3(0.25f);
-		TextBox->Colour = glm::vec3(0.7f);
-		AddChild(TextBox);
-	}
-	else if (FilterType == MemberValueType::Bool)
-	{
-		Toggle = new UIButton(0, 0, 0, 0);
-		Toggle->BackgoundColour = glm::vec3(0.25f);
-		Toggle->Colour = glm::vec3(0.7f);
-		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
-		AddChild(Toggle);
-	}
-	SupportsScroll = (FilterType == MemberValueType::Float);//todo: int
-	if (Valueptr != nullptr)
-	{
-		GetValueText(nextext);
-		Textlabel->SetText(nextext);
-	}
-	AddChild(Namelabel);
-	AddChild(Textlabel);
-}
 UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0, 0)
 {
 	FilterType = Targetprop->m_Type;
-	Namelabel->SetText(Targetprop->GetDisplayName());
-	Valueptr = Targetprop->m_pDataPtr;
+	//	Namelabel->SetText(Targetprop->GetDisplayName());
 	Node = Targetprop;
 	if (Targetprop->m_Type == MemberValueType::Bool)
 	{
@@ -76,11 +35,11 @@ UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0,
 
 	if (FilterType != MemberValueType::Bool)
 	{
-		TextBox = new UIBox(0, 0, 0, 0);
+		//TextBox = new UIBox(0, 0, 0, 0);
 
-		TextBox->BackgoundColour = glm::vec3(0.25f);
-		TextBox->Colour = glm::vec3(0.7f);
-		AddChild(TextBox);
+		BackgoundColour = glm::vec3(0.25f);
+		Colour = glm::vec3(0.7f);
+		//AddChild(TextBox);
 	}
 	else if (FilterType == MemberValueType::Bool)
 	{
@@ -91,12 +50,12 @@ UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0,
 		AddChild(Toggle);
 	}
 	SupportsScroll = (FilterType == MemberValueType::Float);//todo: int
-	if (Valueptr != nullptr)
+	if (Node != nullptr)
 	{
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
 	}
-	AddChild(Namelabel);
+	//AddChild(Namelabel);
 	AddChild(Textlabel);
 }
 #endif
@@ -105,7 +64,7 @@ UIEditField::~UIEditField()
 
 void UIEditField::SetLabel(std::string lavel)
 {
-	Namelabel->SetText(lavel);
+	//	Namelabel->SetText(lavel);
 }
 
 void UIEditField::MouseMove(int x, int y)
@@ -116,13 +75,13 @@ void UIEditField::MouseMove(int x, int y)
 	}
 	if (Scrolling)
 	{
-		if (Valueptr == nullptr)
+		if (Node == nullptr)
 		{
 			Scrolling = false;
 		}
 		else
 		{
-			*((float*)Valueptr) = StartValue + ((startx - x)*ScrollScale);
+			Node->SetFloat(StartValue + ((startx - x)*ScrollScale));
 			GetValueText(nextext);
 			Textlabel->SetText(nextext);
 			SendValue();
@@ -134,14 +93,13 @@ void UIEditField::MouseMove(int x, int y)
 		Toggle->MouseMove(x, y);
 		return;
 	}
-	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
+	if (ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
 		WasSelected = true;
 		PlatformWindow::SetCursorType(GenericWindow::CursorType::IBeam);
 	}
 	else
 	{
-
 		if (WasSelected)
 		{
 			//works currently but might leak resources;			
@@ -160,7 +118,11 @@ void UIEditField::GetValueText(std::string & string)
 	}
 	if (FilterType == MemberValueType::Bool)
 	{
-		Toggle->SetText(Node->GetAsBool() ? "True " : "False");
+		Toggle->SetCheckBoxState(Node->GetAsBool());
+	}
+	if (FilterType == MemberValueType::String)
+	{
+		string = Node->GetAsString();
 	}
 }
 bool UIEditField::MouseClick(int x, int y)
@@ -170,43 +132,35 @@ bool UIEditField::MouseClick(int x, int y)
 		Toggle->MouseClick(x, y);
 		return false;
 	}
-	if (TextBox == nullptr)
+	if (ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
-		return false;
-	}
-	if (TextBox->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
-	{
-		UIManager::SetCurrentcontext(this);
 		nextext = Textlabel->GetText();
-		LastText = Textlabel->GetText();
-		IsEditing = true;
-		if (Valueptr != nullptr)
+		LastText = Textlabel->GetText();		
+		if (Node != nullptr)
 		{
-			//nextext = *((std::string*)Valueptr);
 			GetValueText(nextext);
 		}
 		ProcessKeyDown(0);
+		TextInputHandler::Get()->SetInputContext(this, FilterType);
 	}
 	else
 	{
-		if (UIManager::GetCurrentContext() == this)
+
+		if (TextInputHandler::Get()->IsUsing(this))
 		{
-			//if we are set un set us!
-			UIManager::SetCurrentcontext(nullptr);
-			//	Textlabel->SetText(nextext);
-			IsEditing = false;
+			TextInputHandler::Get()->AcceptValue();
 		}
 	}
 	if (ValueDrawChangeRect.Contains(x, y))
 	{
 		//__debugbreak();
-		if (Valueptr != nullptr)
+		if (Node != nullptr)
 		{
 			if (FilterType == MemberValueType::Float)
 			{
 				Scrolling = true;
 				startx = x;
-				StartValue = *((float*)Valueptr);
+				StartValue = Node->GetAsFloat();
 			}
 		}
 	}
@@ -230,8 +184,8 @@ void UIEditField::Render()
 	{
 		Toggle->Render();
 	}
-	Namelabel->Render();
-	if (Valueptr != nullptr && !IsEditing)
+	//Namelabel->Render();
+	if (Node != nullptr && !(TextInputHandler::Get()->IsUsing(this)))
 	{
 		GetValueText(nextext);
 		Textlabel->SetText(nextext);
@@ -240,32 +194,28 @@ void UIEditField::Render()
 
 void UIEditField::SendValue()
 {
-	if (Valueptr != nullptr)
+	if (Node != nullptr)
 	{
 		if (FilterType == MemberValueType::String)
 		{
-			//nextext.copy((char*)Valueptr, nextext.length());
-			//std::string Target = *((std::string*)Valueptr);
-			//Target.clear();
-			//Target.append(nextext);
-			*((std::string*)Valueptr) = nextext;
+			Node->SetString(nextext);
 		}
 		else if (FilterType == MemberValueType::Float)
 		{
 			float out = (float)atof(nextext.c_str());
 
-			*((float*)Valueptr) = out;
+			Node->SetFloat(out);
 		}
 		else if (FilterType == MemberValueType::Bool)
 		{
-			*((bool*)(Valueptr)) = !*((bool*)(Valueptr));
-			Toggle->SetText(*((bool*)(Valueptr)) ? "True" : "False");
+			Node->SetBool(!Node->GetAsBool());
+			//	Toggle->SetText(Node->GetAsBool() ? "True" : "False");
+			Toggle->SetCheckBoxState(Node->GetAsBool());
 		}
 		else if (FilterType == MemberValueType::Int)
 		{
 			int out = (int)atoi(nextext.c_str());
-
-			*((int*)Valueptr) = out;
+			Node->SetInt(out);
 		}
 #if WITH_EDITOR
 		if (Property.ChangesEditor)
@@ -278,82 +228,9 @@ void UIEditField::SendValue()
 #ifdef PLATFORM_WINDOWS
 void UIEditField::ProcessKeyDown(WPARAM key)
 {
-	if (!Enabled)
-	{
-		return;
-	}
-	if (key == VK_DELETE)
-	{
-		nextext = "";
-	}
-	else if (key == VK_BACK)
-	{
-		if (nextext.length() > 0 && CursorPos > 0)
-		{
-			nextext.erase(CursorPos - 1, 1);
-			if (CursorPos != nextext.length())
-			{
-				CursorPos--;
-			}
-		}
-	}
-	else if (key == VK_RIGHT)
-	{
-		if (CursorPos < nextext.length())
-		{
-			CursorPos++;
-		}
-	}
-	else if (key == VK_LEFT)
-	{
-		if (CursorPos > 0)
-		{
-			CursorPos--;
-		}
-	}
-	else  if (key == VK_RETURN)
-	{
-		UIManager::SetCurrentcontext(nullptr);
-		Textlabel->SetText(nextext);
-		IsEditing = false;
-		SendValue();
-	}
-	else if (key == VK_ESCAPE)
-	{
-		nextext = LastText;
-		IsEditing = false;
-		Textlabel->SetText(nextext);
-		UIManager::SetCurrentcontext(nullptr);
-	}
-	else if (key != 0)
-	{
 
-		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
-		if (!(GetKeyState(VK_LSHIFT) & 0x8000) && !(GetKeyState(VK_RSHIFT) & 0x8000))
-		{
-			c = (char)std::tolower(c);
-		}
-		if (CheckValidInput(c))
-		{
-			CursorPos++;
-			nextext.append(1, c);
-		}
-	}
-	CursorPos = glm::clamp(CursorPos, 0, (int)nextext.length());
-	DisplayText = nextext;
-	if (IsEditing)
-	{
-		if (DisplayText.length() > 0 && DisplayText.length() != CursorPos)
-		{
-			DisplayText.insert(CursorPos, "|");
-		}
-		else
-		{
-			DisplayText.append("|");
-		}
-	}
 	//todo: Cursour Movement
-	Textlabel->SetText(DisplayText);
+	//Textlabel->SetText(DisplayText);
 }
 #endif
 bool UIEditField::CheckValidInput(char c)
@@ -386,26 +263,38 @@ void UIEditField::UpdateScaled()
 	int h = GetTransfrom()->GetSizeRootSpace().y;
 
 	//UIBox::ResizeView(w, h, x, y);
-	Namelabel->TextScale = 0.3f;
+	//Namelabel->TextScale = 0.3f;
 	Textlabel->TextScale = 0.3f;
 	int gap = 25;
-	Namelabel->RenderWidgetBounds = true;
-	Namelabel->SetRootSpaceSize((w / 3), h, 0, 0);
-	Textlabel->SetRootSpaceSize((w / 3) + gap, h, (w / 3) + gap, 0);
+	/*Namelabel->RenderWidgetBounds = true;
+	Namelabel->SetRootSpaceSize((w / 3), h, 0, 0);*/
+	Textlabel->SetRootSpaceSize(w, h, 0, 0);
 	if (FilterType == MemberValueType::Bool)
 	{
-		Toggle->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
-	}
-	if (TextBox != nullptr && FilterType != MemberValueType::String)
-	{
-		TextBox->SetRootSpaceSize(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
+		Toggle->SetRootSpaceSize(w, h, 0, 0);
+		Enabled = false;
 	}
 	else
 	{
-		Enabled = false;
+		Enabled = true;
 	}
-	Rect = CollisionRect(((w / 3) * 2) - gap, h, (w / 3) + gap, 0);
+
+	if (TextBox != nullptr /*&& FilterType != MemberValueType::String*/)
+	{
+		//TextBox->SetRootSpaceSize(w, h, gap, 0);
+	}
+	else
+	{
+
+	}
+	Rect = CollisionRect(w, h, 0, 0);
 	//ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
+	if (FilterType == MemberValueType::Bool)
+	{
+		Toggle->SetRootSpaceSize(h, h, (w / 2) - h/2, 0);
+		Toggle->SetCheckBox();
+		SkipRender = true;
+	}
 }
 
 void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
@@ -420,4 +309,21 @@ void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
 #endif
 		e.SetHandled();
 	}
+}
+
+void UIEditField::ReceiveCommitedText(const std::string& text)
+{
+	Textlabel->SetText(text);
+	nextext = text;
+	SendValue();
+}
+
+std::string UIEditField::GetStartValue()
+{
+	return nextext;
+}
+
+void UIEditField::OnUpdate(const std::string & DisplayText)
+{
+	Textlabel->SetText(DisplayText);
 }

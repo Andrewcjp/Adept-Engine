@@ -222,12 +222,10 @@ void EditorWindow::Update()
 	}
 	else
 	{
-#if !BASIC_RENDER_ONLY
 		if (UI->GetInspector() != nullptr)
 		{
 			UI->GetInspector()->SetSelectedObject(nullptr);
 		}
-#endif
 	}
 	if (!Input::GetMouseButton(MouseButton::ButtonRight))
 	{
@@ -361,6 +359,16 @@ void EditorWindow::SaveScene()
 	}
 }
 
+void EditorWindow::NewScene()
+{
+	mEditorCore->SetSelectedObject(nullptr);
+	SceneRenderer::Get()->SetScene(nullptr);
+	delete CurrentScene;
+	CurrentScene = new Scene();
+	SceneRenderer::Get()->SetScene(CurrentScene);
+	RefreshScene();
+}
+
 void EditorWindow::LoadScene()
 {
 	mEditorCore->SetSelectedObject(nullptr);
@@ -387,9 +395,6 @@ void EditorWindow::LoadScene()
 
 void EditorWindow::RefreshScene()
 {
-#if BASIC_RENDER_ONLY
-	return;
-#endif
 	selector->LinkPhysxBodysToGameObjects(CurrentScene->GetObjects());
 	UI->UpdateGameObjectList(CurrentScene->GetObjects());
 	UI->RefreshGameObjectList();

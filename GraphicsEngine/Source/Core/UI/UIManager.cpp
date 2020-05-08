@@ -21,6 +21,7 @@
 #include "EditorUI/EditorOutliner.h"
 #include "Core/Performance/PerfManager.h"
 #include "Core/Input/Input.h"
+#include "Rendering/Core/Screen.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -62,7 +63,9 @@ void UIManager::InitCommonUI()
 	AddWidget(graph);
 	graph->SetEnabled(false);
 	DebugConsole* wid = new DebugConsole(100, 100, 100, 100);
-	wid->SetAbsoluteSize(1920, 40, 0, 40);
+	wid->SetRootSpaceSize(0, 40, 0, 0);
+	wid->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+	wid->GetTransfrom()->SetStretchMode(EAxisStretch::Width);
 	AddWidget(wid);
 }
 #if WITH_EDITOR
@@ -279,12 +282,58 @@ void UIManager::UpdateBatches()
 		instance->Contexts[i]->MarkRenderStateDirty();
 	}
 }
+bool Traverse(UIWidget* w, glm::ivec2 pos)
+{
+	glm::vec4 size = w->GetTransfrom()->GetTransfromRect();
+	CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
+	//w->RenderWidgetBounds = false;
+	if (c.Contains(pos.x, pos.y))
+	{		
+		if (dynamic_cast<UIWindow*>(w) != nullptr)
+		{
+		//	w->RenderWidgetBounds = true;
+			return true;
+		}
+	}
+	for (int i = 0; i < w->Children.size(); i++)
+	{
+		if (Traverse(w->Children[i], pos))
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
+bool UIManager::AnyWindowBlocks(int x, int y)
+{
+	for (int c = 0; c < Contexts.size(); c++)
+	{
+		for (int i = 0; i < Contexts[c]->widgets.size(); i++)
+		{
+			if (Traverse(Contexts[c]->widgets[i], glm::ivec2(x, y)))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 void UIManager::UpdateInput()
 {
-	glm::vec4 size = EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
-	CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
-	Blocking = !c.Contains(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
+
+	glm::vec4 size = glm::vec4(0, 0, Screen::GetWindowRes());
+	if (EditUI->ViewPortImage != nullptr)
+	{
+		size = EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
+		CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
+		Blocking = !c.Contains(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
+		Blocking = AnyWindowBlocks(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
+	}
+	else
+	{
+		Blocking = false;
+	}
 	if (Blocking)
 	{
 		for (int i = 0; i < Input::Get()->Events.size(); i++)

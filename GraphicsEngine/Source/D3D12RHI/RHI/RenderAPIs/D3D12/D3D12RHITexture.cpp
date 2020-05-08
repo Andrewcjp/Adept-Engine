@@ -308,7 +308,7 @@ DescriptorItemDesc D3D12RHITexture::GetItemDesc(const RHIViewDesc & viewDesc) co
 
 void D3D12RHITexture::SetState(RHICommandList* list, EResourceState::Type State, int SubResource)
 {
-	GetResource()->SetResourceState(D3D12RHI::DXConv(list), D3D12Helpers::ConvertRHIState_Safe(State), EResourceTransitionMode::Direct, SubResource);
+	GetResource()->SetResourceState(D3D12RHI::DXConv(list), D3D12Helpers::ConvertRHIState_Safe(State,Desc.IsDepthStencil), EResourceTransitionMode::Direct, SubResource);
 }
 
 

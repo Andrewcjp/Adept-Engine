@@ -63,6 +63,7 @@ private:
 	HMENU hMenubar;
 	int TargetWidth = 0;
 	int TargetHeight = 0;
+	std::vector<PlatformMenuBar> MenuBars;
 };
 typedef WindowsWindow PlatformWindow;
 #endif

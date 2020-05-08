@@ -71,7 +71,20 @@ void UIButton::ResizeView(int w, int h, int x, int y)
 void UIButton::UpdateScaled()
 {
 	UIBox::UpdateScaled();
-	Label->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y, 0, 0);
+	if (IsCheckBox)
+	{
+		Label->SetEnabled(false);
+		CheckMark->SetEnabled(IsCheckBoxChecked);
+		int Size = 10;
+		int HalfSize = Size / 2;
+		CheckMark->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x - Size, GetTransfrom()->GetSizeRootSpace().y - Size, HalfSize, HalfSize);
+		
+	}
+	else
+	{
+		Label->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y, 0, 0);
+	}
+
 }
 
 void UIButton::SetText(std::string  t)
@@ -89,6 +102,22 @@ void UIButton::SetSelected(bool t)
 void UIButton::OnOwnerSet(UIWidgetContext * wc)
 {
 	Label->SetOwner(wc);
+}
+
+void UIButton::SetCheckBox()
+{
+	IsCheckBox = true;
+	if (CheckMark == nullptr)
+	{
+		CheckMark = new UIBox(0, 0);
+		CheckMark->SetEnabled(IsCheckBoxChecked);
+		AddChild(CheckMark);
+	}
+}
+
+void UIButton::SetCheckBoxState(bool state)
+{
+	IsCheckBoxChecked = state;
 }
 
 void UIButton::ProcessUIInputEvent(UIInputEvent& e)

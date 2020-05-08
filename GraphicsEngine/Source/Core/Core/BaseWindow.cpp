@@ -65,10 +65,8 @@ void BaseWindow::InitilseWindow()
 	MeshLoader::Get();
 	SceneRenderer::StartUp();
 	RHI::GetRenderSystem()->InitGraph();
-#if !BASIC_RENDER_ONLY
 	UI = new UIManager();
 	UI->Init(Screen::GetWindowWidth(), Screen::GetWindowHeight());
-#endif
 
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
@@ -78,10 +76,9 @@ void BaseWindow::InitilseWindow()
 	{
 		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
 	}
-#if !BASIC_RENDER_ONLY
 	GPUPerfGraph = new GPUPerformanceGraph();
 	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
-#endif
+
 	PerfManager::Get()->AddTimer("Render", "Render");
 	PerfManager::Get()->AddTimer("UI", "Render");
 	PerfManager::Get()->AddTimer("LineDrawer", "Render");
@@ -117,12 +114,10 @@ void BaseWindow::Render()
 		PerfManager::Instance->StartCPUTimer();
 		PerfManager::Instance->StartFrameTimer();
 	}
-#if !BASIC_RENDER_ONLY
 	if (LoadText)
 	{
 		TextRenderer::instance->Reset();
 	}
-#endif
 	AccumTickTime += DeltaTime;
 	Input::Get()->ProcessInput();
 	AudioEngine::ProcessAudio();
@@ -228,14 +223,13 @@ void BaseWindow::Render()
 #endif
 	RHI::Tick();
 	PerfManager::StartTimer("Render");
-#if !BASIC_RENDER_ONLY
 	if (RHI::GetRenderSettings()->RaytracingEnabled() && RHI::GetFrameCount() != 0)
 	{
 		//RayTracingEngine::Get()->BuildStructures();
 	}
 	DebugLineDrawer::Get2()->GenerateLines();
 	DebugLineDrawer::Get()->GenerateLines();
-#endif
+
 
 	RHI::RHIRunFirstFrame();
 	RHI::GetRenderSystem()->Update();
@@ -243,7 +237,6 @@ void BaseWindow::Render()
 	GPUPerfGraph->Render();
 	RHI::GetRenderSystem()->Render();
 
-#if !BASIC_RENDER_ONLY
 	PerfManager::EndTimer("Render");
 	PerfManager::StartTimer("UI");
 	if (UI != nullptr)
@@ -270,7 +263,7 @@ void BaseWindow::Render()
 	}
 	PerfManager::EndTimer("TEXT");
 	PerfManager::EndTimer("UI");
-#endif
+
 	if (PerfManager::Instance != nullptr)
 	{
 		PerfManager::Instance->EndCPUTimer();

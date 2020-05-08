@@ -230,9 +230,7 @@ void RenderGraph::CreateDefTestgraph()
 #endif
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;
-#if TEST_VRS
 	Desc.VarRateSettings.BufferMode = FrameBufferVariableRateSettings::VRR;
-#endif
 	Desc.AllowDynamicResize = true;
 	MainBuffer->SetFrameBufferDesc(Desc);
 	MainBuffer->SetRetained();

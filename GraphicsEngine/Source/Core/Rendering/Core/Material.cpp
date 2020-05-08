@@ -306,9 +306,7 @@ void Material::SetReceiveShadow(bool state)
 	}
 	if (state)
 	{
-#if !NOSHADOW
 		MaterialCData.ShaderKeyWords.push_back(ShadowShaderstring);
-#endif
 	}
 	else
 	{

@@ -12,6 +12,7 @@
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
 #include <vector>
+#include "UI/EditorUI/UIPropertyField.h"
 #if WITH_EDITOR
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
@@ -178,7 +179,7 @@ void Inspector::CreateEditor()
 			Panel->EdgeShrink = 2;
 			for (int j = 0; j < Fields[i].Nodes.size(); j++)
 			{
-				UIWidget* newwidget = nullptr;
+				UIPropertyField* newwidget = nullptr;
 				switch (Fields[i].Nodes[j]->m_Type)
 				{
 				case MemberValueType::Int:
@@ -187,7 +188,9 @@ void Inspector::CreateEditor()
 				case MemberValueType::Vector2:
 				case MemberValueType::Vector3:
 				case MemberValueType::Bool:
-					newwidget = new UIEditField(Fields[i].Nodes[j]);
+					//newwidget = new UIEditField(Fields[i].Nodes[j]);
+					newwidget = new UIPropertyField();
+					newwidget->SetTarget(Fields[i].Nodes[j]);
 					break;
 				default:
 					break;

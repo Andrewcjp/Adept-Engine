@@ -6,6 +6,10 @@
 #include "UI/Core/UITransform.h"
 #include "UI/BasicWidgets/UIImage.h"
 #include "Core/BaseWindow.h"
+#include "Editor/EditorWindow.h"
+#include "Core/GameObject.h"
+#include "Core/Assets/Scene.h"
+#include "EditorSettingsMenu.h"
 
 EditorUI::EditorUI()
 {
@@ -13,23 +17,32 @@ EditorUI::EditorUI()
 	Init();
 }
 
-
 EditorUI::~EditorUI()
 {}
 
 void EditorUI::Init()
 {	
 #ifdef PLATFORM_WINDOWS
-	PlatformMenuBar Menu;
-	Menu.SingleHandleFuncPTR = &EditorUI::HandleCMD;
-	Menu.MenuName = "File";
-	Menu.AddItem("Save");
-	Menu.AddItem("Load");
-	Menu.AddItem("Exit");
-	WindowsWindow::AddMenuBar(Menu);
-#endif
 
-	UIManager::Get()->AddWidgetContext(new UIWidgetContext());
+	FileMenu.SingleHandleFuncPTR = &EditorUI::HandleCMD;
+	FileMenu.MenuName = "File";
+	FileMenu.AddItem("New");
+	FileMenu.AddItem("Save");
+	FileMenu.AddItem("Load");
+	FileMenu.AddItem("Settings");
+	FileMenu.AddItem("Exit");
+	PlatformWindow::AddMenuBar(FileMenu);
+
+	GameObjectMenu.SingleHandleFuncPTR = &EditorUI::HandleCMD_GameObject;
+	GameObjectMenu.MenuName = "Add GameObject";
+	GameObjectMenu.AddItem("New Empty");
+	GameObjectMenu.AddItem("New Cube");
+	PlatformWindow::AddMenuBar(GameObjectMenu);
+#endif
+	Settings = new EditorSettingsMenu();
+	context = new UIWidgetContext();
+	UIManager::Get()->AddWidgetContext(context);
+	Settings->Create(context);
 }
 
 void EditorUI::SetViewPortSize()
@@ -45,9 +58,27 @@ void EditorUI::SetViewPortSize()
 	}
 }
 
+void EditorUI::HandleCMD_GameObject(int index)
+{
+	GameObject* Object = new GameObject("GameObject");
+	EditorWindow::GetInstance()->GetCurrentScene()->AddGameobjectToScene(Object);
+	EditorWindow::GetInstance()->RefreshScene();
+}
+
 void EditorUI::HandleCMD(int index)
 {
-
+	if (index == 0)
+	{
+		EditorWindow::GetInstance()->NewScene();
+	}
+	else if (index == 3)
+	{
+		Instance->Settings->Open();
+	}
+	else if (index == 4)
+	{
+		Engine::RequestExit(0);
+	}
 }
 
 EditorUI* EditorUI::Instance = nullptr;

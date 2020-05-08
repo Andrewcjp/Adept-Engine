@@ -45,7 +45,10 @@ void VisModeNode::OnExecute()
 		RenderForwardMode(mode);
 		break;
 	case ERenderDebugOutput::Scene_Voxel:
-		SceneRenderer::Get()->GetVoxelScene()->RenderVoxelDebug(DebugList, FB);
+		if (SceneRenderer::Get()->GetVoxelScene())
+		{
+			SceneRenderer::Get()->GetVoxelScene()->RenderVoxelDebug(DebugList, FB);
+		}
 		//VoxelTracingEngine::Get()->RenderVoxelDebug(DebugList, FB,VoxelTracingEngine::Get()->VoxelMap);
 		break;
 	case ERenderDebugOutput::RelfectionBuffer:
@@ -87,7 +90,7 @@ void VisModeNode::VisTexturesimple(ERenderDebugOutput::Type mode)
 	{
 		return;
 	}
-	if (!GetInput(1)->IsValid())
+	if (!GetInput(1)->IsValid() || !GetInput(2)->IsValid())
 	{
 		return;
 	}

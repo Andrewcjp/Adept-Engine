@@ -319,13 +319,18 @@ void SceneRenderer::SetScene(Scene * NewScene)
 {
 	TargetScene = NewScene;
 	MeshController->TargetScene = TargetScene;
-	ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
-	
+	if (NewScene != nullptr)
+	{
+		ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
+	}
 	//run update on scene data
 	SceneChanged = true;
 	if (RHI::GetRenderSettings()->RaytracingEnabled())
 	{
-		ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
+		if (NewScene != nullptr)
+		{
+			ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
+		}
 		RayTracingEngine::Get()->UpdateFromScene(TargetScene);
 	}
 	if (mVoxelScene != nullptr)

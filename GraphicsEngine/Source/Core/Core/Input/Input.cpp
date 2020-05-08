@@ -8,6 +8,7 @@
 #include "InputManager.h"
 #include "InputKeyboard.h"
 #include "InputMouse.h"
+#include "TextInputHandler.h"
 
 Input* Input::instance = nullptr;
 
@@ -35,11 +36,11 @@ Input::Input()
 	UseHighPrecisionMouseInput = false;
 	IManager = new InputManager();
 	IManager->InitInterfaces();
+	m_pTextHandler = new TextInputHandler();
 }
 
 Input::~Input()
-{
-}
+{}
 
 Input * Input::Get()
 {
@@ -87,6 +88,34 @@ bool Input::SendInputEvents()
 void Input::AddUIEvent(UIInputEvent Event)
 {
 	instance->Events.push_back(Event);
+}
+
+bool Input::CanReceiveInput(EInputChannel::Type Channel)
+{
+	if (instance->GetCurrentChannel() != Channel && Channel != EInputChannel::Global)
+	{
+		return false;
+	}
+	if (Channel == EInputChannel::Game)
+	{
+		if (UIManager::Get()->IsUIBlocking())//put this on a flag!
+		{
+			return false;
+		}
+	}
+	if (Channel != EInputChannel::TextInput && Channel != EInputChannel::Global)
+	{
+		if (TextInputHandler::Get()->IsActive())
+		{
+			return false;//block input!
+		}
+	}
+	return true;
+}
+
+void Input::SetInputChannel(EInputChannel::Type Channel)
+{
+	instance->m_CurrentChannel = Channel;
 }
 
 void Input::ProcessInput()
@@ -196,9 +225,9 @@ void Input::LockCursor(bool state)
 	instance->LockMouse = state;
 }
 
-bool Input::GetMouseButtonDown(MouseButton::Type button)
+bool Input::GetMouseButtonDown(MouseButton::Type button, EInputChannel::Type Channel/* = EInputChannel::Game*/)
 {
-	if (UIManager::Get()->IsUIBlocking())
+	if (!CanReceiveInput(Channel))
 	{
 		return false;
 	}
@@ -210,9 +239,9 @@ float Input::GetMouseWheelAxis()
 	return GetInputManager()->GetMouse()->GetMouseWheelDelta();
 }
 
-bool Input::GetMouseButton(MouseButton::Type button)
+bool Input::GetMouseButton(MouseButton::Type button, EInputChannel::Type Channel)
 {
-	if (UIManager::Get()->IsUIBlocking())
+	if (!CanReceiveInput(Channel))
 	{
 		return false;
 	}
@@ -243,18 +272,30 @@ IntPoint Input::GetMousePos()
 	return IntPoint();
 }
 
-bool Input::GetKeyDown(KeyCode::Type key)
+bool Input::GetKeyDown(KeyCode::Type key, EInputChannel::Type Channel/* = EInputChannel::Game*/)
 {
+	if (!CanReceiveInput(Channel))
+	{
+		return false;
+	}
 	return GetInputManager()->GetKeyboard(0)->IsKeyDown(key);
 }
 
-bool Input::GetKey(KeyCode::Type key)
+bool Input::GetKey(KeyCode::Type key, EInputChannel::Type Channel/* = EInputChannel::Game*/)
 {
+	if (!CanReceiveInput(Channel))
+	{
+		return false;
+	}
 	return GetInputManager()->GetKeyboard(0)->IsKey(key);
 }
 
-bool Input::GetKeyUp(KeyCode::Type key)
+bool Input::GetKeyUp(KeyCode::Type key, EInputChannel::Type Channel/* = EInputChannel::Game*/)
 {
+	if (!CanReceiveInput(Channel))
+	{
+		return false;
+	}
 	return GetInputManager()->GetKeyboard(0)->IsKeyUp(key);
 }
 

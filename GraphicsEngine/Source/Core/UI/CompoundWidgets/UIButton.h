@@ -25,8 +25,11 @@ public:
 	glm::vec3 SelectedColour = glm::vec3(0, 0, 0.5f);
 	void SetSelected(bool state);
 	virtual void OnOwnerSet(UIWidgetContext* wc) override;
-
+	void SetCheckBox();
+	void SetCheckBoxState(bool state);
 private:
+	bool IsCheckBox = false;
+	bool IsCheckBoxChecked = false;
 	bool IsActiveSelect = false;
 	bool WasSelected = false;
 	std::string Labelstring = "Button";
@@ -34,7 +37,7 @@ private:
 	CollisionRect Rect;
 	std::function<void()> Target;
 	UILabel* Label = nullptr;
-
+	UIBox* CheckMark = nullptr;
 protected:
 	void ProcessUIInputEvent(UIInputEvent& e) override;
 

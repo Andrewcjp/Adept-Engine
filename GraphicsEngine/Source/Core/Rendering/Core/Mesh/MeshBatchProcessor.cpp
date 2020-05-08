@@ -102,7 +102,7 @@ void MeshBatchProcessor::Process(MeshBatch* Batch)
 			}
 		}
 		MeshDrawCommand* command = new MeshDrawCommand();
-		command->Object = Batch->Owner;
+		command->Object = Batch->Owner.Get();
 		if (Batch->InstanceBuffer != nullptr && !DisableInstancing)
 		{
 			command->NumInstances = Batch->InstanceBuffer->GetInstanceCount();

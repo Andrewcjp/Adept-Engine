@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Types/WeakObjectPtr.h"
 
 class Material;
 class MeshInstanceBuffer;
@@ -26,7 +27,7 @@ public:
 	bool CastShadow = true;
 	bool MainPassCulled = false;
 	bool ShadowPassCulled = false;
-	GameObject* Owner = nullptr;
+	WeakObjectPtr<GameObject> Owner = nullptr;
 	void Update();
 	//Are we instanced?
 	bool IsinstancedBatch = false;

@@ -99,6 +99,10 @@ glm::vec2 UITransform::GetSizeRootSpace()
 	{
 		ParentMax = Widget->Parent->GetTransfrom()->GetSizeRootSpace();
 	}
+	else
+	{
+		ParentMax = glm::ivec2(Context->RootSpaceViewport.Max.x, Context->RootSpaceViewport.Max.y);
+	}
 	glm::vec2 RawSize = glm::vec2(Size.x, Size.y);
 	if (ScalingMode == EWidetSizeSpace::RootSpaceScaled)
 	{

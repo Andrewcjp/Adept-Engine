@@ -34,6 +34,18 @@ public:
 	{
 		Init(t);
 	}
+	bool operator==(T* other)
+	{
+		//if (!IsValid() && other == nullptr)
+		//{
+		//	return false;
+		//}
+		return other == RawPtr;
+	}
+	bool operator!=(T* other)
+	{
+		return !operator==(other);
+	}
 	T* operator->() const
 	{
 		return Get();

@@ -162,7 +162,7 @@ void UIDrawBatcher::Render(RHICommandList * list)
 		if (batch->Verts.size() > 0)
 		{
 			SetState(list, batch);
-			list->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(i == 0));
+			list->BeginRenderPass(RHI::GetRenderPassDescForSwapChain(i == 0 && EDITORUI));
 			list->SetVertexBuffer(VertexBuffer);
 			list->DrawPrimitive((int)batch->Verts.size(), 1, offset, 0);
 			list->EndRenderPass();

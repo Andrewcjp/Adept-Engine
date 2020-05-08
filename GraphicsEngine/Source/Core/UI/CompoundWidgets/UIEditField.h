@@ -4,14 +4,14 @@
 #include "UI/Core/CollisionRect.h"
 #include "Editor/Inspector.h"
 #include "Core/Reflection/ClassReflectionNode.h"
+#include "Core/Input/ITextInputReceiver.h"
 class UILabel;
 class UIEditField :
-	public UIBox
+	public UIBox, public ITextInputReceiver
 {
 public:
 	UIEditField(int, int, int, int);
 #if WITH_EDITOR
-	UIEditField(Inspector::InspectorPropery * Targetprop);
 	UIEditField(ClassReflectionNode* Targetprop);
 #endif
 	~UIEditField();
@@ -33,9 +33,12 @@ public:
 
 
 	void ProcessUIInputEvent(UIInputEvent& e) override;
+	void ReceiveCommitedText(const std::string& text) override;
+	std::string GetStartValue() override;
+	void OnUpdate(const std::string & DisplayText) override;
 
 private:
-	UILabel* Namelabel = nullptr;
+
 	UILabel* Textlabel = nullptr;
 	UIBox* TextBox = nullptr;
 	class UIButton* Toggle = nullptr;
@@ -49,8 +52,6 @@ private:
 	EditValueType::Type EditMode = EditValueType::Value;
 	int CursorPos = 0;
 	std::string DisplayText;
-	bool IsEditing = false;
-	void* Valueptr;
 	bool Enabled = true;
 	bool SupportsScroll = true;
 	bool Scrolling = false;

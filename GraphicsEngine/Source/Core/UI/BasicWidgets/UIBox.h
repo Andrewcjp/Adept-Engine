@@ -19,12 +19,13 @@ public:
 
 protected:
 	void Init();
-
+	bool SkipRender = false;
 private:
 	bool Resizeable = false;
 	int WidthOfCollisonRects = 30;//todo: ScreenSpace relative
 	bool Selected = false;
 	CollisionRect RightRect;
 	float EdgeGap = 2.0f;
+	
 };
 

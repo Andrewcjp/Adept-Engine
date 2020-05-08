@@ -55,6 +55,32 @@ public:
 		ensure(m_Type == MemberValueType::Bool);
 		return *((bool*)m_pDataPtr);
 	}
+	std::string GetAsString()
+	{
+		ensure(m_Type == MemberValueType::String);
+		return *((std::string*)m_pDataPtr);
+	}
+	//setters
+	void SetString(std::string value)
+	{
+		ensure(m_Type == MemberValueType::String);
+		*((std::string*)m_pDataPtr) = value;
+	}
+	void SetBool(bool value)
+	{
+		ensure(m_Type == MemberValueType::Bool);
+		*((bool*)m_pDataPtr) = value;
+	}
+	void SetFloat(float value)
+	{
+		ensure(m_Type == MemberValueType::Float);
+		*((float*)m_pDataPtr) = value;
+	}
+	void SetInt(int value)
+	{
+		ensure(m_Type == MemberValueType::Int);
+		*((int*)m_pDataPtr) = value;
+	}
 };
 struct ClassReflectionData
 {
