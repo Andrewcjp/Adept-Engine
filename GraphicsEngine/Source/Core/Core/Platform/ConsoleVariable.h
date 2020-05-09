@@ -2,6 +2,8 @@
 #include "../Utils/TypeUtils.h"
 #include <functional>
 
+class ClassReflectionNode;
+
 
 //Console vars can also be set though the launch arguments
 namespace ECVarType
@@ -20,6 +22,7 @@ class ConsoleVariable
 {
 public:
 	CORE_API ConsoleVariable(std::string name, int DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
+	CORE_API ConsoleVariable(std::string name, bool DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
 	CORE_API ConsoleVariable(std::string name, float DefaultValue, ECVarType::Type cvartype = ECVarType::ConsoleOnly, bool NeedsValue = true);
 	CORE_API ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func = nullptr, std::function<void(bool state)> intfunc = nullptr, std::function<void(float state)> floatfunc = nullptr);
 	~ConsoleVariable()
@@ -60,6 +63,10 @@ public:
 	bool HasValue()const;
 	void SetRawValue(std::string value);
 	std::vector<ConsoleVariable*> LinkedVars;
+	ClassReflectionNode* AccessReflection()
+	{
+		return ReflectionNode;
+	}
 private:
 	ConsoleVariable(std::string name, ECVarType::Type cvartype, bool NeedsValue);
 	std::string Name = "";
@@ -72,6 +79,7 @@ private:
 	ValueUnion CurrentValue;
 	ValueUnion DefaultValue;
 	std::string RawValueString = "";
+	ClassReflectionNode* ReflectionNode = nullptr;
 };
 
 class ConsoleVariableManager
@@ -90,6 +98,7 @@ public:
 	static void DebugLogCVars();
 	static void ExecuteCommand(std::string command);
 	static void ToggleVar(std::string var);
+	ConsoleVariable* Find(std::string name);
 };
 struct IConsoleSettingsVar
 {

@@ -15,10 +15,10 @@ public:
 	int AlignGap = 0;
 	int TopAlignGap = 0;
 	int EdgeShrink = 0;
+	int TextHeight = 30;
 private:
 	std::vector<UIWidget*> SubWidgets;
 	class UILabel* title;
-	int TextHeight = 30;
 	bool UseTitle = false;
 };
 

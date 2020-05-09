@@ -19,14 +19,17 @@ ComponentRegistry::ComponentRegistry()
 
 ComponentRegistry::~ComponentRegistry()
 {}
+
 void ComponentRegistry::RegisterComponent(std::string name, int id)
 {
 	ComponentNameMap.emplace(id, name);
 }
+
 ComponentRegistry * ComponentRegistry::GetInstance()
 {
 	return Engine::CompRegistry;
 }
+
 Component* ComponentRegistry::CreateAdditonalComponent(int id)
 {
 	if (Engine::CompRegistry && Engine::CompRegistry->ECR)
@@ -35,6 +38,7 @@ Component* ComponentRegistry::CreateAdditonalComponent(int id)
 	}
 	return nullptr;
 }
+
 Component* ComponentRegistry::CreateBaseComponent(BaseComponentTypes id)
 {
 	if (Engine::CompRegistry)
@@ -47,6 +51,7 @@ Component* ComponentRegistry::CreateBaseComponent(BaseComponentTypes id)
 	}
 	return nullptr;
 }
+
 Component* ComponentRegistry::Internal_CreateBaseComponent(BaseComponentTypes id)
 {
 	switch (id)
@@ -71,6 +76,7 @@ Component* ComponentRegistry::Internal_CreateBaseComponent(BaseComponentTypes id
 	}
 	return nullptr;
 }
+
 Component* ComponentRegistry::Internal_CreateAdditonalComponent(int id)
 {
 	return ECR->CreateExtraComponent(id);

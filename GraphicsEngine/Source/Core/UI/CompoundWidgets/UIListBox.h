@@ -21,20 +21,23 @@ public:
 	void AddItem(std::string  name);
 	void SetTitle(std::string name);
 	std::function<void(int t)> SelectionChanged;
+	int ItemHeight = 20;
+	int ItemSize = 20;
 private:
 	UIWidget* MaskedPanel = nullptr;
 	std::vector<UIButton*> items;
 	int SelectedCurrent = 0;
 	int CurrentCount = 0;
 	int TitleHeight = 20;
-	int ItemHeight = 20;
 	int Spacing = ItemHeight + 6;
 	int Edgespace = 5;
 	float CurrentScroll = 0;
 	bool ShowScrollBar = false;
-	UIBox* Background;
-	UILabel* TitleLabel;
+	UIBox* Background = nullptr;
+	UILabel* TitleLabel = nullptr;
 	float Scorll = 0;
-	int ItemSize = 20;
+protected:
+	void ProcessUIInputEvent(UIInputEvent& e) override;
+
 };
 

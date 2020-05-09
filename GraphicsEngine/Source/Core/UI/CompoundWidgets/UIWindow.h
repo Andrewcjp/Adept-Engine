@@ -23,12 +23,15 @@ public:
 	void FocusTab(int index);
 	bool GetIsFloating() const { return IsFloating; }
 	void SetIsFloating(bool val);
-	
+	void SetCloseable(bool state);
+	void SetTitle(const std::string& title);
 protected:
+	void CLose();
+	bool IsCloseAble = false;
 	bool IsFloating = false;
-	UILabel* Title = nullptr;
+	UILabel* m_TitleLabel = nullptr;
 	UIPanel* WorkArea = nullptr;
-
+	UIButton* CloseButton = nullptr;
 	void OnGatherBatches(UIRenderBatch* Groupbatchptr = nullptr) override;
 	bool Drag = false;
 	bool DidJustDrag = false;

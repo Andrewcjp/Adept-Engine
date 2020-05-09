@@ -16,7 +16,7 @@ UILayoutManager::~UILayoutManager()
 
 void UILayoutManager::UpdateSlotSizes()
 {
-	const int TopSize = 100;
+	const int TopSize = 50;
 	const int BottomSize = 200;
 	const int SizeSize = 300;
 

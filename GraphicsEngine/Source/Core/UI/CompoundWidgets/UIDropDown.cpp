@@ -4,28 +4,13 @@
 
 UIDropDown::UIDropDown(int w, int h, int x, int y) :UIListBox(w, h, x, y)
 {
-	Priority = 10;
+	Priority = 1000;
 	ResizeView(w, h, x, y);
 	frameCreated = RHI::GetFrameCount();
 }
 
 UIDropDown::~UIDropDown()
 {}
-
-void UIDropDown::Render()
-{
-	UIListBox::Render();
-}
-
-void UIDropDown::ResizeView(int w, int h, int x, int y)
-{
-	UIListBox::ResizeView(w, h, x, y);
-}
-
-void UIDropDown::MouseMove(int x, int y)
-{
-	UIListBox::MouseMove(x, y);
-}
 
 bool UIDropDown::MouseClick(int x, int y)
 {

@@ -2,6 +2,10 @@
 #include "UI/CompoundWidgets/UIWindow.h"
 #include "UI/CompoundWidgets/UITab.h"
 #include "UI/Core/UIWidgetContext.h"
+#include "UIPropertyField.h"
+#include "UI/Core/UIWidget.h"
+#include "UI/CompoundWidgets/UIPanel.h"
+#include "Core/Reflection/ClassReflectionNode.h"
 
 EditorSettingsMenu::EditorSettingsMenu()
 {}
@@ -9,7 +13,10 @@ EditorSettingsMenu::EditorSettingsMenu()
 void EditorSettingsMenu::Create(UIWidgetContext* con)
 {
 	m_Window = new UIWindow();
-	m_Window->SetRootSpaceSize(200, 500, 500, 300);
+	m_Window->SetRootSpaceSize(400, 500, 500, 300);
+	m_Window->SetCloseable(true);
+	m_Window->SetTitle("Settings");
+	Close();
 	con->AddWidget(m_Window);
 	CreateDefaultTab();
 	CreateVRSTab();
@@ -25,10 +32,27 @@ void EditorSettingsMenu::Close()
 	m_Window->SetEnabled(false);
 }
 
+void EditorSettingsMenu::AddCvar(std::string cvar, std::string DisplayName, UITab* tab)
+{
+	ConsoleVariable* CVar = ConsoleVariableManager::Get()->Find(cvar);
+	UIPropertyField* Field = new UIPropertyField();
+	if (CVar)
+	{
+		CVar->AccessReflection()->m_DisplayName = DisplayName;
+		Field->SetTarget(CVar->AccessReflection());
+		Field->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+	}
+	tab->TabPanelArea->AddChild(Field);
+}
+
 void EditorSettingsMenu::CreateDefaultTab()
 {
 	UITab* tab = new UITab();
+	
 	tab->SetName("General");
+	tab->ListItems = true;
+	AddCvar("c.showbounds", "Show Object bounds", tab);
+	AddCvar("c.freeze", "Freeze object culling", tab);
 	m_Window->AddTab(tab);
 }
 

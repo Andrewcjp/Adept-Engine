@@ -1,4 +1,6 @@
 #include "WindowsMouse.h"
+#include "UI/Core/UIWidget.h"
+#include "Core/Input/Input.h"
 
 
 WindowsMouse::WindowsMouse()
@@ -22,6 +24,10 @@ void WindowsMouse::ProcessMouseMSG(float wheelValue)
 	{
 		MouseWheelDownThisFrame = true;
 	}
+	UIInputEvent Event;
+	Event.Pos = MousePosition;
+	Event.ScrollAxis = MouseWheelDelta;
+	Input::AddUIEvent(Event);
 }
 int MappingTable[]
 {

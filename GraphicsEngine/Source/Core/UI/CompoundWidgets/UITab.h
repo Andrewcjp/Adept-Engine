@@ -21,5 +21,7 @@ public:
 	void UpdateScaled() override;
 	int ButtonHeight = 20;
 	UIWindow* Parent = nullptr;
+	bool ListItems = false;
+	bool AlwaysShowTabButton = false;
 };
 

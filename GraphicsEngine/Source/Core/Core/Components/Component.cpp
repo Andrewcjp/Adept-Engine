@@ -23,6 +23,7 @@ void Component::GetInspectorProps(std::vector<InspectorProperyGroup> &props)
 {
 	InspectorProperyGroup h;
 	h.Nodes = AccessReflection()->Data;
+	h.name = m_DisplayName;
 	props.push_back(h);
 }
 #endif

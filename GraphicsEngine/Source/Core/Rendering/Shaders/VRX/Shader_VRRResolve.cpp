@@ -1,8 +1,8 @@
 #include "Shader_VRRResolve.h"
 #include "..\..\Core\Screen.h"
 #include "Core\Input\Input.h"
-static ConsoleVariable DebugRateVRR("VRR.ShowRate", 0, ECVarType::ConsoleAndLaunch);
-static ConsoleVariable ShowGrid("VRR.ShowGrid", 0, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable DebugRateVRR("VRR.ShowRate", false, ECVarType::ConsoleAndLaunch);
+static ConsoleVariable ShowGrid("VRR.ShowGrid", false, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable LerpBlend("VRR.Blend", 0.4f, ECVarType::ConsoleAndLaunch);
 
 IMPLEMENT_GLOBAL_SHADER(Shader_VRRResolve);//todo: compile version with tilesize 8

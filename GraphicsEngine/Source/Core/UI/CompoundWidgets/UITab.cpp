@@ -3,6 +3,7 @@
 #include "UI/Core/UIWidget.h"
 #include "UI/CompoundWidgets/UIPanel.h"
 #include "UIWindow.h"
+#include "UI/Core/Layout.h"
 
 UITab::UITab()
 {
@@ -12,11 +13,14 @@ UITab::UITab()
 	AddChild(Button);
 	TabPanelArea->BackgoundColour = glm::vec3(1, 1, 1);
 	GetTransfrom()->SetStretchMode(EAxisStretch::ALL);
+	TabPanelArea->AlignGap = 5;
+	TabPanelArea->TopAlignGap = 20;
+	TabPanelArea->EdgeShrink = 0;
 }
 
 void UITab::SetName(std::string Name)
 {
-	TabPanelArea->SetTitle(Name);
+	//TabPanelArea->SetTitle(Name);
 	Button->SetText(Name);
 	name = Name;
 }
@@ -51,11 +55,16 @@ void UITab::UpdateScaled()
 	const int TabWidth = 100;
 	int CurrenetButtonHeight = ButtonHeight;
 	Button->SetRootSpaceSize(TabWidth, ButtonHeight, TabIndex*TabWidth, 0);
-	if (Parent!= nullptr && Parent->AttachedTabs.size() == 1)
+	if (Parent != nullptr && Parent->AttachedTabs.size() == 1 && !AlwaysShowTabButton)
 	{
 		Button->SetEnabled(false);
 		CurrenetButtonHeight = 0;
 	}
 	TabPanelArea->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y - CurrenetButtonHeight, 0, CurrenetButtonHeight);
+	if (ListItems)
+	{
+		glm::ivec2 Space = TabPanelArea->GetTransfrom()->GetSizeRootSpace();
+		UIUtils::ArrangeHorizontal(Space.x - TabPanelArea->EdgeShrink * 2, Space.y, TabPanelArea->EdgeShrink, TabPanelArea->TopAlignGap, TabPanelArea->Children, 0, TabPanelArea->AlignGap);
+	}
 	UIWidget::UpdateScaled();
 }

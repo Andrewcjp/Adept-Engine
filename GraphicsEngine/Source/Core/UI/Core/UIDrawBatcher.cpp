@@ -80,13 +80,14 @@ void UIRenderBatch::AddVertex(glm::vec2 vpos, bool Back, glm::vec3 frontcol, glm
 	Verts.push_back(vert);
 }
 
-void UIRenderBatch::AddText(std::string itext, glm::vec2 ipos, float scale, glm::vec3 colour /*= glm::vec3(1, 1, 1)*/)
+void UIRenderBatch::AddText(std::string itext, glm::vec2 ipos, float scale, glm::vec3 colour /*= glm::vec3(1, 1, 1)*/, glm::vec4 Rect/* = glm::vec4(0, 0, 0, 0)*/)
 {
 	TextBatch* batch = new TextBatch();
 	batch->Text = itext;
 	batch->pos = ipos;
 	batch->scale = scale;
 	batch->color = colour;
+	batch->Rect = Rect;
 	TextData.push_back(batch);
 }
 

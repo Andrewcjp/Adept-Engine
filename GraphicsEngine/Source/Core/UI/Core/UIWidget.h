@@ -15,6 +15,7 @@ struct UIRenderBatch;
 struct UIInputEvent
 {
 	glm::ivec2 Pos = glm::ivec2();
+	float ScrollAxis = 0.0f;
 	MouseButton::Type Mouse = MouseButton::Limit;
 	InputButtonPressType::Type PressType = InputButtonPressType::Press;
 	void SetHandled()
@@ -37,7 +38,7 @@ class UIWidget
 public:
 	struct Aligment
 	{
-		float SizeMax = 0.05f;
+		float SizeMax = 30;
 		//float SizeMin = 0.05f;
 		int Gap = 0;
 	};

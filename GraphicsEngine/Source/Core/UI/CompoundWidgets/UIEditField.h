@@ -22,6 +22,7 @@ public:
 	void MouseClickUp(int x, int y) override;
 	// Inherited via UIWidget
 	void Render() override;
+	void Update();
 #ifdef PLATFORM_WINDOWS
 	void ProcessKeyDown(UINT_PTR key)override;
 #endif
@@ -36,7 +37,14 @@ public:
 	void ReceiveCommitedText(const std::string& text) override;
 	std::string GetStartValue() override;
 	void OnUpdate(const std::string & DisplayText) override;
-
+	enum VectorComponent
+	{
+		X,
+		Y,
+		Z,
+		W
+	};
+	VectorComponent Targetcomponent = VectorComponent::X;
 private:
 
 	UILabel* Textlabel = nullptr;

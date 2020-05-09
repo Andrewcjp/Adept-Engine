@@ -4,8 +4,8 @@
 #include "Core\Performance\PerfManager.h"
 #include "Core\Platform\Threading.h"
 #define USE_TASKGRAPH 0
-static ConsoleVariable Freeze("c.Freeze", 0);
-static ConsoleVariable ShowAABB("c.ShowBounds", 0);
+static ConsoleVariable Freeze("c.Freeze", false);
+static ConsoleVariable ShowAABB("c.ShowBounds", false);
 const std::string MPObjects = "Main Pass Objects";
 const std::string SWObjects = "Shadow Pass Objects";
 

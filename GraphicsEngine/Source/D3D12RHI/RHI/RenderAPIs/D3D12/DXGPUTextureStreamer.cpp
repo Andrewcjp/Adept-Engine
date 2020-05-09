@@ -22,7 +22,7 @@ DXGPUTextureStreamer::~DXGPUTextureStreamer()
 
 void DXGPUTextureStreamer::Tick(RHICommandList* list)
 {
-	Log::LogTextToScreen("Texture Usage " + StringUtils::ByteToMB(Page->GetSizeInUse()) + " Fragmentation: " + StringUtils::ToString(Page->GetFragmentationPC()));
+	//Log::LogTextToScreen("Texture Usage " + StringUtils::ByteToMB(Page->GetSizeInUse()) + " Fragmentation: " + StringUtils::ToString(Page->GetFragmentationPC()));
 	//if (RHI::GetFrameCount() % 30 != 0)
 	//{
 	//	return;

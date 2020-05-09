@@ -1,14 +1,13 @@
 #pragma once
 #include "UI/BasicWidgets/UIBox.h"
+#include "UI/CompoundWidgets/UITab.h"
 class UIListBox;
-class UIAssetManager : public UIBox
+class UIAssetManager : public UITab
 {
 public:
 	UIAssetManager();
 	~UIAssetManager();
-	void ResizeView(int w, int h, int x, int y) override;
-	void MouseMove(int x, int y) override;
-	bool MouseClick(int x, int y) override;
+
 private:
 	UIListBox* leftpanel;
 	float LeftSideWidth = 0.15f;

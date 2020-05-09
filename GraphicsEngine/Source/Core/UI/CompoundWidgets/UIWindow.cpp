@@ -4,20 +4,21 @@
 #include "Rendering/Core/Screen.h"
 #include "UI/Core/UIWidgetContext.h"
 #include "UITab.h"
+#include "UIButton.h"
 
 
 UIWindow::UIWindow() :UIBox(0, 0, 0, 0)
 {
-	Title = new UILabel("Title", 0, 0, 0, 0);
-	Title->IgnoreboundsCheck = true;
+	m_TitleLabel = new UILabel("Title", 0, 0, 0, 0);
+	m_TitleLabel->IgnoreboundsCheck = true;
 	WorkArea = new UIPanel(0, 0, 0, 0);
 	//	WorkArea->SetTitle("jweiort");
 	WorkArea->IgnoreboundsCheck = true;
 	IgnoreboundsCheck = true;
-	AddChild(Title);
+	AddChild(m_TitleLabel);
 	AddChild(WorkArea);
 	UpdateSize();
-	Priority = 1000;
+	Priority = 10;
 	IsFloating = true;
 
 }
@@ -25,16 +26,20 @@ UIWindow::UIWindow() :UIBox(0, 0, 0, 0)
 void UIWindow::UpdateSize()
 {
 	int Sizeoffset = 0;
-	Title->SetEnabled(IsFloating);
+	m_TitleLabel->SetEnabled(IsFloating);
 	if (IsFloating)
 	{
-		Title->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
-		Title->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, TabSize, 0, 0);
+		m_TitleLabel->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+		m_TitleLabel->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, TabSize, 0, 0);
 		Sizeoffset = TabSize + 10;
 	}
 	WorkArea->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
 	WorkArea->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y - Sizeoffset, 0, Sizeoffset);
-
+	if (CloseButton != nullptr)
+	{
+		int Size = 20;
+		CloseButton->SetRootSpaceSize(Size, 25, GetTransfrom()->GetSizeRootSpace().x - Size, 0);
+	}
 }
 
 UIWindow::~UIWindow()
@@ -50,7 +55,7 @@ void UIWindow::UpdateScaled()
 void UIWindow::MouseMove(int x, int y)
 {
 	UIBox::MouseMove(x, y);
-	if (!Drag ||!IsFloating)
+	if (!Drag || !IsFloating)
 	{
 		return;
 	}
@@ -70,7 +75,7 @@ bool UIWindow::MouseClick(int x, int y)
 	UIWidget::MouseClick(x, y);
 	if (IsFloating)
 	{
-		if (Title->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
+		if (m_TitleLabel->ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 		{
 			Drag = true;
 			DidJustDrag = true;
@@ -110,6 +115,34 @@ void UIWindow::FocusTab(int index)
 void UIWindow::SetIsFloating(bool val)
 {
 	IsFloating = val;
+}
+
+void UIWindow::SetCloseable(bool state)
+{
+	IsCloseAble = state;
+	if (!IsCloseAble)
+	{
+		SafeDelete(CloseButton);
+		return;
+	}
+	if (CloseButton == nullptr)
+	{
+		CloseButton = new UIButton(0, 0);
+		CloseButton->SetText("X");
+		CloseButton->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+		CloseButton->BindTarget(std::bind(&UIWindow::CLose, this));
+		AddChild(CloseButton);
+	}
+}
+
+void UIWindow::SetTitle(const std::string& title)
+{
+	m_TitleLabel->SetText(title);
+}
+
+void UIWindow::CLose()
+{
+	SetEnabled(false);
 }
 
 void UIWindow::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)

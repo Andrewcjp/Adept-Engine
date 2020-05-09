@@ -10,6 +10,7 @@
 LightComponent::LightComponent() :Component()
 {
 	TypeID = ComponentRegistry::BaseComponentTypes::LightComp;
+	m_DisplayName = "Light Component";
 	CALL_CONSTRUCTOR();
 }
 

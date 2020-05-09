@@ -2,25 +2,18 @@
 #include "UIAssetManager.h"
 #include "UI/CompoundWidgets/UIListBox.h"
 #include "UI/UIManager.h"
-UIAssetManager::UIAssetManager() :UIBox(1, 1, 1, 1)
+UIAssetManager::UIAssetManager() : UITab()
 {
-	leftpanel = new UIListBox(1, 1, 1, 1);
+	//leftpanel = new UIListBox(1, 1, 1, 1);
+	SetName("Project");
 }
-
 
 UIAssetManager::~UIAssetManager()
 {}
 
-void UIAssetManager::ResizeView(int w, int h, int x, int y)
-{
-	UIBox::ResizeView(w, h, x, y);
-	leftpanel->ResizeView(UIManager::GetScaledWidth(LeftSideWidth), h, x, y);
-}
+//void UIAssetManager::ResizeView(int w, int h, int x, int y)
+//{
+//	UIBox::ResizeView(w, h, x, y);
+//	leftpanel->ResizeView(UIManager::GetScaledWidth(LeftSideWidth), h, x, y);
+//}
 
-void UIAssetManager::MouseMove(int x, int y)
-{}
-
-bool UIAssetManager::MouseClick(int x, int y)
-{
-	return false;
-}

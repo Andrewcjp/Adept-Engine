@@ -2,6 +2,7 @@
 
 class UIWindow;
 class UIWidgetContext;
+class UITab;
 class EditorSettingsMenu
 {
 public:
@@ -10,6 +11,7 @@ public:
 	void Open();
 	void Close();
 
+	static void AddCvar(std::string cvar, std::string DisplayName, UITab* tab);
 	void CreateDefaultTab();
 
 	void CreateVRSTab();

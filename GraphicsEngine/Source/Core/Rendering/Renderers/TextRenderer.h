@@ -24,6 +24,7 @@ struct TextBatch
 	glm::vec2 pos;
 	float scale = 1.0f;
 	glm::vec3 color = glm::vec3(1, 1, 1);
+	glm::vec4 Rect = glm::vec4(0, 0, 0, 0);
 };
 struct atlas;
 class TextRenderer

@@ -15,12 +15,10 @@ UILabel::UILabel(std::string  text, int w, int h, int x, int y) : UIWidget(w, h,
 
 
 UILabel::~UILabel()
-{
-}
+{}
 
 void UILabel::Render()
-{
-}
+{}
 
 void UILabel::ResizeView(int w, int h, int x, int y)
 {
@@ -75,10 +73,11 @@ void UILabel::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 	ScaleTarget = glm::min(TextScale, ScaleTarget);
 	ScaleTarget = Math::Min(ScaleTarget, 5.0f);
 	std::string TMPTEXt = MText;
+#if 0
 	if (GlyphSize.x > RectSize.x && RectSize.x != 0)
 	{
 		int OverHang = glm::floor((float)GlyphSize.x*ScaleTarget);
-		float Value = ((OverHang -RectSize.x)) / (float)textsize;
+		float Value = ((OverHang - RectSize.x)) / (float)textsize;
 		int Remove = glm::floor(Value);
 		Remove = Math::Max(abs(Remove) - 1, 0);
 		Remove = Math::Min(Remove, (int)MText.length());
@@ -87,7 +86,8 @@ void UILabel::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)
 			TMPTEXt.erase(TMPTEXt.end() - (Remove), TMPTEXt.end());
 		}
 	}
-	batch->AddText(TMPTEXt, glm::vec2(GetOwningContext()->Offset.x + (float)X+5, GetOwningContext()->Offset.y + (float)Y + GetTransfrom()->GetTransfromedSize().y / 4), ScaleTarget);
+#endif
+	batch->AddText(TMPTEXt, glm::vec2(GetOwningContext()->Offset.x + (float)X + 5, GetOwningContext()->Offset.y + (float)Y + GetTransfrom()->GetTransfromedSize().y / 4), ScaleTarget, glm::vec3(1, 1, 1), GetTransfrom()->GetTransfromRect());
 	if (Groupbatchptr == nullptr)
 	{
 		GetOwningContext()->GetBatcher()->AddBatch(batch);

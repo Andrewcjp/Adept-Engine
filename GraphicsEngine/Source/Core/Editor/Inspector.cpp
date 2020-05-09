@@ -85,7 +85,7 @@ void Inspector::AddComponent()
 	}
 
 	using std::placeholders::_1;
-	UIManager::instance->CreateDropDown(ops, GetTransfrom()->GetSizeRootSpace().x, 200, GetTransfrom()->GetPositionForWidgetRootSpace().x, GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
+	UIManager::instance->CreateDropDown(ops, button->GetTransfrom()->GetSizeRootSpace().x, 200, button->GetTransfrom()->GetPositionForWidgetRootSpace().x, button->GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
 }
 
 void Inspector::AddComponentCallback(int i)
@@ -121,62 +121,20 @@ void Inspector::UpdateScaled()
 
 void Inspector::CreateEditor()
 {
-	TabPanelArea->AlignGap = 40;
-	TabPanelArea->TopAlignGap = 20;
+	TabPanelArea->AlignGap = 10;
+	TabPanelArea->TopAlignGap = 5;
 	TabPanelArea->EdgeShrink = 10;
-	/*if (TabPanelArea->Children.size() != 0)
-	{
-		for (int i = 0; i < TabPanelArea->Children.size(); i++)
-		{
-			TabPanelArea->RemoveChild(TabPanelArea->Children[i]);
-		}
-	}*/
 	TabPanelArea->RemoveAllChildren();
 	if (target != nullptr)
 	{
-#if 0
 		std::vector<InspectorProperyGroup> Fields = target->GetInspectorFields();
 		for (int i = 0; i < Fields.size(); i++)
 		{
 			UIPanel* Panel = new UIPanel(0, 0, 0, 0);
-			Panel->AlignGap = 10;
+			Panel->AlignGap = 5;
 			Panel->TopAlignGap = 0;
 			Panel->EdgeShrink = 2;
-			for (int j = 0; j < Fields[i].SubProps.size(); j++)
-			{
-				UIWidget* newwidget = nullptr;
-				switch (Fields[i].SubProps[j].type)
-				{
-				case EditValueType::Int:
-				case EditValueType::Float:
-				case EditValueType::String:
-				case EditValueType::Vector:
-				case EditValueType::Label:
-				case EditValueType::Bool:
-					newwidget = new UIEditField(&Fields[i].SubProps[j]);
-					break;
-				default:
-					break;
-				}
-				if (newwidget != nullptr)
-				{
-					newwidget->AligmentStruct.SizeMax = 30;
-					Panel->AddSubWidget(newwidget);
-				}
-			}
-			Panel->SetTitle(Fields[i].name);
-			Panel->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
-			//Panel->AligmentStruct.SizeMax = 40;
-			TabPanelArea->AddChild(Panel);
-		}
-#else
-		std::vector<InspectorProperyGroup> Fields = target->GetInspectorFields();
-		for (int i = 0; i < Fields.size(); i++)
-		{
-			UIPanel* Panel = new UIPanel(0, 0, 0, 0);
-			Panel->AlignGap = 10;
-			Panel->TopAlignGap = 0;
-			Panel->EdgeShrink = 2;
+			Panel->TextHeight = 30;
 			for (int j = 0; j < Fields[i].Nodes.size(); j++)
 			{
 				UIPropertyField* newwidget = nullptr;
@@ -197,7 +155,7 @@ void Inspector::CreateEditor()
 				}
 				if (newwidget != nullptr)
 				{
-					newwidget->AligmentStruct.SizeMax = 30;
+					newwidget->AligmentStruct.SizeMax = 20;
 					Panel->AddSubWidget(newwidget);
 				}
 			}
@@ -206,7 +164,6 @@ void Inspector::CreateEditor()
 			//Panel->AligmentStruct.SizeMax = 40;
 			TabPanelArea->AddChild(Panel);
 		}
-#endif
 		button = new UIButton(mwidth, 30, 0, 0);
 		button->SetRootSpaceSize(250, 50, 0, 0);
 		button->SetText("Add Component");

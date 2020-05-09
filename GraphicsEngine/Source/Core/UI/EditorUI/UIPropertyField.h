@@ -19,8 +19,10 @@ protected:
 	void UpdateType();
 	void UpdateSize();
 	UIEditField* Field = nullptr;
+	UIEditField* ExtraFields[3]{};
 	ClassReflectionNode* TargetProperty = nullptr;
 	UILabel* Namelabel = nullptr;
 	UIBox* BackGround = nullptr;
+	int ExtraFieldCount = 0;
 };
 

@@ -22,6 +22,8 @@
 #include "Core/Performance/PerfManager.h"
 #include "Core/Input/Input.h"
 #include "Rendering/Core/Screen.h"
+#include "EditorUI/UIEditorTopBar.h"
+#include "EditorUI/UIWorldSettingsTab.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -133,16 +135,16 @@ void UIManager::InitEditorUI()
 	UITab* tab = new UITab();
 
 	UIWindow* RightWin = new UIWindow();
-	RightWin->AddTab(new UITab());
+	RightWin->AddTab(new UIWorldSettingsTab());
 	RightWin->AddTab(new UITab());
 	AddWidget(RightWin);
 	UIWindow* Bottomw = new UIWindow();
 	Bottomw->AddTab(new UITab());
-	Bottomw->AddTab(new UITab());
+	Bottomw->AddTab(new UIAssetManager());
 	AddWidget(Bottomw);
 
 	UIWindow* TopWin = new UIWindow();
-	TopWin->AddTab(new UITab());
+	TopWin->AddTab(new UIEditorTopBar());
 	AddWidget(TopWin);
 
 	EditorLayout->SetWidget(UILayoutManager::Left, LeftWindow);
@@ -178,9 +180,12 @@ void UIManager::SetFullscreen(bool state)
 #endif
 void UIManager::CreateDropDown(std::vector<std::string> &options, float width, float height, float x, float y, std::function<void(int)> Callback)
 {
+	if (instance->DropdownCurrent != nullptr)
+	{
+		return;
+	}
 	UIDropDown * testbox3 = new UIDropDown(100, 300, 250, 150); //new UIDropDown(100, 300, x, y);
-	testbox3->Priority = 10;
-	testbox3->SetRootSpaceSize(width, height * 2, x, y);
+	testbox3->SetRootSpaceSize(width, height, x, y - height);
 
 	for (int i = 0; i < options.size(); i++)
 	{
@@ -284,14 +289,18 @@ void UIManager::UpdateBatches()
 }
 bool Traverse(UIWidget* w, glm::ivec2 pos)
 {
+	if (!w->GetEnabled())
+	{
+		return false;
+	}
 	glm::vec4 size = w->GetTransfrom()->GetTransfromRect();
 	CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
 	//w->RenderWidgetBounds = false;
 	if (c.Contains(pos.x, pos.y))
-	{		
+	{
 		if (dynamic_cast<UIWindow*>(w) != nullptr)
 		{
-		//	w->RenderWidgetBounds = true;
+			//	w->RenderWidgetBounds = true;
 			return true;
 		}
 	}
@@ -540,13 +549,19 @@ void UIManager::CleanUpWidgets()
 	//}
 	//WidgetsToRemove.clear();
 	//UpdateBatches();
+	for (int i = 0; i < Contexts.size(); i++)
+	{
+		Contexts[i]->CleanUpWidgets();
+	}
 }
 
 void UIManager::CloseDropDown()
 {
 	if (instance != nullptr && instance->DropdownCurrent != nullptr && instance->DropdownCurrent->frameCreated < RHI::GetFrameCount())
 	{
+		//instance->DropdownCurrent->RemoveAllChildren();
 		instance->DropdownCurrent->GetOwningContext()->RemoveWidget(instance->DropdownCurrent);
+		//SafeDelete(instance->DropdownCurrent);
 		instance->DropdownCurrent = nullptr;
 	}
 }

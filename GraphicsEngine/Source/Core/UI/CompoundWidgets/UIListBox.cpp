@@ -6,10 +6,10 @@
 #include "Core/Input/Input.h"
 UIListBox::UIListBox(int w, int h, int x, int y) : UIWidget(w, h, x, y)
 {
-
 	Background = new UIBox(w, h, x, y);
 	Background->Colour = glm::vec3(0.7f);
 	TitleLabel = new UILabel("List Box", w, 20, x, y + mheight - 20);
+	TitleLabel->SetEnabled(false);
 	AddChild(Background);
 	AddChild(TitleLabel);
 	MaskedPanel = new UIWidget();
@@ -23,7 +23,6 @@ UIListBox::~UIListBox()
 void UIListBox::Render()
 {
 	Background->Render();
-	TitleLabel->Render();
 	for (int i = 0; i < items.size(); i++)
 	{
 		items[i]->Render();
@@ -45,8 +44,8 @@ bool UIListBox::MouseClick(int x, int y)
 	for (int i = 0; i < items.size(); i++)
 	{
 		ReturnValue |= items[i]->MouseClick(x, y);
-		ReturnValue |= Background->MouseClick(x, y);
 	}
+	ReturnValue |= Background->MouseClick(x, y);
 	return ReturnValue;
 }
 
@@ -67,13 +66,14 @@ void UIListBox::UpdateScaled()
 	Background->SetRootSpaceSize(w, h, 0, 0);
 
 	TitleLabel->SetRootSpaceSize(w, 10, 0, mheight - 20);
-	const int EdgeOffset = 40;
+	const int EdgeOffset = 20;
 	const int RealHeight = h - EdgeOffset * 2;
-	MaskedPanel->SetRootSpaceSize(w - Edgespace, RealHeight, Edgespace / 2, EdgeOffset);
-	Scorll -= Input::Get()->GetMouseWheelAxis()*2;
+	MaskedPanel->SetRootSpaceSize(w - Edgespace, RealHeight, Edgespace/2, EdgeOffset);
+
+
 	float ItemsLength = ItemSize * items.size();
-	Scorll = glm::clamp(Scorll,0.0f, (float)(ItemsLength - RealHeight));
-	UIUtils::ArrangeHorizontal(w - Edgespace, h - 40, Edgespace / 2, -Scorll, items, 0.05f, 0, 20);
+	Scorll = glm::clamp(Scorll, 0.0f, (float)(ItemsLength - RealHeight));
+	UIUtils::ArrangeHorizontal(w - Edgespace, h - 10, 0, -Scorll, items, 0.05f, 0, 20);
 }
 
 void UIListBox::RemoveAll()
@@ -116,5 +116,14 @@ void UIListBox::AddItem(std::string name)
 void UIListBox::SetTitle(std::string name)
 {
 	TitleLabel->SetText(name);
+}
+
+void UIListBox::ProcessUIInputEvent(UIInputEvent& e)
+{
+	if (fabs(e.ScrollAxis) > 0.0f)
+	{
+		Scorll -= Input::Get()->GetMouseWheelAxis() * 10;
+		e.SetHandled();
+	}
 }
 

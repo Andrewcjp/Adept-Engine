@@ -53,8 +53,10 @@ Scene * EditorWindow::GetCurrentScene()
 #define TEST_SERIAL 0
 void EditorWindow::PostInitWindow(int w, int h)
 {
+#if !EDITORUI
 	ShowHud = true;
 	ShowText = true;
+#endif
 //	SetFrameRateLimit(185);
 	Log::OutS << "Loading Editor" << Log::OutS;
 	CurrentScene = new Scene(true); 

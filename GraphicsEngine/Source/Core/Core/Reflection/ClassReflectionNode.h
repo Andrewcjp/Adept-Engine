@@ -27,11 +27,22 @@ public:
 	{
 
 	}
+
+
 	std::string m_MemberName = "";
 	std::string m_DisplayName = "";
 	MemberValueType::Type m_Type = MemberValueType::Limit;
 	void* m_pDataPtr = nullptr;
 
+	void MapPropToFunctions(std::function<void(void*)> GetFunc, std::function<void(void*)> SetFunc)
+	{
+		m_SetFunc = SetFunc;
+		m_GetFunc = GetFunc;
+		IsVirtualProp = true;
+	}
+	bool IsVirtualProp = false;
+	std::function<void(void*)> m_GetFunc;
+	std::function<void(void*)> m_SetFunc;
 	std::string GetDisplayName()
 	{
 		if (m_DisplayName.length() > 0)
@@ -60,6 +71,15 @@ public:
 		ensure(m_Type == MemberValueType::String);
 		return *((std::string*)m_pDataPtr);
 	}
+	glm::vec3 GetAsFloat3()
+	{
+		ensure(m_Type == MemberValueType::Vector3);
+		if (IsVirtualProp && m_GetFunc != nullptr)
+		{
+			m_GetFunc(m_pDataPtr);
+		}
+		return *((glm::vec3 *)m_pDataPtr);
+	}
 	//setters
 	void SetString(std::string value)
 	{
@@ -80,6 +100,15 @@ public:
 	{
 		ensure(m_Type == MemberValueType::Int);
 		*((int*)m_pDataPtr) = value;
+	}
+	void SetFloat3(glm::vec3 value)
+	{
+		ensure(m_Type == MemberValueType::Vector3);
+		*((glm::vec3*)m_pDataPtr) = value;
+		if (IsVirtualProp && m_SetFunc != nullptr)
+		{
+			m_SetFunc(m_pDataPtr);
+		}
 	}
 };
 struct ClassReflectionData

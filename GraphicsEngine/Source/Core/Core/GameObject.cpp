@@ -18,9 +18,9 @@ GameObject::GameObject(std::string name, EMoblity stat, int oid) :
 	ObjectID = oid;
 	Mobilty = stat;
 	m_transform = new Transform();
-	//AudioId = AudioEngine::GetNextAudioId();
-	//AudioEngine::RegisterObject(this);
-
+	ClassReflectionNode* TransLate = new ClassReflectionNode("Translation", MemberValueType::Vector3, new glm::vec3());
+	TransLate->MapPropToFunctions([&](void* pos) { *(glm::vec3*)pos = GetPosition(); }, [&](void* pos) { SetPosition(*(glm::vec3*)pos); });
+	TransformNodes.push_back(TransLate);
 	LayerMask.SetFlags(0xfffff);
 	CALL_CONSTRUCTOR();
 }
@@ -330,11 +330,12 @@ std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 	//RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
 	RootGroup.Nodes = AccessReflection()->Data;
 	test.push_back(RootGroup);
-	//RootGroup = Inspector::CreatePropertyGroup("Transform");
+	RootGroup = Inspector::CreatePropertyGroup("Transform");
+	RootGroup.Nodes = TransformNodes;
 	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", EditValueType::Float, &PositionDummy.x));
 	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", EditValueType::Float, &PositionDummy.y));
 	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", EditValueType::Float, &PositionDummy.z));
-	//test.push_back(RootGroup);
+	test.push_back(RootGroup);
 
 	for (int i = 0; i < m_Components.size(); i++)
 	{
@@ -349,7 +350,7 @@ void GameObject::ProcessSerialArchive(Archive* A)
 	ArchiveProp(GetTransform());
 	ArchiveProp(Name);
 	if (A->IsReading())
-	{		
+	{
 		std::vector<Component*> CompStaging;
 		ArchiveProp_Alias(CompStaging, m_Components);
 		for (Component* C : CompStaging)
@@ -449,7 +450,7 @@ float GameObject::GetMass()
 {
 	if (PhysicsBodyComponent != nullptr)
 	{
-//		return PhysicsBodyComponent->GetActor()->GetMass();
+		//		return PhysicsBodyComponent->GetActor()->GetMass();
 	}
 	return 1.0f;
 }

@@ -8,6 +8,7 @@
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Core/Input/TextInputHandler.h"
+#include "Core/Utils/StringUtil.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;
@@ -47,14 +48,11 @@ UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0,
 		Toggle->BackgoundColour = glm::vec3(0.25f);
 		Toggle->Colour = glm::vec3(0.7f);
 		Toggle->BindTarget(std::bind(&UIEditField::SendValue, this));
+		Toggle->Priority = Priority + 1;
 		AddChild(Toggle);
 	}
 	SupportsScroll = (FilterType == MemberValueType::Float);//todo: int
-	if (Node != nullptr)
-	{
-		GetValueText(nextext);
-		Textlabel->SetText(nextext);
-	}
+	Update();
 	//AddChild(Namelabel);
 	AddChild(Textlabel);
 }
@@ -114,7 +112,7 @@ void UIEditField::GetValueText(std::string & string)
 	if (FilterType == MemberValueType::Float)
 	{
 		float t = Node->GetAsFloat();
-		string = std::to_string(t);
+		string = StringUtils::ToString(t);
 	}
 	if (FilterType == MemberValueType::Bool)
 	{
@@ -123,6 +121,21 @@ void UIEditField::GetValueText(std::string & string)
 	if (FilterType == MemberValueType::String)
 	{
 		string = Node->GetAsString();
+	}
+	if (FilterType == MemberValueType::Vector3)
+	{
+		if (Targetcomponent == X)
+		{
+			string = StringUtils::ToString(Node->GetAsFloat3().x);
+		}
+		else if (Targetcomponent == Y)
+		{
+			string = StringUtils::ToString(Node->GetAsFloat3().y);
+		}
+		else if (Targetcomponent == Z)
+		{
+			string = StringUtils::ToString(Node->GetAsFloat3().z);
+		}
 	}
 }
 bool UIEditField::MouseClick(int x, int y)
@@ -135,17 +148,21 @@ bool UIEditField::MouseClick(int x, int y)
 	if (ContainsPoint(ConvertScreenToRootSpace(glm::ivec2(x, y))))
 	{
 		nextext = Textlabel->GetText();
-		LastText = Textlabel->GetText();		
+		LastText = Textlabel->GetText();
 		if (Node != nullptr)
 		{
 			GetValueText(nextext);
 		}
 		ProcessKeyDown(0);
-		TextInputHandler::Get()->SetInputContext(this, FilterType);
+		MemberValueType::Type Txtboxfilter = FilterType;
+		if (FilterType == MemberValueType::Vector3 || FilterType == MemberValueType::Vector2 || FilterType == MemberValueType::Vector4)
+		{
+			Txtboxfilter = MemberValueType::Float;
+		}
+		TextInputHandler::Get()->SetInputContext(this, Txtboxfilter);
 	}
 	else
 	{
-
 		if (TextInputHandler::Get()->IsUsing(this))
 		{
 			TextInputHandler::Get()->AcceptValue();
@@ -153,7 +170,6 @@ bool UIEditField::MouseClick(int x, int y)
 	}
 	if (ValueDrawChangeRect.Contains(x, y))
 	{
-		//__debugbreak();
 		if (Node != nullptr)
 		{
 			if (FilterType == MemberValueType::Float)
@@ -191,7 +207,14 @@ void UIEditField::Render()
 		Textlabel->SetText(nextext);
 	}
 }
-
+void UIEditField::Update()
+{
+	if (Node != nullptr)
+	{
+		GetValueText(nextext);
+		Textlabel->SetText(nextext);
+	}
+}
 void UIEditField::SendValue()
 {
 	if (Node != nullptr)
@@ -216,6 +239,24 @@ void UIEditField::SendValue()
 		{
 			int out = (int)atoi(nextext.c_str());
 			Node->SetInt(out);
+		}
+		if (FilterType == MemberValueType::Vector3)
+		{
+			float out = (float)atof(nextext.c_str());
+			glm::vec3 v = Node->GetAsFloat3();
+			if (Targetcomponent == X)
+			{
+				v.x = out;
+			}
+			else if (Targetcomponent == Y)
+			{
+				v.y = out;
+			}
+			else if (Targetcomponent == Z)
+			{
+				v.z = out;
+			}
+			Node->SetFloat3(v);
 		}
 #if WITH_EDITOR
 		if (Property.ChangesEditor)
@@ -291,7 +332,7 @@ void UIEditField::UpdateScaled()
 	//ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
 	if (FilterType == MemberValueType::Bool)
 	{
-		Toggle->SetRootSpaceSize(h, h, (w / 2) - h/2, 0);
+		Toggle->SetRootSpaceSize(h, h, (w / 2) - h / 2, 0);
 		Toggle->SetCheckBox();
 		SkipRender = true;
 	}

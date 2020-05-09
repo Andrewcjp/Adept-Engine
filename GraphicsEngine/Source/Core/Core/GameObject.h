@@ -98,6 +98,7 @@ public:
 	bool GetIsActive() const { return IsActive; }
 	void SetIsActive(bool val) { IsActive = val; }
 private:
+	std::vector<ClassReflectionNode*> TransformNodes;
 	bool IsActive = true;
 	bool IsDead = false;
 	CORE_API Component* IN_AttachComponent(Component* Component);

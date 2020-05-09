@@ -3,12 +3,21 @@
 #include "Core/Utils/StringUtil.h"
 #include "Logger.h"
 #include "../Utils/VectorUtils.h"
+#include "Core/Reflection/ClassReflectionNode.h"
 ConsoleVariableManager* ConsoleVariableManager::Instance = nullptr;
+
+ConsoleVariable::ConsoleVariable(std::string name, bool defaultValue, ECVarType::Type cvartype, bool NeedsValue) :ConsoleVariable(name, cvartype, NeedsValue)
+{
+	CurrentValue.Int_Value = defaultValue;
+	DefaultValue.Int_Value = defaultValue;
+	ReflectionNode = new ClassReflectionNode(name, MemberValueType::Bool, &CurrentValue.Int_Value);
+}
 
 ConsoleVariable::ConsoleVariable(std::string name, int defaultValue, ECVarType::Type cvartype, bool NeedsValue) :ConsoleVariable(name, cvartype, NeedsValue)
 {
 	CurrentValue.Int_Value = defaultValue;
 	DefaultValue.Int_Value = defaultValue;
+	ReflectionNode = new ClassReflectionNode(name, MemberValueType::Int, &CurrentValue.Int_Value);
 }
 
 ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType::Type cvartype, bool NeedsValue) : ConsoleVariable(name, cvartype, NeedsValue)
@@ -16,6 +25,7 @@ ConsoleVariable::ConsoleVariable(std::string name, float defaultValue, ECVarType
 	CurrentValue.F_Value = defaultValue;
 	DefaultValue.F_Value = defaultValue;
 	IsFloat = true;
+	ReflectionNode = new ClassReflectionNode(name, MemberValueType::Float, &CurrentValue.F_Value);
 }
 
 ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, std::function<void()> func, std::function<void(bool state)> intfunc, std::function<void(float state)> floatfunc) :ConsoleVariable(name, cvartype, false)
@@ -26,6 +36,11 @@ ConsoleVariable::ConsoleVariable(std::string name, ECVarType::Type cvartype, std
 	if (OnChangedFloatFunction != nullptr)
 	{
 		IsFloat = true;
+		ReflectionNode = new ClassReflectionNode(name, MemberValueType::Float, &CurrentValue.F_Value);
+	}
+	else
+	{
+		ReflectionNode = new ClassReflectionNode(name, MemberValueType::Int, &CurrentValue.Int_Value);
 	}
 	if (ExecuteFunction == nullptr)
 	{
@@ -365,6 +380,18 @@ void ConsoleVariableManager::ToggleVar(std::string var)
 		}
 	}
 
+}
+
+ConsoleVariable* ConsoleVariableManager::Find(std::string name)
+{
+	for (int i = 0; i < ConsoleVars.size(); i++)
+	{
+		if (ConsoleVars[i]->GetName() == name)
+		{
+			return ConsoleVars[i];
+		}
+	}
+	return nullptr;
 }
 
 void IConsoleSettings::GetVariables(std::vector<ConsoleVariable*>& VarArray)

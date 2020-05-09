@@ -6,7 +6,7 @@
 
 UIPopoutbox::UIPopoutbox(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
-	Priority = 10;
+	Priority = 1000;
 	OkayButton = new UIButton(50, 20, x, y + (h - 20));
 	OkayButton->SetText("Okay");
 	OkayButton->BindTarget(std::bind(&UIPopoutbox::CloseBox, this));

@@ -35,8 +35,9 @@ public:
 	CORE_API virtual void OnTrigger(CollisonData data)
 	{};
 	CORE_API virtual void OnDestroy();
+	
 protected:
-
+	std::string m_DisplayName = "Component";
 	int TypeID = -1;
 	void Internal_SetOwner(GameObject* ptr);
 	bool DoesUpdate = true;

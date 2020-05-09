@@ -11,7 +11,8 @@ EditorOutliner::EditorOutliner()
 {
 	List = new UIListBox(0, 0, 0, 0);
 	TabPanelArea->AddChild(List);
-	name = "Outliner";
+	SetName("Outliner");
+	AlwaysShowTabButton = true;
 }
 
 
@@ -24,6 +25,7 @@ void EditorOutliner::SetGameObjects(std::vector<GameObject*>& Objects)
 	List->RemoveAll();	
 	using std::placeholders::_1;
 	List->SelectionChanged = std::bind(&UIManager::SelectedCallback, _1);
+	List->ItemSize = 15;
 	for (int i = 0; i < Objects.size(); i++)
 	{
 		Objects[i]->PostChangeProperties();
