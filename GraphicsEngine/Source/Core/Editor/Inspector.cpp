@@ -43,16 +43,6 @@ void Inspector::Refresh()
 	CreateEditor();
 }
 
-Inspector::InspectorPropery Inspector::CreateProperty(std::string name, EditValueType::Type type, void * Valueptr, bool EditorEffect)
-{
-	Inspector::InspectorPropery NameProp;
-	NameProp.name = name;
-	NameProp.type = type;
-	NameProp.ValuePtr = Valueptr;
-	NameProp.ChangesEditor = EditorEffect;
-	return NameProp;
-}
-
 InspectorProperyGroup Inspector::CreatePropertyGroup(std::string name)
 {
 	InspectorProperyGroup NameProp;

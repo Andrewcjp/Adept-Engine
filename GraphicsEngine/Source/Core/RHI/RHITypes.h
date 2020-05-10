@@ -195,6 +195,24 @@ enum PRIMITIVE_TOPOLOGY_TYPE
 	PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE = 3,
 	PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
 };
+
+typedef
+enum INPUT_CLASSIFICATION
+{
+	INPUT_CLASSIFICATION_PER_VERTEX_DATA = 0,
+	INPUT_CLASSIFICATION_PER_INSTANCE_DATA = 1
+} 	INPUT_CLASSIFICATION;
+typedef struct VertexElementDESC
+{
+	char* SemanticName;
+	unsigned int SemanticIndex;
+	eTEXTURE_FORMAT Format;
+	unsigned int InputSlot;
+	unsigned int AlignedByteOffset;
+	INPUT_CLASSIFICATION InputSlotClass;
+	unsigned int InstanceDataStepRate;
+	int Stride = 0;
+} 	VertexElementDESC;
 namespace DeviceContextQueue
 {
 	enum Type

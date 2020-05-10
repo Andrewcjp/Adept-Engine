@@ -19,6 +19,7 @@ void EditorSettingsMenu::Create(UIWidgetContext* con)
 	Close();
 	con->AddWidget(m_Window);
 	CreateDefaultTab();
+	CreateRenderSettingTab();
 	CreateVRSTab();
 }
 
@@ -48,11 +49,28 @@ void EditorSettingsMenu::AddCvar(std::string cvar, std::string DisplayName, UITa
 void EditorSettingsMenu::CreateDefaultTab()
 {
 	UITab* tab = new UITab();
-	
+
 	tab->SetName("General");
 	tab->ListItems = true;
 	AddCvar("c.showbounds", "Show Object bounds", tab);
 	AddCvar("c.freeze", "Freeze object culling", tab);
+	m_Window->AddTab(tab);
+}
+
+void EditorSettingsMenu::CreateRenderSettingTab()
+{
+	UITab* tab = new UITab();
+
+	tab->SetName("Render");
+	tab->ListItems = true;
+	RenderSettings* settings = RHI::GetRenderSettings();
+	for (int i = 0; i < settings->AccessReflection()->Data.size(); i++)
+	{
+		UIPropertyField* Field = new UIPropertyField();
+		Field->SetTarget(settings->AccessReflection()->Data[i]);
+		Field->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
+		tab->TabPanelArea->AddChild(Field);
+	}
 	m_Window->AddTab(tab);
 }
 

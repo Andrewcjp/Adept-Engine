@@ -6,7 +6,7 @@
 
 UIEditorTopBar::UIEditorTopBar() :UITab()
 {
-
+#if WITH_EDITOR
 	m_PlayButton = new UIButton(200, 50, 0, 500);
 	m_PlayButton->BindTarget(std::bind(&EditorWindow::EnterPlayMode, EditorWindow::GetInstance()));
 	m_PlayButton->SetText("Play");
@@ -21,7 +21,7 @@ UIEditorTopBar::UIEditorTopBar() :UITab()
 	m_EjectButton->BindTarget(std::bind(&EditorWindow::Eject, EditorWindow::GetInstance()));
 	m_EjectButton->SetText("Eject");
 	TabPanelArea->AddChild(m_EjectButton);
-
+#endif
 }
 
 void UIEditorTopBar::UpdateScaled()

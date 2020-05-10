@@ -2,21 +2,19 @@
 #include "Component.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/Material.h"
-
+#include "Core/Reflection/IReflect.h"
+UCLASS()
 class LowLevelAccelerationStructure;
 class MeshRendererComponent :
 	public Component
 {
 public:
-
+	CLASS_BODY_Reflect();
 	MeshRendererComponent();
 	CORE_API MeshRendererComponent(Mesh * Mesh, Material * materal);
 	virtual ~MeshRendererComponent();
 	void SetUpMesh(Mesh * Mesh, Material * materal);
 	Material* GetMaterial(int index);
-#if WITH_EDITOR
-	void GetInspectorProps(std::vector<InspectorProperyGroup> &props) override final;
-#endif
 	CORE_API Mesh* GetMesh();
 	CORE_API void SetMaterial(Material * mat, int index);
 	CORE_API void SetVisiblity(bool state);
@@ -29,7 +27,14 @@ public:
 	CORE_API virtual void OnTransformUpdate() override;
 	LowLevelAccelerationStructure* GetAccelerationStructure()const;
 
+
+	void Serialize(BinaryArchive* Achive) override;
+
 private:
+	PROPERTY();
+	std::string AssetPath = "";
+	PROPERTY();
+	std::string MaterialPath = "";
 	std::vector<LowLevelAccelerationStructure*> MeshAcclerations = { nullptr };
 	Mesh* m_mesh = nullptr;
 	// Inherited via Component

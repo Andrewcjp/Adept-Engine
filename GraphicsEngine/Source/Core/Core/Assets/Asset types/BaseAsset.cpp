@@ -1,9 +1,11 @@
 #include "BaseAsset.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Platform/PlatformCore.h"
-
+#include "Core/Assets/Asset types/BaseAsset.generated.h"
 BaseAsset::BaseAsset()
-{}
+{
+	CALL_CONSTRUCTOR();
+}
 
 BaseAsset::~BaseAsset()
 {}

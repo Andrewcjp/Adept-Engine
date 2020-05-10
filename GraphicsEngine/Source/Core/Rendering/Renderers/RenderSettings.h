@@ -2,6 +2,7 @@
 #include "Core\Platform\ConsoleVariable.h"
 #include "..\RenderNodes\RenderGraphSystem.h"
 #include "WinLauncher.h"
+#include "Core\Reflection\IReflect.h"
 
 class Archive;
 struct CapabilityData;
@@ -40,6 +41,7 @@ struct ERenderDebugOutput
 		Limit
 	};
 };
+
 struct RayTracingSettings
 {
 	bool Enabled = false;
@@ -60,6 +62,7 @@ struct ShadowMappingSettings
 	float PreSampleBufferScale = 1.0f;
 	int ViewInstancesPerDraw = 3;
 };
+
 struct DynamicResolutionSettings
 {
 	bool EnableDynamicResolutionScaling = false;
@@ -79,6 +82,8 @@ struct SFRSettings
 	bool DEBUG_ColourPixelsPerGPU = false;
 	bool Use8BitCompression = false;
 };
+
+AENUM();
 namespace EVRHMDMode
 {
 	enum Type
@@ -112,14 +117,17 @@ struct VRXSettings
 	bool UseVRS(DeviceContext* con = nullptr)const;
 };
 //Props Are Set in the Constructor 
-struct RenderSettings
+UCLASS();
+struct RenderSettings : public IReflect
 {
 	RenderSettings();
+	CLASS_BODY_Reflect();
 public:
-
+	PROPERTY(Name = "AA Mode");
 	AAMode::Type CurrentAAMode = AAMode::NONE;
 	EBuiltinRenderGraphs::Type SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
 	EBuiltInRenderGraphPatch::Type SelectedPatch = EBuiltInRenderGraphPatch::NONE;
+	
 	bool EnableGPUParticles = true;
 	bool LockBackBuffer = false;
 	BBTestMode::Type Testmode = BBTestMode::Limit;
@@ -133,7 +141,9 @@ public:
 
 	void SetRenderScale(float newscale);
 	float GetCurrentRenderScale();
+	PROPERTY(Name = "Max Render Scale");
 	float MaxRenderScale = 3.0f;
+
 	bool RaytracingEnabled()const;
 	RayTracingSettings& GetRTSettings();
 	ShadowMappingSettings& GetShadowSettings();
@@ -152,8 +162,9 @@ public:
 	SFRSettings& GetCurrnetSFRSettings() { return CurrnetSFRSettings; }
 	bool RequestAllGPUs = false;
 private:
-	RendererSettings RSettings;
+	PROPERTY(Name = "Render Scale");
 	float RenderScale = 1;
+	RendererSettings RSettings;
 	RayTracingSettings RTSettings;
 	ShadowMappingSettings ShadowSettings;
 	DynamicResolutionSettings DRSSettings;

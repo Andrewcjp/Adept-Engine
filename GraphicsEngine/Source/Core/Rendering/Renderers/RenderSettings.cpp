@@ -2,7 +2,7 @@
 #include "Core/BaseWindow.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "RHI/DeviceContext.h"
-
+#include "Rendering/Renderers/RenderSettings.generated.h"
 
 ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
@@ -54,6 +54,7 @@ RenderSettings::RenderSettings()
 		//VRHMDMode = EVRHMDMode::Debug;
 	}
 	//CurrnetSFRSettings.Use8BitCompression = true;
+	CALL_CONSTRUCTOR();
 }
 
 void RenderSettings::ValidateSettings()

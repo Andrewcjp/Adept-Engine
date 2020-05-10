@@ -51,65 +51,20 @@ public:
 		}
 		return m_MemberName;
 	}
-	float GetAsFloat()
-	{
-		ensure(m_Type == MemberValueType::Float);
-		return *((float*)m_pDataPtr);
-	}
-	int GetAsInt()
-	{
-		ensure(m_Type == MemberValueType::Int);
-		return *((int*)m_pDataPtr);
-	}
-	bool GetAsBool()
-	{
-		ensure(m_Type == MemberValueType::Bool);
-		return *((bool*)m_pDataPtr);
-	}
-	std::string GetAsString()
-	{
-		ensure(m_Type == MemberValueType::String);
-		return *((std::string*)m_pDataPtr);
-	}
-	glm::vec3 GetAsFloat3()
-	{
-		ensure(m_Type == MemberValueType::Vector3);
-		if (IsVirtualProp && m_GetFunc != nullptr)
-		{
-			m_GetFunc(m_pDataPtr);
-		}
-		return *((glm::vec3 *)m_pDataPtr);
-	}
+	float GetAsFloat();
+	int GetAsInt();
+	bool GetAsBool();
+	std::string GetAsString();
+	glm::vec3 GetAsFloat3();
 	//setters
-	void SetString(std::string value)
-	{
-		ensure(m_Type == MemberValueType::String);
-		*((std::string*)m_pDataPtr) = value;
-	}
-	void SetBool(bool value)
-	{
-		ensure(m_Type == MemberValueType::Bool);
-		*((bool*)m_pDataPtr) = value;
-	}
-	void SetFloat(float value)
-	{
-		ensure(m_Type == MemberValueType::Float);
-		*((float*)m_pDataPtr) = value;
-	}
-	void SetInt(int value)
-	{
-		ensure(m_Type == MemberValueType::Int);
-		*((int*)m_pDataPtr) = value;
-	}
-	void SetFloat3(glm::vec3 value)
-	{
-		ensure(m_Type == MemberValueType::Vector3);
-		*((glm::vec3*)m_pDataPtr) = value;
-		if (IsVirtualProp && m_SetFunc != nullptr)
-		{
-			m_SetFunc(m_pDataPtr);
-		}
-	}
+	void SetString(std::string value);
+	void SetBool(bool value);
+	void SetFloat(float value);
+	void SetInt(int value);
+	void SetFloat3(glm::vec3 value);
+	void SetFunc();
+	void GetFunc();
+	uint64 GetSize()const;
 };
 struct ClassReflectionData
 {

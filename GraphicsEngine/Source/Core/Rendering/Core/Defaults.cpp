@@ -2,7 +2,7 @@
 #include "Core\Assets\AssetManager.h"
 #include "Core\Platform\PlatformCore.h"
 #include "Core\IRefCount.h"
-#include "Core\Assets\Asset_Shader.h"
+#include "Core\Assets\Asset types/Asset_Shader.h"
 #include "Core\Assets\ShaderComplier.h"
 #include "RHI\RHICommandList.h"
 

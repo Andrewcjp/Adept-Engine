@@ -10,7 +10,7 @@
 #include "Core/GameObject.h"
 #include "Core/Assets/Scene.h"
 #include "EditorSettingsMenu.h"
-
+#if WITH_EDITOR
 EditorUI::EditorUI()
 {
 	Instance = this;
@@ -21,7 +21,7 @@ EditorUI::~EditorUI()
 {}
 
 void EditorUI::Init()
-{	
+{
 #ifdef PLATFORM_WINDOWS
 
 	FileMenu.SingleHandleFuncPTR = &EditorUI::HandleCMD;
@@ -71,6 +71,14 @@ void EditorUI::HandleCMD(int index)
 	{
 		EditorWindow::GetInstance()->NewScene();
 	}
+	else if (index == 1)
+	{
+		EditorWindow::GetInstance()->SaveScene();
+	}
+	else if (index == 2)
+	{
+		EditorWindow::GetInstance()->LoadScene();
+	}
 	else if (index == 3)
 	{
 		Instance->Settings->Open();
@@ -82,3 +90,4 @@ void EditorUI::HandleCMD(int index)
 }
 
 EditorUI* EditorUI::Instance = nullptr;
+#endif

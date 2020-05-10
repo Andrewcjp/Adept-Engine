@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Reflection/IReflect.h"
 
 class Archive;
 //base class to handle ID, streaming and unloading of a resource
@@ -14,9 +15,11 @@ struct EAssetStatus
 };
 //#Asset Each asset should encode its type name into the meta data to create the correct version at the other end.
 //#Asset Fast way to create assets of correct type.
-class BaseAsset
+UCLASS()
+class BaseAsset : public IReflect
 {
 public:
+	CLASS_BODY_Reflect();
 	//Blank assets can be created but are not valid
 	BaseAsset();
 	virtual ~BaseAsset();

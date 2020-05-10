@@ -14,6 +14,8 @@ public:
 	static void AddCvar(std::string cvar, std::string DisplayName, UITab* tab);
 	void CreateDefaultTab();
 
+	void CreateRenderSettingTab();
+
 	void CreateVRSTab();
 private:
 	UIWindow* m_Window;

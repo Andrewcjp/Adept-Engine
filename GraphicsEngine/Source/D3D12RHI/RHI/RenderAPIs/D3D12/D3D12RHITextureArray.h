@@ -1,4 +1,14 @@
 #pragma once
+#include "RHI/RHICommandList.h"
+
+class DXDescriptor;
+class D3D12FrameBuffer;
+class D3D12RHITexture;
+class D3D12DeviceContext;
+class RHITexture;
+struct RHITextureDesc2;
+class DescriptorHeap;
+class FrameBuffer;
 
 class D3D12RHITextureArray : public RHITextureArray
 {

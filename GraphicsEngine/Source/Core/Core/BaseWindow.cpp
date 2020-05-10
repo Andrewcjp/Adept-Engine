@@ -31,6 +31,7 @@
 #include "Utils/FileUtils.h"
 #include "Input/InputManager.h"
 #include "Input/InputController.h"
+#include "Assets/SceneSeraliser.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
@@ -70,7 +71,7 @@ void BaseWindow::InitilseWindow()
 
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
-	Saver = new SceneJSerialiser();
+	Saver = new SceneSeraliser();
 	std::vector<std::string> PreLoadTextures = Engine::GetGame()->GetPreLoadAssets();
 	for (int i = 0; i < PreLoadTextures.size(); i++)
 	{
@@ -199,7 +200,7 @@ void BaseWindow::Render()
 		//RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
 #if !WITH_EDITOR
-	if (Input::GetKeyDown(VK_ESCAPE))
+	if (Input::GetKeyDown(KeyCode::Escape))
 	{
 		SetPauseState(true);
 	}

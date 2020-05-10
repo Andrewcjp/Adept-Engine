@@ -232,7 +232,7 @@ void Archive::LinkProperty(Scene* Value, const char * PropName)
 			GameObject* NewGo = new GameObject();
 			valueptr = &gos->value[i];
 			CurrentReadHead = valueptr->MemberBegin();
-			NewGo->ProcessSerialArchive(this);
+//			NewGo->ProcessSerialArchive(this);
 			Value->AddGameobjectToScene(NewGo);
 		}
 	}
@@ -244,7 +244,7 @@ void Archive::LinkProperty(Scene* Value, const char * PropName)
 		{
 			rapidjson::Value jsongovalue(rapidjson::kObjectType);
 			valueptr = &jsongovalue;
-			objects[i]->ProcessSerialArchive(this);
+		//	objects[i]->ProcessSerialArchive(this);
 			jsonGOs.PushBack(jsongovalue, doc.GetAllocator());
 		}
 		SerialHelpers::addJsonValue(doc, doc.GetAllocator(), "GOS", jsonGOs);

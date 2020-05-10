@@ -5,6 +5,8 @@
 
 class UIEditField;
 class ClassReflectionNode;
+class UIBox;
+class UILabel;
 class UIPropertyField : public UIWidget
 {
 public:

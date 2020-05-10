@@ -19,7 +19,7 @@ UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 	Rect = CollisionRect(w, h, x, y);
 	Enabled = true;
 }
-#if WITH_EDITOR
+
 UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0, 0)
 {
 	FilterType = Targetprop->m_Type;
@@ -56,7 +56,7 @@ UIEditField::UIEditField(ClassReflectionNode* Targetprop) : UIEditField(0, 0, 0,
 	//AddChild(Namelabel);
 	AddChild(Textlabel);
 }
-#endif
+
 UIEditField::~UIEditField()
 {}
 
@@ -259,21 +259,14 @@ void UIEditField::SendValue()
 			Node->SetFloat3(v);
 		}
 #if WITH_EDITOR
-		if (Property.ChangesEditor)
+		/*if (Property.ChangesEditor)
 		{
 			UIManager::instance->RefreshGameObjectList();
-		}
+		}*/
 #endif
 	}
 }
-#ifdef PLATFORM_WINDOWS
-void UIEditField::ProcessKeyDown(WPARAM key)
-{
 
-	//todo: Cursour Movement
-	//Textlabel->SetText(DisplayText);
-}
-#endif
 bool UIEditField::CheckValidInput(char c)
 {
 	if (FilterType == MemberValueType::String)
@@ -302,13 +295,8 @@ void UIEditField::UpdateScaled()
 	UIBox::UpdateScaled();
 	int w = GetTransfrom()->GetSizeRootSpace().x;
 	int h = GetTransfrom()->GetSizeRootSpace().y;
-
-	//UIBox::ResizeView(w, h, x, y);
-	//Namelabel->TextScale = 0.3f;
 	Textlabel->TextScale = 0.3f;
-	int gap = 25;
-	/*Namelabel->RenderWidgetBounds = true;
-	Namelabel->SetRootSpaceSize((w / 3), h, 0, 0);*/
+	
 	Textlabel->SetRootSpaceSize(w, h, 0, 0);
 	if (FilterType == MemberValueType::Bool)
 	{
@@ -319,17 +307,7 @@ void UIEditField::UpdateScaled()
 	{
 		Enabled = true;
 	}
-
-	if (TextBox != nullptr /*&& FilterType != MemberValueType::String*/)
-	{
-		//TextBox->SetRootSpaceSize(w, h, gap, 0);
-	}
-	else
-	{
-
-	}
 	Rect = CollisionRect(w, h, 0, 0);
-	//ValueDrawChangeRect = CollisionRect(w / 3, h, x, y);
 	if (FilterType == MemberValueType::Bool)
 	{
 		Toggle->SetRootSpaceSize(h, h, (w / 2) - h / 2, 0);
@@ -346,7 +324,7 @@ void UIEditField::ProcessUIInputEvent(UIInputEvent& e)
 		Menu.AddItem("Play");
 		Menu.AddItem("exit");
 #ifdef PLATFORM_WINDOWS
-		uint Option = PlatformWindow::ShowContextMenu(Menu);
+		PlatformWindow::ShowContextMenu(Menu);
 #endif
 		e.SetHandled();
 	}

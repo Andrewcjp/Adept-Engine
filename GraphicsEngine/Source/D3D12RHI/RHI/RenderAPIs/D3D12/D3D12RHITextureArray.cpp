@@ -6,7 +6,8 @@
 #include "DescriptorHeap.h"
 #include "RHI/DeviceContext.h"
 #include "DescriptorHeapManager.h"
-
+#include "D3D12DeviceContext.h"
+#include "D3D12RHITexture.h"
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //Texture Array
 D3D12RHITextureArray::D3D12RHITextureArray(DeviceContext* device, int inNumEntries) :RHITextureArray(device, inNumEntries)

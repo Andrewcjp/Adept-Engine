@@ -1,7 +1,8 @@
 #pragma once
-
+#if WITH_EDITOR
 class UIImage;
 class EditorSettingsMenu;
+class UIWidgetContext;
 class EditorUI
 {
 public:
@@ -21,3 +22,4 @@ private:
 	UIWidgetContext* context;
 };
 
+#endif

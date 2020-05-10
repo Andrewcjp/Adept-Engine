@@ -58,7 +58,7 @@ ShaderByteCodeBlob* ShaderCache::GetShader(ShaderComplieItem* item)
 
 ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 {
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS) && WITH_EDITOR
 	if (MirrorShaders.GetBoolValue())
 	{
 		for (int i = EPlatforms::Android+1; i < EPlatforms::Limit; i++)

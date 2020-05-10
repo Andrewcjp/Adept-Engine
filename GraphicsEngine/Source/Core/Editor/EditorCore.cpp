@@ -2,6 +2,8 @@
 #include "EditorCore.h"
 #include "EditorWindow.h"
 #include "Core/Assets/Scene.h"
+#include "UI/UIManager.h"
+#include "Inspector.h"
 #if WITH_EDITOR
 EditorCore::EditorCore()
 {}
@@ -23,5 +25,6 @@ GameObject * EditorCore::GetSelectedObject()
 void EditorCore::SetSelectedObject(GameObject * newobj)
 {
 	SelectedObject = newobj;
+	UIManager::Get()->GetInspector()->SetSelectedObject(GetSelectedObject());
 }
 #endif

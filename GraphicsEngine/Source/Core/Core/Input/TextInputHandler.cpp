@@ -106,6 +106,7 @@ void TextInputHandler::ProcessKeyDown(WPARAM key)
 	}
 	else if (key != 0)
 	{
+#ifdef PLATFORM_WINDOWS
 		char c = (char)MapVirtualKey((UINT)key, MAPVK_VK_TO_CHAR);
 		if (c != '\0')
 		{
@@ -119,6 +120,7 @@ void TextInputHandler::ProcessKeyDown(WPARAM key)
 				m_CursorPos++;
 			}
 		}
+#endif
 	}
 	m_CursorPos = glm::clamp(m_CursorPos, 0, (int)m_CurrentValue.length());
 	m_DisplayText = m_CurrentValue;

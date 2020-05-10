@@ -1,6 +1,6 @@
 #include "Scene.h"
 #include "AI/Core/AISystem.h"
-#include "Asset_Shader.h"
+#include "Asset types/Asset_Shader.h"
 #include "AssetManager.h"
 #include "Core/Components/CameraComponent.h"
 #include "Core/Components/ColliderComponent.h"

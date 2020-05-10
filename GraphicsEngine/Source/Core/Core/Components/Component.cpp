@@ -3,8 +3,11 @@
 #include "Core/GameObject.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Components/Component.generated.h"
 Component::Component()
-{}
+{
+	CALL_CONSTRUCTOR();
+}
 
 Component::~Component()
 {}

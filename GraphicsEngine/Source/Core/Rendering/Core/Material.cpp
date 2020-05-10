@@ -1,6 +1,6 @@
 #include "Material.h"
 #include "Core/Assets/Archive.h"
-#include "Core/Assets/Asset_Shader.h"
+#include "Core/Assets/Asset types/Asset_Shader.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/ImageIO.h"
 #include "Core/Assets/SerialHelpers.h"

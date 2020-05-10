@@ -33,6 +33,7 @@ struct PlatformMenuBar
 			SingleHandleFuncPTR(abs(index - MenuCMDOffset));
 			return true;
 		}
+		return false;
 	}
 	int GetIdForMenuItem(int i)const
 	{

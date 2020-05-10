@@ -9,7 +9,9 @@ AssetDatabase::~AssetDatabase()
 {}
 
 void AssetDatabase::Build()
-{}
+{
+
+}
 
 BaseAsset* AssetDatabase::FindAssetByPath(const std::string& path)
 {

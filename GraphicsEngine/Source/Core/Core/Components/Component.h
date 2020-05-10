@@ -6,9 +6,11 @@
 struct InspectorProperyGroup;
 class Scene;
 class GameObject;
+UCLASS()
 class Component : public IReflect
 {
 public:
+	CLASS_BODY_Reflect();
 	CORE_API Component();
 	CORE_API virtual ~Component();
 	CORE_API virtual void InitComponent()

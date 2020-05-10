@@ -53,7 +53,7 @@ protected:
 	class DebugLineDrawer* LineDrawer = nullptr;
 	class Scene* CurrentScene = nullptr;
 	class Editor_Camera* EditorCamera = nullptr;
-	class SceneJSerialiser* Saver = nullptr;
+	class SceneSeraliser* Saver = nullptr;
 
 	float DeltaTime = 0.0;
 	const float TickRate = 1.0f / 60.0f;

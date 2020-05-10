@@ -5,6 +5,7 @@
 class UITab;
 class UILabel;
 class UIPanel;
+class UIButton;
 class UIWindow : public UIBox
 {
 public:

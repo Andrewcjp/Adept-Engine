@@ -1,9 +1,10 @@
 #pragma once
 #include "Core/Assets/AssetTypes.h"
 #include "Rendering/Core/Material.h"
+#include "BaseAsset.h"
 
 class ShaderGraph;
-class Asset_Shader
+class Asset_Shader : public BaseAsset
 {
 public:
 	Asset_Shader(bool GenDefault = false);

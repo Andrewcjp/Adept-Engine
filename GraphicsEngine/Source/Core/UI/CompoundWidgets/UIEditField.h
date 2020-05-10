@@ -11,9 +11,7 @@ class UIEditField :
 {
 public:
 	UIEditField(int, int, int, int);
-#if WITH_EDITOR
 	UIEditField(ClassReflectionNode* Targetprop);
-#endif
 	~UIEditField();
 	void SetLabel(std::string lavel);
 	void MouseMove(int x, int y) override;
@@ -23,9 +21,6 @@ public:
 	// Inherited via UIWidget
 	void Render() override;
 	void Update();
-#ifdef PLATFORM_WINDOWS
-	void ProcessKeyDown(UINT_PTR key)override;
-#endif
 	void SendValue();
 	bool CheckValidInput(char c);
 
@@ -58,18 +53,12 @@ private:
 	bool WasSelected = false;
 	MemberValueType::Type FilterType = MemberValueType::Limit;
 	EditValueType::Type EditMode = EditValueType::Value;
-	int CursorPos = 0;
-	std::string DisplayText;
 	bool Enabled = true;
 	bool SupportsScroll = true;
 	bool Scrolling = false;
 	int startx = 0;
 	float StartValue = 0.0f;
 	float ScrollScale = 0.001f;
-#if WITH_EDITOR
-	Inspector::InspectorPropery Property;
 	ClassReflectionNode* Node = nullptr;
-#endif
-
 };
 

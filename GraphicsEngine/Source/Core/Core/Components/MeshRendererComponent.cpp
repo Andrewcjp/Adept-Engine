@@ -6,11 +6,15 @@
 #include "Rendering/RayTracing/RayTracingEngine.h"
 #include "Editor/Inspector.h"
 #include "../GameObject.h"
+#include "Core/Assets/BinaryArchive.h"
+#include "Core/Components/MeshRendererComponent.generated.h"
 
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
 	TypeID = ComponentRegistry::BaseComponentTypes::MeshComp;
+	m_DisplayName = "Mesh Renderer Component";
+	CALL_CONSTRUCTOR();
 }
 
 MeshRendererComponent::MeshRendererComponent(Mesh* Mesh, Material* materal) :MeshRendererComponent()
@@ -28,6 +32,7 @@ MeshRendererComponent::~MeshRendererComponent()
 void MeshRendererComponent::SetUpMesh(Mesh * Mesh, Material * materal)
 {
 	m_mesh = Mesh;
+	AssetPath = m_mesh->AssetName;
 	m_mesh->Renderer = this;
 	SetMaterial(materal, 0);
 }
@@ -41,15 +46,6 @@ Material *MeshRendererComponent::GetMaterial(int index)
 	}
 	return 	m_mesh->GetMaterial(index);
 }
-
-#if WITH_EDITOR
-void MeshRendererComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
-{
-//	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Mesh Component");
-////	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Float, nullptr));
-//	props.push_back(group);
-}
-#endif
 
 Mesh* MeshRendererComponent::GetMesh()
 {
@@ -141,6 +137,17 @@ void MeshRendererComponent::OnTransformUpdate()
 LowLevelAccelerationStructure * MeshRendererComponent::GetAccelerationStructure() const
 {
 	return nullptr;
+}
+
+void MeshRendererComponent::Serialize(BinaryArchive* Achive)
+{
+	SerializeThis(Achive, m_RelfectionData.Data);
+	if (AssetPath.length() > 0 && Achive->Reading)
+	{
+		MeshLoader::FMeshLoadingSettings set;
+		m_mesh = RHI::CreateMesh(AssetPath.c_str(), set);
+		m_mesh->Renderer = this;
+	}
 }
 
 void MeshRendererComponent::BeginPlay()

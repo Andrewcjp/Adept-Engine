@@ -9,6 +9,9 @@
 #include "Components/ColliderComponent.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
+#include "Assets/BinaryArchive.h"
+#include "Components/ComponentRegistry.h"
+#include "Reflection/ObjectLibrary.h"
 #include "Core/GameObject.generated.h"
 
 GameObject::GameObject(std::string name, EMoblity stat, int oid) :
@@ -95,6 +98,41 @@ uint GameObject::GetLastMovedFrame()
 	}
 #endif
 	return GetTransform()->GetLastMovedFrame();
+}
+
+void GameObject::Serialize(BinaryArchive* Achive)
+{
+	SerializeThis(Achive, m_RelfectionData.Data);
+	SerializeThis(Achive, TransformNodes);
+	int Length = m_Components.size();
+	Achive->LinkHeader(Length);
+
+	int* ComponentIds = new int[Length];
+	if (!Achive->Reading)
+	{
+		for (int i = 0; i < Length; i++)
+		{
+			ComponentIds[i] = m_Components[i]->GetId();
+		}
+	}
+	Achive->LinkData(ComponentIds, sizeof(int)*Length);
+	if (Achive->Reading)
+	{
+		for (int i = 0; i < Length; i++)
+		{
+			Component* c = ObjectLibrary::Create<Component>(ComponentIds[i]);
+			c->Serialize(Achive);
+			AttachComponent(c);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < Length; i++)
+		{
+			m_Components[i]->Serialize(Achive);
+		}
+	}
+	delete[] ComponentIds;
 }
 
 GameObject::~GameObject()
@@ -327,14 +365,10 @@ std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<InspectorProperyGroup> test;
 	InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
-	//RootGroup.SubProps.push_back(Inspector::CreateProperty("Name", EditValueType::String, &Name));
 	RootGroup.Nodes = AccessReflection()->Data;
 	test.push_back(RootGroup);
 	RootGroup = Inspector::CreatePropertyGroup("Transform");
 	RootGroup.Nodes = TransformNodes;
-	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position x", EditValueType::Float, &PositionDummy.x));
-	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position y", EditValueType::Float, &PositionDummy.y));
-	////RootGroup.SubProps.push_back(Inspector::CreateProperty("Position z", EditValueType::Float, &PositionDummy.z));
 	test.push_back(RootGroup);
 
 	for (int i = 0; i < m_Components.size(); i++)
@@ -344,25 +378,6 @@ std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 	return test;
 }
 #endif
-
-void GameObject::ProcessSerialArchive(Archive* A)
-{
-	ArchiveProp(GetTransform());
-	ArchiveProp(Name);
-	if (A->IsReading())
-	{
-		std::vector<Component*> CompStaging;
-		ArchiveProp_Alias(CompStaging, m_Components);
-		for (Component* C : CompStaging)
-		{
-			AttachComponent(C);
-		}
-	}
-	else
-	{
-		ArchiveProp(m_Components);
-	}
-}
 
 #if WITH_EDITOR
 //called when the editor updates a value

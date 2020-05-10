@@ -20,6 +20,7 @@
 #include "Core/Assets/Scene.h"
 #include "Rendering/Core/ShadowRenderer.h"
 #include "RHI/Streaming/TextureStreamingEngine.h"
+#include "Core/Assets/SceneSeraliser.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()

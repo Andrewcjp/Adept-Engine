@@ -66,9 +66,7 @@ public:
 	}
 
 	std::vector<Component*> GetComponents();
-
 	CORE_API void SetParent(GameObject* Parent);
-	void ProcessSerialArchive(class Archive* Arch);
 
 #if WITH_EDITOR
 	void PostChangeProperties();
@@ -97,6 +95,9 @@ public:
 	bool DisableCulling = false;
 	bool GetIsActive() const { return IsActive; }
 	void SetIsActive(bool val) { IsActive = val; }
+
+	void Serialize(BinaryArchive* Achive) override;
+
 private:
 	std::vector<ClassReflectionNode*> TransformNodes;
 	bool IsActive = true;

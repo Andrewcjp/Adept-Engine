@@ -130,8 +130,9 @@ void UNUSED_PARAM(T const&)
 #endif
 
 
-#define PROPERTY()
+#define PROPERTY(...)
 #define UCLASS()
+#define AENUM()
 
 #define GENHASH() size_t  GetHash();
 
@@ -194,3 +195,5 @@ namespace EPlatforms
 
 #include "PlatformConfig.h"
 #include "Core/Maths/Math.h"
+#include "Core/Asserts.h"
+#include "Core/Reflection/ClassReflectionNode.h"

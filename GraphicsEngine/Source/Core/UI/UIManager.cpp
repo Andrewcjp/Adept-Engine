@@ -45,7 +45,9 @@ UIManager::UIManager()
 
 void UIManager::InitBars()
 {
+#if WITH_EDITOR
 	EditUI = new EditorUI();
+#endif
 }
 
 void UIManager::Init(int w, int h)
@@ -332,6 +334,7 @@ void UIManager::UpdateInput()
 {
 
 	glm::vec4 size = glm::vec4(0, 0, Screen::GetWindowRes());
+#if WITH_EDITOR
 	if (EditUI->ViewPortImage != nullptr)
 	{
 		size = EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
@@ -340,6 +343,7 @@ void UIManager::UpdateInput()
 		Blocking = AnyWindowBlocks(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
 	}
 	else
+#endif
 	{
 		Blocking = false;
 	}
@@ -596,6 +600,8 @@ UIWidgetContext * UIManager::GetDefaultContext()
 
 void UIManager::SetEditorViewPortRenderTarget(FrameBuffer * target)
 {
+#if WITH_EDITOR
 	EditUI->ViewPortImage->RenderTarget = target;
+#endif
 }
 
