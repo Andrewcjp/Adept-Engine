@@ -71,11 +71,11 @@ void RenderGraphDrawer::DrawNode(RenderNode * Node, glm::vec3 & LastPos, int ind
 		NodeLink* Link = Node->GetInput(i);
 		TextRenderer::instance->RenderText(Link->GetLinkName(), BoxPos.x, BoxPos.y - 40 - (InputSpaceing*i), 0.3, Colour);
 	}
-	for (uint i = 0; i < Node->GetNumOutputs(); i++)
+	/*for (uint i = 0; i < Node->GetNumOutputs(); i++)
 	{
 		NodeLink* Link = Node->GetOutput(i);
 		TextRenderer::instance->RenderText(Link->GetLinkName(), BoxPos.x + nodesize.x / 2, BoxPos.y - 40 - (InputSpaceing*i), 0.3, Colour);
-	}
+	}*/
 }
 
 void RenderGraphDrawer::DrawLinks(RenderNode * A, int index, glm::vec3 & LastPos)
@@ -85,6 +85,7 @@ void RenderGraphDrawer::DrawLinks(RenderNode * A, int index, glm::vec3 & LastPos
 	for (uint i = 0; i < A->GetNumInputs(); i++)
 	{
 		NodeLink* Link = A->GetInput(i);
+#if 0
 		if (Link->StoreLink != nullptr)
 		{
 			if (Link->StoreLink->OwnerNode != nullptr)
@@ -107,6 +108,7 @@ void RenderGraphDrawer::DrawLinks(RenderNode * A, int index, glm::vec3 & LastPos
 				drawer->AddLine(InputPos, othernode, Colour);
 			}
 		}
+#endif
 	}
 }
 
@@ -131,12 +133,14 @@ std::string RenderGraphDrawer::CreateLinksforNode(RenderNode* node)
 	for (int i = 0; i < node->GetNumInputs(); i++)
 	{
 		NodeLink* Inputlink = node->GetInput(i);
+#if 0
 		if (Inputlink->StoreLink != nullptr)
 		{
 			EndName = "node" + std::to_string(CurrentGraph->GetIndexOfNode(Inputlink->StoreLink->OwnerNode));
 			out += "\"" + EndName + "\":\"" + Inputlink->StoreLink->GetLinkName() + "\" -> \"" + NodeName + "\":\"" + Inputlink->GetLinkName() + +"\" [	id = " + std::to_string(LinkId) + "	];\n";
 		}
-		else if (Inputlink->GetStoreTarget() != nullptr)
+#endif
+		if (Inputlink->GetStoreTarget() != nullptr)
 		{
 			std::string Typename = "";
 			switch (Inputlink->GetStoreTarget()->StoreType)
@@ -179,20 +183,20 @@ std::string RenderGraphDrawer::CreateLinksforNode(RenderNode* node)
 std::string GetLabelForNode(RenderNode* Node)
 {
 	std::string name = "" + Node->GetName();
-	int count = Math::Max(Node->GetNumInputs(), Node->GetNumOutputs());
+	int count = Node->GetNumInputs();
 	for (uint i = 0; i < count; i++)
 	{
 		NodeLink* Inputlink = Node->GetInput(i);
-		NodeLink* outlink = Node->GetOutput(i);
+		//NodeLink* outlink = Node->GetOutput(i);
 		name += "|{";
 		if (Inputlink != nullptr)
 		{
 			name += "<" + Inputlink->GetLinkName() + ">" + Inputlink->GetLinkName() + "|";
 		}
-		if (outlink != nullptr)
+		/*if (outlink != nullptr)
 		{
 			name += "<" + outlink->GetLinkName() + ">" + outlink->GetLinkName();
-		}
+		}*/
 		name += "}";
 	}
 

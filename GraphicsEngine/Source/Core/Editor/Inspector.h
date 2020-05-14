@@ -25,6 +25,7 @@ public:
 	void UpdateScaled() override;
 
 private:
+	std::vector<uint64> ListIds;
 	static Inspector* Instance;
 	void CreateEditor();
 	float ItemHeight = 0.01f;

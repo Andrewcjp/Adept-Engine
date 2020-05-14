@@ -19,7 +19,6 @@ public:
 	static const int RestartCode = -101;
 	Engine(EnginePersistentData* epd);
 	~Engine();
-	CORE_API static class ComponentRegistry* CompRegistry;
 	static PhysicsEngine*			PhysEngine;
 	static Engine*					EngineInstance;
 	CORE_API static std::string		GetExecutionDir();

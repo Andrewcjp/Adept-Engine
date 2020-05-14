@@ -1,6 +1,7 @@
 #pragma once
 
 struct ClassReflectionData;
+class IReflect;
 //Sits on a reflectional object defining the values used and provides setters and getter for them.
 namespace MemberValueType
 {
@@ -28,7 +29,7 @@ public:
 
 	}
 
-
+	IReflect* Owner = nullptr;
 	std::string m_MemberName = "";
 	std::string m_DisplayName = "";
 	MemberValueType::Type m_Type = MemberValueType::Limit;
@@ -65,12 +66,16 @@ public:
 	void SetFunc();
 	void GetFunc();
 	uint64 GetSize()const;
+private:
+	void Notify();
 };
 struct ClassReflectionData
 {
 	std::vector<ClassReflectionNode*> Data;
+	IReflect* Owner = nullptr;
 	void Add(ClassReflectionNode* node)
 	{
+		node->Owner = Owner;
 		Data.push_back(node);
 	}
 	ClassReflectionNode* Last()

@@ -20,6 +20,7 @@ private:
 	BranchNode* Branch = nullptr;
 	RenderNode* ToggleNode = nullptr;
 };
+
 struct RG_PatchMarker
 {
 	std::vector<NodeLink*> Inputs;
@@ -28,17 +29,37 @@ struct RG_PatchMarker
 	RenderNode* ExecuteOut = nullptr;
 	std::vector<StorageNode*> ExposedResources;
 };
+struct PatchBase
+{
+	RenderNode* ExecuteIn = nullptr;
+	RenderNode* ExecuteOut = nullptr;
+};
+
+template<class T>
+struct RG_PatchMark_NEW : public PatchBase
+{
+	T Data;
+};
+
+
 struct RG_PatchSet
 {
-	std::vector<RG_PatchMarker*> Markers;
+	template<class T>
+	const T* AccessMarker(int i)
+	{
+		return &((RG_PatchMark_NEW<T>*)Markers[i])->Data;
+	}
+
+	std::vector<PatchBase*> Markers;
 	std::vector<EBuiltInRenderGraphPatch::Type> SupportedPatches;
 	bool SupportsPatchType(EBuiltInRenderGraphPatch::Type type);
-	void AddPatchMarker(RG_PatchMarker* patch, EBuiltInRenderGraphPatch::Type type);
+	void AddPatchMarker(PatchBase * patch, EBuiltInRenderGraphPatch::Type type);
 };
 struct RG_PatchMarkerCollection
-{	
+{
 	std::vector<RG_PatchSet*> Sets;
 	void AddPatchSet(RG_PatchSet* patch);
+	void AddSinglePatch(PatchBase* patch, EBuiltInRenderGraphPatch::Type type);
 };
 class RenderGraph
 {
@@ -104,7 +125,7 @@ public:
 	std::vector<StorageNode*> GetNodesOfType(EStorageType::Type type);
 
 	RG_PatchSet * FindMarker(EBuiltInRenderGraphPatch::Type type);
-
+	PatchBase * FindMarker2(EBuiltInRenderGraphPatch::Type type);
 
 	struct ValidateArgs
 	{

@@ -31,8 +31,7 @@ void ForwardRenderNode::OnExecute()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("ForwardRender", "Render");
 	FrameBuffer* TargetBuffer = GetFrameBufferFromInput(0);
-	CommandList->ResetList();
-	CommandList->StartTimer(EGPUTIMERS::MainPass);
+	CommandList->ResetList();	
 	SetBeginStates(CommandList);
 	Scene* MainScene = GetSceneDataFromInput(1);
 	ensure(MainScene);
@@ -70,7 +69,7 @@ void ForwardRenderNode::OnExecute()
 	CommandList->EndRenderPass();
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), CommandList, TargetBuffer, nullptr);
-	CommandList->EndTimer(EGPUTIMERS::MainPass);
+	
 
 	SetEndStates(CommandList);
 	CommandList->Execute();
@@ -109,7 +108,6 @@ void ForwardRenderNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat, "Output buffer");
 	AddInput(EStorageType::SceneData, StorageFormats::DefaultFormat, "Scene Data");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData);
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit output");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "Shadow mask")->SetOptional();
 	//if (UseLightCulling)
 	{
@@ -120,5 +118,5 @@ void ForwardRenderNode::OnNodeSettingChange()
 	{
 		//AddInput(EStorageType::Framebuffer, StorageFormats::PreZData, "Pre-Z data");
 	}
-	LinkThough(0);
+	
 }

@@ -30,23 +30,7 @@ void D3D12TimeManager::Init(DeviceContext* context)
 	StatsGroupId = PerfManager::Get()->GetGroupId(GPUName.c_str());
 
 	SetTimerName(EGPUTIMERS::Total, "Total GPU");
-	SetTimerName(EGPUTIMERS::MainPass, "Main Pass");
-	SetTimerName(EGPUTIMERS::DeferredWrite, "Deferred Write");
-	SetTimerName(EGPUTIMERS::DeferredLighting, "Deferred Lighting");
-	SetTimerName(EGPUTIMERS::PreZ, "Pre-Z");
-	SetTimerName(EGPUTIMERS::Skybox, "Skybox");
-	SetTimerName(EGPUTIMERS::PointShadows, "Point Shadow");
-	SetTimerName(EGPUTIMERS::DirShadows, "Dir Shadow");
 	SetTimerName(EGPUTIMERS::Text, "Text");
-	SetTimerName(EGPUTIMERS::UI, "UI Draw");
-	SetTimerName(EGPUTIMERS::PostProcess, "Post Processing");
-	SetTimerName(EGPUTIMERS::ShadowPreSample, "Shadow PreSample");
-	SetTimerName(EGPUTIMERS::ParticleDraw, "Particle Draw");
-	SetTimerName(EGPUTIMERS::ParticleSimulation, "Particle Sim", ECommandListType::Compute);
-	SetTimerName(EGPUTIMERS::GPU0WaitOnGPU1, "GPU0 Wait On GPU1");
-	SetTimerName(EGPUTIMERS::CubemapCapture, "Cubemap Capture");
-	SetTimerName(EGPUTIMERS::DebugRender, "Debug Render");
-	SetTimerName(EGPUTIMERS::RT_Trace, "RayTrace", ECommandListType::RayTracing);
 	SetTimerName(EGPUCOPYTIMERS::MGPUCopy, "MGPU Copy", ECommandListType::Copy);
 	SetTimerName(EGPUCOPYTIMERS::SFRMerge, "SFR Merge", ECommandListType::Copy);
 	SetTimerName(EGPUCOPYTIMERS::ShadowCopy, "Shadow Copy", ECommandListType::Copy);

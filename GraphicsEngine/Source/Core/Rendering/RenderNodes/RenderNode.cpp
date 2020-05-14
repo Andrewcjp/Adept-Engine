@@ -13,6 +13,8 @@
 #include "RHI/RHICommandList.h"
 #include "StoreNodes/BufferStorageNode.h"
 #include "RHI/RHITypes.h"
+#include "RHI/RHITimeManager.h"
+#include "Core/Performance/PerfManager.h"
 
 RenderNode::RenderNode()
 {
@@ -27,7 +29,6 @@ RenderNode::~RenderNode()
 void RenderNode::UpdateSettings()
 {
 	Inputs.clear();
-	Outputs.clear();
 	OnNodeSettingChange();
 }
 
@@ -48,16 +49,6 @@ void RenderNode::ExecuteNode()
 			OnExecute();
 			ensure(HasRunBegin);
 			ensure(HasRunEnd);
-		}
-		else
-		{
-			for (uint i = 0; i < Inputs.size(); i++)
-			{
-				if (i < GetNumOutputs())
-				{
-					PassNodeThough(i);
-				}
-			}
 		}
 		if (Next != nullptr)
 		{
@@ -81,23 +72,10 @@ NodeLink* RenderNode::GetInput(int index)
 	return Inputs[index];
 }
 
-NodeLink* RenderNode::GetOutput(int index)
-{
-	if (index >= Outputs.size())
-	{
-		return nullptr;
-	}
-	return Outputs[index];
-}
 
 uint RenderNode::GetNumInputs() const
 {
 	return (uint)Inputs.size();
-}
-
-uint RenderNode::GetNumOutputs() const
-{
-	return (uint)Outputs.size();
 }
 
 EViewMode::Type RenderNode::GetViewMode() const
@@ -165,6 +143,11 @@ void RenderNode::SetupNode()
 	{
 		CommandList = RHI::CreateCommandList(NodeEngineType, Context);
 	}
+	std::string name = GetName();
+	GPUTimerId = Context->GetTimeManager()->GetGPUTimerId(name);
+	int perfid = PerfManager::Get()->AddGPUTimer((name + std::to_string(Context->GetDeviceIndex())).c_str(), PerfManager::Get()->GetGroupId("GPU_" + std::to_string(Context->GetDeviceIndex())));
+	TimerData* D = PerfManager::Get()->GetTimerData(perfid);
+	D->TimerType = NodeEngineType;
 #if !BUILD_SHIPPING
 	Log::LogMessage("Node " + GetName() + " has " + std::to_string(BeginTransitions.size()) + " and " + std::to_string(EndTransitions.size()) + " transitions");
 #endif
@@ -241,18 +224,6 @@ NodeLink* RenderNode::GetInputLinkByName(const std::string& name)
 	return nullptr;
 }
 
-NodeLink* RenderNode::GetOutputLinkByName(const std::string& name)
-{
-	for (int i = 0; i < Outputs.size(); i++)
-	{
-		if (Outputs[i]->GetLinkName() == name)
-		{
-			return Outputs[i];
-		}
-	}
-	return nullptr;
-}
-
 EEye::Type RenderNode::GetEye()
 {
 	return TargetEye;
@@ -311,28 +282,11 @@ NodeLink* RenderNode::AddResourceInput(EStorageType::Type TargetType, EResourceS
 	return link;
 }
 
-void RenderNode::AddResourceOutput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName)
-{
-	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
-	link->ResourceState = State;
-	Outputs.push_back(link);
-}
-
 NodeLink* RenderNode::AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
 {
 	NodeLink* link = new NodeLink(TargetType, format, InputName, this);
 	Inputs.push_back(link);
 	return link;
-}
-
-void RenderNode::AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName)
-{
-	Outputs.push_back(new NodeLink(TargetType, format, InputName, this));
-}
-
-void RenderNode::AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName)
-{
-	AddOutput(Input->TargetType, format, InputName);
 }
 
 StorageNode* RenderNode::RequestBuffer(const RHIBufferDesc& desc, std::string Name, FrameBufferStorageNode* LinkedNode)
@@ -408,25 +362,9 @@ void RenderNode::ExecuteList(bool Flush)
 	}
 }
 
-void RenderNode::LinkThough(int inputindex, int outputindex /*= -1*/)
-{
-	if (outputindex == -1)
-	{
-		outputindex = inputindex;
-	}
-	GetOutput(outputindex)->SetLink(GetInput(inputindex));
-}
+
 void RenderNode::PassNodeThough(int inputindex, std::string newformat /*= std::string()*/, int outputindex /*= -1*/)
 {
-	if (outputindex == -1)
-	{
-		outputindex = inputindex;
-	}
-	if (newformat.length() > 0)
-	{
-		GetInput(inputindex)->GetStoreTarget()->DataFormat = newformat;
-	}
-	GetOutput(outputindex)->SetStore(GetInput(inputindex)->GetStoreTarget());
 }
 
 void RenderNode::SetBeginStates(RHICommandList* list)
@@ -435,6 +373,7 @@ void RenderNode::SetBeginStates(RHICommandList* list)
 	{
 		BeginTransitions[i].Execute(list, this);
 	}
+	list->StartTimer(GPUTimerId);
 	HasRunBegin = true;
 }
 
@@ -444,6 +383,7 @@ void RenderNode::SetEndStates(RHICommandList* list)
 	{
 		EndTransitions[i].Execute(list, this);
 	}
+	list->EndTimer(GPUTimerId);
 	HasRunEnd = true;
 }
 

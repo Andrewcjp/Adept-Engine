@@ -121,7 +121,9 @@ GPUResource * D3D12RHITexture::GetResource() const
 
 void D3D12RHITexture::WriteToDescriptor(DXDescriptor * Descriptor, const RHIViewDesc& desc)
 {
-	Descriptor->SetItemDesc(GetItemDesc(desc));
+	
+	WriteToItemDesc(Descriptor->GetItemDesc(), desc);
+	/*Descriptor->SetItemDesc(GetItemDesc(desc));*/
 }
 
 void D3D12RHITexture::CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect)

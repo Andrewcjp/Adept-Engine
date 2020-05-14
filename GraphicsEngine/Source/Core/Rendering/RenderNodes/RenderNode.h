@@ -74,9 +74,8 @@ public:
 	void ExecuteNode();
 	//Data Nodes
 	NodeLink* GetInput(int index);
-	NodeLink* GetOutput(int index);
 	uint GetNumInputs() const;
-	uint GetNumOutputs() const;
+
 	//Node Type
 	//For VR Only
 	EViewMode::Type GetViewMode() const;
@@ -99,7 +98,6 @@ public:
 	virtual bool IsNodeSupported(const RenderSettings& settings);
 	void SetDevice(DeviceContext* D);
 	NodeLink* GetInputLinkByName(const std::string& name);
-	NodeLink* GetOutputLinkByName(const std::string& name);
 	template<class T>
 	static T* NodeCast(RenderNode* node)
 	{
@@ -117,6 +115,7 @@ public:
 	
 	bool GetUseSeperateCommandList() const { return UseSeperateCommandList; }
 	ENodeWorkFocus::Type GetWorkType() const { return WorkType; }
+	NodeLink* AddResourceInput(EStorageType::Type Type, EResourceState::Type State, const std::string& format, const std::string& InputName = std::string());
 protected:
 	void SetWorkType(ENodeWorkFocus::Type val) { WorkType = val; }
 	void SetUseSeperateCommandList() { UseSeperateCommandList = true; }
@@ -145,11 +144,9 @@ protected:
 	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs& args);
-	NodeLink* AddResourceInput(EStorageType::Type Type, EResourceState::Type State, const std::string& format, const std::string& InputName = std::string());
-	void AddResourceOutput(EStorageType::Type TargetType, EResourceState::Type State, const std::string& format, const std::string& InputName = std::string());
+	
+	
 	NodeLink* AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
-	void AddOutput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
-	void AddOutput(NodeLink* Input, const std::string& format, const std::string& InputName = std::string());
 	StorageNode* RequestBuffer(const RHIBufferDesc& desc, std::string Name = "", FrameBufferStorageNode* LinkedNode = nullptr);
 	StorageNode* RequestFrameBuffer(const RHIFrameBufferDesc& desc, std::string Name = "");
 	NodeLink* AddFrameBufferResource(EResourceState::Type State, const RHIFrameBufferDesc& desc, const std::string& InputName = std::string());
@@ -157,7 +154,6 @@ protected:
 	RHICommandList* GetList();
 	RHICommandList* GetListAndReset();
 	void ExecuteList(bool Flush = false);
-	void LinkThough(int inputindex, int outputindex = -1);
 	void PassNodeThough(int inputindex, std::string newformat = std::string(), int outputinput = -1);
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;
@@ -166,7 +162,7 @@ protected:
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;
-	std::vector<NodeLink*> Outputs;
+	
 
 	DeviceContext* Context = nullptr;
 	//If true The node is responsible for invoking the next node.
@@ -181,6 +177,7 @@ protected:
 	bool UseSeperateCommandList = false;
 	RHICommandList* CommandList = nullptr;
 	ENodeWorkFocus::Type WorkType = ENodeWorkFocus::All;
+	int GPUTimerId = 0;
 };
 
 #define NameNode(name) std::string GetName()const {return name;} static std::string GetNodeName(){return name;}

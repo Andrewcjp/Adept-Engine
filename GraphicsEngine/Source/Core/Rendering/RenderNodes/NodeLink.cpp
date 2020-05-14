@@ -53,29 +53,11 @@ bool NodeLink::SetStore(StorageNode* target)
 
 bool NodeLink::IsValid()
 {
-	return StoreTarget != nullptr || StoreLink != nullptr;
-}
-
-bool NodeLink::SetLink(NodeLink* link)
-{
-	if (ViewMode != link->ViewMode)
-	{
-		return false;
-	}
-	if (TargetType != link->TargetType)
-	{
-		return false;
-	}
-	StoreLink = link;
-	return true;
+	return StoreTarget != nullptr;
 }
 
 StorageNode* NodeLink::GetStoreTarget() const
 {
-	if (StoreLink != nullptr)
-	{
-		return StoreLink->GetStoreTarget();
-	}
 	return StoreTarget;
 }
 
@@ -108,10 +90,10 @@ void NodeLink::Validate(RenderGraph::ValidateArgs& args, RenderNode* parent)
 		}
 		return;
 	}
-	if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat && StoreLink->DataFormat != StorageFormats::DontCare)
-	{
-		PushWrongFormat(parent, args, StoreLink->DataFormat);
-	}
+	//if (StoreLink != nullptr && DataFormat != StoreLink->DataFormat && StoreLink->DataFormat != StorageFormats::DontCare)
+	//{
+	//	PushWrongFormat(parent, args, StoreLink->DataFormat);
+	//}
 	if (StoreTarget != nullptr)
 	{
 		if (StoreTarget->DataFormat != DataFormat && StoreTarget->DataFormat != StorageFormats::DontCare)

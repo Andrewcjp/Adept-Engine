@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Assets/AssetManager.h"
-#include "Components/ComponentRegistry.h"
 #include "Editor/EditorWindow.h"
 #include "Game/Game.h"
 #include "Input/Input.h"
@@ -32,7 +31,6 @@
 #endif
 
 Game* Engine::mgame = nullptr;
-CORE_API ComponentRegistry* Engine::CompRegistry = nullptr;
 PhysicsEngine* Engine::PhysEngine = nullptr;
 Engine* Engine::EngineInstance = nullptr;
 
@@ -105,7 +103,6 @@ void Engine::PreInit()
 	{
 		PhysEngine->InitPhysics();
 	}
-	CompRegistry = new ComponentRegistry();
 #if RUNTESTS
 	FString::RunFStringTests();
 #endif
@@ -169,7 +166,7 @@ void Engine::LoadGame()
 		return;
 	}
 	Log::LogMessage("Loaded game module " + GameModuleSelector::GetGameModuleName());
-	Game* gm = Gamemodule->GetGamePtr(CompRegistry);
+	Game* gm = Gamemodule->GetGamePtr();
 	ensure(gm);
 	SetGame(gm);
 	AISystem::StartUp();
@@ -217,8 +214,7 @@ void Engine::RunCook()
 
 void Engine::SetGame(Game * game)
 {
-	mgame = game;
-	CompRegistry->RegisterExtraComponents(game->GetECR());
+	mgame = game;	
 	game->Init();
 }
 

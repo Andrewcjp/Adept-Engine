@@ -106,8 +106,6 @@ void VoxelReflectionsNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "OutputBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData, "GBuffer");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
-	LinkThough(0);
 }
 
 void VoxelReflectionsNode::OnSetupNode()

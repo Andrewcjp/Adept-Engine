@@ -1,5 +1,5 @@
 #include "MeshRendererComponent.h"
-#include "ComponentRegistry.h"
+
 #include "Core/Assets/Archive.h"
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
@@ -12,7 +12,6 @@
 MeshRendererComponent::MeshRendererComponent()
 {
 	m_mesh = nullptr;
-	TypeID = ComponentRegistry::BaseComponentTypes::MeshComp;
 	m_DisplayName = "Mesh Renderer Component";
 	CALL_CONSTRUCTOR();
 }

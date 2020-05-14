@@ -19,9 +19,7 @@ GBufferWriteNode::GBufferWriteNode()
 	ViewMode = EViewMode::PerView;
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
 	NodeLink* link = AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat);
-	link->SetOptional();
-	AddResourceOutput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData);
-	GetOutput(0)->SetLink(GetInput(0));
+	link->SetOptional();	
 }
 
 GBufferWriteNode::~GBufferWriteNode()
@@ -37,7 +35,6 @@ void GBufferWriteNode::OnExecute()
 	SCOPE_CYCLE_COUNTER_GROUP("GBufferWrite", "Render");
 	CommandList->ResetList();
 	SetBeginStates(CommandList);
-	CommandList->StartTimer(EGPUTIMERS::DeferredWrite);
 	ensure(GetInput(0)->GetStoreTarget());
 	FrameBuffer* GBuffer = GetFrameBufferFromInput(0);
 	bool	UsePreZPass = (GetInput(0)->GetStoreTarget()->DataFormat == StorageFormats::PreZData);
@@ -85,8 +82,7 @@ void GBufferWriteNode::OnExecute()
 		GBuffer->GetDepthStencil()->SetState(CommandList, EResourceState::RenderTarget);
 	}
 #endif
-	SetEndStates(CommandList);
-	CommandList->EndTimer(EGPUTIMERS::DeferredWrite);
+	SetEndStates(CommandList);	
 	CommandList->Execute();
 
 }

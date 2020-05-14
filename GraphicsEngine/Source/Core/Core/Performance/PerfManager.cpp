@@ -433,7 +433,7 @@ void PerfManager::DrawAllStats(int x, int y, bool IncludeGPUStats)
 	DrawStatsGroup(x, y, "", IncludeGPUStats);
 	for (auto it = GroupIDS.begin(); it != GroupIDS.end(); ++it)
 	{
-		DrawStatsGroup(x, y, it->first, IncludeGPUStats);
+		DrawStatsGroup(x, y, it->first, IncludeGPUStats, it->first == "GPU_0");
 	}
 	for (int i = 0; i < RHI::GetDeviceCount(); i++)
 	{
@@ -565,12 +565,13 @@ void PerfManager::AddToCountTimer(std::string name, int amout)
 	}
 }
 
+
 void PerfManager::ResetStats()
 {
 	DidJustReset = true;
 }
 
-void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool IncludeGPU)
+void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool IncludeGPU, bool ParentOnly)
 {
 #if STATS
 	int CurrentHeight = y;
@@ -610,6 +611,13 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 		{
 			continue;
 		}
+		if (ParentOnly)
+		{
+			if (it->second.name.find(".") != std::string::npos)
+			{
+				continue;
+			}
+		}
 		SortedTimers.push_back(&it->second);
 	}
 	if (SortedTimers.size() == 0)
@@ -632,6 +640,10 @@ void PerfManager::DrawStatsGroup(int x, int& y, std::string GroupFilter, bool In
 	}
 	for (int i = 0; i < SortedTimers.size(); i++)
 	{
+		if (SortedTimers[i]->Time < 0.00005)
+		{
+			continue;
+		}
 		if (SortedTimers[i]->IsGPUTimer)
 		{
 			std::string Name = SortedTimers[i]->name;
@@ -761,8 +773,12 @@ void PerfManager::LogSingleActionTimer(std::string name)
 		Log::OutS << "Timer " << name << " Took " << SingleActionTimersAccum.at(name) << "ms" << Log::OutS;
 	}
 }
-void PerfManager::FlushSingleActionTimer(std::string name)
+void PerfManager::FlushSingleActionTimer(std::string name, bool Log)
 {
+	if (Log)
+	{
+		LogSingleActionTimer(name);
+	}
 	if (SingleActionTimersAccum.find(name) != SingleActionTimersAccum.end())
 	{
 		SingleActionTimersAccum.at(name) = 0.0f;

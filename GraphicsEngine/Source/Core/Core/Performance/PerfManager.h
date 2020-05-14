@@ -136,7 +136,7 @@ public:
 	void ClearStats();
 	//Resets all AVGs
 	void ResetStats();
-	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU);
+	void DrawStatsGroup(int x, int & y, std::string GroupFilter, bool IncludeGPU,bool ParentOnly = false);
 	CORE_API void UpdateStat(int id, float newtime, float GPUOffsetToMain, bool Direct = false);
 	CORE_API int GetTimerIDByName(std::string name);
 	CORE_API int GetGroupId(std::string name);
@@ -146,7 +146,7 @@ public:
 	void FlushSingleActionTimers();
 	void LogSingleActionTimers();
 	void LogSingleActionTimer(std::string name);
-	CORE_API void FlushSingleActionTimer(std::string name);
+	CORE_API void FlushSingleActionTimer(std::string name,bool Log = false);
 	void WriteLogStreams(bool UseRaw);
 	std::vector<TimerData*> GetAllGPUTimers(std::string group);
 	CORE_API static void StartBenchMark(std::string name = std::string());

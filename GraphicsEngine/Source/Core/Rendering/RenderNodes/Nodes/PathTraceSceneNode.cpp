@@ -34,13 +34,11 @@ void PathTraceSceneNode::OnExecute()
 
 	RTList->ResetList();
 	SetBeginStates(RTList->GetRHIList());
-	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
 	RTList->SetStateObject(StateObject);
 
 	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
-	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
 	SetEndStates(RTList->GetRHIList());
 	RTList->Execute();
 
@@ -51,8 +49,7 @@ void PathTraceSceneNode::OnExecute()
 
 void PathTraceSceneNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer,EResourceState::UAV, StorageFormats::DefaultFormat);
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat);
 }
 
 void PathTraceSceneNode::OnSetupNode()

@@ -214,31 +214,24 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 void ParticleSystemManager::StartSimulate()
 {
 	CmdList->ResetList();
-#if PARTICLE_STATS
-	CmdList->StartTimer(EGPUTIMERS::ParticleSimulation);
-#endif
+
 }
 
 void ParticleSystemManager::StartRender()
 {
-	RenderList->ResetList();
-	RenderList->StartTimer(EGPUTIMERS::ParticleDraw);
+	RenderList->ResetList();	
 }
 
 void ParticleSystemManager::SubmitCompute()
 {
-#if PARTICLE_STATS
-	CmdList->EndTimer(EGPUTIMERS::ParticleSimulation);
-#endif
+
 	CmdList->Execute();
 	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
 }
 
 void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
 {
-#if PARTICLE_STATS
-	RenderList->EndTimer(EGPUTIMERS::ParticleDraw);
-#endif
+
 	//buffer->MakeReadyForComputeUse(RenderList);
 	buffer->MakeReadyForPixel(RenderList);
 	RenderList->Execute();

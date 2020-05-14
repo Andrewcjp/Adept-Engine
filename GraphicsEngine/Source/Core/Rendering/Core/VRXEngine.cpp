@@ -86,7 +86,7 @@ VRXEngine * VRXEngine::Get()
 void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
 #if USEPS_VRR
-	DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve PS");
+	DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve PS");
 	VRXEngine::Get()->TempTexture->SetState(list, EResourceState::PixelShader);
 	//ensure(list->IsComputeList());
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->ResolvePS, Target);
@@ -134,7 +134,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	{
 		return;
 	}
-	DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve");
+	DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve");
 	if (list->IsGraphicsList())
 	{
 		ResolveVRRFramebuffer_PS(list, Target, ShadingImage);
@@ -144,7 +144,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 
 	RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(Get()->VRRClassifyShader);
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Classify");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve.Classify");
 		list->SetPipelineStateDesc(Desc);
 		list->SetTexture2(ShadingImage, "RateImage");
 		Get()->TileData->SetBufferState(list, EBufferResourceState::UnorderedAccess);
@@ -167,7 +167,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 #if 0
 	if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Copy Step");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve.Copy Step");
 		if (Get()->TempResolveSpace == nullptr || Get()->TempResolveSpace->GetDescription().Width != Target->GetWidth() || Get()->TempResolveSpace->GetDescription().Height != Target->GetHeight())
 		{
 			if (Get()->TempResolveSpace)
@@ -193,7 +193,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 	UAVFormatConverter::UnPackToTmpResource(&Get()->TempResolveSpace, list, Target->GetDescription().RenderTargets[0]);
 #endif
 	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "VRR Resolve.Varable Write");
+		DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve.Varable Write");
 		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
 		list->SetPipelineStateDesc(Desc);
 		RHICommandSignitureDescription SigDesc;
@@ -298,7 +298,7 @@ void VRXEngine::WriteVRRStencil(RHICommandList* List, FrameBuffer* MainBuffer)
 {
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR() && MainBuffer != nullptr && MainBuffer->GetDescription().HasStencil())
 	{
-		DECALRE_SCOPEDGPUCOUNTER(List, "VRR Stencil Write");
+		DECALRE_SCOPEDGPUCOUNTER(List, "VRX Stencil Write");
 		//write the depth stencil
 		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 		desc.InitOLD(false, false, false);

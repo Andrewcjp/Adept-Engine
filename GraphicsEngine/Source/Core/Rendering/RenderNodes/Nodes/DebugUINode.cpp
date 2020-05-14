@@ -50,8 +50,6 @@ void DebugUINode::RefreshNode()
 void DebugUINode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::LitScene, "Data");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Final frame");
-	LinkThough(0);
 }
 
 void DebugUINode::OnSetupNode()

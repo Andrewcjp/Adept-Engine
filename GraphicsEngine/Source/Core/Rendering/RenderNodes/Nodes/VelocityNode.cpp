@@ -26,8 +26,7 @@ void VelocityNode::OnExecute()
 	Cmdlist->ResetList();
 	SetBeginStates(Cmdlist);
 
-	{
-		DECALRE_SCOPEDGPUCOUNTER(Cmdlist,"Velocity pass");
+	{		
 		RHIPipeLineStateDesc desc; 
 		desc = RHIPipeLineStateDesc::CreateDefault(FixedVelocityShaders, Target);
 		desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS; 

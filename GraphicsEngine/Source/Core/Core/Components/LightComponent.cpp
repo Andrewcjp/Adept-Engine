@@ -3,13 +3,11 @@
 #include "Core/GameObject.h"
 #include "Editor/EditorWindow.h"
 #include "Core/Assets/Scene.h"
-#include "ComponentRegistry.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Components/LightComponent.generated.h"
 
 LightComponent::LightComponent() :Component()
 {
-	TypeID = ComponentRegistry::BaseComponentTypes::LightComp;
 	m_DisplayName = "Light Component";
 	CALL_CONSTRUCTOR();
 }
@@ -90,28 +88,18 @@ void LightComponent::PostChangeProperties()
 {
 	SetShadow(DoesShadow);
 	SetIntensity(CurrentIntensity);
+	SetDistance(Distance);
+	MLight->m_lightColor = CurrentColour;
 	if (GetOwner()->GetScene())
 	{
 		GetOwner()->GetScene()->StaticSceneNeedsUpdate = true;
 	}
 }
-#endif
-//void LightComponent::ProcessSerialArchive(Archive * A)
-//{
-//	Component::ProcessSerialArchive(A);
-//	ArchiveProp(CurrentIntensity);
-//	ArchiveProp(DoesShadow);
-//	ArchiveProp(CurrentColour);
-//	ArchiveProp_Enum(CurrentType, Light::LightType);
-//}
-#if WITH_EDITOR
-void LightComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
+
+void LightComponent::OnPropertyUpdate(ClassReflectionNode* Node)
 {
-	/*InspectorProperyGroup group = Inspector::CreatePropertyGroup("Light");
-	group.SubProps.push_back(Inspector::CreateProperty("test", EditValueType::Bool, &DoesShadow));
-	group.SubProps.push_back(Inspector::CreateProperty("Intensity", EditValueType::Float, &CurrentIntensity));
-	props.push_back(group);*/
-	Component::GetInspectorProps(props);
+	PostChangeProperties();
 }
+
 #endif
 

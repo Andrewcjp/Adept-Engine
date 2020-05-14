@@ -20,6 +20,26 @@ public:
 private:
 	std::vector<PatchFunc> Funcs;
 };
+struct RelfectionsPatchData
+{
+	FrameBufferStorageNode* GBuffer;
+	ShadowAtlasStorageNode* ShadowData;
+	FrameBufferStorageNode* VelocityBuffer;
+
+	DeferredLightingNode*	DeferredLightNode = nullptr;
+	RenderNode* UpdateStructuresNodeTarget = nullptr;
+};
+
+struct VRXPatchData
+{	
+	ShadowAtlasStorageNode* ShadowData;
+	FrameBufferStorageNode* ShadowMask;
+
+	DeferredLightingNode*	DeferredLightNode = nullptr;
+	RenderNode* VizMode = nullptr;
+	RenderNode* GBufferWrite = nullptr;
+	PostProcessNode* PostNode = nullptr;
+};
 namespace ERG_Patch_Reflections
 {
 	enum Type

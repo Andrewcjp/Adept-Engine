@@ -8,10 +8,11 @@
 #include "StoreNodes/FrameBufferStorageNode.h"
 #include "UI/UIManager.h"
 #include "Nodes/UINode.h"
+#include "Nodes/SimpleNode.h"
+#include "Core/Performance/PerfManager.h"
 
 RenderGraph::RenderGraph()
-{
-}
+{}
 
 RenderGraph::~RenderGraph()
 {
@@ -110,12 +111,17 @@ void RenderGraph::BuildGraph()
 	ValidateGraph();
 	ensureMsgf(RootNode, "No root node is set");
 	RenderNode* Node = RootNode;
-	while (Node != nullptr)
 	{
-		Node->OnGraphCreate();
-		Node = Node->GetNextNode();
+		SCOPE_STARTUP_COUNTER("RG CreateGraph");
+		while (Node != nullptr)
+		{
+			Node->OnGraphCreate();
+			Node = Node->GetNextNode();
+		}
 	}
+	PerfManager::Get()->FlushSingleActionTimer("RG CreateGraph", true);
 	Processor.Process(this);
+	
 	GraphNeedsProcess = false;
 	for (StorageNode* N : StoreNodes)
 	{
@@ -136,6 +142,7 @@ void RenderGraph::BuildGraph()
 		}
 		Node = Node->GetNextNode();
 	}
+
 	ListNodes();
 }
 
@@ -155,9 +162,24 @@ FrameBufferStorageNode* RenderGraph::CreateRTXBuffer()
 
 void RenderGraph::EndGraph(FrameBufferStorageNode* MainBuffer, RenderNode* Output)
 {
+#if 0
+	NodeLink* BufferLink = nullptr;
+	SimpleNode* UIN = new SimpleNode("UI",
+		[&](SimpleNode* N)
+	{
+		BufferLink = N->AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DontCare, "Main RT");
+	},
+		[](RHICommandList* list)
+	{
+		UIManager::Get()->RenderWidgets(list);
+	});
+	BufferLink->SetStore(MainBuffer);
+	LinkNode(Output, UIN);
+#else
 	UINode* UIRender = new UINode();
 	UIRender->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(Output, UIRender);
+#endif
 }
 
 void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
@@ -469,8 +491,7 @@ void RenderGraph::CreatePathTracedGraph()
 	PathTraceNode->GetInput(0)->SetStore(MainBuffer);
 
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	LinkNode(PathTraceNode, Output);
-	Output->GetInput(0)->SetLink(PathTraceNode->GetOutput(0));
+	LinkNode(PathTraceNode, Output);	
 }
 
 
@@ -492,6 +513,13 @@ void RG_PatchMarkerCollection::AddPatchSet(RG_PatchSet* patch)
 	Sets.push_back(patch);
 }
 
+void RG_PatchMarkerCollection::AddSinglePatch(PatchBase* patch, EBuiltInRenderGraphPatch::Type type)
+{
+	RG_PatchSet* Set = new RG_PatchSet();
+	Set->AddPatchMarker(patch, type);
+	AddPatchSet(Set);
+}
+
 RG_PatchSet* RenderGraph::FindMarker(EBuiltInRenderGraphPatch::Type type)
 {
 	for (int i = 0; i < Markers.Sets.size(); i++)
@@ -504,12 +532,13 @@ RG_PatchSet* RenderGraph::FindMarker(EBuiltInRenderGraphPatch::Type type)
 	return nullptr;
 }
 
+
 bool RG_PatchSet::SupportsPatchType(EBuiltInRenderGraphPatch::Type type)
 {
 	return VectorUtils::Contains(SupportedPatches, type);
 }
 
-void RG_PatchSet::AddPatchMarker(RG_PatchMarker* patch, EBuiltInRenderGraphPatch::Type type)
+void RG_PatchSet::AddPatchMarker(PatchBase* patch, EBuiltInRenderGraphPatch::Type type)
 {
 	Markers.push_back(patch);
 	SupportedPatches.push_back(type);

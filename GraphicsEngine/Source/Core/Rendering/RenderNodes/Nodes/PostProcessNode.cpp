@@ -42,13 +42,12 @@ void PostProcessNode::OnResourceResize()
 
 void PostProcessNode::OnNodeSettingChange()
 {
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::LitScene);
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Post Image");
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::LitScene);	
 	if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::LitScene, "VRX Image");
 	}
-	LinkThough(0);
+	
 }
 
 void PostProcessNode::OnSetupNode()

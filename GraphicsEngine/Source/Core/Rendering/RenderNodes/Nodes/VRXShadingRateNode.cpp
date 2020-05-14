@@ -54,7 +54,7 @@ void VRXShadingRateNode::OnExecute()
 		Data.DebugedgeCount = RHI::GetRenderSettings()->GetDebugRenderMode() == ERenderDebugOutput::Scene_EdgeDetectCount;
 		Data.WriteZeroImage = !RHI::GetRenderSettings()->GetVRXSettings().VRXActive;
 		Constant->UpdateConstantBuffer(&Data);
-		DECALRE_SCOPEDGPUCOUNTER(List, "VRX Image");
+		//DECALRE_SCOPEDGPUCOUNTER(List, "VRX Image");
 		RHIPipeLineStateDesc PSODesc = RHIPipeLineStateDesc::CreateDefault(Shader);
 		List->SetPipelineStateDesc(PSODesc);
 		FrameBuffer* UAV = GetFrameBufferFromInput(0);
@@ -86,9 +86,7 @@ void VRXShadingRateNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::ShadingImage, "Shading Rate Image");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData, "Gbuffer");
-	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
-	AddResourceOutput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::ShadingImage, "Shading Rate Image");
-	LinkThough(0);
+	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");	
 }
 
 void VRXShadingRateNode::OnSetupNode()

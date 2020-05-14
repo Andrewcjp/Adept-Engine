@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "ai/CORE/AIDirector.h"
 #include "UI/GameUI/GameHud.h"
-Game::Game(ComponentRegistry* Reg)
+Game::Game()
 {}
 
 
@@ -34,10 +34,6 @@ float Game::GetTickRate()
 void Game::SetTickRate(float NewRate)
 {
 	TickRate = NewRate;
-}
-ExtraComponentRegister * Game::GetECR()
-{
-	return ECR;
 }
 
 GameMode * Game::CreateGameMode()

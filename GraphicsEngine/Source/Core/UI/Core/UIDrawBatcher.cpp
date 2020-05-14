@@ -147,10 +147,8 @@ void UIDrawBatcher::RenderBatches(RHICommandList* List)
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(UIManager::instance->GetWidth()), 0.0f, static_cast<float>(UIManager::instance->GetHeight()));
 	Shader->UpdateUniforms(projection);
 	commandlist = List;
-
-	commandlist->GetDevice()->GetTimeManager()->StartTimer(commandlist, EGPUTIMERS::UI);
+		
 	Render(commandlist);
-	commandlist->GetDevice()->GetTimeManager()->EndTimer(commandlist, EGPUTIMERS::UI);
 }
 
 void UIDrawBatcher::Render(RHICommandList * list)

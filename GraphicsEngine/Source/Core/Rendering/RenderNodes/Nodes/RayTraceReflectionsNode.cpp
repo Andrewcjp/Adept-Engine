@@ -44,7 +44,7 @@ void RayTraceReflectionsNode::OnExecute()
 
 	RTList->ResetList();
 	SetBeginStates(RTList->GetRHIList());
-	RTList->GetRHIList()->StartTimer(EGPUTIMERS::RT_Trace);
+
 	RTList->SetStateObject(StateObject);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 3, 1);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 4, 0);
@@ -59,7 +59,7 @@ void RayTraceReflectionsNode::OnExecute()
 	raydesc.RayArguments.RayFlags = RAY_FLAGS::RAY_FLAG_FORCE_OPAQUE;
 	raydesc.PushRayArgs = true;
 	RTList->TraceRays(raydesc);
-	RTList->GetRHIList()->EndTimer(EGPUTIMERS::RT_Trace);
+
 
 	SetEndStates(RTList->GetRHIList());
 	RTList->Execute();
@@ -85,10 +85,7 @@ void RayTraceReflectionsNode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::UAV, StorageFormats::DefaultFormat, "OutputBuffer");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::GBufferData, "GBuffer");
-	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");
-
-	AddOutput(EStorageType::Framebuffer, StorageFormats::ScreenReflectionData, "Screen Data");
-	LinkThough(0);
+	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadows");	
 }
 
 void RayTraceReflectionsNode::OnSetupNode()

@@ -42,7 +42,7 @@ void DeferredLightingNode::OnExecute()
 		List->SetVRXShadingRateImage(StorageNode::NodeCast<FrameBufferStorageNode>(VRXImage->GetStoreTarget())->GetFramebuffer()->GetRenderTexture());
 		//List->PrepareFramebufferForVRR(List->GetShadingRateImage(), MainBuffer);
 	}
-	List->StartTimer(EGPUTIMERS::DeferredLighting);
+
 
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc();
 	desc.InitOLD(false, false, false);
@@ -105,7 +105,7 @@ void DeferredLightingNode::OnExecute()
 
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
-	List->EndTimer(EGPUTIMERS::DeferredLighting);
+	
 #if USEPS_VRR
 	if (VRXImage != nullptr)
 	{
@@ -139,6 +139,6 @@ void DeferredLightingNode::OnNodeSettingChange()
 	}
 	NodeInputStruct.ShadowMask = AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
 
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
+	
 	SetUseSeperateCommandList();
 }

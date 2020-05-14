@@ -7,6 +7,11 @@
 #include "Rendering/Core/Camera.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Rendering/Core/Screen.h"
+#include "UI/UIManager.h"
+#include "UI/EditorUI/EditorUI.h"
+#include "UI/Core/UIWidget.h"
+#include "UI/Core/UITransform.h"
+#include "UI/BasicWidgets/UIImage.h"
 #if WITH_EDITOR
 EditorGizmos::EditorGizmos()
 {
@@ -14,9 +19,9 @@ EditorGizmos::EditorGizmos()
 	ModeIndex = CurrentGizmoMode::Translate;
 }
 
-
 EditorGizmos::~EditorGizmos()
 {}
+
 void EditorGizmos::UpdateAxis(float amt, Axis axis)
 {
 	if (ModeIndex == CurrentGizmoMode::Translate)
@@ -55,6 +60,7 @@ void EditorGizmos::UpdateAxis(float amt, Axis axis)
 	}
 	target->PostChangeProperties();
 }
+
 //todo: axis rotations relative to view etc.
 //todo: axis hit boxes?
 void EditorGizmos::UpdateAxis(float amt)
@@ -144,9 +150,16 @@ void EditorGizmos::TickNew()
 	glm::vec3 TargetPos = target->GetTransform()->GetPos();
 	Ray r;
 	r.t = 0.0f;
-	glm::ivec2 pos = Screen::GetWindowRes() - glm::ivec2(Input::GetMousePos().x, Input::GetMousePos().y);
+	glm::vec2 pos = Screen::GetWindowRes() - glm::ivec2(Input::GetMousePos().x, Input::GetMousePos().y);
+#if WITH_EDITOR
+	glm::vec4 Offset = UIManager::Get()->EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
+	glm::vec2 EdgeOffset = glm::vec2(Offset.z, Offset.w) - (glm::vec2(Offset.x, Offset.y) / 2.0f);
+	pos = glm::vec2(Screen::GetWindowRes()) - glm::vec2(Input::GetMousePos().x, Input::GetMousePos().y);
+	pos += glm::vec2(Offset.z / 2.0f, -Offset.w);
+#endif
 	SceneRenderer::Get()->GetCurrentCamera()->GetRayAtScreenPos(pos.x, pos.y, r.direction, r.origin);
-
+	Log::LogTextToScreen(glm::to_string(pos));
+	//DebugLineDrawer::Get()->AddLine(r.origin, r.direction * 1000, glm::vec3(1), 10);
 	CurrentWidget LastAxis = CurrentAxis;
 	if (CurrentAxis == Limit)
 	{

@@ -14,6 +14,7 @@ public:
 	ClassReflectionData m_RelfectionData;
 	virtual void Serialize(BinaryArchive* Achive);
 	uint64 GetId()const { return ClassIdHash; }
+	virtual void OnPropertyUpdate(ClassReflectionNode* Node) {}
 protected:
 	uint64 ClassIdHash = 0;
 	void SerializeThis(BinaryArchive * A, std::vector<ClassReflectionNode*>& Nodes);

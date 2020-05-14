@@ -51,9 +51,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* Target, RHICommandList* CommandLis
 		//return;
 	}
 	//wait for graphics to be done with the target buffer
-	
 
-	CommandList->StartTimer(EGPUTIMERS::PostProcess);
 
 	CommandList->ResolveVRXFramebuffer(Target);
 
@@ -68,7 +66,7 @@ void PostProcessing::ExecPPStack(FrameBuffer* Target, RHICommandList* CommandLis
 			//			Effects[i]->RunPass(CommandList, Object->RightEyeFramebuffer);
 		}
 	}
-	CommandList->EndTimer(EGPUTIMERS::PostProcess);
+
 
 	//tell graphics to wait for us to finish with the target buffer in compute
 	

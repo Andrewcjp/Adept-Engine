@@ -12,7 +12,7 @@ public:
 
 	void OnResourceResize() override;
 
-	NameNode("Post Process")
+	NameNode("Post Processing")
 
 protected:
 	virtual void OnNodeSettingChange() override;

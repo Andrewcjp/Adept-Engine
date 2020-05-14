@@ -23,8 +23,7 @@ void SSAONode::OnExecute()
 	FrameBuffer* TempSSAOData = GetFrameBufferFromInput(2);
 	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	list->ResetList();
-	{
-		DECALRE_SCOPEDGPUCOUNTER(list, "SSAO");
+	{		
 		Shader_SSAO* SSaoshader = ShaderComplier::GetShader<Shader_SSAO>();
 		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SSAO>());
 		list->SetPipelineStateDesc(desc);
@@ -55,7 +54,6 @@ void SSAONode::OnNodeSettingChange()
 {
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::LitScene, "Scene");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::ComputeUse, StorageFormats::GBufferData, "GBuffer");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene);
 
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;

@@ -5,6 +5,7 @@
 #include "StorageNode.h"
 #include "StoreNodes\FrameBufferStorageNode.h"
 #include "StoreNodes\BufferStorageNode.h"
+#include "Core\Performance\PerfManager.h"
 
 
 RenderGraphProcessor::RenderGraphProcessor()
@@ -16,11 +17,15 @@ RenderGraphProcessor::~RenderGraphProcessor()
 
 void RenderGraphProcessor::Process(RenderGraph * graph)
 {
-	BuildTimeLine(graph);
-	BuildTransitions(graph);
-	//BuildTransitionsSplit(graph);
-	BuildScheduling(graph);
-	BuildAliasing(graph);
+	{
+		SCOPE_STARTUP_COUNTER("RG Process");
+		BuildTimeLine(graph);
+		BuildTransitions(graph);
+		//BuildTransitionsSplit(graph);
+		BuildScheduling(graph);
+		BuildAliasing(graph);
+	}
+	PerfManager::Get()->FlushSingleActionTimer("RG Process", true);
 }
 
 void RenderGraphProcessor::Reset()
@@ -141,7 +146,7 @@ void RenderGraphProcessor::BuildScheduling(RenderGraph * graph)
 			}
 			else
 			{
-				
+
 				if (i == 0)
 				{
 					T.SignalingDevice = frame->Node->GetDeviceIndex();
@@ -154,7 +159,7 @@ void RenderGraphProcessor::BuildScheduling(RenderGraph * graph)
 				}
 			}
 			//add unique
-		
+
 			count++;
 		}
 	}

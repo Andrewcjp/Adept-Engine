@@ -30,7 +30,6 @@ void ShadowMaskNode::OnExecute()
 	List->ResetList();
 	FrameBuffer* OutputBuffer = GetFrameBufferFromInput(0);
 
-	List->StartTimer(EGPUTIMERS::ShadowPreSample);
 	SetBeginStates(List);
 	RHIPipeLineStateDesc psodesc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShadowSample>(Context, 4), OutputBuffer);
 	psodesc.InitOLD(false, false, false);
@@ -48,7 +47,6 @@ void ShadowMaskNode::OnExecute()
 	List->EndRenderPass();
 	//OutputBuffer->SetResourceState(List, EResourceState::Non_PixelShader);
 	SetEndStates(List);
-	List->EndTimer(EGPUTIMERS::ShadowPreSample);
 	List->Execute();
 
 }
@@ -58,8 +56,7 @@ void ShadowMaskNode::OnNodeSettingChange()
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::PreSampleShadowData, "ShadowMask");
 	AddInput(EStorageType::ShadowData, StorageFormats::ShadowData, "Shadow Maps");
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::GBufferData, "GBuffer");
-	AddOutput(EStorageType::Framebuffer, StorageFormats::LitScene, "Lit scene");
-	GetOutput(0)->SetLink(GetInput(0));
+	
 }
 
 void ShadowMaskNode::OnSetupNode()

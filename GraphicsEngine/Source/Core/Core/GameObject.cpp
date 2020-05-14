@@ -10,7 +10,6 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Core/Mesh/MeshPipelineController.h"
 #include "Assets/BinaryArchive.h"
-#include "Components/ComponentRegistry.h"
 #include "Reflection/ObjectLibrary.h"
 #include "Core/GameObject.generated.h"
 

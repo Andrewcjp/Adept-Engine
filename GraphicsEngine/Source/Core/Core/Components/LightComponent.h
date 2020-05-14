@@ -24,19 +24,19 @@ public:
 #if WITH_EDITOR
 	void PostChangeProperties() override;
 #endif
+
+	void OnPropertyUpdate(ClassReflectionNode* Node) override;
+
 private:
 	Light* MLight = nullptr;
-	PROPERTY();
-	float CurrentIntensity = 0.0f;
+	PROPERTY(Name = "Intensity");
+	float CurrentIntensity = 1.0f;
 	ELightType::Type CurrentType = ELightType::Point;
 	PROPERTY(Name = "Light Color");
 	glm::vec3 CurrentColour = glm::vec3(1);
-	PROPERTY();
+	PROPERTY(Name = "Cast Shadow");
 	bool DoesShadow = false;
 	PROPERTY();
-	float Distance = 512;
-#if WITH_EDITOR
-	void GetInspectorProps(std::vector<InspectorProperyGroup>& props) override;
-#endif
+	float Distance = 30;
 };
 

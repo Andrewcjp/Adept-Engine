@@ -258,24 +258,8 @@ namespace EGPUTIMERS
 	enum Type
 	{
 		Total,
-		PointShadows,
-		DirShadows,
-		MainPass,
-		PreZ,
-		DeferredWrite,
-		DeferredLighting,
-		UI,
-		Text,
-		Skybox,
-		PostProcess,
-		Present,
-		ParticleDraw,
-		ParticleSimulation,
-		ShadowPreSample,
 		GPU0WaitOnGPU1,
-		CubemapCapture,
-		DebugRender,
-		RT_Trace,
+		Text,
 		LIMIT
 	};
 }

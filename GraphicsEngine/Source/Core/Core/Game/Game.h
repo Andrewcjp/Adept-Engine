@@ -8,21 +8,18 @@ class GameHud;
 class  Game
 {
 public:
-	CORE_API Game(class ComponentRegistry* Reg);
+	CORE_API Game();
 	CORE_API virtual ~Game();
 	CORE_API virtual void  Update();
 	CORE_API  void BeginPlay();
 	CORE_API  void EndPlay();
 	CORE_API float GetTickRate();
 	CORE_API void SetTickRate(float NewRate);
-	CORE_API class ExtraComponentRegister* GetECR();
 	CORE_API virtual GameMode* CreateGameMode();
 	CORE_API virtual AIDirector* CreateAIDirector();
 	CORE_API virtual GameHud* CreateGameHUD();
 	CORE_API virtual std::vector<std::string> GetPreLoadAssets();
 	void Init();
-protected:
-	ExtraComponentRegister * ECR = nullptr;
 private:
 	float TickRate = 60.0f;
 
@@ -36,7 +33,7 @@ public:
 		//	Log::OutS << "Game Module Startup" << Log::OutS;
 		return true;
 	}
-	virtual Game* GetGamePtr(class ComponentRegistry* Reg)
+	virtual Game* GetGamePtr()
 	{
 		return nullptr;
 	}

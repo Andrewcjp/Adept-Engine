@@ -3,7 +3,7 @@
 #include "Core/EngineTypes.h"
 #include <functional>
 #define UISTATS 0
-#define EDITORUI WITH_EDITOR
+#define EDITORUI 1//WITH_EDITOR
 class TextRenderer;
 class UIWidget;
 class GameObject;
@@ -82,8 +82,8 @@ public:
 	}
 	void SetEditorViewPortRenderTarget(FrameBuffer* target);
 	bool IsFullScreen() const { return FullScreen; }
-private:
 	EditorUI* EditUI = nullptr;
+private:
 	UIBox* TOP = nullptr;
 	std::vector<UIWidgetContext*> Contexts;
 	UIDropDown * DropdownCurrent = nullptr;

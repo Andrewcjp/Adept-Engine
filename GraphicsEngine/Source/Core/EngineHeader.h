@@ -4,7 +4,6 @@
 #include "Core/Game/Gamemode.h"
 #include "Core\GameObject.h"
 #include "Core\Components\Component.h"
-#include "Core\Components\ExtraComponentRegister.h"
 #include "Physics\PhysicsEngine.h"
 #include "Rendering\Core\Material.h"
 #include "Core/Input/Input.h"

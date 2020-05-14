@@ -289,6 +289,7 @@ void UIManager::UpdateBatches()
 		instance->Contexts[i]->MarkRenderStateDirty();
 	}
 }
+
 bool Traverse(UIWidget* w, glm::ivec2 pos)
 {
 	if (!w->GetEnabled())
@@ -330,23 +331,10 @@ bool UIManager::AnyWindowBlocks(int x, int y)
 	}
 	return false;
 }
+
 void UIManager::UpdateInput()
 {
-
-	glm::vec4 size = glm::vec4(0, 0, Screen::GetWindowRes());
-#if WITH_EDITOR
-	if (EditUI->ViewPortImage != nullptr)
-	{
-		size = EditUI->ViewPortImage->GetTransfrom()->GetTransfromRect();
-		CollisionRect c = CollisionRect(size.x, size.y, size.z, size.w);
-		Blocking = !c.Contains(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
-		Blocking = AnyWindowBlocks(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
-	}
-	else
-#endif
-	{
-		Blocking = false;
-	}
+	Blocking = AnyWindowBlocks(Input::Get()->GetMousePos().x, Input::Get()->GetMousePos().y);
 	if (Blocking)
 	{
 		for (int i = 0; i < Input::Get()->Events.size(); i++)
@@ -398,7 +386,7 @@ void UIManager::RenderWidgets(RHICommandList* List)
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->RenderWidgets(List);
-	}
+}
 	DebugLineDrawer::Get2()->RenderLines2DScreen(List);
 }
 
@@ -408,7 +396,7 @@ void UIManager::RenderWidgetText()
 	{
 		Contexts[i]->RenderWidgetText();
 	}
-}
+	}
 
 //todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)
@@ -462,7 +450,7 @@ void UIManager::SelectedCallback(int i)
 	if (instance)
 	{
 		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
-	}
+}
 #endif
 }
 

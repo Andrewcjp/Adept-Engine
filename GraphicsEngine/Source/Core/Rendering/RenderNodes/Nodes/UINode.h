@@ -6,7 +6,7 @@ class UINode : public RenderNode
 public:
 	UINode();
 	~UINode();
-
+	NameNode("UI Render");
 	void OnExecute() override;
 
 protected:

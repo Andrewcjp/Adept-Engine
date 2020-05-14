@@ -13,8 +13,6 @@ public:
 	~NodeLink();
 	bool SetStore(StorageNode* Target);
 	bool IsValid();
-	//[[deprecated]]
-	bool SetLink(NodeLink* link);
 	EStorageType::Type TargetType = EStorageType::Limit;
 	RenderNode* OwnerNode = nullptr;
 	StorageNode* GetStoreTarget() const;
@@ -25,8 +23,6 @@ public:
 	}
 	//this is a GUIDE not a hard rule
 	std::string DataFormat = "";
-	//the link containing the data.
-	NodeLink* StoreLink = nullptr;
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	std::string GetLinkName() const;
 	void SetLinkName(const std::string& val);

@@ -3,7 +3,7 @@
 #include "Core/GameObject.h"
 #include "Core/Engine.h"
 #include "Physics/PhysicsEngine.h"
-#include "ComponentRegistry.h"
+
 #include "Core/Assets/Scene.h"
 #include "ColliderComponent.h"
 #include "../Utils/MathUtils.h"
@@ -11,7 +11,6 @@
 RigidbodyComponent::RigidbodyComponent()
 {
 	DoesFixedUpdate = true;
-	TypeID = ComponentRegistry::BaseComponentTypes::RigidComp;
 }
 
 RigidbodyComponent::~RigidbodyComponent()

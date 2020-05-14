@@ -67,43 +67,45 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 	{
 		list->SetPipelineStateDesc(desc);
 	}
-	list->GetDevice()->GetTimeManager()->StartTimer(list, EGPUTIMERS::Skybox);
-
-	if (DepthSourceBuffer != nullptr)
+	
 	{
-		RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
-		D.FinalState = EResourceState::PixelShader;
-		D.DepthSourceBuffer = DepthSourceBuffer;
-		list->BeginRenderPass(D);
-	}
-	else
-	{
-		if (!Cubemap)
+		DECALRE_SCOPEDGPUCOUNTER(list, "SkyBox render");
+		if (DepthSourceBuffer != nullptr)
 		{
 			RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
 			D.FinalState = EResourceState::PixelShader;
+			D.DepthSourceBuffer = DepthSourceBuffer;
 			list->BeginRenderPass(D);
 		}
-	}
-	if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
-	{
-		list->SetScissorRect(SFRController::GetScissor(list->GetDeviceIndex(), Screen::GetScaledRes()));
-	}
+		else
+		{
+			if (!Cubemap)
+			{
+				RHIRenderPassDesc D = RHIRenderPassDesc(Buffer);
+				D.FinalState = EResourceState::PixelShader;
+				list->BeginRenderPass(D);
+			}
+		}
+		if (RHI::GetRenderSettings()->GetCurrnetSFRSettings().Enabled)
+		{
+			list->SetScissorRect(SFRController::GetScissor(list->GetDeviceIndex(), Screen::GetScaledRes()));
+		}
 #if DEBUG_CUBEMAPS
-	list->SetFrameBufferTexture(test, "g_texture");
+		list->SetFrameBufferTexture(test, "g_texture");
 #else
-	list->SetTexture(SkyBoxTexture, "g_texture");
+		list->SetTexture(SkyBoxTexture, "g_texture");
 #endif
-	if (!Cubemap)
-	{
-		SceneRender->BindMvBuffer(list, "", 0);
+		if (!Cubemap)
+		{
+			SceneRender->BindMvBuffer(list, "", 0);
+		}
+		else
+		{
+			Cubemap->BindViews(list, index, 1);
+		}
+		CubeModel->Render(list);
 	}
-	else
-	{
-		Cubemap->BindViews(list, index, 1);
-	}
-	CubeModel->Render(list);
-	list->GetDevice()->GetTimeManager()->EndTimer(list, EGPUTIMERS::Skybox);
+	
 	if (!Cubemap)
 	{
 		list->EndRenderPass();

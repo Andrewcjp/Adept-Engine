@@ -4,7 +4,7 @@ class TestGame :
 	public Game
 {
 public:
-	TestGame(class ComponentRegistry* Reg);
+	TestGame();
 	~TestGame();
 
 };
@@ -12,9 +12,9 @@ public:
 
 class TestGameModule :public GameModule
 {
-	Game* GetGamePtr(ComponentRegistry* Reg) override
+	Game* GetGamePtr() override
 	{
-		return new TestGame(Reg);
+		return new TestGame();
 	}
 };
 

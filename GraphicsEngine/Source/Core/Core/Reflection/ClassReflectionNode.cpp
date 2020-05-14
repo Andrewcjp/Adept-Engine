@@ -1,4 +1,5 @@
 #include "ClassReflectionNode.h"
+#include "IReflect.h"
 
 float ClassReflectionNode::GetAsFloat()
 {
@@ -39,24 +40,28 @@ void ClassReflectionNode::SetString(std::string value)
 {
 	ensure(m_Type == MemberValueType::String);
 	*((std::string*)m_pDataPtr) = value;
+	Notify();
 }
 
 void ClassReflectionNode::SetBool(bool value)
 {
 	ensure(m_Type == MemberValueType::Bool);
 	*((bool*)m_pDataPtr) = value;
+	Notify();
 }
 
 void ClassReflectionNode::SetFloat(float value)
 {
 	ensure(m_Type == MemberValueType::Float);
 	*((float*)m_pDataPtr) = value;
+	Notify();
 }
 
 void ClassReflectionNode::SetInt(int value)
 {
 	ensure(m_Type == MemberValueType::Int);
 	*((int*)m_pDataPtr) = value;
+	Notify();
 }
 
 void ClassReflectionNode::SetFloat3(glm::vec3 value)
@@ -72,6 +77,7 @@ void ClassReflectionNode::SetFunc()
 	{
 		m_SetFunc(m_pDataPtr);
 	}
+	Notify();
 }
 
 void ClassReflectionNode::GetFunc()
@@ -110,3 +116,12 @@ uint64 ClassReflectionNode::GetSize() const
 	}
 	return 0;
 }
+
+void ClassReflectionNode::Notify()
+{
+	if (Owner != nullptr)
+	{
+		Owner->OnPropertyUpdate(this);
+	}
+}
+

@@ -283,6 +283,8 @@ void D3D12DeviceContext::CheckFeatures()
 	Data.Configuration.BitstreamEncryption = D3D12_BITSTREAM_ENCRYPTION_TYPE_NONE;
 	Data.Configuration.InterlaceType = D3D12_VIDEO_FRAME_CODED_INTERLACE_TYPE_NONE;
 	VideoDevice->CheckFeatureSupport(D3D12_FEATURE_VIDEO::D3D12_FEATURE_VIDEO_DECODE_SUPPORT, &Data, sizeof(Data));
+	//VideoDevice->CreateVideoProcessor();
+	
 #endif
 
 }

@@ -15,6 +15,9 @@
 #include "LightCulling/LightCullingEngine.h"
 #include "Core/BaseWindow.h"
 #include "Core/Assets/Scene.h"
+#include "RHI/RHITimeManager.h"
+#include "Rendering/RenderNodes/RenderNode.h"
+#include "Rendering/RenderNodes/Nodes/ShadowUpdateNode.h"
 #define SINGLE_GPU_PRESAMPLE 0
 #define CUBE_SIDES 6
 #define TEST_PRESAMPLE 1
@@ -50,7 +53,7 @@ eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
 
 void ShadowRenderer::RenderPointShadows(RHICommandList* list)
 {
-	list->StartTimer(EGPUTIMERS::PointShadows);
+	DECALRE_SCOPEDGPUCOUNTER(list, ShadowUpdateNode::GetNodeName()+std::string(".Point"));
 	int IndexOnGPU = 0;
 	std::vector<Light*> lights = SceneRenderer::Get()->GetLightCullingEngine()->GetCurrentlyRelevantLights();
 	for (int i = 0; i < lights.size(); i++)
@@ -92,7 +95,7 @@ void ShadowRenderer::RenderPointShadows(RHICommandList* list)
 	{
 		list->InsertGPUStallTimer();
 	}*/
-	list->EndTimer(EGPUTIMERS::PointShadows);
+	
 }
 
 void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList* list, int IndexOnGPU)

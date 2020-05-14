@@ -8,11 +8,11 @@
 #include "UI/CompoundWidgets/UIButton.h"
 #include "UI/Core/Layout.h"
 #include "UI/CompoundWidgets/UIPanel.h"
-#include "Core/Components/ComponentRegistry.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Component.h"
 #include <vector>
 #include "UI/EditorUI/UIPropertyField.h"
+#include "Core/Reflection/ObjectLibrary.h"
 #if WITH_EDITOR
 Inspector* Inspector::Instance = nullptr;
 Inspector::Inspector(int w, int h, int x, int y)
@@ -67,20 +67,24 @@ void Inspector::MouseClickUp(int x, int y)
 
 void Inspector::AddComponent()
 {
-	//__debugbreak();
+	ListIds.clear();
 	std::vector<std::string> ops;
-	for (int i = 0; i < ComponentRegistry::GetInstance()->GetCount(); i++)
+	std::vector<const ClassType*> types = ObjectLibrary::GetAllItemsOfType(0);
+	for (int i = 0; i < types.size(); i++)
 	{
-		ops.push_back(ComponentRegistry::GetInstance()->GetNameById(i));
+		//todo: use filter by type
+		if (types[i]->Name.find("omp") != std::string::npos && types[i]->Name != "Component")
+		{
+			ops.push_back(types[i]->Name);
+			ListIds.push_back(types[i]->TypeId);
+		}
 	}
-
 	using std::placeholders::_1;
 	UIManager::instance->CreateDropDown(ops, button->GetTransfrom()->GetSizeRootSpace().x, 200, button->GetTransfrom()->GetPositionForWidgetRootSpace().x, button->GetTransfrom()->GetPositionForWidgetRootSpace().y, std::bind(&Inspector::AddComponentCallback, _1));
 }
 
 void Inspector::AddComponentCallback(int i)
 {
-	//__debugbreak();
 	//close dropdown
 	if (Instance != nullptr)
 	{
@@ -89,7 +93,7 @@ void Inspector::AddComponentCallback(int i)
 			GameObject* t = (GameObject*)Instance->target;
 			if (t != nullptr)
 			{
-				Component* comp = ComponentRegistry::CreateBaseComponent(ComponentRegistry::BaseComponentTypes(i));
+				Component* comp = ObjectLibrary::Create<Component>(Instance->ListIds[i]);
 				if (comp != nullptr)
 				{
 					t->AttachComponent(comp);

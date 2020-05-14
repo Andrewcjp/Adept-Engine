@@ -37,14 +37,12 @@ void ReflectionEnviroment::UpdateRelflectionProbes(RHICommandList* commandlist)
 {
 	return;
 	SCOPE_CYCLE_COUNTER_GROUP("Update Relflection Probes", "Render");
-	commandlist->StartTimer(EGPUTIMERS::CubemapCapture);
 	BindStaticSceneEnivoment(commandlist, false);
 	for (int i = 0; i < Probes.size(); i++)
 	{
 		ReflectionProbe* Probe = Probes[i];
 		RenderCubemap(Probe, commandlist);
 	}
-	commandlist->EndTimer(EGPUTIMERS::CubemapCapture);
 }
 
 bool ReflectionEnviroment::AnyProbesNeedUpdate()
