@@ -26,8 +26,9 @@ public:
 	void SetIsFloating(bool val);
 	void SetCloseable(bool state);
 	void SetTitle(const std::string& title);
+	void Close();
+	std::function<void()> OnCloseCallBack;
 protected:
-	void CLose();
 	bool IsCloseAble = false;
 	bool IsFloating = false;
 	UILabel* m_TitleLabel = nullptr;

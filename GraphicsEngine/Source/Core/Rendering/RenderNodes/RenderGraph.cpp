@@ -187,6 +187,13 @@ void RenderGraph::LinkNode(RenderNode* A, RenderNode* B)
 	A->LinkToNode(B);
 }
 
+void RenderGraph::InsertNode(RenderNode* Point, RenderNode* B)
+{
+	RenderNode* N = Point->GetNextNode();
+	Point->LinkToNode(B);
+	B->LinkToNode(N);
+}
+
 void RenderGraph::ToggleCondition(const std::string& name)
 {
 	SetCondition(name, !GetCondition(name));

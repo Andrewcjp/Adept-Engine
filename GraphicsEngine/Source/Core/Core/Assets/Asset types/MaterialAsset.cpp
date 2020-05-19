@@ -3,5 +3,6 @@
 
 MaterialAsset::MaterialAsset()
 {
+	NeedsMetaFile = false;
 	CALL_CONSTRUCTOR();
 }

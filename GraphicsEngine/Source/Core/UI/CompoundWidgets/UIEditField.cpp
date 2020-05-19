@@ -9,6 +9,8 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Core/Input/TextInputHandler.h"
 #include "Core/Utils/StringUtil.h"
+#include "Core/Assets/Asset types/BaseAsset.h"
+#include "Core/Assets/AssetPtr.h"
 UIEditField::UIEditField(int w, int h, int x, int y) :UIBox(w, h, x, y)
 {
 	Colour = colour;
@@ -135,6 +137,14 @@ void UIEditField::GetValueText(std::string & string)
 		else if (Targetcomponent == Z)
 		{
 			string = StringUtils::ToString(Node->GetAsFloat3().z);
+		}
+	}
+	if (FilterType == MemberValueType::AssetPtr)
+	{
+		AssetPtr<BaseAsset>*  asset = Node->GetAsT<AssetPtr<BaseAsset>>();
+		if (asset != nullptr && asset->IsValid())
+		{
+			string = asset->GetAsset()->GetName();
 		}
 	}
 }
@@ -296,7 +306,7 @@ void UIEditField::UpdateScaled()
 	int w = GetTransfrom()->GetSizeRootSpace().x;
 	int h = GetTransfrom()->GetSizeRootSpace().y;
 	Textlabel->TextScale = 0.3f;
-	
+
 	Textlabel->SetRootSpaceSize(w, h, 0, 0);
 	if (FilterType == MemberValueType::Bool)
 	{

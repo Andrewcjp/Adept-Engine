@@ -48,6 +48,7 @@ UITab::~UITab()
 void UITab::SetShowState(bool show)
 {
 	TabPanelArea->SetEnabled(show);
+	Button->NormalColour = show ? glm::vec3(0.5) : glm::vec3(0.25);
 }
 
 void UITab::UpdateScaled()

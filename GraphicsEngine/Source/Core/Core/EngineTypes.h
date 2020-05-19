@@ -149,3 +149,12 @@ private:
 	std::vector<T*> AllocBuffer;
 	int AllocIndex = 0;
 };
+
+class StaticFunctionExecuter
+{
+public:
+	StaticFunctionExecuter(std::function<void()> func)
+	{
+		func();
+	}
+};

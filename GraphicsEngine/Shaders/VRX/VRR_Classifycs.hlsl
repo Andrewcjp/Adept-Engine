@@ -14,7 +14,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 	//	TileData.Store(0, 0);
 	//	TileData.Store(TILE_HEADER_OFFSET_VARTILES, 0);
 	//}
-	GroupMemoryBarrierWithGroupSync();
+	//GroupMemoryBarrierWithGroupSync();
 	uint Rate = RateImage[DTid.xy];
 	uint LastCount = 0;
 #if 1

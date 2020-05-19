@@ -272,6 +272,11 @@ int DeviceContext::InsertWaitForValue(DeviceContextQueue::Type queue, DeviceCont
 	return value;
 }
 
+std::string DeviceContext::ReportDeviceData()
+{
+	return std::string();
+}
+
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");

@@ -91,7 +91,7 @@ public:
 	//BranchNode * AddBranchNode(RenderNode * Start, RenderNode * A, RenderNode * B, bool initalstate, std::string ExposeName = std::string());
 
 	void LinkNode(RenderNode * A, RenderNode * B);
-
+	void InsertNode(RenderNode* Point, RenderNode* B);
 	void CreateFWDGraph();
 	template<class T>
 	T * AddStoreNode(T * Node)

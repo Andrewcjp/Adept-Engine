@@ -10,6 +10,7 @@
 #include "Packaging/Cooker.h"
 #include "Archive.h"
 #include "RHI/Streaming/TextureStreamingCommon.h"
+#include "AssetDatabase.h"
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
@@ -33,6 +34,7 @@ void AssetManager::StartAssetManager()
 	{
 		instance = new AssetManager();
 		instance->Init();
+		new AssetDatabase();
 	}
 }
 

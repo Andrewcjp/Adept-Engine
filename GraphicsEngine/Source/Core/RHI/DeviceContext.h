@@ -145,6 +145,7 @@ public:
 	RHI_API virtual bool IsUMA()const = 0;
 	RHI_API int SignalCommandQueue(DeviceContextQueue::Type queue, uint64 value = -1);
 	RHI_API int InsertWaitForValue(DeviceContextQueue::Type queue, DeviceContextQueue::Type WaitingQueue, uint64 value = -1);
+	virtual std::string ReportDeviceData();
 protected:
 	int CurrentFrameIndex = 0;
 	RHI_API void PostInit();

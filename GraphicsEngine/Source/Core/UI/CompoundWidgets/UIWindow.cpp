@@ -130,7 +130,7 @@ void UIWindow::SetCloseable(bool state)
 		CloseButton = new UIButton(0, 0);
 		CloseButton->SetText("X");
 		CloseButton->GetTransfrom()->SetAnchourPoint(EAnchorPoint::Top);
-		CloseButton->BindTarget(std::bind(&UIWindow::CLose, this));
+		CloseButton->BindTarget(std::bind(&UIWindow::Close, this));
 		AddChild(CloseButton);
 	}
 }
@@ -140,9 +140,14 @@ void UIWindow::SetTitle(const std::string& title)
 	m_TitleLabel->SetText(title);
 }
 
-void UIWindow::CLose()
+void UIWindow::Close()
 {
+	if (OnCloseCallBack != nullptr)
+	{
+		OnCloseCallBack();
+	}
 	SetEnabled(false);
+	UIManager::Get()->RemoveWidget(this);
 }
 
 void UIWindow::OnGatherBatches(UIRenderBatch* Groupbatchptr /*= nullptr*/)

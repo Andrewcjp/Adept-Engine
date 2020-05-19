@@ -28,6 +28,7 @@
 #include "SFRController.h"
 #include "Streaming/TextureStreamingEngine.h"
 #include "Testing/EngineTests.h"
+#include "Rendering/Core/GPULoadBalancer.h"
 
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
@@ -259,7 +260,7 @@ RHI * RHI::Get()
 
 SFRController * RHI::GetSplitController()
 {
-	return instance->SFR_Controller;
+	return GPULoadBalancer::Get()->SFR_Controller;
 }
 
 void RHI::FlushDeferredDeleteQueue()
@@ -270,7 +271,7 @@ void RHI::FlushDeferredDeleteQueue()
 void RHI::Tick()
 {
 	Get()->QualityEngine->Update();
-	instance->SFR_Controller->Tick();
+	GPULoadBalancer::Get()->Tick();
 	TextureStreamingEngine::Get()->Update();
 }
 
@@ -503,8 +504,8 @@ void RHI::InitialiseContext()
 	PlatformWindow::TickSplashWindow(10, "Loading Render Graph");
 	if (!Engine::GetIsCooking())
 	{
-		ParticleSystemManager::Get();
-		instance->SFR_Controller = new SFRController();
+		ParticleSystemManager::Get();	
+		instance->LoadBalencer = new GPULoadBalancer();
 	}
 	Defaults::Start();
 	Input::Startup();

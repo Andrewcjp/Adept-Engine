@@ -1,6 +1,10 @@
 #include "UIPropertyField.h"
 #include "UI/Core/UIWidget.h"
 #include "UI/CompoundWidgets/UIEditField.h"
+#include "UI/CompoundWidgets/UIButton.h"
+#include "UIAssetPickerTab.h"
+#include "Core/Assets/Asset types/BaseAsset.h"
+#include "Core/Assets/AssetPtr.h"
 
 UIPropertyField::UIPropertyField()
 {
@@ -52,11 +56,32 @@ void UIPropertyField::UpdateType()
 		AddChild(ExtraFields[1]);
 		ExtraFieldCount = 2;
 	}
+	if (NeedsPicker())
+	{
+		PickerButton = new UIButton(0, 0);
+		PickerButton->SetText("O");
+		PickerButton->BindTarget([&]
+		{
+			UIAssetPickerTab::CreateAssetPicker(TargetProperty->TemplateType, [&](BaseAsset* a)
+			{
+				AssetPtr<BaseAsset>*  asset = TargetProperty->GetAsT<AssetPtr<BaseAsset>>();
+				if (asset != nullptr)
+				{
+					asset->SetAssetDirect(a);
+					TargetProperty->Notify();
+					Field->Update();
+				}
+			});
+		});
+		AddChild(PickerButton);
+	}
 	UpdateSize();
 }
+
 void UIPropertyField::UpdateSize()
 {
 	glm::ivec2 size = Transform.GetSizeRootSpace();
+	size.x -= 5;
 	Namelabel->SetRootSpaceSize(size.x / 2, size.y, 0, 0);
 	const int HalfWidth = (size.x / 2);
 	if (Field != nullptr)
@@ -77,6 +102,11 @@ void UIPropertyField::UpdateSize()
 				ExtraFields[i]->SetRootSpaceSize(Thirds, size.y, HalfWidth + Spacing + (Thirds*(i + 1)), 0);
 			}
 		}
+		else if (NeedsPicker())
+		{
+			Field->SetRootSpaceSize(size.x / 2 - PickerButtonSize, size.y, size.x / 2, 0);
+			PickerButton->SetRootSpaceSize(PickerButtonSize, size.y, size.x - PickerButtonSize, 0);
+		}
 		else
 		{
 			Field->SetRootSpaceSize(size.x / 2, size.y, size.x / 2, 0);
@@ -86,4 +116,9 @@ void UIPropertyField::UpdateSize()
 	{
 		BackGround->SetRootSpaceSize(size.x, size.y, 0, 0);
 	}
+}
+
+bool UIPropertyField::NeedsPicker() const
+{
+	return TargetProperty->m_Type == MemberValueType::AssetPtr;
 }

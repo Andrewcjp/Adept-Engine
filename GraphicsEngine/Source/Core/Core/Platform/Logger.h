@@ -21,6 +21,7 @@ public:
 		Error
 	};
 	CORE_API static void LogOutput(const std::string& data, int colour, bool ForceFlush = false);
+	static void AddToLogFile(const std::string& data, bool ForceFlush = false);
 	static void LogBoolTerm(std::string PreText, bool value, int ForceOffset = -1);
 	struct StreamWrapper
 	{

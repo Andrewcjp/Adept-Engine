@@ -30,8 +30,7 @@ void NameObject(ID3D12Object* pObject, std::wstring name, int id)
 static ConsoleVariable EnableStablePower("StablePower", false, ECVarType::LaunchOnly, true);
 
 D3D12DeviceContext::D3D12DeviceContext()
-{
-}
+{}
 
 D3D12DeviceContext::~D3D12DeviceContext()
 {
@@ -284,7 +283,7 @@ void D3D12DeviceContext::CheckFeatures()
 	Data.Configuration.InterlaceType = D3D12_VIDEO_FRAME_CODED_INTERLACE_TYPE_NONE;
 	VideoDevice->CheckFeatureSupport(D3D12_FEATURE_VIDEO::D3D12_FEATURE_VIDEO_DECODE_SUPPORT, &Data, sizeof(Data));
 	//VideoDevice->CreateVideoProcessor();
-	
+
 #endif
 
 }
@@ -429,6 +428,34 @@ bool D3D12DeviceContext::IsUMA() const
 {
 	return DeviceFeatureData.ArchData.UMA;
 }
+std::string GetDXRstring(D3D12_RAYTRACING_TIER t)
+{
+	if (t == D3D12_RAYTRACING_TIER_1_0)
+	{
+		return "DXR_TIER_1_0";
+	}
+	return "DXR_TIER_NOT_SUPPORTED";
+}
+std::string GetNiceTierData(int i)
+{
+	if (i == 0)
+	{
+		return "NOT_SUPPORTED";
+	}
+	return "TIER_" + std::to_string(i);
+}
+std::string D3D12DeviceContext::ReportDeviceData()
+{
+	std::string Data = "GPU " + std::to_string(GetDeviceIndex()) + ":\n";
+	int Length = 30;
+	Data += StringUtils::PadToLength("Adapter Name", Length) + StringUtils::ConvertWideToString(Adaptordesc.Description) + "\n";
+	Data += StringUtils::PadToLength("Type", Length) + EGPUType::ToString(GetType()) + "\n";
+	Data += StringUtils::PadToLength("Dedicated Video Memory", Length) + StringUtils::ByteToGB(Adaptordesc.DedicatedVideoMemory) + "\n";
+	Data += StringUtils::PadToLength("DXR Tier", Length) + GetDXRstring(DeviceFeatureData.FeatureData5.RaytracingTier) + "\n";
+	Data += StringUtils::PadToLength("VRS Tier", Length) + GetNiceTierData(DeviceFeatureData.FeatureData6.VariableShadingRateTier) + "\n";
+	Data += StringUtils::PadToLength("Typed UAV Load Support", Length) + StringUtils::BoolToString(DeviceFeatureData.FeatureData.TypedUAVLoadAdditionalFormats) + "\n";
+	return Data;
+}
 
 void D3D12DeviceContext::FlushUploadQueue()
 {
@@ -454,7 +481,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int ind
 		pDXGIAdapter,
 		D3D_FEATURE_LEVEL_11_0,
 		ID_PASS(&m_Device)
-		);
+	);
 	ensureFatalMsgf(!(result == DXGI_ERROR_UNSUPPORTED), "D3D_FEATURE_LEVEL_11_0 is required to run this engine");
 	ThrowIfFailed(result);
 	D3D_FEATURE_LEVEL MaxLevel = D3D12RHI::GetMaxSupportedFeatureLevel(m_Device);
@@ -465,7 +492,7 @@ void D3D12DeviceContext::CreateDeviceFromAdaptor(IDXGIAdapter1* adapter, int ind
 			pDXGIAdapter,
 			MaxLevel,
 			ID_PASS(&m_Device)
-			));
+		));
 	}
 	DEVICE_NAME_OBJECT(m_Device);
 
@@ -972,7 +999,7 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 
 D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext* device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
 {
-	
+
 	D3D12DeviceContext* d3dc = D3D12RHI::DXConv(Device);
 	if (OtherDevice == nullptr)
 	{

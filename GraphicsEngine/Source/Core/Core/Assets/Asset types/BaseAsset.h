@@ -32,7 +32,14 @@ public:
 	//Has this asset been created?
 	bool IsValid() const;
 	static std::string GetMetaFileName(const std::string& path);
+
+	std::string GetAssetPath() const { return AssetPath; }
+	std::string GetName()const { return name; }
+protected:
+	bool NeedsMetaFile = true;
 private:
+	std::string name = "";
+	std::string AssetPath = "";
 	std::string PathToSource = "";
 	int GUID = 0;
 	EAssetStatus::Type CurrentState = EAssetStatus::NotLoaded;

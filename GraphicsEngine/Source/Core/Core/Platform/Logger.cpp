@@ -13,15 +13,20 @@ void Log::LogOutput(const std::string& data, int colour, bool ForceFlush /*= fal
 	{
 		return;
 	}
+	AddToLogFile(data, ForceFlush);
+	PlatformMisc::LogPlatformOutput(data);
+	PlatformMisc::SetConsoleOutputColour(colour);
+	std::cout << (data.c_str());
+}
+
+void Log::AddToLogFile(const std::string& data, bool ForceFlush /*= false*/)
+{
 	Instance->LogData.push_back(data);
 	const int LogFlushCount = 150;
 	if (ForceFlush || Instance->LogData.size() % LogFlushCount)
 	{
 		Instance->FlushToLogFile();
 	}
-	PlatformMisc::LogPlatformOutput(data);
-	PlatformMisc::SetConsoleOutputColour(colour);
-	std::cout << (data.c_str());
 }
 
 void Log::LogBoolTerm(std::string PreText, bool value, int ForceOffset)
@@ -36,7 +41,7 @@ void Log::LogBoolTerm(std::string PreText, bool value, int ForceOffset)
 			LogOutput(Pad, 7);
 		}
 	}
-	LogOutput("[" + StringUtils::BoolToString(value) + "]", value ? 2 : 4);
+	LogOutput("[" + StringUtils::BoolToStringE(value) + "]", value ? 2 : 4);
 	LogOutput("\n", 7);
 }
 

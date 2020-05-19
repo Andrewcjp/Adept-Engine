@@ -49,6 +49,7 @@ class RHICommandList;
 class RHITexture;
 class DynamicQualityEngine;
 class RHIFence;
+class GPULoadBalancer;
 
 //RHI defines
 #define RHI_SUPPORTS_VR 1
@@ -141,8 +142,8 @@ public:
 	
 private:
 	static void ValidateDevice(DeviceContext*& con);
-	static void ResizeFrameBuffer(FrameBuffer * target);
-	SFRController* SFR_Controller = nullptr;
+	static void ResizeFrameBuffer(FrameBuffer * target);	
+	GPULoadBalancer* LoadBalencer = nullptr;
 	void TickDeferredDeleteQueue(bool Flush = false);
 	static RHI* instance;
 	ERenderSystemType CurrentSystem;

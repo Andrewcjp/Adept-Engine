@@ -3,8 +3,11 @@
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/Material.h"
 #include "Core/Reflection/IReflect.h"
+#include "Core/Assets/AssetPtr.h"
 UCLASS()
 class LowLevelAccelerationStructure;
+class MeshAsset;
+class MaterialAsset;
 class MeshRendererComponent :
 	public Component
 {
@@ -30,7 +33,13 @@ public:
 
 	void Serialize(BinaryArchive* Achive) override;
 
+	void OnPropertyUpdate(ClassReflectionNode* Node) override;
+
 private:
+	PROPERTY();
+	AssetPtr<MeshAsset> m_pMeshAsset;
+	PROPERTY();
+	AssetPtr<MaterialAsset> m_pMaterialAsset;
 	PROPERTY();
 	std::string AssetPath = "";
 	PROPERTY();

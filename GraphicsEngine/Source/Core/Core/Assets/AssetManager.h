@@ -72,7 +72,7 @@ public:
 	CORE_API static const std::string GetSettingsDir();
 	CORE_API static const std::string GetShaderCacheDir(EPlatforms::Type Platform = EPlatforms::Limit);
 	const std::string GetDriverShaderCacheDir();
-	BaseAsset * CreateOrGetAsset(std::string path);
+	static BaseAsset * CreateOrGetAsset(std::string path);
 	void TestAsset();
 	static const PlatformBuildSettings& GetSettings();
 	CORE_API static std::string GetPlatformDirName();

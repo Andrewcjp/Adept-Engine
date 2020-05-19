@@ -32,6 +32,7 @@
 #include "Input/InputManager.h"
 #include "Input/InputController.h"
 #include "Assets/SceneSeraliser.h"
+#include "Performance/HardwareReporter.h"
 static ConsoleVariable ShowStats("stats", 0, ECVarType::ConsoleOnly);
 static ConsoleVariable FPSCap("maxfps", 0, ECVarType::ConsoleAndLaunch);
 static ConsoleVariable RenderScale("r.renderscale", ECVarType::ConsoleAndLaunch, nullptr, nullptr, std::bind(BaseWindow::SetRenderScale, std::placeholders::_1));
@@ -88,6 +89,7 @@ void BaseWindow::InitilseWindow()
 	{
 		RayTracingEngine::Get()->OnFirstFrame();
 	}
+	HardwareReporter::Report();
 }
 
 void BaseWindow::FixedUpdate()

@@ -13,6 +13,7 @@ namespace StringUtils
 	//CORE_API std::string ByteToMB(uint64_t value);
 	CORE_API std::string ByteToGB(uint64_t value);
 	CORE_API std::string BoolToString(bool value);
+	CORE_API std::string BoolToStringE(bool value);
 	CORE_API bool Contains(const std::string Data, const std::string& value);
 	CORE_API bool Contains(const std::wstring Data, const std::wstring & value);
 	CORE_API std::string ToString(bool value);
@@ -21,4 +22,6 @@ namespace StringUtils
 	{
 		return StringUtils::ToString((float)(value) / 1024 / 1024) + "MB";
 	}
+	CORE_API bool replace(std::string& str, const std::string& from, const std::string& to);
+	CORE_API std::string PadToLength(std::string in, int length);
 }

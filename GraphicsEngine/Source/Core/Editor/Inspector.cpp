@@ -140,6 +140,7 @@ void Inspector::CreateEditor()
 				case MemberValueType::Vector2:
 				case MemberValueType::Vector3:
 				case MemberValueType::Bool:
+				case MemberValueType::AssetPtr:
 					//newwidget = new UIEditField(Fields[i].Nodes[j]);
 					newwidget = new UIPropertyField();
 					newwidget->SetTarget(Fields[i].Nodes[j]);

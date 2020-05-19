@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Transform.h"
 //this is the interface between game code and hardware controllers.
 //A controller might not support all functions E.g. tracking, touch pad etc.
 //Each Implementation holds a list of button names that relate to the hardware specifics
@@ -35,6 +36,9 @@ public:
 	glm::vec2 DeadZone(const glm::vec2 V, float threshold)const;
 	float GetLeftTriggerAxis()const;
 	float GetRightTriggerAxis()const;
+	//Is this a VR controller?
+	virtual bool IsTrackingController()const;
+	Transform m_ControllerTransform;
 protected:
 	float StickDeadZone = 0.1f;
 	//collect button data from HW

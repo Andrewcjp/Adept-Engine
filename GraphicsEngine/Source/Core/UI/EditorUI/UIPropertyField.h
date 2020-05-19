@@ -20,11 +20,14 @@ public:
 protected:
 	void UpdateType();
 	void UpdateSize();
+	bool NeedsPicker()const;
 	UIEditField* Field = nullptr;
 	UIEditField* ExtraFields[3]{};
 	ClassReflectionNode* TargetProperty = nullptr;
 	UILabel* Namelabel = nullptr;
 	UIBox* BackGround = nullptr;
+	UIButton* PickerButton = nullptr;
 	int ExtraFieldCount = 0;
+	int PickerButtonSize = 20;
 };
 

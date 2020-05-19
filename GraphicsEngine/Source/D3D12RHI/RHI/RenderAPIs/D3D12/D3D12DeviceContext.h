@@ -182,6 +182,9 @@ public:
 
 	bool IsUMA() const override;
 
+
+	std::string ReportDeviceData() override;
+
 private:
 	DXFeatureData DeviceFeatureData;
 	void FlushUploadQueue();

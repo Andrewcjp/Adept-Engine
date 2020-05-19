@@ -54,6 +54,10 @@ bool UIButton::MouseClick(int x, int y)
 			Target();
 			return true;
 		}
+		else
+		{
+			Log::LogMessage("No action bound to button", Log::Error);
+		}
 	}
 	return false;
 }
@@ -78,13 +82,18 @@ void UIButton::UpdateScaled()
 		int Size = 10;
 		int HalfSize = Size / 2;
 		CheckMark->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x - Size, GetTransfrom()->GetSizeRootSpace().y - Size, HalfSize, HalfSize);
-		
+
 	}
 	else
 	{
 		Label->SetRootSpaceSize(GetTransfrom()->GetSizeRootSpace().x, GetTransfrom()->GetSizeRootSpace().y, 0, 0);
 	}
 
+}
+
+void UIButton::BindTarget(std::function<void()> t)
+{
+	Target = t;
 }
 
 void UIButton::SetText(std::string  t)

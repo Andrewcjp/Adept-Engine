@@ -14,10 +14,11 @@ namespace MemberValueType
 		Vector3,
 		Vector4,
 		Bool,
+		AssetPtr,
 		Limit
 	};
 };
-
+typedef uint64 ClassTypeID;
 
 class ClassReflectionNode
 {
@@ -66,8 +67,21 @@ public:
 	void SetFunc();
 	void GetFunc();
 	uint64 GetSize()const;
-private:
+	uint64 TemplateType = 0;
+	template<class T>
+	T* GetAsT()
+	{
+		//ensure(m_Type == MemberValueType::AssetPtr);		
+		return (T*)m_pDataPtr;
+	}
+	template<class T>
+	void SetAsT(T* value)
+	{
+		((T*)m_pDataPtr) = value;
+		Notify();
+	}
 	void Notify();
+private:
 };
 struct ClassReflectionData
 {
@@ -87,6 +101,6 @@ struct ClassReflectionData
 		return Data[Data.size() - 1];
 	}
 };
-#define CLASS_BODY_Reflect() void InitReflection();
+#define CLASS_BODY_Reflect() void InitReflection(); static uint64 TYPEID;
 #define CLASS_BODY() void ProcessSerialArchive(Archive* A){}; CLASS_BODY_Reflect();
 #define CALL_CONSTRUCTOR() InitReflection();

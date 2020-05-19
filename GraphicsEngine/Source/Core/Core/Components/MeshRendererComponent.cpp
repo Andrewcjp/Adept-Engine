@@ -149,6 +149,11 @@ void MeshRendererComponent::Serialize(BinaryArchive* Achive)
 	}
 }
 
+void MeshRendererComponent::OnPropertyUpdate(ClassReflectionNode* Node)
+{
+	
+}
+
 void MeshRendererComponent::BeginPlay()
 {}
 

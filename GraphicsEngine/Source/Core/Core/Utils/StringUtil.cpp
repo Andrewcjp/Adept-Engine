@@ -73,6 +73,28 @@ std::string StringUtils::ToString(double value, int Places /*= 2*/)
 	return ToString((float)value, Places);
 }
 
+bool StringUtils::replace(std::string& str, const std::string& from, const std::string& to)
+{
+	size_t start_pos = str.find(from);
+	if (start_pos == std::string::npos)
+		return false;
+	str.replace(start_pos, from.length(), to);
+	return true;
+}
+
+std::string StringUtils::PadToLength(std::string in, int length)
+{
+	if (in.length() >= length)
+	{
+		return in;
+	}
+	for (int i = in.length(); i < length; i++)
+	{
+		in.append(" ");
+	}
+	return in + ": ";
+}
+
 std::string StringUtils::ToString(float value, int Places /*= 2*/)
 {
 	std::stringstream stream;
@@ -80,22 +102,26 @@ std::string StringUtils::ToString(float value, int Places /*= 2*/)
 	return stream.str();
 }
 
-
-
 std::string StringUtils::ByteToGB(uint64_t value)
 {
 	return StringUtils::ToString((float)(value) / 1024 / 1024 / 1024) + "GB";
 }
 
-std::string StringUtils::BoolToString(bool value)
+std::string StringUtils::BoolToStringE(bool value)
 {
 	return value ? "enabled" : "disabled";
+}
+
+std::string StringUtils::BoolToString(bool value)
+{
+	return value ? "True" : "False";
 }
 
 bool StringUtils::Contains(const std::string Data, const std::string & value)
 {
 	return Data.find(value) != std::string::npos;
 }
+
 bool StringUtils::Contains(const std::wstring Data, const std::wstring & value)
 {
 	return Data.find(value) != std::wstring::npos;

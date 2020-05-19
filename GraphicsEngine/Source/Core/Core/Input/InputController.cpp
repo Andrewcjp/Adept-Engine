@@ -61,3 +61,8 @@ float InputController::GetRightTriggerAxis() const
 {
 	return DeadZone(InputAxis[TriggerAxis].y, StickDeadZone);;
 }
+
+bool InputController::IsTrackingController() const
+{
+	return false;
+}

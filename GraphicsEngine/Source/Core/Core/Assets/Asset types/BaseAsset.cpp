@@ -1,6 +1,8 @@
 #include "BaseAsset.h"
 #include "Core/Assets/Archive.h"
 #include "Core/Platform/PlatformCore.h"
+#include "Core/Utils/StringUtil.h"
+#include "Core/Assets/AssetManager.h"
 #include "Core/Assets/Asset types/BaseAsset.generated.h"
 BaseAsset::BaseAsset()
 {
@@ -13,8 +15,11 @@ BaseAsset::~BaseAsset()
 void BaseAsset::LoadAsset(const std::string& SourceFile)
 {
 	PathToSource = SourceFile;
+	AssetPath = SourceFile;
+	StringUtils::RemoveChar(AssetPath, AssetManager::GetContentPath());
+	name = GetFilename(AssetPath.c_str());
 	//#Asset Load the GUID from the Meta data!
-	Archive* A = new Archive(GetMetaFileName(PathToSource));
+	Archive* A = new Archive(NeedsMetaFile ? GetMetaFileName(PathToSource) : PathToSource);
 	A->HandleArchiveBody("Asset data");
 	ProcessAsset(A);
 	SafeDelete(A);
@@ -30,7 +35,7 @@ void BaseAsset::GenerateNewAsset(const std::string& AssetSourcePath)
 void BaseAsset::SaveAsset()
 {
 	//#Asset Meta files for editor 
-	Archive* A = new Archive(GetMetaFileName(PathToSource), true);
+	Archive* A = new Archive(NeedsMetaFile ? GetMetaFileName(PathToSource) : PathToSource);
 	A->HandleArchiveBody("Asset data");
 	ProcessAsset(A);
 	A->EndHeaderWrite("Asset data");
@@ -61,5 +66,5 @@ bool BaseAsset::IsValid() const
 
 std::string BaseAsset::GetMetaFileName(const std::string& path)
 {
-	return path +".Meta";
+	return path + ".Meta";
 }
