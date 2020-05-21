@@ -20,11 +20,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 #if 1
 	if (Rate == SHADING_RATE_1X1)
 	{
-		uint Count = WaveActiveCountBits(Rate == SHADING_RATE_1X1);
-		if (WaveIsFirstLane())
-		{
-			TileData.InterlockedAdd(TILE_HEADER_OFFSET_NOP, Count, LastCount);
-		}
+		TileData.InterlockedAdd(TILE_HEADER_OFFSET_NOP, 1, LastCount);
 	}
 #endif
 	bool NoT1 = Rate != SHADING_RATE_1X1;

@@ -119,7 +119,7 @@ void SortLights(in uint localIdxFlattened)
 	}
 }
 
-[numThreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
+[numthreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3 groupID : SV_GroupID, uint  groupIndex : SV_GroupIndex)
 {
 	uint Z = asuint(Depth[DTid.xy]);

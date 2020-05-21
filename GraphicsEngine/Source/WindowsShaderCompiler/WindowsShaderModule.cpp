@@ -30,8 +30,12 @@ void WindowsShaderCompilerModule::ShutdownModule()
 	SafeDelete(Complier);
 }
 
-bool WindowsShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform)
+bool WindowsShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item)
 {
+	if (SM == EShaderSupportModel::SM5)
+	{
+		return false;
+	}
 	return Platform == EPlatforms::Windows || Platform == EPlatforms::Windows_DX12;
 }
 

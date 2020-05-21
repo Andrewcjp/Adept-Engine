@@ -74,7 +74,7 @@ ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 		return item->Blob;
 	}
 	ShaderComplier::Get()->ComplieShaderNew(item, PlatformApplication::GetPlatform());
-	WriteBlobToFile(item);
+	WriteBlobToFile(item,PlatformApplication::GetPlatform());
 	return item->Blob;
 }
 

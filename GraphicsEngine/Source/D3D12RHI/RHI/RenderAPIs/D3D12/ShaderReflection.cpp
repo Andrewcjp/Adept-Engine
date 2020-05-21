@@ -10,63 +10,67 @@
 void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute, ShaderSourceFile* Sourcefile, D3D12Shader* shader)
 {
 	ID3D12ShaderReflection* REF = nullptr;
-#if !USE_DIXL
-	ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), ID_PASS(&REF)));
-	RelfectShader(REF, iscompute, shaderbinds, Type, shader);
-#else
-	IDxcContainerReflection* pReflection;
-
-	DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
-	HRESULT res = S_OK;
-#ifdef PLATFORM_WINDOWS
-	UINT32 shaderIdx = -1;
-	pReflection->Load(target);
-	if (res == S_OK)
+	if (RHI::GetDefaultDevice()->GetCaps().HighestModel == EShaderSupportModel::SM5)
 	{
-		ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
-	}
-	ensure(shaderIdx > 0);
-#endif
-	D3D12_LIBRARY_DESC LDesc;
-	if (Type == EShaderType::SHADER_RT_LIB)
-	{
-		ID3D12LibraryReflection* Libreflect;
-#ifdef PLATFORM_WINDOWS
-		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, IID_PPV_ARGS(&Libreflect)));
-#else
-		IDxcUtils* pUtils;
-		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
-		DxcBuffer ReflectionData;
-		ReflectionData.Encoding = DXC_CP_ACP;
-		ReflectionData.Ptr = target->GetBufferPointer();
-		ReflectionData.Size = target->GetBufferSize();
-		pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&Libreflect));
-#endif
-		Libreflect->GetDesc(&LDesc);
-
-		for (uint i = 0; i < LDesc.FunctionCount; i++)
-		{
-			ID3D12FunctionReflection* PL = Libreflect->GetFunctionByIndex(i);
-			RelfectShaderFromLib(PL, shaderbinds);
-		}
+		ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), ID_PASS(&REF)));
+		RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 	}
 	else
 	{
+		IDxcContainerReflection* pReflection;
+
+		DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflection));
+		HRESULT res = S_OK;
 #ifdef PLATFORM_WINDOWS
-		ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
-#else
-		IDxcUtils* pUtils;
-		DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
-		DxcBuffer ReflectionData;
-		ReflectionData.Encoding = DXC_CP_ACP;
-		ReflectionData.Ptr = target->GetBufferPointer();
-		ReflectionData.Size = target->GetBufferSize();
-		pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&REF));
+		UINT32 shaderIdx = -1;
+		pReflection->Load(target);
+		if (res == S_OK)
+		{
+			ThrowIfFailed(pReflection->FindFirstPartKind(DXIL_FOURCC('D', 'X', 'I', 'L'), &shaderIdx));
+		}
+		ensure(shaderIdx > 0);
 #endif
 
-		RelfectShader(REF, iscompute, shaderbinds, Type, shader);
-	}
+		D3D12_LIBRARY_DESC LDesc;
+		if (Type == EShaderType::SHADER_RT_LIB)
+		{
+			ID3D12LibraryReflection* Libreflect;
+#ifdef PLATFORM_WINDOWS
+			ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, IID_PPV_ARGS(&Libreflect)));
+#else
+			IDxcUtils* pUtils;
+			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
+			DxcBuffer ReflectionData;
+			ReflectionData.Encoding = DXC_CP_ACP;
+			ReflectionData.Ptr = target->GetBufferPointer();
+			ReflectionData.Size = target->GetBufferSize();
+			pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&Libreflect));
 #endif
+			Libreflect->GetDesc(&LDesc);
+
+			for (uint i = 0; i < LDesc.FunctionCount; i++)
+			{
+				ID3D12FunctionReflection* PL = Libreflect->GetFunctionByIndex(i);
+				RelfectShaderFromLib(PL, shaderbinds);
+			}
+		}
+		else
+		{
+#ifdef PLATFORM_WINDOWS
+			ThrowIfFailed(pReflection->GetPartReflection(shaderIdx, __uuidof(ID3D12ShaderReflection), (void**)&REF));
+#else
+			IDxcUtils* pUtils;
+			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils));
+			DxcBuffer ReflectionData;
+			ReflectionData.Encoding = DXC_CP_ACP;
+			ReflectionData.Ptr = target->GetBufferPointer();
+			ReflectionData.Size = target->GetBufferSize();
+			pUtils->CreateReflection(&ReflectionData, IID_PPV_ARGS(&REF));
+#endif
+
+			RelfectShader(REF, iscompute, shaderbinds, Type, shader);
+		}
+	}
 	ApplyRootConstantPatch(REF, shaderbinds, Sourcefile);
 }
 

@@ -109,6 +109,11 @@ DxcDefine* WindowsShaderComplier::ParseDefines(ShaderComplieItem * Shader)
 
 void WindowsShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 {
+	if (ShaderItem->ShaderModel == EShaderSupportModel::SM5)
+	{
+		ShaderItem->Result = EShaderError::SHADER_ERROR_UNSUPPORTED;
+		return;
+	}
 	IDxcBlob* Outputblob = nullptr;
 	IDxcBlobEncoding* pErrorBlob = NULL;
 	std::vector<LPCWSTR> arguments;

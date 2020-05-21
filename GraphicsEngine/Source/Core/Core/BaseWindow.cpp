@@ -198,7 +198,7 @@ void BaseWindow::Render()
 	}
 	if (RHI::GetFrameCount() == 100)
 	{
-		LogPerfCounters();
+		//LogPerfCounters();
 		//RHI::GetRHIClass()->TriggerBackBufferScreenShot();
 	}
 #if !WITH_EDITOR

@@ -11,6 +11,7 @@
 #include "Archive.h"
 #include "RHI/Streaming/TextureStreamingCommon.h"
 #include "AssetDatabase.h"
+#include "RHI/DeviceContext.h"
 
 const std::string AssetManager::DDCName = "DerivedDataCache";
 void AssetManager::LoadFromShaderDir()
@@ -186,6 +187,19 @@ const std::string AssetManager::GetShaderCacheDir(EPlatforms::Type Platform)
 	if (Platform != EPlatforms::Limit)
 	{
 		platfromstring = EPlatforms::ToString(Platform);
+#ifdef PLATFORM_WINDOWS
+		if (Platform == EPlatforms::Windows)
+		{		//Shader model is set once per machine
+			if (RHI::GetDefaultDevice()->GetCaps().HighestModel == EShaderSupportModel::SM5)
+			{
+				platfromstring += "\\SM5";
+			}
+			else
+			{
+				platfromstring += "\\SM6";
+			}
+		}
+#endif
 	}
 	return AssetManager::GetDDCPath() + "Shaders\\" + platfromstring + "\\";
 }

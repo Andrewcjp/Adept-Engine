@@ -1,18 +1,18 @@
 #pragma once
 #include "RHI/ShaderComplierModule.h"
 
-class WindowsShaderComplier;
-class WindowsShaderCompilerModule : public IShaderComplier
+class WindowsLegacyShaderComplier;
+class WindowsLegacyShaderCompilerModule : public IShaderComplier
 {
 public:
-	WindowsShaderCompilerModule();
-	~WindowsShaderCompilerModule();
+	WindowsLegacyShaderCompilerModule();
+	~WindowsLegacyShaderCompilerModule();
 
 
 	void ComplieShader(ShaderComplieItem* shader) override;
 	bool StartupModule() override;
 	void ShutdownModule() override;
-	WindowsShaderComplier* Complier = nullptr;
+	WindowsLegacyShaderComplier* Complier = nullptr;
 
 
 	bool SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item) override;

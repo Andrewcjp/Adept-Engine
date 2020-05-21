@@ -62,6 +62,7 @@ void ShaderComplier::ComplieAllGlobalShaders()
 		Item.EntryPoint = "main";
 		Item.ShaderName = it->second->SourceFile;
 		Item.TargetPlatfrom = PlatformApplication::GetPlatform();
+		Item.ShaderModel = RHI::GetDefaultDevice()->GetCaps().HighestModel;
 		ShaderCache::Get()->GetShader(&Item);
 		CurrentCount++;
 		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
@@ -196,6 +197,7 @@ void ShaderComplier::Init()
 {
 #ifdef PLATFORM_WINDOWS
 	ShaderComplierNames.push_back("WindowsShaderCompiler");
+	ShaderComplierNames.push_back("WindowsLegacyShaderComplier");
 	FindAndLoadCompliers();
 #endif
 }
@@ -207,7 +209,7 @@ void ShaderComplier::FindAndLoadCompliers()
 		std::string ComplierName = ShaderComplierNames[i];
 		IShaderComplier* Complier = ModuleManager::Get()->GetModule<IShaderComplier>(FString(ComplierName));
 		if (Complier != nullptr)
-		{			
+		{
 			Shadercompliers.push_back(Complier);
 		}
 	}
@@ -219,13 +221,13 @@ void ShaderComplier::ComplieShaderNew(ShaderComplieItem* Item, EPlatforms::Type 
 	Item->ComplieShaderDebug = ShaderComplier::Get()->ShouldBuildDebugShaders();
 	for (int i = 0; i < Shadercompliers.size(); i++)
 	{
-		if (Shadercompliers[i]->SupportsPlatform(platform))
+		if (Shadercompliers[i]->SupportsPlatform(platform, Item->ShaderModel, Item))
 		{
 			Shadercompliers[i]->ComplieShader(Item);
 			return;
 		}
 	}
-	AD_Assert_Always("No shader complier found for shader");
+	//AD_Assert_Always("No shader complier found for shader");
 }
 
 void ShaderComplier::RegisterSingleShader(SingleShaderComplie * Target)

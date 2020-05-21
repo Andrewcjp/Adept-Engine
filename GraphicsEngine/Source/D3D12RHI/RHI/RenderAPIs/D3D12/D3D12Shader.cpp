@@ -112,6 +112,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 	item->Defines = Defines;
 	item->Data = AssetManager::Get()->LoadFileWithInclude(item->ShaderName + ".hlsl");
 	item->Stage = ShaderType;
+	item->ShaderModel = RHI::GetDefaultDevice()->GetCaps().HighestModel;
 	item->EntryPoint = Entrypoint;
 	ShaderByteCodeBlob* blob = ShaderCache::GetShader(item);
 	if (blob == nullptr)
@@ -130,7 +131,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 		HRESULT r = library->CreateBlobWithEncodingFromPinned(item->ReflectionBlob->ByteCode, item->ReflectionBlob->Length, 0, (IDxcBlobEncoding**)&RelfectionBlob);
 		ensure(r == S_OK);
 #endif
-	}
+}
 	ShaderReflection::GatherRSBinds(RelfectionBlob, ShaderType, GeneratedParams, IsCompute, item->Data, this);
 	if (item->CacheHit)
 	{
@@ -463,12 +464,12 @@ void D3D12Shader::CreateRootSig(ID3D12RootSignature ** output, std::vector<Shade
 			ranges[Params[i].SignitureSlot].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, Params[i].NumDescriptors, Params[i].RegisterSlot, 0, /*D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC*/ D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 			rootParameters[Params[i].SignitureSlot].InitAsDescriptorTable(1, &ranges[Params[i].SignitureSlot], ShaderVisible);
 #endif
-		}
+	}
 		else if (Params[i].Type == ShaderParamType::RootConstant)
 		{
 			rootParameters[Params[i].SignitureSlot].InitAsConstants(Params[i].NumVariablesContained, Params[i].RegisterSlot, Params[i].RegisterSpace, ShaderVisible);
 		}
-	}
+}
 	D3D12_STATIC_SAMPLER_DESC* Samplers = ConvertSamplers(samplers);
 	D3D12_ROOT_SIGNATURE_FLAGS RsFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 

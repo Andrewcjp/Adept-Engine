@@ -30,7 +30,7 @@ cbuffer SceneConstantBuffer : register(b2)
 };
 
 #define MAX_LIGHTS_PER_TILE MAX_LIGHTS
-[numThreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
+[numthreads(LIGHTCULLING_TILE_SIZE, LIGHTCULLING_TILE_SIZE, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3 groupID : SV_GroupID, uint  groupIndex : SV_GroupIndex)
 {
 	float2 UV = (float2)DTid.xy / (float2)Resolution;

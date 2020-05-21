@@ -116,9 +116,12 @@ void D3D12DeviceContext::CheckFeatures()
 		LogTierData("Resource Binding", DeviceFeatureData.FeatureData.ResourceBindingTier);
 		LogTierData("Resource Heap", DeviceFeatureData.FeatureData.ResourceHeapTier);
 		LogTierData("Cross Node Sharing", DeviceFeatureData.FeatureData.CrossNodeSharingTier);
+		LogTierData("Tiled Resources Tier", DeviceFeatureData.FeatureData.TiledResourcesTier);
+		
 		LogTierData("Min Precision Support", options.MinPrecisionSupport);
 		Caps_Data.SupportTypedUAVLoads = DeviceFeatureData.FeatureData.TypedUAVLoadAdditionalFormats;
 	}
+	ensure(DeviceFeatureData.FeatureData.TiledResourcesTier > D3D12_TILED_RESOURCES_TIER_1);
 	Caps_Data.SupportsConservativeRaster = DeviceFeatureData.FeatureData.ConservativeRasterizationTier >= D3D12_CONSERVATIVE_RASTERIZATION_TIER_1;
 	ZeroMemory(&DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS1, &DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
@@ -190,6 +193,7 @@ void D3D12DeviceContext::CheckFeatures()
 			break;
 		}
 	}
+	//HighestShaderModel = D3D_SHADER_MODEL_5_1;
 #if USE_DIXL
 	switch (HighestShaderModel)
 	{

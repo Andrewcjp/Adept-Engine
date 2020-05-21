@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderBase.h"
 #include "ShaderProgramBase.h"
+#include "DeviceContext.h"
 struct ShaderSourceFile;
 class Shader;
 struct ShaderByteCodeBlob
@@ -26,7 +27,7 @@ struct ShaderComplieItem
 	//shader model?
 	ShaderByteCodeBlob* Blob = nullptr;
 	ShaderByteCodeBlob* ReflectionBlob = nullptr;
-	
+	EShaderSupportModel::Type ShaderModel = EShaderSupportModel::SM6;
 	EPlatforms::Type TargetPlatfrom = EPlatforms::Limit;
 	bool CacheHit = false;
 	void ResetOutput()
@@ -48,5 +49,5 @@ public:
 
 	virtual void ComplieShader(ShaderComplieItem* shader) { shader->Result = EShaderError::SHADER_ERROR_CREATE; };
 	virtual void InitWithData(void* Data) {};
-	virtual bool SupportsPlatform(EPlatforms::Type Platform) { return false; }
+	virtual bool SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item) { return false; }
 };
