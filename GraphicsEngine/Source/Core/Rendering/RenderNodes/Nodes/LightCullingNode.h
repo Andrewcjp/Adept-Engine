@@ -1,6 +1,9 @@
 #pragma once
 #include "..\RenderNode.h"
-class LightCullingNode: public RenderNode
+
+class NodeLink;
+class StorageNode;
+class LightCullingNode : public RenderNode
 {
 public:
 	LightCullingNode();
@@ -8,9 +11,22 @@ public:
 
 	virtual void OnExecute() override;
 	virtual std::string GetName() const override;
+	InputData(LightCullInput,
+		NodeLink* CulledLightList = nullptr;
+	NodeLink* DepthBuffer = nullptr; );
+	void AddApplyToGraph(RenderGraph* Graph, RenderNode* Node, StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer);
+	struct ApplyPassData
+	{
+		NodeLink* TileList;
+		NodeLink* LightData;
+		NodeLink* GBuffer;
+		NodeLink* ShadowMask;
+		NodeLink* MainBuffer;
+	};
+	void ExecuteApply(ApplyPassData& Data, RHICommandList* list);
 protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;
-	RHICommandList* List = nullptr;
+	ApplyPassData Data;
 };
 

@@ -17,6 +17,8 @@ public:
 	RHIBufferDesc Desc = RHIBufferDesc();
 	float LinkedFrameBufferRatio = 1.0f;
 	FrameBufferStorageNode* FramebufferNode = nullptr;
+	typedef std::function<void(RHIBufferDesc&, glm::ivec2)> BufferResizeFunc;
+	BufferResizeFunc m_ResizeFunc;
 protected:
 	void Create() override;
 	RHIBuffer* GPUBuffer;

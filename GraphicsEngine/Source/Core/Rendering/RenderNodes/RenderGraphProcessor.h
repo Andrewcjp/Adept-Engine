@@ -32,5 +32,6 @@ private:
 	std::vector<ResourceTimeLine*> TimeLines;
 	void BuildTransitionsSplit(RenderGraph * graph);
 	ResourceTimeLine* GetOrCreateTimeLine(StorageNode* node);
+	int NodeCount = 0;
 };
 

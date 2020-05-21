@@ -25,6 +25,7 @@ void RenderGraphProcessor::Process(RenderGraph * graph)
 		BuildScheduling(graph);
 		BuildAliasing(graph);
 	}
+	Log::LogMessage("Processed " + std::to_string(NodeCount) + " Nodes");
 	PerfManager::Get()->FlushSingleActionTimer("RG Process", true);
 }
 
@@ -35,6 +36,7 @@ void RenderGraphProcessor::Reset()
 
 void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
 {
+	NodeCount = 0;
 	RenderNode* Node = graph->RootNode;
 	RenderNode* Lastnode = Node;
 	//Node = Node->GetNextNode();
@@ -42,6 +44,7 @@ void RenderGraphProcessor::BuildTimeLine(RenderGraph* graph)
 	{
 		if (Node->IsNodeActive())
 		{
+			NodeCount++;
 			bool DidAddFrame = true;
 			for (int i = 0; i < Node->GetNumInputs(); i++)
 			{

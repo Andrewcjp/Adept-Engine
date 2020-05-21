@@ -26,6 +26,7 @@ struct MVBuffer
 	glm::vec3 CameraPos;
 	float pad;
 	glm::ivec2 Res;
+	glm::vec2 pad2;
 	glm::mat4 INV_P;
 	glm::vec2 INV_res;
 };
@@ -105,6 +106,7 @@ public:
 	{
 		return mVoxelScene;
 	};
+
 private:
 	bool SceneChanged = false;
 	ReflectionEnviroment* Enviroment = nullptr;

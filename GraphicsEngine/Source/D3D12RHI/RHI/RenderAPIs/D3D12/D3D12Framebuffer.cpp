@@ -354,6 +354,11 @@ void D3D12FrameBuffer::Init()
 		{
 			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
 		}
+		if (Desc2.Format == FORMAT_D32_FLOAT)
+		{
+			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+			Desc2.DepthRenderFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+		}
 		if (Desc2.Depth > 1)
 		{
 			Desc2.Dimension = DIMENSION_TEXTURECUBE;

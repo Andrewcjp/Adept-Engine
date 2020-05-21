@@ -124,6 +124,7 @@ void WindowsShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 		arguments.push_back(L"/O3");
 		arguments.push_back(L"/Ges");
 	}
+	arguments.push_back(L"/Zpr");
 	IDxcOperationResult* R;
 
 	DxcDefine* defs = ParseDefines(ShaderItem);

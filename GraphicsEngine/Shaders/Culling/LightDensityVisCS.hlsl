@@ -5,7 +5,7 @@ SamplerState BilinearClamp : register(s0);
 cbuffer LightBuffer : register(b1)
 {
 	int LightCount;
-	uint4 TileCount;
+	uint2 TileCount;
 	//	Light lights[MAX_LIGHTS];
 };
 inline uint flatten2D(uint2 coord, uint2 dim)
@@ -18,7 +18,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 	int index = flatten2D(groupID.xy, TileCount)*MAX_LIGHTS;
 	uint lightcount = LightList[index];
 	float Scale = (float)lightcount / (float)MAX_LIGHTS;
-	float3 heat = lerp(float3(1, 0, 0), float3(0, 0, 1), 1.0 - Scale);
+	float3 heat = lerp(float3(1, 0, 0), float3(0, 0, 1), 1.0 - saturate(Scale));
 	if (lightcount > MAX_LIGHTS)
 	{
 		heat = float3(1, 1, 1);

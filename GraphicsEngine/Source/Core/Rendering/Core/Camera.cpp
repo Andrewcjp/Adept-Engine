@@ -56,7 +56,7 @@ glm::mat4 Camera::GetTransformMatrix()
 {
 	glm::mat4 posMat = glm::translate(GetPosition());
 	glm::mat4 viewmat = glm::inverse(GetView());
-	glm::mat4 qrotation = glm::lookAt(glm::vec3(0, 0, 0), glm::normalize(up), (forward));
+	glm::mat4 qrotation = glm::lookAtLH(glm::vec3(0, 0, 0), glm::normalize(up), (forward));
 	return posMat * qrotation;
 
 }

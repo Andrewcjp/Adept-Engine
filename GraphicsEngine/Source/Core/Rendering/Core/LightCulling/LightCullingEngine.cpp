@@ -43,6 +43,9 @@ void LightCullingEngine::Init(CullingManager * m)
 	Desc.Stride = sizeof(LightUniformBuffer);
 	Desc.Accesstype = EBufferAccessType::Dynamic;
 	LightDataBuffer->CreateBuffer(Desc);
+
+	LightCullBuffer = new RHIBufferGroup();
+	LightCullBuffer->CreateConstantBuffer(sizeof(LightCullingCB), 1);
 }
 
 
@@ -75,7 +78,7 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 {
 	if (deferred)
 	{
-		LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
+		///LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
 		//LightCullingBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightBuffer);
 		LightDataBuffer->Get(list)->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
 		//list->SetBuffer(LightDataBuffer->Get(list), DeferredLightingShaderRSBinds::LightDataBuffer);
@@ -182,4 +185,12 @@ void LightCullingEngine::CreateLightDataBuffer()
 	LightCullingBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU);
 	LightCullingBuffer->CreateBuffer(desc);
 	Log::LogMessage("Light culling buffer is " + StringUtils::ToString((desc.Stride*desc.ElementCount) / 1e6) + "MB");
+
+}
+
+void LightCullingEngine::UpdateLightStatsBuffer()
+{
+	CullingData.TileXY = LightCullingEngine::GetLightGridDim();
+	CullingData.LightCount = GetNumLights();
+	LightCullBuffer->UpdateConstantBuffer(&CullingData, 0);
 }

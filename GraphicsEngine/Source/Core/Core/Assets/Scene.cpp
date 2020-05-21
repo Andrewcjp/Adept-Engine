@@ -225,14 +225,17 @@ void Scene::LoadExampleScene()
 	CreateGrid(6, startPos, 2.5f, true);
 #endif
 	//light testing
-#if TEST_HEAVY
-	for (int i = 0; i < 32; i += 4)
+#if 1 //TEST_HEAVY
+	glm::vec3 Start = glm::vec3(0, 7, 0);
+	float Scale = 20;
+	int LightGridSize = 2;
+	int HalfSize = LightGridSize / 2;
+	for (int x = -HalfSize; x < HalfSize; x++)
 	{
-		AddLight(glm::vec3(24, 7, -21), false, 75.0f);
-		AddLight(glm::vec3(33, 6, -3), false, 75.0f);
-
-		AddLight(glm::vec3(-24, 7, -21), false, 75.0f);
-		AddLight(glm::vec3(-33, 6, -3), false, 75.0f);
+		for (int y = -HalfSize; y < HalfSize; y++)
+		{
+			AddLight(Start + glm::vec3(x*Scale, 0, y*Scale), false, 10, 30);
+		}
 	}
 #endif
 
@@ -376,7 +379,7 @@ void Scene::LoadExampleScene()
 	//PadUntil(651);
 #endif
 	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()));
-}
+	}
 
 void Scene::PadUntil(int target)
 {

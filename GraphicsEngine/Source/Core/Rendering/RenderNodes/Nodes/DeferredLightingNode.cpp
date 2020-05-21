@@ -17,6 +17,7 @@
 #include "../../Renderers/Terrain/TerrainRenderer.h"
 #include "RHI/RHITexture.h"
 #include "RHI/SFRController.h"
+#include "SimpleNode.h"
 
 DeferredLightingNode::DeferredLightingNode()
 {
@@ -88,7 +89,7 @@ void DeferredLightingNode::OnExecute()
 	}
 	if (NodeInputStruct.ShadowMask->IsValid())
 	{
-		List->SetFrameBufferTexture(GetFrameBufferFromInput(NodeInputStruct.ShadowMask) , DeferredLightingShaderRSBinds::PreSampleShadows);
+		List->SetFrameBufferTexture(GetFrameBufferFromInput(NodeInputStruct.ShadowMask), DeferredLightingShaderRSBinds::PreSampleShadows);
 	}
 	SceneRenderer::Get()->GetLightCullingEngine()->BindLightBuffer(List, true);
 	SceneRenderer::Get()->GetReflectionEnviroment()->BindStaticSceneEnivoment(List, true);
@@ -102,10 +103,10 @@ void DeferredLightingNode::OnExecute()
 	SceneRenderer::DrawScreenQuad(List);
 	List->EndRenderPass();
 
-
+#if 0
 	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
 	SkyboxShader->Render(SceneRenderer::Get(), List, MainBuffer, GBuffer);
-	
+#endif
 #if USEPS_VRR
 	if (VRXImage != nullptr)
 	{
@@ -121,6 +122,29 @@ void DeferredLightingNode::OnExecute()
 	ExecuteList();
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 
+}
+void DeferredLightingNode::AddSkyBoxToGraph(RenderGraph* graph, RenderNode* Node, DeferredLightingInputs* Inputs)
+{
+	SimpleNode* skybox = new SimpleNode("SkyBox",
+		[&](SimpleNode* N)
+	{
+		m_SkyBoxData.GBuffer = N->AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::DontCare, "GBuffer");
+		m_SkyBoxData.GBuffer->SetStore(Inputs->GBuffer->GetStoreTarget());
+
+		m_SkyBoxData.MainBuffer = N->AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DontCare, "HDR out");
+		m_SkyBoxData.MainBuffer->SetStore(Inputs->MainBuffer->GetStoreTarget());
+	},
+		[&](RHICommandList* list)
+	{
+		ExecuteSkybox(m_SkyBoxData, list);
+	});
+	graph->InsertNode(Node, skybox);
+}
+
+void DeferredLightingNode::ExecuteSkybox(SkyBoxData& data, RHICommandList* list)
+{
+	Shader_Skybox* SkyboxShader = ShaderComplier::GetShader<Shader_Skybox>();
+	SkyboxShader->Render(SceneRenderer::Get(), list, m_SkyBoxData.MainBuffer->GetTarget<FrameBufferStorageNode>()->GetFramebuffer(), m_SkyBoxData.GBuffer->GetTarget<FrameBufferStorageNode>()->GetFramebuffer());
 }
 
 void DeferredLightingNode::OnNodeSettingChange()
@@ -139,6 +163,6 @@ void DeferredLightingNode::OnNodeSettingChange()
 	}
 	NodeInputStruct.ShadowMask = AddResourceInput(EStorageType::Framebuffer, EResourceState::PixelShader, StorageFormats::PreSampleShadowData, "ShadowMask");
 
-	
+
 	SetUseSeperateCommandList();
 }

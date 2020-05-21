@@ -9,7 +9,7 @@ public:
 	void OnExecute() override;
 
 	std::string GetName() const override;
-
+	void SetEngineType(ECommandListType::Type type);
 protected:
 	void OnNodeSettingChange() override;
 	std::function<void(SimpleNode*)> m_SetupFunc;

@@ -190,6 +190,10 @@ void SceneRenderer::UpdateMV(Camera * c, int index /*= 0*/)
 	{
 		CMVBuffer[i]->UpdateConstantBuffer(&MV_Buffer, index);
 	}
+	Light* l = TargetScene->GetLights()[0];
+	glm::vec3 wp = l->GetPosition();
+	glm::vec4 POsVS = c->GetView()*glm::vec4(wp, 1);
+	Log::LogTextToScreen(glm::to_string(POsVS));
 }
 
 void SceneRenderer::UpdateMV(glm::mat4 View, glm::mat4 Projection)
@@ -377,7 +381,7 @@ ReflectionEnviroment * SceneRenderer::GetReflectionEnviroment()
 
 void SceneRenderer::DrawScreenQuad(RHICommandList * list)
 {
-	list->SetVertexBuffer(SceneRenderer::Get()->QuadBuffer->Get(list));  
+	list->SetVertexBuffer(SceneRenderer::Get()->QuadBuffer->Get(list));
 	list->DrawPrimitive(6, 1, 0, 0);
 }
 

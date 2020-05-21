@@ -1,11 +1,11 @@
 #include "PP_Debug.h"
-#include "Rendering/Core/FrameBuffer.h"
-#include "Rendering/Shaders/Culling/Shader_ShowLightDensity.h"
 #include "Core/BaseWindow.h"
+#include "Rendering/Core/FrameBuffer.h"
+#include "Rendering/Core/LightCulling/LightCullingEngine.h"
+#include "Rendering/Core/SceneRenderer.h"
+#include "Rendering/Shaders/Culling/Shader_ShowLightDensity.h"
 
-#include "../Core/LightCulling/LightCullingEngine.h"
-#include "../Core/SceneRenderer.h"
-
+static ConsoleVariable ShowCulling("lc.ShowHeatMap", 0);
 
 
 PP_Debug::PP_Debug()
@@ -17,6 +17,10 @@ PP_Debug::~PP_Debug()
 
 void PP_Debug::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
+	if (!ShowCulling.GetBoolValue())
+	{
+		return;
+	}
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShowLightDensity>());
 
 	list->SetPipelineStateDesc(desc);

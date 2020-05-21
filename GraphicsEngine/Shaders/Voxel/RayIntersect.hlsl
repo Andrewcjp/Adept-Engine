@@ -1,3 +1,15 @@
+struct Sphere
+{
+	float3 Pos;	 // Center point.
+	float Radius;	// Radius.
+};
+
+struct Plane
+{
+	float3	Normal;
+	float	Dist;
+};
+
 struct AABB
 {
 	float3 Position;
@@ -18,6 +30,16 @@ struct AABB
 
 		return result;
 	}
+
+	bool SphereIntersectsAABB(in Sphere sphere)
+	{
+		float3 vDelta = max(0, abs(Position - sphere.Pos) - HalfExtends * 2);
+
+		float fDistSq = dot(vDelta, vDelta);
+
+		return fDistSq <= sphere.Radius * sphere.Radius;
+	}
+
 	void Init(float3 pos, float3 Halfextend)
 	{
 		Position = pos;
@@ -36,14 +58,18 @@ struct AABB
 		float3 point2 = Position - HalfExtends;
 		return float3(max(point1.x, point2.x), max(point1.y, point2.y), max(point1.z, point2.z));
 	}
-
+	void MakeFromMinMax(float3 _min, float3 _max)
+	{
+		Position = (_min + _max) * 0.5f;
+		HalfExtends = abs(_max - Position)*0.5f;
+	}
 };
 #define FLT_EPSILON 1.192092896e-07
 bool VectorEqual(float3 A, float3 B)
 {
 	return A.x == B.x && A.y == B.y && A.z == B.z;
 }
-struct Ray 
+struct Ray
 {
 	float3 Origin;
 	float3 Dir;
@@ -69,7 +95,7 @@ bool AlmostEqual(float a, float b, float epsilon)
 {
 	return abs(a - b) <= epsilon;
 }
-bool RayAABB(in AABB aabb,in Ray inray,inout RayHitResult result)
+bool RayAABB(in AABB aabb, in Ray inray, inout RayHitResult result)
 {
 	result.Init();
 	float3 bmin = aabb.GetMin();

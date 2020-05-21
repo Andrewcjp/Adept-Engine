@@ -141,7 +141,7 @@ bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem
 		Arch.LinkHeader(header);
 		if (header.Version != CSO_VERSION)
 		{
-			AD_Assert_Always("CSO version mismatch");
+			AD_ERROR("CSO version mismatch");
 			return false;
 		}
 		newblob->ByteCode = malloc(header.Size);

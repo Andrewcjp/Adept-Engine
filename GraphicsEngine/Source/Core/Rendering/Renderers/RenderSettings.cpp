@@ -8,7 +8,7 @@ ConsoleVariable GraphSet("rg", -1, ECVarType::LaunchOnly);
 
 RenderSettings::RenderSettings()
 {
-//	SetRes(BBTestMode::HD);
+	//SetRes(BBTestMode::UHD);
 
 	RenderScale = 1.0f;
 	MaxRenderScale = 2.0f;
@@ -147,7 +147,7 @@ RenderConstants::RenderConstants()
 {
 	MAX_DYNAMIC_POINT_SHADOWS = 4;
 	MAX_DYNAMIC_DIRECTIONAL_SHADOWS = 1;
-	MAX_LIGHTS = 16;
+	MAX_LIGHTS = 8;
 	DEFAULT_COPYLIST_POOL_SIZE = 4;
 	MAX_LIGHTS = glm::min(MAX_POSSIBLE_LIGHTS, MAX_LIGHTS);
 	LIGHTCULLING_TILE_SIZE = 16;

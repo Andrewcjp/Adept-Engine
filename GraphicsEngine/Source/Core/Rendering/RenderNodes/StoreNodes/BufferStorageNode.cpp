@@ -10,8 +10,7 @@ BufferStorageNode::BufferStorageNode()
 }
 
 BufferStorageNode::~BufferStorageNode()
-{
-}
+{}
 
 void BufferStorageNode::Update()
 {
@@ -39,15 +38,19 @@ void BufferStorageNode::Create()
 		}
 		else
 		{
-			compCount = 1; 
+			compCount = 1;
 			LinkedFrameBufferRatio = 1.0 / 8.0f;
 			//Size = FramebufferNode->GetFrameBufferDesc().Width/8 * FramebufferNode->GetFrameBufferDesc().Height;
-		}	
+		}
 		Desc.ElementCount = Math::Max(1, int((Size * compCount) * LinkedFrameBufferRatio));
 		Desc.Stride = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? 1 : 2;
 	}
 	Desc.AllowUnorderedAccess = true;
 	Desc.Accesstype = EBufferAccessType::GPUOnly;
+	if (m_ResizeFunc != nullptr)
+	{
+		m_ResizeFunc(Desc, Screen::GetScaledRes());
+	}
 	GPUBuffer = RHI::CreateRHIBuffer(ERHIBufferType::GPU, GetDeviceObject());
 	GPUBuffer->CreateBuffer(Desc);
 }

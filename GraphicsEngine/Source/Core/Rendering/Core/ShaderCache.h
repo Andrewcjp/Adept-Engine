@@ -1,6 +1,6 @@
 #pragma once
 #include "RHI/ShaderBase.h"
-#define CSO_VERSION 2
+#define CSO_VERSION 3
 class ShaderProgramBase;
 struct ShaderByteCodeBlob;
 struct ShaderComplieItem;

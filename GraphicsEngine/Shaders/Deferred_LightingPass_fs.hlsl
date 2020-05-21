@@ -113,7 +113,7 @@ float4 main(VS_OUTPUT input) : SV_Target
 #endif
 	float3 output = GetAmbient(normalize(Normal), ViewDir, AlbedoSpec.xyz, Roughness, Metallic, irData, prefilteredColor, envBRDF);
 	[unroll(MAX_LIGHTS)]
-	for (int i = 0; i < LightCount; i++)
+	for (int i = 0; i < 0; i++)
 	{
 		float3 LightColour = CalcColorFromLight(LightList[i], AlbedoSpec.xyz, pos.xyz, normalize(Normal.xyz), CameraPos, Roughness, Metallic);
 #if 1

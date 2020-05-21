@@ -37,6 +37,7 @@
 #include "Nodes/UINode.h"
 #include "Nodes/MGPU/ShadowMaskCompressionNode.h"
 #include "Nodes/SimpleNode.h"
+#include "Nodes/LightCullingNode.h"
 
 void RenderGraph::ApplyEditorToGraph()
 {
@@ -289,10 +290,14 @@ void RenderGraph::CreateDefTestgraph()
 	DeferredLightingNode* LightNode = new DeferredLightingNode();
 	ParticleSimulateNode* ParticleSimNode = new ParticleSimulateNode();
 
-#if 0
+#if 1
 	LightCullingNode* LightCull = new LightCullingNode();
+	LightCull->GetData().DepthBuffer->SetStore(GBufferNode);
+
 	LinkNode(UpdateProbesNode, LightCull);
 	LinkNode(LightCull, ParticleSimNode);
+
+
 #else
 	LinkNode(UpdateProbesNode, ParticleSimNode);
 #endif	
@@ -305,6 +310,8 @@ void RenderGraph::CreateDefTestgraph()
 
 	ParticleRenderNode* PRenderNode = new ParticleRenderNode();
 	LinkNode(LightNode, PRenderNode);
+	LightNode->AddSkyBoxToGraph(this, LightNode, &LightNode->GetData());
+	LightCull->AddApplyToGraph(this, LightNode, GBufferNode, ShadowMaskBuffer, MainBuffer);
 	PRenderNode->GetInput(0)->SetStore(MainBuffer);
 	PRenderNode->GetInput(1)->SetStore(GBufferNode);
 

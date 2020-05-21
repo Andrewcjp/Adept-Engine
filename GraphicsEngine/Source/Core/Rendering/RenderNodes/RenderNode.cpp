@@ -314,6 +314,15 @@ NodeLink* RenderNode::AddFrameBufferResource(EResourceState::Type State, const R
 	return link;
 }
 
+NodeLink* RenderNode::AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName, BufferStorageNode::BufferResizeFunc Func)
+{
+	BufferStorageNode* Node = (BufferStorageNode*)RequestBuffer(desc, InputName, nullptr);
+	Node->m_ResizeFunc = Func;
+	NodeLink* link = AddResourceInput(EStorageType::Buffer, State, "", InputName);
+	link->SetStore(Node);
+	return link;
+}
+
 NodeLink* RenderNode::AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName, FrameBufferStorageNode* LinkedBuffer)
 {
 	StorageNode* Node = RequestBuffer(desc, InputName, LinkedBuffer);

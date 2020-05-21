@@ -23,6 +23,11 @@ std::string SimpleNode::GetName() const
 	return m_NodeName;
 }
 
+void SimpleNode::SetEngineType(ECommandListType::Type type)
+{
+	NodeEngineType = type;
+}
+
 void SimpleNode::OnNodeSettingChange()
 {
 	m_SetupFunc(this);

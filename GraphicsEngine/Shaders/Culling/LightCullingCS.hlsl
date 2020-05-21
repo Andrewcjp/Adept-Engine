@@ -1,5 +1,4 @@
 RWStructuredBuffer<uint> DstTexture : register(u0);
-SamplerState BilinearClamp : register(s0);
 groupshared uint LightIndexs[MAX_LIGHTS];
 groupshared uint ArrayLength;
 #include "../Lighting.hlsl"

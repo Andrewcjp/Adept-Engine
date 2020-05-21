@@ -20,12 +20,31 @@ void main(uint3 DTid : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 #if 1
 	if (Rate == SHADING_RATE_1X1)
 	{
-		TileData.InterlockedAdd(TILE_HEADER_OFFSET_NOP, 1, LastCount);
+		uint Count = WaveActiveCountBits(Rate == SHADING_RATE_1X1);
+		if (WaveIsFirstLane())
+		{
+			TileData.InterlockedAdd(TILE_HEADER_OFFSET_NOP, Count, LastCount);
+		}
 	}
 #endif
-	if (Rate != SHADING_RATE_1X1)
+	bool NoT1 = Rate != SHADING_RATE_1X1;
+	if (NoT1)
 	{
+#if 0
+		uint Count = WaveActiveCountBits(NoT1);
+		uint laneAppendOffset = WavePrefixCountBits(NoT1);
+		uint appendOffset;
+		if (WaveIsFirstLane())
+		{
+			TileData.InterlockedAdd(TILE_HEADER_OFFSET_VARTILES, Count, appendOffset);
+		}
+		appendOffset = WaveReadLaneFirst(appendOffset);
+		appendOffset += laneAppendOffset; 
+		LastCount = appendOffset;
+		TileList_VAR[LastCount] = uint4(DTid.xy, GetShadingRate(Rate).xy);
+#else
 		TileData.InterlockedAdd(TILE_HEADER_OFFSET_VARTILES, 1, LastCount);
 		TileList_VAR[LastCount] = uint4(DTid.xy, GetShadingRate(Rate).xy);
+#endif
 	}
 }

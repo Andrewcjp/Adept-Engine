@@ -3,6 +3,11 @@
 
 class CullingManager;
 class RHIBufferGroup;
+struct LightCullingCB
+{
+	int LightCount;
+	glm::uvec2 TileXY;
+};
 //one of the few classes that splits On GPUs
 class LightCullingEngine
 {
@@ -27,6 +32,8 @@ public:
 	void Resize();
 	int GetNumLights() const;
 	std::vector<Light*> GetCurrentlyRelevantLights();
+	void UpdateLightStatsBuffer();
+	RHIBufferGroup* LightCullBuffer = nullptr;
 private:
 	struct GPUData
 	{
@@ -34,12 +41,12 @@ private:
 		RHIBuffer* CulledIndexLightBuffer = nullptr;
 	};
 	RHIBufferGroup* LightDataBuffer = nullptr;
-
 	void CreateLightDataBuffer();
 	//one data buffer reused 
 	RHICommandList* CullingList[EEye::Limit] = { nullptr,nullptr };
 	std::vector<Light*> LightsInFustrum;
 	CullingManager* Manager = nullptr;
 	std::vector<LightUniformBuffer> LightData;
+	LightCullingCB CullingData;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "StorageNode.h"
 #include "RenderGraph.h"
+#include "StoreNodes/BufferStorageNode.h"
 #define InputData(name,x) struct name {x }; name NodeInputStruct; name & GetData(){return NodeInputStruct;}
 namespace EViewMode
 {
@@ -42,9 +43,9 @@ struct ResourceTransition
 	DeviceContextQueue::Type SignalingQueue = DeviceContextQueue::LIMIT;
 	int SignalingDevice = -1;
 };
-struct ENodeWorkFocus 
+struct ENodeWorkFocus
 {
-	enum Type 
+	enum Type
 	{
 		Compute,
 		Memory,
@@ -112,7 +113,7 @@ public:
 	int GetDeviceIndex()const;
 	virtual void OnGraphCreate();
 	void SetTargetEye(EEye::Type eye);
-	
+
 	bool GetUseSeperateCommandList() const { return UseSeperateCommandList; }
 	ENodeWorkFocus::Type GetWorkType() const { return WorkType; }
 	NodeLink* AddResourceInput(EStorageType::Type Type, EResourceState::Type State, const std::string& format, const std::string& InputName = std::string());
@@ -144,13 +145,15 @@ protected:
 	//Creates all data need to run a node on X device should NOT call functions on external objects (excluding Render systems like the MeshPipline).
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs& args);
-	
-	
+
+
 	NodeLink* AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	StorageNode* RequestBuffer(const RHIBufferDesc& desc, std::string Name = "", FrameBufferStorageNode* LinkedNode = nullptr);
 	StorageNode* RequestFrameBuffer(const RHIFrameBufferDesc& desc, std::string Name = "");
 	NodeLink* AddFrameBufferResource(EResourceState::Type State, const RHIFrameBufferDesc& desc, const std::string& InputName = std::string());
-	NodeLink* AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName = std::string(),FrameBufferStorageNode* LinkedBuffer = nullptr);
+
+	NodeLink* AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName = std::string(), BufferStorageNode::BufferResizeFunc Func = nullptr);
+	NodeLink* AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName = std::string(), FrameBufferStorageNode* LinkedBuffer = nullptr);
 	RHICommandList* GetList();
 	RHICommandList* GetListAndReset();
 	void ExecuteList(bool Flush = false);
@@ -162,7 +165,7 @@ protected:
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;
-	
+
 
 	DeviceContext* Context = nullptr;
 	//If true The node is responsible for invoking the next node.
