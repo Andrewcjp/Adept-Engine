@@ -62,6 +62,9 @@ void UIManager::Init(int w, int h)
 }
 void UIManager::InitCommonUI()
 {
+#if !WITH_EDITOR
+	UIManager::Get()->AddWidgetContext(new UIWidgetContext());
+#endif
 	UIGraph* graph = new UIGraph(Contexts[0]->GetLineBatcher(), 250, 150, 15, 25);
 	Graph = graph;
 	AddWidget(graph);

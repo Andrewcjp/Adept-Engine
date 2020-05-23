@@ -28,7 +28,7 @@ void AssetDatabase::Build()
 {
 	Log::LogMessage("Building Asset Database");
 	std::vector<std::string> Files;
-
+#ifdef PLATFORM_WINDOWS
 	for (auto& p : std::filesystem::recursive_directory_iterator(AssetManager::GetContentPath()))
 	{
 		if (!p.is_directory())
@@ -36,7 +36,7 @@ void AssetDatabase::Build()
 			Files.push_back(p.path().string());
 		}
 	}
-
+#endif
 	for (int i = 0; i < Files.size(); i++)
 	{
 		BaseAsset* FoundAsset = CreateOrGetAsset(Files[i]);

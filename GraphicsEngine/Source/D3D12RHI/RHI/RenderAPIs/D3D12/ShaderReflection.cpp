@@ -10,12 +10,14 @@
 void ShaderReflection::GatherRSBinds(ShaderBlob* target, EShaderType::Type Type, std::vector<ShaderParameter> & shaderbinds, bool & iscompute, ShaderSourceFile* Sourcefile, D3D12Shader* shader)
 {
 	ID3D12ShaderReflection* REF = nullptr;
+#ifdef PLATFORM_WINDOWS
 	if (RHI::GetDefaultDevice()->GetCaps().HighestModel == EShaderSupportModel::SM5)
 	{
 		ThrowIfFailed(D3DReflect(target->GetBufferPointer(), target->GetBufferSize(), ID_PASS(&REF)));
 		RelfectShader(REF, iscompute, shaderbinds, Type, shader);
 	}
 	else
+#endif
 	{
 		IDxcContainerReflection* pReflection;
 

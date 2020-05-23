@@ -14,7 +14,7 @@ int WINAPI WinMain(
 	int nCmdShow             /* [input] show state of window */
 )
 {
-	WinMain_Engine(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	WinMain_Engine(hInstance, hPrevInstance, lpCmdLine, nCmdShow); 
 }
 #endif
 #ifdef PLATFORM_LINUX

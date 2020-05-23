@@ -190,7 +190,7 @@ const std::string AssetManager::GetShaderCacheDir(EPlatforms::Type Platform)
 #ifdef PLATFORM_WINDOWS
 		if (Platform == EPlatforms::Windows)
 		{		//Shader model is set once per machine
-			if (RHI::GetDefaultDevice()->GetCaps().HighestModel == EShaderSupportModel::SM5)
+			if (ShaderComplier::Get()->m_Config.ShaderModelTarget == EShaderSupportModel::SM5)
 			{
 				platfromstring += "\\SM5";
 			}

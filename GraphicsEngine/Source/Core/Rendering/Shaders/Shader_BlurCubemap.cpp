@@ -21,7 +21,7 @@ void Shader_BlurCubemap::Init()
 void Shader_BlurCubemap::Update()
 {
 	ShaderData->UpdateConstantBuffer(&Data[0], 0);
-}
+} 
 
 std::vector<ShaderParameter> Shader_BlurCubemap::GetShaderParameters()
 {

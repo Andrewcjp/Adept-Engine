@@ -18,7 +18,7 @@ PP_Debug::~PP_Debug()
 void PP_Debug::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {
 	if (!ShowCulling.GetBoolValue())
-	{
+	{ 
 		return;
 	}
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShowLightDensity>());

@@ -335,6 +335,10 @@ void Engine::HandleKeyUp(unsigned int key)
 
 bool Engine::GetIsCooking()
 {
+	if (EngineInstance == nullptr)
+	{
+		return false;
+	}
 	return EngineInstance->IsCooking;
 }
 

@@ -1,7 +1,12 @@
 #pragma once
 #include "Rendering/RenderNodes/RenderGraphSystem.h"
+#include "RenderNode.h"
 
 class RenderGraph;
+class DeferredLightingNode;
+class ShadowAtlasStorageNode;
+class PostProcessNode;
+class FrameBufferStorageNode;
 class RenderGraphPatchLibrary
 {
 public:

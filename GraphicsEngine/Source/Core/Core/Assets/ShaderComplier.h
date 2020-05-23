@@ -58,6 +58,7 @@ public:
 	ShaderComplier();
 	~ShaderComplier();
 	RHI_API static ShaderComplier* Get();
+	RHI_API static void ShutDown();
 	void ComplieAllGlobalShaders();
 	void FreeAllGlobalShaders();
 	RHI_API bool ShouldBuildDebugShaders();
@@ -124,6 +125,13 @@ public:
 	void ComplieShaderNew(ShaderComplieItem * shader, EPlatforms::Type platform = EPlatforms::Windows);
 	void RegisterSingleShader(SingleShaderComplie* Target);
 	bool CheckSourceFileRegistered(std::string file);
+	struct ShaderComplierConfig
+	{
+		EPlatforms::Type TargetPlatform = EPlatforms::Windows;
+		bool MirrorToOthers = true;
+		EShaderSupportModel::Type ShaderModelTarget = EShaderSupportModel::SM6;
+	};
+	ShaderComplierConfig m_Config;
 private:
 	std::vector<std::string> ShaderComplierNames;
 	void FindAndLoadCompliers();

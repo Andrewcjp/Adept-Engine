@@ -15,9 +15,7 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
-	MeshLoader::FMeshLoadingSettings settings = {};
-	settings.Scale = glm::vec3(100.0f);
-	CubeModel = RHI::CreateMesh("models\\SkyBoxCube.obj", settings);
+
 
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", EShaderType::SHADER_FRAGMENT);
@@ -37,6 +35,12 @@ Shader_Skybox::~Shader_Skybox()
 
 void Shader_Skybox::SetSkyBox(BaseTextureRef tex)
 {
+	if (CubeModel == nullptr)
+	{
+		MeshLoader::FMeshLoadingSettings settings = {};
+		settings.Scale = glm::vec3(100.0f);
+		CubeModel = RHI::CreateMesh("models\\SkyBoxCube.obj", settings);
+	}
 	ensure(tex->GetType() == ETextureType::Type_CubeMap);
 	if (SkyBoxTexture == tex)
 	{

@@ -14,6 +14,7 @@
 static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 static ConsoleVariable MirrorShaders("MirrorShaders", 0, ECVarType::LaunchOnly);
 ShaderCache* ShaderCache::Instance = nullptr;
+
 const std::string ShaderCache::GetShaderInstanceHash(ShaderComplieItem* shader)
 {
 	if (shader->Defines.size() == 0)
@@ -44,7 +45,6 @@ ShaderCache::ShaderCache()
 	{
 		Log::LogMessage("Shader Cache Disabled", Log::Warning);
 	}
-	MirrorShaders.SetValue(true);
 }
 
 
@@ -59,22 +59,22 @@ ShaderByteCodeBlob* ShaderCache::GetShader(ShaderComplieItem* item)
 ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 {
 #if defined(PLATFORM_WINDOWS) && WITH_EDITOR
-	if (MirrorShaders.GetBoolValue())
+	if (MirrorShaders.GetBoolValue() && ShaderComplier::Get()->m_Config.MirrorToOthers)
 	{
-		for (int i = EPlatforms::Android+1; i < EPlatforms::Limit; i++)
+		for (int i = EPlatforms::Android + 1; i < EPlatforms::Limit; i++)
 		{
 			MirrorShaderToBuiltPlat(item, (EPlatforms::Type)i);
 			item->ResetOutput();
 		}
 	}
 #endif
-	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage,PlatformApplication::GetPlatform()))
+	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage, ShaderComplier::Get()->m_Config.TargetPlatform))
 	{
 		item->CacheHit = true;
 		return item->Blob;
 	}
-	ShaderComplier::Get()->ComplieShaderNew(item, PlatformApplication::GetPlatform());
-	WriteBlobToFile(item,PlatformApplication::GetPlatform());
+	ShaderComplier::Get()->ComplieShaderNew(item, ShaderComplier::Get()->m_Config.TargetPlatform);
+	WriteBlobToFile(item, ShaderComplier::Get()->m_Config.TargetPlatform);
 	return item->Blob;
 }
 
@@ -119,13 +119,20 @@ const std::string ShaderCache::GetShaderNamestr(const std::string & Shadername, 
 	return OutputName;
 }
 
+void ShaderCache::PrintShaderStats()
+{
+	std::stringstream ss;
+	ss << "Shader Stats: Loaded: " << stats.ShaderLoadFromCacheCount << "/" << stats.TotalShaderCount << " Complied: " << stats.ShaderComplieCount << "/" << stats.TotalShaderCount;
+	Log::LogMessage(ss.str());
+}
+
 bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem* Item, const std::string & InstanceHash, EShaderType::Type type, EPlatforms::Type platform)
 {
 	SCOPE_STARTUP_COUNTER("Shader Read");
+	stats.TotalShaderCount++;
 
 	const std::string FullShaderName = GetShaderNamestr(Name, InstanceHash, type);
 	std::string ShaderPath = AssetManager::GetShaderCacheDir(platform) + FullShaderName;
-
 #if BUILD_PACKAGE
 	ensureFatalMsgf(FileUtils::File_ExistsTest(ShaderPath), "Missing shader: " + FullShaderName);
 	bool CSOValid = true;
@@ -146,12 +153,14 @@ bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem
 		}
 		newblob->ByteCode = malloc(header.Size);
 		Arch.LinkData(newblob->ByteCode, header.Size);
-		newblob->Length = header.Size;
+		newblob->Length = header.Size; 
 		Arch.LinkVector(Item->Data->RootConstants);
 		Arch.Close();
 		Item->Blob = newblob;
+		stats.ShaderLoadFromCacheCount++;
 		return true;
 	}
+	stats.ShaderComplieCount++;
 	Log::LogMessage("Recompile triggered for " + Name + " on Platfrom: " + EPlatforms::ToString(platform));
 	return false;
 

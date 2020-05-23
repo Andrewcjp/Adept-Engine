@@ -85,6 +85,5 @@ EPlatforms::Type EPlatforms::Parse(std::string name)
 		return EPlatforms::Linux;
 	}	
 	PARSE_ADD_PLATFORMS;
-	ensure(false);
 	return EPlatforms::Limit;
 }

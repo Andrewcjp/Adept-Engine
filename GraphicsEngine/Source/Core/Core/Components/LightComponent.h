@@ -23,9 +23,9 @@ public:
 	void SceneInitComponent() override final;
 #if WITH_EDITOR
 	void PostChangeProperties() override;
+	void OnPropertyUpdate(ClassReflectionNode* Node) override;
 #endif
 
-	void OnPropertyUpdate(ClassReflectionNode* Node) override;
 
 private:
 	Light* MLight = nullptr;

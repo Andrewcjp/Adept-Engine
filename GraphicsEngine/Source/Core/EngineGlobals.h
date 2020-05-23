@@ -55,6 +55,8 @@ enum ERenderSystemType
 	RenderSystemOGL,
 	RenderSystemD3D12,
 	RenderSystemVulkan,
+	RenderSystemNull,
+	RenderSystemSimulated,
 	Limit
 };
 

@@ -29,6 +29,7 @@
 #include "Streaming/TextureStreamingEngine.h"
 #include "Testing/EngineTests.h"
 #include "Rendering/Core/GPULoadBalancer.h"
+#include "NullRHI/NullRHIClass.h"
 
 static ConsoleVariable RunTests("Test", 0, ECVarType::LaunchOnly);
 static ConsoleVariable RunTestsExit("Testexit", 0, ECVarType::LaunchOnly);
@@ -60,6 +61,9 @@ RHI::RHI(ERenderSystemType system)
 		CurrentRHI = RHImodule->GetRHIClass();
 		break;
 #endif
+	case ERenderSystemType::RenderSystemNull:
+		CurrentRHI = new NullRHIClass();
+		break;
 	default:
 		ensureFatalMsgf(false, "Selected RHI not Avalable");
 		break;
@@ -457,6 +461,10 @@ ShaderProgramBase * RHI::CreateShaderProgam(DeviceContext* Device)
 
 DeviceContext * RHI::GetDefaultDevice()
 {
+	if (instance == nullptr)
+	{
+		return nullptr;
+	}
 	return GetRHIClass()->GetDefaultDevice();
 }
 

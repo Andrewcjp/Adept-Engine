@@ -12,7 +12,10 @@ GPUTextureStreamer::~GPUTextureStreamer()
 void GPUTextureStreamer::Init(DeviceContext * Con)
 {
 	CmdList = RHI::CreateCommandList(ECommandListType::Graphics, Con);
-	TextureStreamingEngine::Get()->RegisterGPUStreamer(this);
+	if (TextureStreamingEngine::Get() != nullptr)
+	{
+		TextureStreamingEngine::Get()->RegisterGPUStreamer(this);
+	}
 	OnInit(Con);
 }
 

@@ -22,6 +22,7 @@ static ConsoleVariable GenDebugShaders("DebugShaders", 0, ECVarType::LaunchOnly)
 ShaderComplier::ShaderComplier()
 {
 	MaterialCompiler = new ShaderGraphComplier();
+
 }
 
 ShaderComplier::~ShaderComplier()
@@ -36,10 +37,16 @@ ShaderComplier * ShaderComplier::Get()
 	return Instance;
 }
 
+void ShaderComplier::ShutDown()
+{
+	SafeDelete(Instance);
+}
+
 void ShaderComplier::ComplieAllGlobalShaders()
 {
 	SCOPE_STARTUP_COUNTER("ComplieAllGlobalShaders");
 	int CurrentCount = 0;
+	GlobalShaderLibrary::Init();
 	for (std::map<std::string, ShaderType>::iterator it = GlobalShaderMapDefinitions.begin(); it != GlobalShaderMapDefinitions.end(); ++it)
 	{
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
@@ -51,7 +58,7 @@ void ShaderComplier::ComplieAllGlobalShaders()
 		CurrentCount++;
 		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
 	}
-	GlobalShaderLibrary::Init();
+
 	for (auto it = SingleShaderMapDefinitions.begin(); it != SingleShaderMapDefinitions.end(); ++it)
 	{
 		ShaderComplieItem Item;
@@ -61,12 +68,13 @@ void ShaderComplier::ComplieAllGlobalShaders()
 		Item.Stage = it->second->Stage;
 		Item.EntryPoint = "main";
 		Item.ShaderName = it->second->SourceFile;
-		Item.TargetPlatfrom = PlatformApplication::GetPlatform();
-		Item.ShaderModel = RHI::GetDefaultDevice()->GetCaps().HighestModel;
+		Item.TargetPlatfrom = m_Config.TargetPlatform;
+		Item.ShaderModel = m_Config.ShaderModelTarget;
 		ShaderCache::Get()->GetShader(&Item);
 		CurrentCount++;
 		PlatformWindow::TickSplashWindow(0, "Loading Global Shaders " + std::to_string(CurrentCount) + "/" + std::to_string(GlobalShaderMapDefinitions.size() + SingleShaderMapDefinitions.size()));
 	}
+	ShaderCache::Get()->PrintShaderStats();
 }
 
 void ShaderComplier::FreeAllGlobalShaders()
@@ -92,7 +100,7 @@ void ShaderComplier::ComplieShader(ShaderType & type, DeviceContext* Context)
 	{
 		ShaderComplieSettings S;
 		S.RTSupported = RHI::GetRenderSettings()->RaytracingEnabled();
-		S.ShaderModel = Context->GetCaps().HighestModel;
+		S.ShaderModel = m_Config.ShaderModelTarget;
 		if (!type.ShouldComplieFunc(S))
 		{
 			return;
@@ -195,6 +203,9 @@ void ShaderComplier::RegisterShaderComplier(std::string DLLName)
 
 void ShaderComplier::Init()
 {
+	m_Config.TargetPlatform = PlatformApplication::GetPlatform();
+	m_Config.ShaderModelTarget = RHI::GetDefaultDevice()->GetCaps().HighestModel;
+	m_Config.MirrorToOthers = m_Config.TargetPlatform == EPlatforms::Windows;
 #ifdef PLATFORM_WINDOWS
 	ShaderComplierNames.push_back("WindowsShaderCompiler");
 	ShaderComplierNames.push_back("WindowsLegacyShaderComplier");

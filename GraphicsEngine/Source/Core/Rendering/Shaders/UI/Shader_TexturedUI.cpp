@@ -12,13 +12,8 @@ Shader_TexturedUI::Shader_TexturedUI(DeviceContext* dev) :Shader(dev)
 	{
 		Init();
 		list = RHI::CreateCommandList(ECommandListType::Graphics, dev);
-		RHIPipeLineStateDesc desc;
-		desc.ShaderInUse = this;
-		desc.InitOLD(false, false, true);
-		desc.BlendState = RHIBlendState::CreateBlendDefault();
-		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
-		BlendPSO = RHI::CreatePipelineStateObject(desc);	
-		NoBlendPSO = RHI::CreatePipelineStateObject(desc);
+		
+
 	}
 }
 
@@ -48,6 +43,16 @@ Shader_TexturedUI::~Shader_TexturedUI()
 void Shader_TexturedUI::Render()
 {
 	list->ResetList();
+	if (BlendPSO == nullptr)
+	{
+		RHIPipeLineStateDesc desc;
+		desc.ShaderInUse = this;
+		desc.InitOLD(false, false, true);
+		desc.BlendState = RHIBlendState::CreateBlendDefault();
+		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
+		BlendPSO = RHI::CreatePipelineStateObject(desc);
+		NoBlendPSO = RHI::CreatePipelineStateObject(desc);
+	}
 	if (blend)
 	{
 		list->SetPipelineStateObject(BlendPSO);

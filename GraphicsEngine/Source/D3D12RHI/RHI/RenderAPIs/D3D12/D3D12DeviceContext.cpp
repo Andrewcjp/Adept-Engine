@@ -432,6 +432,7 @@ bool D3D12DeviceContext::IsUMA() const
 {
 	return DeviceFeatureData.ArchData.UMA;
 }
+#ifdef PLATFORM_WINDOWS
 std::string GetDXRstring(D3D12_RAYTRACING_TIER t)
 {
 	if (t == D3D12_RAYTRACING_TIER_1_0)
@@ -448,6 +449,7 @@ std::string GetNiceTierData(int i)
 	}
 	return "TIER_" + std::to_string(i);
 }
+#endif
 std::string D3D12DeviceContext::ReportDeviceData()
 {
 	std::string Data = "GPU " + std::to_string(GetDeviceIndex()) + ":\n";
@@ -455,9 +457,11 @@ std::string D3D12DeviceContext::ReportDeviceData()
 	Data += StringUtils::PadToLength("Adapter Name", Length) + StringUtils::ConvertWideToString(Adaptordesc.Description) + "\n";
 	Data += StringUtils::PadToLength("Type", Length) + EGPUType::ToString(GetType()) + "\n";
 	Data += StringUtils::PadToLength("Dedicated Video Memory", Length) + StringUtils::ByteToGB(Adaptordesc.DedicatedVideoMemory) + "\n";
+#ifdef PLATFORM_WINDOWS 
 	Data += StringUtils::PadToLength("DXR Tier", Length) + GetDXRstring(DeviceFeatureData.FeatureData5.RaytracingTier) + "\n";
 	Data += StringUtils::PadToLength("VRS Tier", Length) + GetNiceTierData(DeviceFeatureData.FeatureData6.VariableShadingRateTier) + "\n";
 	Data += StringUtils::PadToLength("Typed UAV Load Support", Length) + StringUtils::BoolToString(DeviceFeatureData.FeatureData.TypedUAVLoadAdditionalFormats) + "\n";
+#endif
 	return Data;
 }
 
