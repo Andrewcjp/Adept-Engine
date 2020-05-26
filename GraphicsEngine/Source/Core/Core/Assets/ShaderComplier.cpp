@@ -229,6 +229,7 @@ void ShaderComplier::FindAndLoadCompliers()
 
 void ShaderComplier::ComplieShaderNew(ShaderComplieItem* Item, EPlatforms::Type platform)
 {
+	Item->TargetPlatfrom = platform;
 	Item->ComplieShaderDebug = ShaderComplier::Get()->ShouldBuildDebugShaders();
 	for (int i = 0; i < Shadercompliers.size(); i++)
 	{

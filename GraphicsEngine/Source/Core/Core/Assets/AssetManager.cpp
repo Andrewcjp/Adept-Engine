@@ -213,8 +213,8 @@ void AssetManager::SetupPaths()
 {
 	RootDir = Engine::GetExecutionDir();
 #if !BUILD_PACKAGE
-	StringUtils::RemoveChar(RootDir, "\\Binaries\\" + EPlatforms::ToString(PlatformApplication::GetPlatform()));
-	StringUtils::RemoveChar(RootDir, "\\binaries\\" + EPlatforms::ToString(PlatformApplication::GetPlatform()));
+	StringUtils::RemoveChar(RootDir, "\\Binaries\\" + EPlatforms::ToString(EPlatforms::Windows));
+	StringUtils::RemoveChar(RootDir, "\\binaries\\" + EPlatforms::ToString(EPlatforms::Windows));
 #endif
 	ContentDirPath = RootDir + "\\Content\\";
 	if (!FileUtils::File_ExistsTest(ContentDirPath))

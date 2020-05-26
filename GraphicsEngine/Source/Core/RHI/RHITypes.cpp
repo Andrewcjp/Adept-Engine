@@ -57,6 +57,7 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateGBuffer(int width, int height)
 	newDesc.RTFormats[2] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_SNORM;
 	//newDesc.RTFormats[3] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	newDesc.NeedsDepthStencil = true;
+	newDesc.DepthFormat = eTEXTURE_FORMAT::FORMAT_R32_TYPELESS;
 	return newDesc;
 }
 

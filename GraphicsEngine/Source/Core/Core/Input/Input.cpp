@@ -231,17 +231,29 @@ bool Input::GetMouseButtonDown(MouseButton::Type button, EInputChannel::Type Cha
 	{
 		return false;
 	}
+	if (GetInputManager()->GetMouse(0) == nullptr)
+	{
+		return false;
+	}
 	return GetInputManager()->GetMouse(0)->GetButtonDown(button);
 }
 
 float Input::GetMouseWheelAxis()
 {
+	if (GetInputManager()->GetMouse() == nullptr)
+	{
+		return 0.0f;
+	}
 	return GetInputManager()->GetMouse()->GetMouseWheelDelta();
 }
 
 bool Input::GetMouseButton(MouseButton::Type button, EInputChannel::Type Channel)
 {
 	if (!CanReceiveInput(Channel))
+	{
+		return false;
+	}
+	if (GetInputManager()->GetMouse(0) == nullptr)
 	{
 		return false;
 	}
@@ -278,6 +290,10 @@ bool Input::GetKeyDown(KeyCode::Type key, EInputChannel::Type Channel/* = EInput
 	{
 		return false;
 	}
+	if (GetInputManager()->GetKeyboard(0) == nullptr)
+	{
+		return false;
+	}
 	return GetInputManager()->GetKeyboard(0)->IsKeyDown(key);
 }
 
@@ -287,12 +303,20 @@ bool Input::GetKey(KeyCode::Type key, EInputChannel::Type Channel/* = EInputChan
 	{
 		return false;
 	}
+	if (GetInputManager()->GetKeyboard(0) == nullptr)
+	{
+		return false;
+	}
 	return GetInputManager()->GetKeyboard(0)->IsKey(key);
 }
 
 bool Input::GetKeyUp(KeyCode::Type key, EInputChannel::Type Channel/* = EInputChannel::Game*/)
 {
 	if (!CanReceiveInput(Channel))
+	{
+		return false;
+	}
+	if (GetInputManager()->GetKeyboard(0) == nullptr)
 	{
 		return false;
 	}
