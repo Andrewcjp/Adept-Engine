@@ -9,6 +9,7 @@
 #include "RHI/RHITimeManager.h"
 #include "../../Shaders/Shader_Main.h"
 #include "RHI/RHIBufferGroup.h"
+#include "Rendering/Shaders/GlobalShaderLibrary.h"
 
 VelocityNode::VelocityNode()
 {
@@ -28,7 +29,7 @@ void VelocityNode::OnExecute()
 
 	{		
 		RHIPipeLineStateDesc desc; 
-		desc = RHIPipeLineStateDesc::CreateDefault(FixedVelocityShaders, Target);
+		desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::FixedVelocityShaders, Target);
 		desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS; 
 		desc.DepthStencilState.DepthWrite = true;
 		desc.RenderPassDesc = RHIRenderPassDesc(Target, ERenderPassLoadOp::Clear);
@@ -54,6 +55,5 @@ void VelocityNode::OnNodeSettingChange()
 void VelocityNode::OnSetupNode()
 {
 	Cmdlist = RHI::CreateCommandList(ECommandListType::Graphics, Context);
-	FixedVelocityShaders = new Shader_Pair(Context, { "Velocity_vs", "VelocityWrite" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
 }
 

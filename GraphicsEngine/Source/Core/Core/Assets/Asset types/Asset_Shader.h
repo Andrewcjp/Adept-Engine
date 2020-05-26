@@ -4,6 +4,7 @@
 #include "BaseAsset.h"
 
 class ShaderGraph;
+class ShaderAssetInstance;
 class Asset_Shader : public BaseAsset
 {
 public:
@@ -15,6 +16,7 @@ public:
 	std::string & GetName();
 	EMaterialRenderType::Type RenderType = EMaterialRenderType::Opaque;
 	ShaderGraph* GetGraph();
+	ShaderAssetInstance* CreateInstance();
 private:
 	std::string Name = "";
 	ShaderGraph* Graph;

@@ -1,16 +1,16 @@
-#include "Shader_RTMateralHit.h"
+#include "Shader_RTMaterialHit.h"
 
-Shader_RTMateralHit::Shader_RTMateralHit(DeviceContext * C) :
+Shader_RTMaterialHit::Shader_RTMaterialHit(DeviceContext * C) :
 	Shader_RTBase(C, "Raytracing\\MaterialBaseHitShader", ERTShaderType::Hit)
 {
 	InitRS();
 	AddExport("chs");
 }
 
-Shader_RTMateralHit::~Shader_RTMateralHit()
+Shader_RTMaterialHit::~Shader_RTMaterialHit()
 {}
 
-std::vector<ShaderParameter> Shader_RTMateralHit::GetShaderParameters()
+std::vector<ShaderParameter> Shader_RTMaterialHit::GetShaderParameters()
 {
 	std::vector<ShaderParameter> out;
 	out.push_back(ShaderParameter(ShaderParamType::SRV, 0, 1));

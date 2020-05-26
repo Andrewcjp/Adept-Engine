@@ -6,6 +6,7 @@ class AssetDatabase
 {
 public:
 	AssetDatabase();
+	void SaveAnyDirtyAssets();
 	~AssetDatabase();
 	void Build();
 	static AssetDatabase* Get()

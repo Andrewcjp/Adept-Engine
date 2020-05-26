@@ -262,79 +262,74 @@ void RenderGraph::CreateDefTestgraph()
 	VelocityBuffer->SetFrameBufferDesc(Desc);
 	VelocityNode* VelNode = new VelocityNode();
 	VelNode->GetInput(0)->SetStore(VelocityBuffer);
-	LinkNode(PreZ, VelNode);
+	AddNode(VelNode);
 #endif
 	GBufferNode->StoreType = EStorageType::Framebuffer;
 	GBufferNode->DataFormat = StorageFormats::DefaultFormat;
 	GBufferWriteNode* WriteNode = new GBufferWriteNode();
 #if USE_VEL
-	LinkNode(VelNode, WriteNode);
+	AddNode(WriteNode);
 #else
-	LinkNode(PreZ, WriteNode);
+	AddNode(WriteNode);
 #endif
 	WriteNode->GetInput(0)->SetStore(GBufferNode);
 
 	ShadowUpdateNode* ShadowUpdate = new ShadowUpdateNode();
 	ShadowUpdate->GetInput(0)->SetStore(ShadowDataNode);
-	WriteNode->LinkToNode(ShadowUpdate);
+	AddNode(ShadowUpdate);
 
 	MaskNode->GetInput(0)->SetStore(ShadowMaskBuffer);
 	MaskNode->GetInput(1)->SetStore(ShadowDataNode);
 	MaskNode->GetInput(2)->SetStore(GBufferNode);
-	LinkNode(ShadowUpdate, MaskNode);
+	AddNode(MaskNode);
 
 	UpdateReflectionsNode* UpdateProbesNode = new UpdateReflectionsNode();
 	UpdateProbesNode->GetInput(0)->SetStore(ShadowDataNode);
-	LinkNode(MaskNode, UpdateProbesNode);
+	AddNode(UpdateProbesNode);
 
-	DeferredLightingNode* LightNode = new DeferredLightingNode();
+	
 	ParticleSimulateNode* ParticleSimNode = new ParticleSimulateNode();
 
-#if 1
 	LightCullingNode* LightCull = new LightCullingNode();
 	LightCull->GetData().DepthBuffer->SetStore(GBufferNode);
 
-	LinkNode(UpdateProbesNode, LightCull);
-	LinkNode(LightCull, ParticleSimNode);
-
-
-#else
-	LinkNode(UpdateProbesNode, ParticleSimNode);
-#endif	
-	LinkNode(ParticleSimNode, LightNode);
+	AddNode(LightCull);
+	AddNode(ParticleSimNode);
+	DeferredLightingNode* LightNode = AddNode(new DeferredLightingNode());
 
 	LightNode->GetData().GBuffer->SetStore(GBufferNode);
 	LightNode->GetData().MainBuffer->SetStore(MainBuffer);
 	LightNode->GetData().ShadowMaps->SetStore(ShadowDataNode);
 	LightNode->GetData().ShadowMask->SetStore(ShadowMaskBuffer);
+	LightCull->AddApplyToGraph(this,  GBufferNode, ShadowMaskBuffer, MainBuffer);
+	LightNode->AddSkyBoxToGraph(this,  &LightNode->GetData());
 
 	ParticleRenderNode* PRenderNode = new ParticleRenderNode();
-	LinkNode(LightNode, PRenderNode);
-	LightNode->AddSkyBoxToGraph(this, LightNode, &LightNode->GetData());
-	LightCull->AddApplyToGraph(this, LightNode, GBufferNode, ShadowMaskBuffer, MainBuffer);
+	AddNode(PRenderNode);
+
 	PRenderNode->GetInput(0)->SetStore(MainBuffer);
 	PRenderNode->GetInput(1)->SetStore(GBufferNode);
 
 	SSAONode* SSAO = new SSAONode();
 	SSAO->GetInput(0)->SetStore(MainBuffer);
 	SSAO->GetInput(1)->SetStore(GBufferNode);
-	LinkNode(PRenderNode, SSAO);
+	AddNode(SSAO);
 
 	PostProcessNode* PPNode = new PostProcessNode();
-	LinkNode(SSAO, PPNode);
+	AddNode(PPNode);
 	PPNode->GetInput(0)->SetStore(MainBuffer);
 
 	DebugUINode* Debug = new DebugUINode();
-	PPNode->LinkToNode(Debug);
+	AddNode(Debug);
 	Debug->GetInput(0)->SetStore(MainBuffer);
 
 	VisModeNode* VisNode = new VisModeNode();
 	VisNode->GetInput(0)->SetStore(MainBuffer);
 	VisNode->GetInput(1)->SetStore(GBufferNode);
-	Debug->LinkToNode(VisNode);
+	AddNode(VisNode);
 
 	OutputToScreenNode* Output = new OutputToScreenNode();
-	VisNode->LinkToNode(Output);
+	AddNode(Output);
 	Output->GetInput(0)->SetStore(MainBuffer);
 
 	EndGraph(MainBuffer, Output);

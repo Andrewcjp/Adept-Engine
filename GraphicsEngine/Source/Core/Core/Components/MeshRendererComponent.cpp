@@ -7,6 +7,7 @@
 #include "Editor/Inspector.h"
 #include "../GameObject.h"
 #include "Core/Assets/BinaryArchive.h"
+#include "Core/Assets/Asset types/MaterialAsset.h"
 #include "Core/Components/MeshRendererComponent.generated.h"
 
 MeshRendererComponent::MeshRendererComponent()
@@ -71,7 +72,7 @@ void MeshRendererComponent::LoadAnimation(std::string filename, std::string name
 	LoadAnimation(filename, name, t);
 }
 
-void MeshRendererComponent::LoadAnimation(std::string filename, std::string name,MeshLoader::FMeshLoadingSettings& Settings)
+void MeshRendererComponent::LoadAnimation(std::string filename, std::string name, MeshLoader::FMeshLoadingSettings& Settings)
 {
 	if (m_mesh == nullptr || m_mesh->GetSkeletalMesh() == nullptr)
 	{
@@ -138,6 +139,15 @@ LowLevelAccelerationStructure * MeshRendererComponent::GetAccelerationStructure(
 	return nullptr;
 }
 
+void MeshRendererComponent::SetMaterialAsset(std::string path)
+{
+	m_pMaterialAsset.SetAsset(path);
+	if (m_pMaterialAsset.IsValid())
+	{
+		SetMaterial(m_pMaterialAsset.GetAsset()->CreateMaterial(), 0);
+	}
+}
+
 void MeshRendererComponent::Serialize(BinaryArchive* Achive)
 {
 	SerializeThis(Achive, m_RelfectionData.Data);
@@ -151,7 +161,7 @@ void MeshRendererComponent::Serialize(BinaryArchive* Achive)
 
 void MeshRendererComponent::OnPropertyUpdate(ClassReflectionNode* Node)
 {
-	
+
 }
 
 void MeshRendererComponent::BeginPlay()

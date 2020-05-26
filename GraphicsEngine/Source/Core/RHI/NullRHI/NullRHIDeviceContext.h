@@ -5,6 +5,7 @@ class NullRHIDeviceContext : public DeviceContext
 {
 
 public:
+	NullRHIDeviceContext();
 	void ResetDeviceAtEndOfFrame() override;
 	void SampleVideoMemoryInfo() override;
 	RHIClass::GPUMemoryData GetMemoryReport() override;

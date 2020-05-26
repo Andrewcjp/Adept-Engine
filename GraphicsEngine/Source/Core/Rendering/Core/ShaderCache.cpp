@@ -56,6 +56,7 @@ ShaderByteCodeBlob* ShaderCache::GetShader(ShaderComplieItem* item)
 	return Get()->IN_GetShader(item);
 }
 
+
 ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 {
 #if defined(PLATFORM_WINDOWS) && WITH_EDITOR

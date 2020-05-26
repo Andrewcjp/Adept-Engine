@@ -1,5 +1,25 @@
 #include "MaterialTypes.h"
 #include "Core\Assets\Archive.h"
+#include "Core\Assets\Asset types\TextureAsset.h"
+#include "RHI\Streaming\TextureStreamingCommon.h"
+#include "RHI\Streaming\TextureStreamingEngine.h"
+#include "RHI\RHICommandList.h"
+#include "Core\Assets\ImageIO.h"
+#include "Rendering\Core\Mesh\MaterialTypes.generated.h"
+ParmeterBindSet::ParmeterBindSet()
+{
+	CALL_CONSTRUCTOR();
+}
+
+ParmeterBindSet::ParmeterBindSet(const ParmeterBindSet& a)
+{
+	BindMap = a.BindMap;
+	for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
+	{
+		itor->second.InitReflection();
+	}
+	InitReflection();
+}
 
 void ParmeterBindSet::AddParameter(std::string name, ShaderPropertyType::Type tpye)
 {
@@ -21,7 +41,16 @@ void ParmeterBindSet::SetFloat(std::string name, float f)
 	float* ptr = (float*)&data[itor->second.OffsetInBuffer];
 	*ptr = f;
 }
-
+void ParmeterBindSet::SetTexture(std::string name, TextureAsset* asset)
+{
+	auto itor = BindMap.find(name);
+	if (itor == BindMap.end())
+	{
+		Log::LogMessage("Failed to find shader parameter named \"" + name + "\"", Log::Error);
+		return;
+	}
+	itor->second.m_TextureAsset.SetAssetDirect(asset);
+}
 size_t ParmeterBindSet::GetSize()
 {
 	size_t total = 0;
@@ -30,10 +59,10 @@ size_t ParmeterBindSet::GetSize()
 	{
 		total += it->second.GetSize();
 	}
-	if (BindMap.size() == 0)
-	{
-		return cachedSize;
-	}
+	//if (BindMap.size() == 0)
+	//{
+	//	return cachedSize;
+	//}
 	return total;
 }
 
@@ -57,6 +86,36 @@ void * ParmeterBindSet::GetDataPtr()
 	return data;
 }
 
+
+
+void ParmeterBindSet::BindTextures(RHICommandList * list)
+{
+	for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
+	{
+		if (itor->second.PropType == ShaderPropertyType::Texture)
+		{
+			if (itor->second.Handle != nullptr)
+			{
+				itor->second.Handle->Bind(list, itor->first);
+			}
+			else
+			{
+				list->SetTexture(ImageIO::GetDefaultTexture(), itor->first);
+			}
+		}
+	}
+}
+
+void ParmeterBindSet::MakeActive()
+{
+	for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
+	{
+		if (itor->second.Handle == nullptr && itor->second.m_TextureAsset.IsValid())
+		{
+			itor->second.Handle = TextureStreamingEngine::RequestTexture(itor->second.m_TextureAsset.GetAsset()->GetAssetPath());
+		}
+	}
+}
 void ParmeterBindSet::ProcessSerialArchive(Archive * A)
 {
 	/*for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
@@ -77,6 +136,38 @@ void ParmeterBindSet::ProcessSerialArchive(Archive * A)
 	}
 }
 
+void ParmeterBindSet::SeralizeText(Archive* A)
+{
+	int MapSize = BindMap.size();
+	ArchiveProp(MapSize);
+	if (A->IsReading())
+	{
+		for (int i = 0; i < MapSize; i++)
+		{
+			std::string data;
+			ArchiveProp(data);
+			BindMap.emplace(data, MaterialShaderParameter());
+			BindMap.at(data).SeralizeText(A);
+		}
+	}
+	else
+	{
+		for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
+		{
+			std::string data = itor->first;
+			ArchiveProp(data);
+			itor->second.InitReflection();
+			itor->second.Validate();
+			itor->second.SeralizeText(A);
+		}
+	}
+}
+
+MaterialShaderParameter::MaterialShaderParameter()
+{
+	CALL_CONSTRUCTOR();
+}
+
 size_t MaterialShaderParameter::GetSize() const
 {
 	switch (PropType)
@@ -84,5 +175,5 @@ size_t MaterialShaderParameter::GetSize() const
 	case ShaderPropertyType::Float:
 		return sizeof(float);
 	}
-	return size_t();
+	return 0;
 }

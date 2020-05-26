@@ -1,7 +1,7 @@
 #include "PathTraceBindingTable.h"
 #include "Core\Assets\ShaderComplier.h"
 #include "..\Shader_RTBase.h"
-#include "..\..\Shaders\Raytracing\Shader_RTMateralHit.h"
+#include "..\..\Shaders\Raytracing\Shader_RTMaterialHit.h"
 #include "..\..\Shaders\Raytracing\Shader_Skybox_Miss.h"
 #include "..\..\Core\Mesh.h"
 #include "..\..\Core\Material.h"

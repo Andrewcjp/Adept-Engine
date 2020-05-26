@@ -13,6 +13,8 @@
 #include "../Components/Utillity/FreeLookComponent.h"
 #include "../Module/GameModuleSelector.h"
 #include "RHI/Streaming/TextureStreamingEngine.h"
+#include "AssetDatabase.h"
+#include "Asset types/MaterialAsset.h"
 #define TEST_HEAVY 0//NDEBUG
 Scene::Scene(bool EditorScene)
 {
@@ -240,19 +242,25 @@ void Scene::LoadExampleScene()
 #endif
 
 	go = new GameObject("Terrain");
-	mat = Material::CreateDefaultMaterialInstance();
+	MaterialAsset* masset = (MaterialAsset*)AssetDatabase::Get()->FindAssetByPath("test.mat");
 	MeshLoader::FMeshLoadingSettings set;
 #if 0
 	set.UVScale = glm::vec2(1);
 #else
-	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+
+	//mat = masset->CreateMaterial();
+//	ensure(mat);
+	//mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+//	mat->SetTextureAsset("DiffuseMap", "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
 	set.UVScale = glm::vec2(20);
 #endif
 	set.FlipUVs = true;
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
-	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), mat));//TerrrainTest
+	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), nullptr));//TerrrainTest
+	r->SetMaterialAsset("test.mat");
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+	mat->SetTextureAsset("DiffuseMap", "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
 	r->SetMaterial(mat, 1);
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\BoxObject.png"));
@@ -270,6 +278,7 @@ void Scene::LoadExampleScene()
 	go = new GameObject("Rock");
 	mat = Material::CreateDefaultMaterialInstance();
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("Props\\Crate_1\\low_default_AlbedoTransparency.png"));
+	mat->SetTextureAsset("DiffuseMap", "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
 	set = MeshLoader::FMeshLoadingSettings();
 	set.FlipUVs = true;
 	set.Scale = glm::vec3(.01f);
@@ -290,6 +299,7 @@ void Scene::LoadExampleScene()
 	mat->SetFloat("Roughness", 0.99);
 	mat->SetFloat("Metallic", 1.0f);
 	mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
+	mat->SetTextureAsset("DiffuseMap", "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
 	set = MeshLoader::FMeshLoadingSettings();
 	MeshRendererComponent* m = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("AlwaysCook\\Terrain\\WallBox.Obj", set), mat));
 	m->SetMaterial(mat, 0);
@@ -378,8 +388,8 @@ void Scene::LoadExampleScene()
 #if TEST_HEAVY
 	//PadUntil(651);
 #endif
-	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()));
-	}
+	Log::LogMessage("Gird size " + std::to_string(size*size*size) + " GO count " + std::to_string(GetMeshObjects().size()) + "  Lights: " + std::to_string(Lights.size()));
+}
 
 void Scene::PadUntil(int target)
 {
@@ -417,7 +427,8 @@ void Scene::CreateGrid(int size, glm::vec3 startPos, float stride, bool OneD)
 				Material* mat = Material::CreateDefaultMaterialInstance();
 				mat->SetFloat("Roughness", x * (1.0f / (size - 1)));
 				mat->SetFloat("Metallic", y * (1.0f / (size - 1)));
-				mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\bricks2.jpg"));
+				//mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\texture\\bricks2.jpg"));
+				mat->SetTextureAsset("DiffuseMap", "texture\\bricks2.jpg");
 				MeshLoader::FMeshLoadingSettings s;
 				//s.AllowInstancing = false;
 				MeshRendererComponent* c = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh("\\models\\Sphere.obj", s), mat));

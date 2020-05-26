@@ -114,6 +114,7 @@ public:
 	//checks
 	RHI_API static bool UseAdditionalGPUs();
 	static bool IsD3D12();
+	static bool IsNullRHIActingDX12();
 	static bool IsVulkan();
 	static bool SupportsThreading();
 	static bool SupportsExplictMultiAdaptor();
@@ -172,6 +173,7 @@ private:
 	DynamicQualityEngine* QualityEngine = nullptr;
 	friend DynamicQualityEngine;
 	bool CheckSwapReady = false;
+	ERenderSystemType RHIEmulationTarget = Limit;
 };
 
 class RHI_API RHIClass

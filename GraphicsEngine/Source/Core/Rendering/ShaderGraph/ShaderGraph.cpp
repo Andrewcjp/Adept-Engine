@@ -12,7 +12,6 @@ ShaderGraph::ShaderGraph(FString Name)
 {
 	GraphName = Name;
 	GraphMasterNode = new PBRMasterNode();//new PBRMasterNode();
-	MaterialBinds = new TextureBindSet();
 }
 
 ShaderGraph::~ShaderGraph()
@@ -55,13 +54,11 @@ ParmeterBindSet ShaderGraph::GetParameters()
 	{
 		BindSet.AddParameter(BufferProps[i]->Name, BufferProps[i]->Type);
 	}
+	for (int i = 0; i < Textures.size(); i++)
+	{
+		BindSet.AddParameter(Textures[i], ShaderPropertyType::Texture);
+	}
 	return BindSet;
-}
-
-TextureBindSet * ShaderGraph::GetMaterialData()
-{
-	ensure(IsComplied);
-	return MaterialBinds;
 }
 
 void ShaderGraph::AddNodetoGraph(ShaderGraphNode * Node)
@@ -81,9 +78,9 @@ void ShaderGraph::AddTexDecleration(std::string data, std::string name)
 	//: register(t20);
 	const std::string RegisterString = ": register(t" + std::to_string(TReg) + ");\n";
 	Declares += data + RegisterString;
-	MaterialBinds->AddBind(name, CurrentSlot, TReg);
 	CurrentSlot++;
 	TReg++;
+	Textures.push_back(name);
 }
 
 bool ShaderGraph::IsPropertyDefined(std::string name)

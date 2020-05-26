@@ -389,7 +389,7 @@ void UIManager::RenderWidgets(RHICommandList* List)
 	for (int i = 0; i < Contexts.size(); i++)
 	{
 		Contexts[i]->RenderWidgets(List);
-}
+	}
 	DebugLineDrawer::Get2()->RenderLines2DScreen(List);
 }
 
@@ -399,7 +399,7 @@ void UIManager::RenderWidgetText()
 	{
 		Contexts[i]->RenderWidgetText();
 	}
-	}
+}
 
 //todo: prevent issue with adding while itoring!
 void UIManager::MouseMove(int x, int y)
@@ -453,7 +453,7 @@ void UIManager::SelectedCallback(int i)
 	if (instance)
 	{
 		EditorWindow::GetEditorCore()->SetSelectedObjectIndex(i);
-}
+	}
 #endif
 }
 

@@ -18,6 +18,7 @@ public:
 	void UpdateShaderData();
 	Material() {}
 	CORE_API Material(Asset_Shader* shader);
+	void SetParmaters(const ParmeterBindSet& set);
 	~Material();
 	void SetMaterialActive(RHICommandList * RESTRICT list, const MeshPassRenderArgs& Pass);
 	//creates this material after all props have been setup
@@ -29,6 +30,7 @@ public:
 	CORE_API void SetNormalMap(BaseTexture * tex);
 	CORE_API void SetDiffusetexture(BaseTextureRef tex);
 	void SetTexture(std::string name, TextureHandle* handle);
+	void SetTextureAsset(std::string name, std::string);
 	bool HasNormalMap();
 	static Material * GetDefaultMaterial();
 	void ProcessSerialArchive(class Archive* A);
@@ -50,13 +52,13 @@ public:
 	void* GetDataPtr();
 	Asset_Shader* GetShaderAsset();
 	TextureHandle* TestHandle = nullptr;
+	TextureHandle* GetTexture(int index);
+	ParmeterBindSet ParmbindSet;
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;
-	TextureBindSet * CurrentBindSet = nullptr;
-	void SetupDefaultBinding(TextureBindSet* TargetSet);
+
 	MaterialShader* ShaderInterface = nullptr;
-	ParmeterBindSet ParmbindSet;
 	bool CurrnetShadowState = false;
 };
 

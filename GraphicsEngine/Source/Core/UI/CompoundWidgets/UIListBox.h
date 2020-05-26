@@ -16,7 +16,7 @@ public:
 	bool MouseClick(int x, int y)override;
 	void MouseClickUp(int x, int y)override;
 	void UpdateScaled()override;
-	void RemoveAll();
+	void Clear();
 	void Select(int i);
 	void AddItem(std::string  name);
 	void SetTitle(std::string name);

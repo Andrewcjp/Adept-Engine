@@ -7,7 +7,7 @@
 #include "Rendering/Core/Mesh/MaterialTypes.h"
 #include "Rendering/Core/Material.h"
 #include "Core/Assets/ShaderComplier.h"
-#include "../Core/Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "../Core/Rendering/Shaders/Raytracing/Shader_RTMaterialHit.h"
 #include "../Core/Core/Game/Game.h"
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
 static ConsoleVariable CookPack("pack", 0, ECVarType::LaunchOnly);
@@ -44,7 +44,7 @@ void Cooker::Execute()
 {
 #include "Core/Engine.h"
 #include "Core/Game/Game.h"
-#include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "Rendering/Shaders/Raytracing/Shader_RTMaterialHit.h"
 	Log::LogMessage("Cooking for Platform: " + EPlatforms::ToString(TargetPlatform));
 	if (ShouldComplie)
 	{
@@ -226,7 +226,7 @@ void Cooker::BuildAllMaterials()
 	ShaderComplier::Get()->GetMaterialShader(ComplieData);
 
 	ShaderComplier::Get()->TickMaterialComplie();
-	new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	new Shader_RTMaterialHit(RHI::GetDefaultDevice());
 	new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
 }
 

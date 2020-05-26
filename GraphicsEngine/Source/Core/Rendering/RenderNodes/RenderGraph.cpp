@@ -411,6 +411,17 @@ void RenderGraph::InvalidateGraph()
 	GraphNeedsProcess = true;
 }
 
+RenderNode* RenderGraph::AppendNode(RenderNode* node)
+{
+	if (HeadNode == nullptr)
+	{
+		HeadNode = RootNode;
+	}
+	HeadNode->LinkToNode(node);
+	HeadNode = node;
+	return HeadNode;
+}
+
 void RenderGraph::ExposeItem(RenderNode* N, std::string name, bool Defaultstate /*= true*/)
 {
 	RenderGraphExposedSettings* Set = new RenderGraphExposedSettings(N, Defaultstate);

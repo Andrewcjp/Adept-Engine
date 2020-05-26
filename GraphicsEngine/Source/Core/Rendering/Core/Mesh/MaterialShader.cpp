@@ -51,11 +51,6 @@ Shader_NodeGraph* MaterialShader::GetShader(EMaterialPassType::Type type)
 	return GetOrComplie(CurrentData);
 }
 
-TextureBindSet * MaterialShader::GetBinds()
-{
-	return CurrentData.Shader->GetGraph()->GetMaterialData();
-}
-
 ParmeterBindSet MaterialShader::GetParamBinds()
 {
 	return CurrentData.Shader->GetGraph()->GetParameters();

@@ -36,6 +36,7 @@ class BaseTexture :  public IRHIResourse, public IRHISharedDeviceObject<BaseText
 public:
 	CORE_API virtual ~BaseTexture();
 	bool CreateFromFile(AssetPathRef FileName);
+	static RHITexture * CreateFromFile2(AssetPathRef FileName);
 	CORE_API void CreateTextureFromData(void* data, int type, int width, int height, int bits);
 	virtual void CreateTextureFromDesc(const TextureDescription& desc) = 0;
 	virtual void CreateAsNull() = 0;

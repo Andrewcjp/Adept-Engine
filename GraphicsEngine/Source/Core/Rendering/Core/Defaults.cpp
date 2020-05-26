@@ -12,6 +12,10 @@ Defaults::Defaults()
 {
 	DefaultTexture = AssetManager::DirectLoadTextureAsset("\\texture\\T_GridSmall_01_D.png");
 	ensureFatalMsgf(DefaultTexture != nullptr, "Failed to Load Fallback Texture");
+	AssetPathRef r = AssetPathRef("\\texture\\T_GridSmall_01_D.png");
+	r.IsDDC = true;
+	r.DDCPath =  "\\DerivedDataCache\\T_GridSmall_01_D.dds";
+	DefaultRHITex = BaseTexture::CreateFromFile2(r);
 
 	DefaultMateral = new Material(new Asset_Shader(true));
 	DefaultMateral->Init();
@@ -53,6 +57,11 @@ BaseTextureRef Defaults::GetDefaultTexture()
 Material * Defaults::GetDefaultMaterial()
 {
 	return Instance->DefaultMateral;
+}
+
+RHITexture * Defaults::GetDefaultTexture2()
+{
+	return Instance->DefaultRHITex;
 }
 
 

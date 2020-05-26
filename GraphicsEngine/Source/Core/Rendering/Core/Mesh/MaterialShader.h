@@ -16,7 +16,7 @@ public:
 	void SetShader(MaterialShaderComplieData & data);
 	Shader_NodeGraph * GetShader(EMaterialPassType::Type type);
 	//
-	TextureBindSet* GetBinds();
+
 	ParmeterBindSet GetParamBinds();
 	int GetParamterSize();
 	

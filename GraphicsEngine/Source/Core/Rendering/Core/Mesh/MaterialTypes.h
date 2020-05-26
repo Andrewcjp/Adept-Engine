@@ -1,4 +1,6 @@
 #pragma once
+#include "Core/Assets/AssetPtr.h"
+#include "Core/Reflection/IReflect.h"
 #define USEHASH 1
 namespace ShaderPropertyType
 {
@@ -10,10 +12,13 @@ namespace ShaderPropertyType
 		Float4,
 		Bool,
 		Int,
+		Texture,
 	};
 }
 
 class Asset_Shader;
+class TextureAsset;
+class TextureHandle;
 struct EMaterialPassType
 {
 	enum Type
@@ -56,38 +61,45 @@ struct TextureBindData
 	int RegisterSlot = 0;
 };
 
-struct TextureBindSet
+UCLASS()
+struct MaterialShaderParameter : public IReflect
 {
-	std::map<std::string, TextureBindData> BindMap;
-	void AddBind(std::string name, int index, int Register)
-	{
-		TextureBindData B;
-		
-		B.RootSigSlot = index;
-		B.RegisterSlot = Register;
-		BindMap.emplace(name, B);
-	}
-};
-
-struct MaterialShaderParameter
-{
+	CLASS_BODY_Reflect();
+	MaterialShaderParameter();
+	PROPERTY();
 	ShaderPropertyType::Type PropType = ShaderPropertyType::Float;
 	size_t GetSize() const;
+	PROPERTY();
 	size_t OffsetInBuffer = 0;
+	PROPERTY();
+	AssetPtr<TextureAsset> m_TextureAsset;
+
+	TextureHandle* Handle = nullptr;
 };
 
-struct ParmeterBindSet
+UCLASS()
+struct ParmeterBindSet : public IReflect
 {
+	CLASS_BODY_Reflect();
+	ParmeterBindSet();
+	ParmeterBindSet(const ParmeterBindSet& a);
 	std::map<std::string, MaterialShaderParameter> BindMap;
 	void AddParameter(std::string name, ShaderPropertyType::Type tpye);
 	void SetFloat(std::string name, float f);
+	void SetTexture(std::string name, TextureAsset* asset);
 	size_t GetSize();
 	void AllocateMemeory();
 	~ParmeterBindSet();
 	void* GetDataPtr();
 	void ProcessSerialArchive(Archive * A);
-private:
+	void BindTextures(RHICommandList* list);
+	void MakeActive();
+	typedef unsigned char* BYTE;
+	void SeralizeText(Archive* A) override;
+private:	
 	unsigned char* data = nullptr;
 	size_t cachedSize = 0;
+
+
 };
 

@@ -76,7 +76,7 @@ void UIListBox::UpdateScaled()
 	UIUtils::ArrangeHorizontal(w - Edgespace, h - 10, 0, -Scorll, items, 0.05f, 0, 20);
 }
 
-void UIListBox::RemoveAll()
+void UIListBox::Clear()
 {
 	for (int i = 0; i < items.size(); i++)
 	{

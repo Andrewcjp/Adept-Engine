@@ -55,9 +55,6 @@ public:
 	glm::ivec3 GetComputeThreadSize() const override;
 
 private:
-
-	
-
 	class D3D12DeviceContext* CurrentDevice = nullptr;
 
 	ID3D12DescriptorHeap* m_samplerHeap = nullptr;

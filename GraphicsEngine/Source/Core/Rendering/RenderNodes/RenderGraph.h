@@ -152,7 +152,14 @@ public:
 	bool RequiresRT = false;
 	int TotalResourceSize = 0;
 	void InvalidateGraph();
+	template<class T>
+	T* AddNode(T* Node)
+	{
+		return (T*)AppendNode(Node);
+	}
+	RenderNode* AppendNode(RenderNode* node);
 private:
+	RenderNode* HeadNode = nullptr;
 	std::vector<ConsoleVariable*> AutoVars;
 	std::string GraphName = "";
 	bool GraphNeedsProcess = false;

@@ -5,10 +5,9 @@
 #include "../Core/VRXEngine.h"
 
 //#Materals: refactor!
-Shader_NodeGraph::Shader_NodeGraph(std::string Shadername, TextureBindSet* binds) :Shader_Main(true)
+Shader_NodeGraph::Shader_NodeGraph(std::string Shadername) :Shader_Main(true)
 {
 	ShaderFilename = Shadername;
-	Binds = binds;
 }
 
 void Shader_NodeGraph::Init()
@@ -19,8 +18,14 @@ void Shader_NodeGraph::Init()
 	VRXEngine::SetupVRRShader(this, Device);
 	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
-
-	m_Shader->AttachAndCompileShaderFromFile(ShaderFilename.c_str(), EShaderType::SHADER_FRAGMENT);
+	if (ShaderSource.length() == 0)
+	{
+		m_Shader->AttachAndCompileShaderFromFile(ShaderFilename.c_str(), EShaderType::SHADER_FRAGMENT);
+	}
+	else
+	{
+		m_Shader->AttachAndCompileShaderFromSource(ShaderSource, EShaderType::SHADER_FRAGMENT);
+	}
 	HasComplied = true;
 }
 
@@ -52,11 +57,6 @@ std::vector<ShaderParameter> Shader_NodeGraph::GetShaderParameters()
 const std::string Shader_NodeGraph::GetName()
 {
 	return ShaderFilename;
-}
-
-TextureBindSet * Shader_NodeGraph::GetBinds()
-{
-	return Binds;
 }
 
 bool Shader_NodeGraph::IsValid() const

@@ -9,20 +9,56 @@
 #include "Asset types/TextureAsset.h"
 #include "Asset types/MeshAsset.h"
 #include "Asset types/MaterialAsset.h"
+#include "Asset types/Asset_Shader.h"
 
 AssetDatabase* AssetDatabase::Instance = nullptr;
 
 AssetDatabase::AssetDatabase()
 {
 	Instance = this;
-	RegisterAssetExtention("png", TextureAsset::TYPEID);	
+
+
+	AssetInstances.push_back(new Asset_Shader(true));
+
+	RegisterAssetExtention("png", TextureAsset::TYPEID);
+	RegisterAssetExtention("jpg", TextureAsset::TYPEID);
 	RegisterAssetExtention("obj", MeshAsset::TYPEID);
 	RegisterAssetExtention("mat", MaterialAsset::TYPEID);
+
 	Build();
+
+	//debug
+	if (FindAssetByPath("test.mat") == nullptr)
+	{
+		MaterialAsset* m = new MaterialAsset();
+		m->CreateNew("test.mat");
+		m->m_Shader.SetAsset("shader.default");
+		m->SetupFromShader();
+		TextureAsset* t = (TextureAsset*)AssetDatabase::Get()->FindAssetByPath("Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
+		if (t != nullptr)
+		{
+			m->GetAssetSet()->SetTexture("DiffuseMap", t);
+		}
+		m->SaveAsset();
+		AssetInstances.push_back(m);
+	}
+}
+
+void AssetDatabase::SaveAnyDirtyAssets()
+{
+	for (int i = 0; i < AssetInstances.size(); i++)
+	{
+		if (AssetInstances[i]->IsDirty())
+		{
+			AssetInstances[i]->SaveAsset();
+		}
+	}
 }
 
 AssetDatabase::~AssetDatabase()
-{}
+{
+	SaveAnyDirtyAssets();
+}
 
 void AssetDatabase::Build()
 {
@@ -64,6 +100,15 @@ BaseAsset* AssetDatabase::CreateOrGetAsset(std::string path)
 {
 	BaseAsset* Asset = nullptr;
 	if (FileUtils::File_ExistsTest(BaseAsset::GetMetaFileName(path)))
+	{
+		Asset = CreateAssetFromFile(path);
+		if (Asset == nullptr)
+		{
+			return nullptr;
+		}
+		Asset->LoadAsset(path);
+	}
+	else if (path.find(".mat") != -1)
 	{
 		Asset = CreateAssetFromFile(path);
 		if (Asset == nullptr)

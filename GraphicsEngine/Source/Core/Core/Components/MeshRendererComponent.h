@@ -29,7 +29,7 @@ public:
 	CORE_API virtual void SceneInitComponent() override;
 	CORE_API virtual void OnTransformUpdate() override;
 	LowLevelAccelerationStructure* GetAccelerationStructure()const;
-
+	void SetMaterialAsset(std::string path);
 
 	void Serialize(BinaryArchive* Achive) override;
 

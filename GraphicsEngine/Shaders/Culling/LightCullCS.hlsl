@@ -107,7 +107,7 @@ void SortLights(in uint localIdxFlattened)
 			uint nSwapElem = nMergeSubSize == nMergeSize >> 1 ? index_high + (2 * nMergeSubSize - 1) - index_low : index_high + nMergeSubSize + index_low;
 			if (nSwapElem < numArray && index < numArray)
 			{
-				if (LightIndexs[index] < LightIndexs[nSwapElem])
+				if (LightIndexs[index] > LightIndexs[nSwapElem])
 				{
 					uint uTemp = LightIndexs[index];
 					LightIndexs[index] = LightIndexs[nSwapElem];
@@ -227,15 +227,11 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 		DstLightList[index] = ListLength;
 	}
 	//sort!
-	//SortLights(groupIndex);
+	SortLights(groupIndex);
 	GroupMemoryBarrierWithGroupSync();
 	for (int i = groupIndex; i < MAX_LIGHTS_PER_TILE - 1; i += LIGHTCULLING_TILE_SIZE * LIGHTCULLING_TILE_SIZE)
 	{
-		if (i >= ListLength)
-		{
-			//DstLightList[index + 1 + i] = -1;
-		}
-		else
+		if (i < ListLength)
 		{
 			DstLightList[index + 1 + i] = LightIndexs[i];
 		}

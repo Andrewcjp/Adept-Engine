@@ -2,6 +2,7 @@
 #pragma warning(push,0)
 #undef max
 #include "gli/gli.hpp"
+#include "RHITexture.h"
 #pragma warning(pop)
 BaseTexture::~BaseTexture()
 {}
@@ -22,7 +23,7 @@ bool BaseTexture::CreateFromFile(AssetPathRef FileName)
 
 	//todo: handle this better!
 	Description.PtrToData = malloc(tex.size());
-	memcpy(Description.PtrToData, tex.data(), tex.size());	
+	memcpy(Description.PtrToData, tex.data(), tex.size());
 	Description.Faces = tex.faces();
 	Description.ImageByteSize = tex.size();
 	for (int i = 0; i < tex.levels(); i++)
@@ -38,7 +39,40 @@ bool BaseTexture::CreateFromFile(AssetPathRef FileName)
 	TexturePath = FileName.GetRelativePathToAsset();
 	return true;
 }
+RHITexture* BaseTexture::CreateFromFile2(AssetPathRef FileName)
+{
+	std::string FilePAth = FileName.GetFullPathToAsset();
+	gli::texture tex = gli::load(FilePAth);
+	if (tex.empty())
+	{
+		return false;
+	}
+	RHITexture* RHITex = RHI::GetRHIClass()->CreateTexture2();
+	Log::LogMessage("Loading texture " + FilePAth);
+	TextureDescription Description;
+	Description.Width = tex.extent().x;
+	Description.Height = tex.extent().y;
+	Description.MipLevels = tex.levels();
+	Description.BitDepth = 4;// texChannels;
 
+	//todo: handle this better!
+	Description.PtrToData = malloc(tex.size());
+	memcpy(Description.PtrToData, tex.data(), tex.size());
+	Description.Faces = tex.faces();
+	Description.ImageByteSize = tex.size();
+	for (int i = 0; i < tex.levels(); i++)
+	{
+		Description.MipLevelExtents.push_back(glm::ivec2(tex.extent(i).x, tex.extent(i).y));
+	}
+	if (tex.target() == gli::TARGET_CUBE)
+	{
+		Description.TextureType = ETextureType::Type_CubeMap;
+		//CurrentTextureType = ETextureType::Type_CubeMap;
+	}
+	RHITex->CreateWithUpload(Description, RHI::GetDefaultDevice());
+
+	return RHITex;
+}
 void BaseTexture::CreateTextureFromData(void * data, int type, int width, int height, int bits)
 {
 	TextureDescription Tex = TextureDescription::DefaultTexture(width, height);

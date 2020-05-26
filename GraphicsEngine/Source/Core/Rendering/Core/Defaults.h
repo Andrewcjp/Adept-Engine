@@ -10,6 +10,7 @@ public:
 	static void Shutdown();
 	RHI_API static BaseTextureRef GetDefaultTexture();
 	RHI_API static Material* GetDefaultMaterial();
+	RHI_API static RHITexture* GetDefaultTexture2();
 	static RHIBuffer* GetQuadBuffer();
 
 private:
@@ -18,6 +19,7 @@ private:
 	~Defaults();
 	static Defaults* Instance;
 	BaseTextureRef DefaultTexture;
+	RHITexture* DefaultRHITex;
 	RHIBuffer* VertexBuffer = nullptr;
 };
 

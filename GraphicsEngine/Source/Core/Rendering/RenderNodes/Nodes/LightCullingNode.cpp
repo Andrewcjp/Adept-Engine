@@ -78,9 +78,9 @@ void LightCullingNode::OnSetupNode()
 }
 
 
-void LightCullingNode::AddApplyToGraph(RenderGraph* Graph, RenderNode* Node, StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer)
+void LightCullingNode::AddApplyToGraph(RenderGraph* Graph, StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer)
 {
-	
+
 	SimpleNode* Apply = new SimpleNode("Tiled Light Apply",
 		[&](SimpleNode* N)
 	{
@@ -98,7 +98,7 @@ void LightCullingNode::AddApplyToGraph(RenderGraph* Graph, RenderNode* Node, Sto
 	{
 		ExecuteApply(Data, list);
 	});
-	Graph->InsertNode(Node, Apply);
+	Graph->AddNode(Apply);
 }
 
 void LightCullingNode::ExecuteApply(ApplyPassData& Data, RHICommandList* list)
@@ -114,7 +114,7 @@ void LightCullingNode::ExecuteApply(ApplyPassData& Data, RHICommandList* list)
 	list->SetConstantBufferView(SceneRenderer::Get()->GetLightCullingEngine()->LightCullBuffer->Get(list), 0, "LightBuffer");
 	list->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(list), "LightList");
 	list->SetBuffer(Data.TileList->GetTarget<BufferStorageNode>()->GetBuffer(), "LightIndexs");
-	SceneRenderer::Get()->BindMvBuffer(list,"SceneConstantBuffer");
+	SceneRenderer::Get()->BindMvBuffer(list, "SceneConstantBuffer");
 	list->DispatchSized(HDROut->GetWidth(), HDROut->GetHeight(), 1);
 	list->UAVBarrier(HDROut);
 }

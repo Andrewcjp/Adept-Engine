@@ -22,7 +22,7 @@ EditorOutliner::~EditorOutliner()
 void EditorOutliner::SetGameObjects(std::vector<GameObject*>& Objects)
 {
 #if WITH_EDITOR
-	List->RemoveAll();	
+	List->Clear();	
 	using std::placeholders::_1;
 	List->SelectionChanged = std::bind(&UIManager::SelectedCallback, _1);
 	List->ItemSize = 15;

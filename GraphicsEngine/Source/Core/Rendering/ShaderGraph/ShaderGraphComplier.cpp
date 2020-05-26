@@ -19,7 +19,7 @@ Shader_NodeGraph * ShaderGraphComplier::Complie(MaterialShaderComplieData & Data
 		return nullptr;
 	}
 	//#Materals Different binds per permutation?
-	Shader_NodeGraph* Shader = new Shader_NodeGraph(ShaderPath, Data.Shader->GetGraph()->GetMaterialData());
+	Shader_NodeGraph* Shader = new Shader_NodeGraph(ShaderPath);
 	Shader->SetDefines(Data.ShaderKeyWords);
 	return Shader;
 }

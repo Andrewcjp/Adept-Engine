@@ -63,6 +63,7 @@ RHI::RHI(ERenderSystemType system)
 #endif
 	case ERenderSystemType::RenderSystemNull:
 		CurrentRHI = new NullRHIClass();
+		RHIEmulationTarget = RenderSystemD3D12;
 		break;
 	default:
 		ensureFatalMsgf(false, "Selected RHI not Avalable");
@@ -125,6 +126,11 @@ RenderSettings* RHI::GetRenderSettings()
 bool RHI::IsD3D12()
 {
 	return (GetType() == RenderSystemD3D12);
+}
+
+bool RHI::IsNullRHIActingDX12()
+{
+	return (GetType() == RenderSystemNull && instance->RHIEmulationTarget == RenderSystemD3D12);
 }
 
 bool RHI::IsVulkan()

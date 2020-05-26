@@ -14,7 +14,7 @@ public:
 	void test();
 	void SolidColour();
 	void CreateDefault();
-	TextureBindSet* GetMaterialData();
+
 	FString& GetGraphName()
 	{
 		return GraphName;
@@ -23,7 +23,6 @@ public:
 	std::string GetCompliedCode();
 
 
-	TextureBindSet* MaterialBinds = nullptr;
 	std::string Declares;
 	int TReg = 20;
 	int CurrentSlot = MainShaderRSBinds::Limit;
@@ -43,7 +42,7 @@ public:
 	std::string CompliedCode;
 	std::vector<PropertyLink*> BufferProps;
 	std::string ConstantBufferCode = "";
-
+	std::vector<std::string> Textures;
 	ParmeterBindSet GetParameters();
 };
 

@@ -32,7 +32,7 @@ void UIAssetPickerTab::Setup(ClassTypeID Type, std::function<void(BaseAsset*)> A
 		List->GetTransfrom()->SetStretchMode(EAxisStretch::ALL);
 		TabPanelArea->AddChild(List);
 	}
-	List->RemoveAll();
+	List->Clear();
 	ListedAssets.clear();
 	AssetDatabase::Get()->GetAllAssetsOfType(TypeTarget, ListedAssets);
 	for (int i = 0; i < ListedAssets.size(); i++)

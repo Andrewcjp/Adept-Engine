@@ -236,6 +236,11 @@ void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Po
 				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View, nullptr)->GetGPUAddress().ptr);
 				Pointers.push_back(heapPointer);
 			}
+			else
+			{
+				//null descriptors!
+				Pointers.push_back(0);
+			}
 		}
 	}
 }

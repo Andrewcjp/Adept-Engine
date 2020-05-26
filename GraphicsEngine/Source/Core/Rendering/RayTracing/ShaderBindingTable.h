@@ -20,7 +20,7 @@ namespace DefaultLocalRootSignatureParams
 	};
 }
 class Shader_RTBase;
-class Shader_RTMateralHit;
+class Shader_RTMaterialHit;
 class Scene;
 struct ShaderHitGroup
 {

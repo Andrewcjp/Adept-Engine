@@ -15,8 +15,6 @@
 IMPLEMENT_GLOBAL_SHADER(Shader_Skybox);
 Shader_Skybox::Shader_Skybox(class DeviceContext* dev) :Shader(dev)
 {
-
-
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->AttachAndCompileShaderFromFile("Skybox_fs", EShaderType::SHADER_FRAGMENT);
 }

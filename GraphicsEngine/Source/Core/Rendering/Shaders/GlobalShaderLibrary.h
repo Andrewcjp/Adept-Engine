@@ -9,5 +9,6 @@ public:
 	static Shader_Pair* VolumeDownSample;
 	static Shader_Pair* LightCullingShader;
 	static Shader_Pair* TiledLightingApplyShader;
+	static Shader_Pair* FixedVelocityShaders;
 };
 

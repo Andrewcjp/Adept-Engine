@@ -2,12 +2,14 @@
 #include "Rendering/Core/Material.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
 #include "../ShaderComplier.h"
+#include "Rendering/Core/ShaderAssetInstance.h"
 
 Asset_Shader::Asset_Shader(bool GenDefault)
 {
 	if (GenDefault)
 	{
 		CreateGenDefault();
+		AssetPath = "shader.default";
 	}
 }
 
@@ -43,4 +45,9 @@ std::string & Asset_Shader::GetName()
 ShaderGraph * Asset_Shader::GetGraph()
 {
 	return Graph;
+}
+
+ShaderAssetInstance * Asset_Shader::CreateInstance()
+{
+	return nullptr;
 }

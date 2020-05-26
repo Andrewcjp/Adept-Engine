@@ -1,6 +1,6 @@
 #include "ShaderBindingTable.h"
 #include "Core/Assets/Scene.h"
-#include "Rendering/Shaders/Raytracing/Shader_RTMateralHit.h"
+#include "Rendering/Shaders/Raytracing/Shader_RTMaterialHit.h"
 #include "../Core/Mesh.h"
 #include "../Core/Material.h"
 #include "Core/Utils/StringUtil.h"
@@ -42,7 +42,7 @@ void ShaderBindingTable::AddObject(GameObject* Object)
 
 Shader_RTBase* ShaderBindingTable::GetMaterialShader()
 {
-	return new Shader_RTMateralHit(RHI::GetDefaultDevice());
+	return new Shader_RTMaterialHit(RHI::GetDefaultDevice());
 }
 
 void ShaderBindingTable::InitTable()

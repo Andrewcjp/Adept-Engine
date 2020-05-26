@@ -1,6 +1,13 @@
-#include "Stdafx.h"
 #include "NullRHIDeviceContext.h"
 #include "RHI/RHI.h"
+
+NullRHIDeviceContext::NullRHIDeviceContext()
+{
+	Caps_Data.SupportTypedUAVLoads = true;
+	Caps_Data.RTSupport = ERayTracingSupportType::Hardware;
+	Caps_Data.VRSSupport = EVRSSupportType::Hardware_Tier2;
+	Caps_Data.VRSTileSize = 16;
+}
 
 void NullRHIDeviceContext::ResetDeviceAtEndOfFrame()
 {

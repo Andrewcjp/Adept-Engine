@@ -14,7 +14,7 @@ public:
 	InputData(LightCullInput,
 		NodeLink* CulledLightList = nullptr;
 	NodeLink* DepthBuffer = nullptr; );
-	void AddApplyToGraph(RenderGraph* Graph, RenderNode* Node, StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer);
+	void AddApplyToGraph(RenderGraph* Graph,  StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer);
 	struct ApplyPassData
 	{
 		NodeLink* TileList;

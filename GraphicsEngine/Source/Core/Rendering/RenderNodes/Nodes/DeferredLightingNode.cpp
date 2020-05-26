@@ -123,7 +123,7 @@ void DeferredLightingNode::OnExecute()
 	GetInput(1)->GetStoreTarget()->DataFormat = StorageFormats::LitScene;
 
 }
-void DeferredLightingNode::AddSkyBoxToGraph(RenderGraph* graph, RenderNode* Node, DeferredLightingInputs* Inputs)
+void DeferredLightingNode::AddSkyBoxToGraph(RenderGraph* graph, DeferredLightingInputs* Inputs)
 {
 	SimpleNode* skybox = new SimpleNode("SkyBox",
 		[&](SimpleNode* N)
@@ -138,7 +138,7 @@ void DeferredLightingNode::AddSkyBoxToGraph(RenderGraph* graph, RenderNode* Node
 	{
 		ExecuteSkybox(m_SkyBoxData, list);
 	});
-	graph->InsertNode(Node, skybox);
+	graph->AddNode(skybox);
 }
 
 void DeferredLightingNode::ExecuteSkybox(SkyBoxData& data, RHICommandList* list)

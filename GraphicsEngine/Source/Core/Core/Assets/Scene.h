@@ -69,5 +69,6 @@ private:
 	LightingEnviromentData LightingData = LightingEnviromentData();
 	bool IsRunning = false;
 	std::vector<GameObject*> DeferredRemoveQueue;
+
 };
 

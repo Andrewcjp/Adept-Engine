@@ -9,6 +9,7 @@
 #include "../RenderNodes/Nodes/ForwardRenderNode.h"
 #include "RHI/RHIBufferGroup.h"
 #include "RHI/Streaming/TextureStreamingCommon.h"
+#include "Core/Assets/AssetDatabase.h"
 
 void Material::UpdateShaderData()
 {
@@ -25,8 +26,12 @@ Material::Material(Asset_Shader * shader)
 	MaterialCData.Shader = shader;
 	NeedsUpdate = true;
 	Init();
-	CurrentBindSet = ShaderInterface->GetBinds();
-	ParmbindSet = ShaderInterface->GetParamBinds();
+	SetParmaters(ShaderInterface->GetParamBinds());
+}
+
+void Material::SetParmaters(const ParmeterBindSet& set)
+{
+	ParmbindSet = set;
 	ParmbindSet.AllocateMemeory();
 	MaterialDataBuffer = new RHIBufferGroup();
 	MaterialDataBuffer->CreateConstantBuffer((int)ParmbindSet.GetSize(), 1);
@@ -35,17 +40,21 @@ Material::Material(Asset_Shader * shader)
 Material::~Material()
 {
 	EnqueueSafeRHIRelease(MaterialDataBuffer);
-	SafeDelete(CurrentBindSet);
 }
 
 void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRenderArgs& Pass)
 {
+	if (MaterialDataBuffer == nullptr)
+	{
+		SetParmaters(ShaderInterface->GetParamBinds());
+	}
 	//SetReceiveShadow(Pass.UseShadows);
 	if (NeedsUpdate)
 	{
 		ShaderInterface->SetShader(MaterialCData);
 		NeedsUpdate = false;
 	}
+	ParmbindSet.MakeActive();
 	Shader_NodeGraph* CurrentShader = nullptr;
 	if (Pass.PassType == ERenderPass::BasePass_Cubemap || Pass.PassType == ERenderPass::TransparentPass)
 	{
@@ -78,21 +87,7 @@ void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRe
 	desc.ShaderInUse = (Shader*)CurrentShader;
 	list->SetPipelineStateDesc(desc);
 	list->SetConstantBufferView(MaterialDataBuffer->Get(list), 0, "MateralConstantBuffer");
-	for (auto const& Pair : CurrentBindSet->BindMap)
-	{
-		if (Pair.second.TextureObj == nullptr)
-		{
-			list->SetTexture(ImageIO::GetDefaultTexture(), Pair.first);
-		}
-		else
-		{
-			list->SetTexture(Pair.second.TextureObj.Get(), Pair.first);			
-		}
-		if (TestHandle != nullptr)
-		{
-			TestHandle->Bind(list, Pair.first);
-		}
-	}
+	ParmbindSet.BindTextures(list);
 	if (!Pass.UseDeferredShaders)
 	{
 		//bind lighting data
@@ -139,9 +134,26 @@ Asset_Shader * Material::GetShaderAsset()
 	return MaterialCData.Shader;
 }
 
+TextureHandle * Material::GetTexture(int index)
+{
+	int Count = 0;
+	for (auto itor = ParmbindSet.BindMap.begin(); itor != ParmbindSet.BindMap.end(); itor++)
+	{
+		if (itor->second.PropType == ShaderPropertyType::Texture)
+		{
+			if (Count == index)
+			{
+				return itor->second.Handle;
+			}
+			Count++;
+		}
+	}
+	return nullptr;
+}
+
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 {
-	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
+	/*if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
 		if (CurrentBindSet->BindMap.at(Name).TextureObj != NewTex)
 		{
@@ -151,15 +163,15 @@ void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)
 	else
 	{
 		LogEnsureMsgf(false, "Failed to Find Bind");
-	}
+	}*/
 }
 
 BaseTexture * Material::GetTexturebind(std::string Name)
 {
-	if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
+	/*if (CurrentBindSet->BindMap.find(Name) != CurrentBindSet->BindMap.end())
 	{
 		return CurrentBindSet->BindMap.at(Name).TextureObj.Get();
-	}
+	}*/
 	return nullptr;
 }
 
@@ -186,9 +198,19 @@ void Material::SetDiffusetexture(BaseTextureRef tex)
 		UpdateBind("DiffuseMap", tex);
 	}
 }
+
 void Material::SetTexture(std::string name, TextureHandle* handle)
 {
 	TestHandle = handle;
+}
+
+void Material::SetTextureAsset(std::string name, std::string assetpath)
+{
+	TextureAsset* t = (TextureAsset*)AssetDatabase::Get()->FindAssetByPath(assetpath);
+	if (t != nullptr)
+	{
+		ParmbindSet.SetTexture(name, t);
+	}
 }
 
 bool Material::HasNormalMap()
@@ -200,7 +222,6 @@ Material* Material::GetDefaultMaterial()
 {
 	return Defaults::GetDefaultMaterial();
 }
-
 
 void SerialTextureBind(Archive * A, TextureBindData* object)
 {
@@ -223,7 +244,7 @@ void Material::ProcessSerialArchive(Archive * A)
 	//#Editor Save this
 	/*ArchiveProp(ShaderProperties.Metallic);
 	ArchiveProp(ShaderProperties.Roughness);*/
-	
+
 	if (A->IsReading())
 	{
 		std::string ShaderName = "";
@@ -259,10 +280,10 @@ void Material::ProcessSerialArchive(Archive * A)
 		}
 		ArchiveProp_Alias(tmp, MaterialCData.Shader->GetName());
 	}
-	if (A->IsReading() && CurrentBindSet != nullptr)
-	{
-		CurrentBindSet->BindMap.clear();
-	}
+	//if (A->IsReading() && CurrentBindSet != nullptr)
+	//{
+	//	CurrentBindSet->BindMap.clear();
+	//}
 	//A->LinkPropertyMap<std::string, TextureBindData>(CurrentBindSet->BindMap, "CurrentBindSet->BindMap", &SerialTextureBind);
 	ParmbindSet.ProcessSerialArchive(A);
 }
@@ -317,12 +338,12 @@ void Material::SetReceiveShadow(bool state)
 	UpdateShaderData();
 }
 
-void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
-{
-	TargetSet->BindMap.clear();
-	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ nullptr, ALBEDOMAP });
-	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ nullptr, NORMALMAP });
-}
+//void Material::SetupDefaultBinding(TextureBindSet* TargetSet)
+//{
+//	TargetSet->BindMap.clear();
+//	TargetSet->BindMap.emplace("ALBEDOMAP", TextureBindData{ nullptr, ALBEDOMAP });
+//	TargetSet->BindMap.emplace("NORMALMAP", TextureBindData{ nullptr, NORMALMAP });
+//}
 
 std::string Material::ShadowShaderstring = std::string("WITH_SHADOW");
 

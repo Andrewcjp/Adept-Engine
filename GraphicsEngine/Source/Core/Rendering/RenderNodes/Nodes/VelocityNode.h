@@ -15,6 +15,5 @@ protected:
 
 	void OnSetupNode() override;
 	RHICommandList* Cmdlist = nullptr;
-	Shader_Pair* FixedVelocityShaders = nullptr;
 };
 

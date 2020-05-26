@@ -206,7 +206,7 @@ void ShaderComplier::Init()
 	m_Config.TargetPlatform = PlatformApplication::GetPlatform();
 	m_Config.ShaderModelTarget = RHI::GetDefaultDevice()->GetCaps().HighestModel;
 	m_Config.MirrorToOthers = m_Config.TargetPlatform == EPlatforms::Windows;
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS) && WITH_EDITOR
 	ShaderComplierNames.push_back("WindowsShaderCompiler");
 	ShaderComplierNames.push_back("WindowsLegacyShaderComplier");
 	FindAndLoadCompliers();

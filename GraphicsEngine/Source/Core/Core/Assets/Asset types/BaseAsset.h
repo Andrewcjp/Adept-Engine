@@ -25,6 +25,7 @@ public:
 	virtual ~BaseAsset();
 	void LoadAsset(const std::string& SourceFile);
 	void GenerateNewAsset(const std::string& AssetSourcePath);
+	void CreateNew(const std::string & aAssetPath);
 	void SaveAsset();
 	virtual void ProcessAsset(Archive* A);
 	CORE_API int GetGUID() const;
@@ -35,13 +36,21 @@ public:
 
 	std::string GetAssetPath() const { return AssetPath; }
 	std::string GetName()const { return name; }
+	std::string GetPathToSource() const { return PathToSource; }
+	bool IsDirty() const { return m_Dirty; }
+	void SetDirty() { m_Dirty = true; };
+
+	void OnPropertyUpdate(ClassReflectionNode* Node) override;
+
 protected:
 	bool NeedsMetaFile = true;
-private:
+	virtual void ProcessArchive(Archive* a);
+
 	std::string name = "";
 	std::string AssetPath = "";
 	std::string PathToSource = "";
 	int GUID = 0;
 	EAssetStatus::Type CurrentState = EAssetStatus::NotLoaded;
+	bool m_Dirty = false;
 };
 

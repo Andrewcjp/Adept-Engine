@@ -12,9 +12,9 @@ void ShaderProgramBase::AddDefaultDefines(std::vector<ShaderProgramBase::Shader_
 	if (!RHI::IsVulkan())
 	{
 		//the vulkan to HLSL complier defines this for us
-		Defines.push_back(Shader_Define("VULKAN", std::to_string(RHI::IsVulkan())));
+		//Defines.push_back(Shader_Define("VULKAN", std::to_string(RHI::IsVulkan())));
 	}
-	Defines.push_back(Shader_Define("DX12", std::to_string(RHI::IsD3D12())));
+	Defines.push_back(Shader_Define("DX12", std::to_string(RHI::IsD3D12() || RHI::IsNullRHIActingDX12())));
 	Defines.push_back(Shader_Define("FULL_UAV_LOAD", std::to_string(context->GetCaps().SupportTypedUAVLoads)));
 }
 ShaderProgramBase::~ShaderProgramBase()
@@ -25,6 +25,11 @@ ShaderProgramBase::~ShaderProgramBase()
 EShaderError::Type ShaderProgramBase::AttachAndCompileShaderFromFile(const char * filename, EShaderType::Type type)
 {
 	return AttachAndCompileShaderFromFile(filename, type, "main");
+}
+
+EShaderError::Type ShaderProgramBase::AttachAndCompileShaderFromSource(std::string SRC, EShaderType::Type type)
+{
+	return EShaderError::SHADER_ERROR_UNSUPPORTED;
 }
 
 void ShaderProgramBase::ModifyCompileEnviroment(Shader_Define Define)
