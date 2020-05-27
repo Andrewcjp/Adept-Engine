@@ -244,10 +244,6 @@ std::string WindowsApplication::GetExecutablePath()
 
 EPlatforms::Type WindowsApplication::GetPlatform()
 {
-	if (Engine::GetIsCooking() && Engine::GetCookContext() != nullptr)
-	{
-		return Engine::GetCookContext()->GetTargetPlatform();
-	}
 	return EPlatforms::Windows;
 }
 

@@ -115,7 +115,6 @@ const std::string ShaderCache::GetShaderNamestr(const std::string & Shadername, 
 	{
 		OutputName += "_D";
 	}
-	OutputName += "_DIXL";
 	OutputName += ".cso";
 	return OutputName;
 }

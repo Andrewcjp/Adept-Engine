@@ -57,7 +57,9 @@ int KeyMappingTable[]
 		 VK_OEM_8,
 		 VK_ESCAPE,
 		 VK_CONTROL,
-		 VK_SHIFT
+		 VK_SHIFT,
+		 VK_UP,
+		 VK_DOWN,
 };
 
 void WindowsKeyboard::UpdateState()

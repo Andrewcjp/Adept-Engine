@@ -8,13 +8,16 @@
 #include "Core/Assets/AssetDatabase.h"
 #include "Core/Assets/Asset types/BaseAsset.h"
 #include "Core/Assets/Asset types/MaterialAsset.h"
+#include "Editor/Inspectors/UIAssetInspector.h"
 
 UIAssetManager::UIAssetManager() : UITab()
 {
 	//leftpanel = new UIListBox(1, 1, 1, 1);
 	SetName("Project");
 	leftpanel = new UIListBox(0, 0, 0, 0);
+	leftpanel->SelectionChanged = [&](int i) { UIAssetInspector::Get()->SetTarget(Assets[i]); };
 	TabPanelArea->AddChild(leftpanel);
+
 	Build();
 }
 
@@ -41,12 +44,8 @@ void UIAssetManager::Build()
 
 void UIAssetManager::SelectedCallback(int i)
 {
-
+	UIAssetInspector::Get()->SetTarget(Assets[i]);
 }
-//void UIAssetManager::ResizeView(int w, int h, int x, int y)
-//{
-//	UIBox::ResizeView(w, h, x, y);
-//	leftpanel->ResizeView(UIManager::GetScaledWidth(LeftSideWidth), h, x, y);
-//}
+
 
 

@@ -51,7 +51,7 @@ void CameraComponent::ProcessSerialArchive(Archive * A)
 #if WITH_EDITOR
 void CameraComponent::GetInspectorProps(std::vector<InspectorProperyGroup>& props)
 {
-	InspectorProperyGroup group = Inspector::CreatePropertyGroup("Camera");
+	InspectorProperyGroup group = UIInspectorBase::CreatePropertyGroup("Camera");
 	//group.SubProps.push_back(Inspector::CreateProperty("test", Inspector::Float, nullptr));
 	props.push_back(group);
 }

@@ -3,9 +3,12 @@
 #include "AI/Core/Navigation/NavigationManager.h"
 #include "Audio/AudioEngine.h"
 #include "Core/Assets/AssetManager.h"
+#include "Core/Assets/Scene.h"
 #include "Core/Assets/SceneJSerialiser.h"
+#include "Core/Assets/SceneSeraliser.h"
 #include "Core/Game/Game.h"
 #include "Core/Input/Input.h"
+#include "Core/Performance/PerfManager.h"
 #include "Core/Platform/PlatformCore.h"
 #include "Core/Utils/DebugDrawers.h"
 #include "Core/Version.h"
@@ -13,14 +16,12 @@
 #include "EditorCore.h"
 #include "EditorGizmos.h"
 #include "EditorObjectSelector.h"
-#include "UI/UIManager.h"
-#include "Rendering/VR/HMDManager.h"
+#include "Inspectors/UIGameObjectInspector.h"
 #include "Rendering/Core/SceneRenderer.h"
-#include "Core/Performance/PerfManager.h"
-#include "Core/Assets/Scene.h"
 #include "Rendering/Core/ShadowRenderer.h"
+#include "Rendering/VR/HMDManager.h"
 #include "RHI/Streaming/TextureStreamingEngine.h"
-#include "Core/Assets/SceneSeraliser.h"
+#include "UI/UIManager.h"
 #if WITH_EDITOR
 EditorWindow* EditorWindow::instance = nullptr;
 EditorWindow::EditorWindow() :BaseWindow()
@@ -220,14 +221,14 @@ void EditorWindow::Update()
 		gizmos->RenderGizmos(LineDrawer);
 		if (UI != nullptr && UI->GetInspector() != nullptr)
 		{
-			UI->GetInspector()->SetSelectedObject(mEditorCore->GetSelectedObject());
+			UIGameObjectInspector::Get()->SetSelectedObject(mEditorCore->GetSelectedObject());
 		}
 	}
 	else
 	{
 		if (UI->GetInspector() != nullptr)
 		{
-			UI->GetInspector()->SetSelectedObject(nullptr);
+			UIGameObjectInspector::Get()->SetSelectedObject(nullptr);
 		}
 	}
 	if (!Input::GetMouseButton(MouseButton::ButtonRight))

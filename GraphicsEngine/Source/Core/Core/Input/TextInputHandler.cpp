@@ -9,7 +9,7 @@ TextInputHandler::TextInputHandler()
 TextInputHandler::~TextInputHandler()
 {}
 
-void TextInputHandler::SetInputContext(ITextInputReceiver * Target, MemberValueType::Type Filter/* = MemberValueType::String*/)
+void TextInputHandler::SetInputContext(ITextInputReceiver * Target, MemberValueType::Type Filter/* = MemberValueType::String*/, bool AccepyCloses /*= true*/)
 {
 	m_pCurrentContext = Target;
 	m_FilterType = Filter;
@@ -17,10 +17,14 @@ void TextInputHandler::SetInputContext(ITextInputReceiver * Target, MemberValueT
 	{
 		m_PreEditValue = Target->GetStartValue();
 		m_CurrentValue = m_PreEditValue;
-		m_CursorPos = 0;
-		m_OldInputChannel = Input::Get()->GetCurrentChannel();
+		m_CursorPos = m_CurrentValue.length();
+		if (Input::Get()->GetCurrentChannel() != EInputChannel::TextInput)
+		{
+			m_OldInputChannel = Input::Get()->GetCurrentChannel();
+		}
 		Input::SetInputChannel(EInputChannel::TextInput);
 	}
+	CloseOnSendValue = AccepyCloses;
 	ProcessKeyDown(0);
 }
 
@@ -140,12 +144,15 @@ void TextInputHandler::ProcessKeyDown(WPARAM key)
 	UpdateValue(m_DisplayText);
 }
 
-void TextInputHandler::AcceptValue()
+void TextInputHandler::AcceptValue(bool force)
 {
 	UpdateValue(m_PreEditValue);
 	m_pCurrentContext->ReceiveCommitedText(m_CurrentValue);
-	m_pCurrentContext = nullptr;
-	Input::SetInputChannel(m_OldInputChannel);
+	if (CloseOnSendValue || force)
+	{
+		m_pCurrentContext = nullptr;
+		Input::SetInputChannel(m_OldInputChannel);
+	}
 }
 
 void TextInputHandler::RejectEdit()
@@ -153,8 +160,11 @@ void TextInputHandler::RejectEdit()
 	//PreEditValue
 	UpdateValue(m_PreEditValue);
 	m_pCurrentContext->ReceiveCommitedText(m_PreEditValue);
-	m_pCurrentContext = nullptr;
-	Input::SetInputChannel(m_OldInputChannel);
+	if (CloseOnSendValue)
+	{
+		m_pCurrentContext = nullptr;
+		Input::SetInputChannel(m_OldInputChannel);
+	}
 }
 
 TextInputHandler * TextInputHandler::Get()

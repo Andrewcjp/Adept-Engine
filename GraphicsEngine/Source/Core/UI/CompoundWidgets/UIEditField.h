@@ -2,7 +2,7 @@
 #include "UI/Core/UIWidget.h"
 #include "UI/BasicWidgets/UIBox.h"
 #include "UI/Core/CollisionRect.h"
-#include "Editor/Inspector.h"
+#include "Editor/UIInspectorBase.h"
 #include "Core/Reflection/ClassReflectionNode.h"
 #include "Core/Input/ITextInputReceiver.h"
 class UILabel;

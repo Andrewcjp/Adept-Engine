@@ -24,6 +24,8 @@
 #include "Rendering/Core/Screen.h"
 #include "EditorUI/UIEditorTopBar.h"
 #include "EditorUI/UIWorldSettingsTab.h"
+#include "Editor/Inspectors/UIGameObjectInspector.h"
+#include "Editor/Inspectors/UIAssetInspector.h"
 
 UIManager* UIManager::instance = nullptr;
 UIWidget* UIManager::CurrentContext = nullptr;
@@ -141,7 +143,7 @@ void UIManager::InitEditorUI()
 
 	UIWindow* RightWin = new UIWindow();
 	RightWin->AddTab(new UIWorldSettingsTab());
-	RightWin->AddTab(new UITab());
+	//RightWin->AddTab(new UITab());
 	AddWidget(RightWin);
 	UIWindow* Bottomw = new UIWindow();
 	Bottomw->AddTab(new UITab());
@@ -158,9 +160,14 @@ void UIManager::InitEditorUI()
 	EditorLayout->SetWidget(UILayoutManager::Top, TopWin);
 	EditorLayout->SetWidget(UILayoutManager::Centre, EditUI->ViewPortImage);
 
-	inspector = new Inspector(0, 0, 0, 0);
+	inspector = new UIGameObjectInspector();
 	inspector->SetRootSpaceScaled(0, 0, 0, 0);
 	RightWin->AddTab(inspector);
+
+	UIAssetInspector * ai = new UIAssetInspector();
+	ai->SetRootSpaceScaled(0, 0, 0, 0);
+	RightWin->AddTab(ai);
+
 #endif
 	const int Small = GetScaledWidth(0.3);
 	ViewportArea = glm::ivec4(1920 - Small, 1080 - Small, GetScaledWidth(0.2f), Small);
@@ -226,7 +233,7 @@ void UIManager::Initalise(int width, int height)
 	new TextRenderer(width, height, true);
 }
 
-Inspector* UIManager::GetInspector()
+UIInspectorBase* UIManager::GetInspector()
 {
 	return inspector;
 }

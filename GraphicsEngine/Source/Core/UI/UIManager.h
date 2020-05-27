@@ -3,7 +3,7 @@
 #include "Core/EngineTypes.h"
 #include <functional>
 #define UISTATS 0
-#define EDITORUI 0//WITH_EDITOR
+#define EDITORUI 1//WITH_EDITOR
 class TextRenderer;
 class UIWidget;
 class GameObject;
@@ -13,7 +13,7 @@ class DebugLineDrawer;
 class UIDrawBatcher;
 class UIGraph;
 class UIPopoutbox;
-class Inspector;
+class UIInspectorBase;
 class UIAssetManager;
 class UIWidgetContext;
 class UIDropDown;
@@ -40,7 +40,7 @@ public:
 	void AlertBox(std::string MSg);
 	~UIManager();
 	void Initalise(int width, int height);
-	Inspector * GetInspector();
+	UIInspectorBase * GetInspector();
 	void RenderTextToScreen(int id, std::string text);
 	void RenderTextToScreen(int id, std::string text, glm::vec3 colour);
 	void RenderTextToScreen(std::string text, float x, float y, float scale, glm::vec3 colour);
@@ -104,7 +104,7 @@ private:
 	UIPopoutbox* testbox = nullptr;
 	UIAssetManager* AssetMan;
 	bool Blocking = false;
-	Inspector* inspector = nullptr;
+	UIInspectorBase* inspector = nullptr;
 	std::vector<GameObject*>* GameObjectsPtr;
 	bool FullScreen = false;
 	UILayoutManager* EditorLayout = nullptr;

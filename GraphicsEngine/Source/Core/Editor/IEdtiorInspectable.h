@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Inspector.h"
+#include "UIInspectorBase.h"
 #if WITH_EDITOR
 class IEdtiorInspectable
 {

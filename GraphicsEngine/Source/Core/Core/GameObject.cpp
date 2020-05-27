@@ -363,10 +363,10 @@ void GameObject::SetParent(GameObject * Parent)
 std::vector<InspectorProperyGroup> GameObject::GetInspectorFields()
 {
 	std::vector<InspectorProperyGroup> test;
-	InspectorProperyGroup RootGroup = Inspector::CreatePropertyGroup("GameObject");
+	InspectorProperyGroup RootGroup = UIInspectorBase::CreatePropertyGroup("GameObject");
 	RootGroup.Nodes = AccessReflection()->Data;
 	test.push_back(RootGroup);
-	RootGroup = Inspector::CreatePropertyGroup("Transform");
+	RootGroup = UIInspectorBase::CreatePropertyGroup("Transform");
 	RootGroup.Nodes = TransformNodes;
 	test.push_back(RootGroup);
 

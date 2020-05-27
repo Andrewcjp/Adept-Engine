@@ -4,7 +4,7 @@
 #include "Core/Assets/AssetManager.h"
 #include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
 #include "Rendering/RayTracing/RayTracingEngine.h"
-#include "Editor/Inspector.h"
+#include "Editor/UIInspectorBase.h"
 #include "../GameObject.h"
 #include "Core/Assets/BinaryArchive.h"
 #include "Core/Assets/Asset types/MaterialAsset.h"
@@ -122,6 +122,10 @@ void MeshRendererComponent::SceneInitComponent()
 			RayTracingEngine::Get()->EnqueueForBuild(BLAS);
 			MeshAcclerations.push_back(BLAS);
 		}
+	}
+	if (m_mesh != nullptr)
+	{
+		m_mesh->GetMaterial(0)->MakeReady();
 	}
 }
 

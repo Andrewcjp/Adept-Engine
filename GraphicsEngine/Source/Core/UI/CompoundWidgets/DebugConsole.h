@@ -31,6 +31,9 @@ private:
 	UILabel* ResponseLabel = nullptr;
 	UILabel* SuggestBox = nullptr;
 	UIBox* EditField;
-	ConsoleVariable* CurrentTopCvar = nullptr;
+	std::vector<ConsoleVariable*> SuggestedVars;
+	int TopCvar = 0;
+
+	bool DidJustMoveUp = false;
 };
 

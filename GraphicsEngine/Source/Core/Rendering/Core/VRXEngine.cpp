@@ -9,6 +9,7 @@
 #include "RHI\RHITexture.h"
 #include "..\Utils\UAVFormatConverter.h"
 #include "Core\Utils\StringUtil.h"
+#include "Rendering\Shaders\GlobalShaderLibrary.h"
 
 REGISTER_SHADER_PS_ONEARG(VRRWriteStencil16,"VRX/VRRWriteStencil", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", "16"));
 REGISTER_SHADER_PS_ONEARG(VRRWriteStencil8, "VRX/VRRWriteStencil", ShaderProgramBase::Shader_Define("VRS_TILE_SIZE", "8"));
@@ -194,7 +195,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 #endif
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve.Varable Write");
-		Desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_VRRResolve>());
+		Desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VRXResolveShader->Get());
 		list->SetPipelineStateDesc(Desc);
 		RHICommandSignitureDescription SigDesc;
 		INDIRECT_ARGUMENT_DESC DispatchDesc;

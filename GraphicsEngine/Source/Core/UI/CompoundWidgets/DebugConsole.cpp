@@ -62,7 +62,7 @@ void DebugConsole::Open()
 	m_CurrentValue = "";
 	EditField->SetEnabled(IsOpen);
 	SetEnabled(true);
-	TextInputHandler::Get()->SetInputContext(this);
+	TextInputHandler::Get()->SetInputContext(this, MemberValueType::String, false);
 }
 
 //void DebugConsole::ResizeView(int w, int h, int x, int y)
@@ -101,7 +101,7 @@ void DebugConsole::Close()
 	Textlabel->SetText(m_CurrentValue);
 	if (TextInputHandler::Get()->IsUsing(this))
 	{
-		TextInputHandler::Get()->AcceptValue();
+		TextInputHandler::Get()->AcceptValue(true);
 	}
 
 	SetEnabled(false);
@@ -110,8 +110,7 @@ void DebugConsole::Close()
 void DebugConsole::ClearInput()
 {
 	m_CurrentValue = "";
-	LastText = "";
-	Textlabel->SetText(m_CurrentValue);
+	LastText = "";	
 }
 
 #ifdef PLATFORM_WINDOWS
@@ -132,6 +131,29 @@ void DebugConsole::UpdateData()
 			Open();
 		}
 	}
+	if (IsOpen)
+	{
+		if (SuggestedVars.size() > 0)
+		{
+			if (Input::GetKeyDown(KeyCode::ArrowUp, EInputChannel::Global))
+			{
+				m_CurrentValue = SuggestedVars[TopCvar]->GetName();
+				TopCvar++;
+				DidJustMoveUp = true;
+				TextInputHandler::Get()->SetInputContext(this, MemberValueType::String, false);
+			}
+
+			if (Input::GetKeyDown(KeyCode::ArrowDown, EInputChannel::Global))
+			{
+				m_CurrentValue = SuggestedVars[TopCvar]->GetName();
+				TopCvar--;
+				DidJustMoveUp = true;
+				TextInputHandler::Get()->SetInputContext(this, MemberValueType::String, false);
+			}
+			TopCvar = TopCvar % SuggestedVars.size();
+		}
+		else { TopCvar = 0; }
+	}
 #endif
 }
 void DebugConsole::UpdateSugestions()
@@ -141,17 +163,16 @@ void DebugConsole::UpdateSugestions()
 	int Count = 0;
 	std::string cmd = m_CurrentValue;
 	//cmd.erase(0, 1);
+	SuggestedVars.clear();
+	TopCvar = 0;
 	for (int i = 0; i < ConsoleVariableManager::Instance->ConsoleVars.size(); i++)
 	{
 		ConsoleVariable* cv = ConsoleVariableManager::Instance->ConsoleVars[i];
 		if (MatchStart(cmd, cv->GetName()))
 		{
-			if (Count == 0)
-			{
-				CurrentTopCvar = cv;
-			}
 			output.append(cv->GetName() + ", ");
 			Count++;
+			SuggestedVars.push_back(cv);
 			if (Count > maxsuggestions)
 			{
 				break;
@@ -181,6 +202,7 @@ void DebugConsole::ReceiveCommitedText(const std::string& text)
 {
 	m_CurrentValue = text;
 	ExecCommand(text);
+	TextInputHandler::Get()->SetInputContext(this, MemberValueType::String, false);
 }
 
 std::string DebugConsole::GetStartValue()
@@ -190,7 +212,12 @@ std::string DebugConsole::GetStartValue()
 
 void DebugConsole::OnUpdate(const std::string & DisplayText)
 {
+	const bool CurentV = m_CurrentValue == TextInputHandler::Get()->GetCurrentValue();
 	m_CurrentValue = TextInputHandler::Get()->GetCurrentValue();
-	UpdateSugestions();
+	if (!DidJustMoveUp && !CurentV)
+	{
+		UpdateSugestions();
+	}
+	DidJustMoveUp = false;
 	Textlabel->SetText(DisplayText);
 }

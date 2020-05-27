@@ -44,17 +44,14 @@ Material::~Material()
 
 void Material::SetMaterialActive(RHICommandList* RESTRICT list, const MeshPassRenderArgs& Pass)
 {
-	if (MaterialDataBuffer == nullptr)
-	{
-		SetParmaters(ShaderInterface->GetParamBinds());
-	}
+	
 	//SetReceiveShadow(Pass.UseShadows);
 	if (NeedsUpdate)
 	{
 		ShaderInterface->SetShader(MaterialCData);
 		NeedsUpdate = false;
 	}
-	ParmbindSet.MakeActive();
+	MakeReady();
 	Shader_NodeGraph* CurrentShader = nullptr;
 	if (Pass.PassType == ERenderPass::BasePass_Cubemap || Pass.PassType == ERenderPass::TransparentPass)
 	{
@@ -149,6 +146,15 @@ TextureHandle * Material::GetTexture(int index)
 		}
 	}
 	return nullptr;
+}
+
+void Material::MakeReady()
+{
+	if (MaterialDataBuffer == nullptr)
+	{
+		SetParmaters(ShaderInterface->GetParamBinds());
+	}
+	ParmbindSet.MakeActive();
 }
 
 void Material::UpdateBind(std::string Name, BaseTextureRef NewTex)

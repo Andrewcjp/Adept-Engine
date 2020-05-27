@@ -11,7 +11,8 @@
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/RenderNodes/NodeLink.h"
 #include "Rendering/RenderNodes/StoreNodes/FrameBufferStorageNode.h"
-
+#include "RHI/RHITypes.h"
+#include "Rendering/Shaders/Shader_Pair.h"
 
 LightCullingNode::LightCullingNode()
 {
@@ -34,9 +35,7 @@ void LightCullingNode::OnExecute()
 	SceneRenderer::Get()->GetLightCullingEngine()->UpdateLightStatsBuffer();
 	List->SetConstantBufferView(SceneRenderer::Get()->GetLightCullingEngine()->LightCullBuffer->Get(List), 0, "LightBuffer");
 	SceneRenderer::Get()->BindMvBuffer(List, "CameraData");
-#if 0
-	//LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
-#endif
+
 	RHIBuffer* TileList = GetBufferFromInput(0);
 	FrameBuffer* DepthStencil = GetFrameBufferFromInput(1);
 	List->SetUAV(TileList, "DstLightList");

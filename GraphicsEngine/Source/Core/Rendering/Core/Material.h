@@ -54,6 +54,7 @@ public:
 	TextureHandle* TestHandle = nullptr;
 	TextureHandle* GetTexture(int index);
 	ParmeterBindSet ParmbindSet;
+	void MakeReady();
 private:
 	bool NeedsUpdate = false;
 	MaterialShaderComplieData MaterialCData;

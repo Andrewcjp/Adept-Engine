@@ -49,6 +49,8 @@ namespace KeyCode
 		Escape,
 		Control,
 		Shift,
+		ArrowUp,
+		ArrowDown,
 		Limit
 	};
 }
