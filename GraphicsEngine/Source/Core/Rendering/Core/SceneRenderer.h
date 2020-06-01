@@ -15,6 +15,7 @@ class ReflectionEnviroment;
 class Scene;
 class RHIBufferGroup;
 class VoxelScene;
+class RayTracingScene;
 
 #include "LightInterop.h"
 typedef LightEntry LightUniformBuffer;
@@ -107,6 +108,7 @@ public:
 		return mVoxelScene;
 	};
 
+	RayTracingScene* GetRTScene() const { return mRTScene; }
 private:
 	bool SceneChanged = false;
 	ReflectionEnviroment* Enviroment = nullptr;
@@ -125,5 +127,6 @@ private:
 	Editor_Camera* EditorCam = nullptr;
 	RHIBufferGroup* QuadBuffer = nullptr;
 	VoxelScene* mVoxelScene = nullptr;
+	RayTracingScene* mRTScene = nullptr;
 };
 

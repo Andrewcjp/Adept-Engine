@@ -20,10 +20,10 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer;
+	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX_RT;
 
 	CurrentDebug = ERenderDebugOutput::Off;
-	//VRXSet.EnableVRX = true;
+//	VRXSet.EnableVRX = true;
 	VRXSet.VRXMode = EVRSMode::ForceSoftwareOnly;
 	VRXSet.VRRTileSize = 16;
 	AllowMeshInstancing = true;

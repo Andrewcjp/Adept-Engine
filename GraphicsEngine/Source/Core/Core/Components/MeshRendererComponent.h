@@ -4,6 +4,7 @@
 #include "Rendering/Core/Material.h"
 #include "Core/Reflection/IReflect.h"
 #include "Core/Assets/AssetPtr.h"
+#include "Rendering/RayTracing/LowLevelAccelerationStructure.h"
 UCLASS()
 class LowLevelAccelerationStructure;
 class MeshAsset;
@@ -34,7 +35,7 @@ public:
 	void Serialize(BinaryArchive* Achive) override;
 
 	void OnPropertyUpdate(ClassReflectionNode* Node) override;
-
+	LowLevelAccelerationStructure* CachedStructure = nullptr;
 private:
 	PROPERTY();
 	AssetPtr<MeshAsset> m_pMeshAsset;

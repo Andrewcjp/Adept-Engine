@@ -3,8 +3,9 @@
 #include "InputInterface.h"
 #include "Interfaces/SteamVR/SteamVRInputInterface.h"
 #include "Interfaces/XInput/XInputInterface.h"
+#include "Input.h"
 
-static std::vector<std::function<InputInterface*()>> InterfaceInitFuncs;
+
 InputManager::InputManager()
 {}
 
@@ -53,8 +54,19 @@ InputInterface * InputManager::GetActiveVRInterface()
 
 void InputManager::RegisterInterface(std::function<InputInterface*()> CreateFunc)
 {
-	InterfaceInitFuncs.push_back(CreateFunc);
+	Get()->InterfaceInitFuncs.push_back(CreateFunc);
 }
+
+InputManager* InputManager::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = new InputManager();
+	}
+	return Instance;
+}
+
+InputManager* InputManager::Instance = nullptr;
 
 InputController* InputManager::GetController(int index, int interfaceindex /*= -1*/)
 {

@@ -5,6 +5,7 @@
 #include "..\..\Shaders\Raytracing\Shader_Skybox_Miss.h"
 #include "..\..\Core\Mesh.h"
 #include "..\..\Core\Material.h"
+#include "Rendering\Core\Defaults.h"
 
 
 PathTraceBindingTable::PathTraceBindingTable()
@@ -22,9 +23,6 @@ void PathTraceBindingTable::InitTable()
 	RayGenShaders.push_back(new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\DefaultRayGenShader", ERTShaderType::RayGen));
 	RayGenShaders[0]->AddExport("rayGen");
 
-	HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
-	HitGroups[0]->HitShader = GetMaterialShader();
-
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::UAV, GlobalRootSignatureParams::OutputViewSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::RootSRV, GlobalRootSignatureParams::AccelerationStructureSlot, 0));
 	GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::CBV, 2, 0));
@@ -39,7 +37,18 @@ Shader_RTBase* PathTraceBindingTable::GetMaterialShader()
 	return out;
 }
 
-void PathTraceBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
+void PathTraceBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, ShaderHitGroupInstance* Shader)
 {
-	Shader->LocalRootSig.SetTexture(2, Mesh->GetMaterial(0)->GetTexturebind("DiffuseMap"),RHIViewDesc::DefaultSRV());
+	Mesh->GetMaterial(0)->ParmbindSet.MakeActive();
+	if (Mesh->GetMaterial(0)->GetTexture(0) == nullptr)
+	{
+		Shader->mClosetHitRS.SetTexture2(2, Defaults::GetDefaultTexture2(), RHIViewDesc::DefaultSRV());
+		return;
+	}
+	if (Mesh->GetMaterial(0)->GetTexture(0)->GetData(RHI::GetDefaultDevice())->Backing == nullptr)
+	{
+		Shader->mClosetHitRS.SetTexture2(2, Defaults::GetDefaultTexture2(), RHIViewDesc::DefaultSRV());
+		return;
+	}
+	Shader->mClosetHitRS.SetTexture2(2, Mesh->GetMaterial(0)->GetTexture(0)->GetData(RHI::GetDefaultDevice())->Backing, Mesh->GetMaterial(0)->GetTexture(0)->GetCurrentView(0));
 }

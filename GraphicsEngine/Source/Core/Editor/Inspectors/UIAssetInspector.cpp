@@ -32,6 +32,34 @@ void UIAssetInspector::OnPopulateFields()
 		InspectorProperyGroup group = UIInspectorBase::CreatePropertyGroup("Material");
 		group.Nodes = m_target->AccessReflection()->Data;
 		Fields.push_back(group);
+		group = UIInspectorBase::CreatePropertyGroup("Parameters");
+		std::vector<ClassReflectionNode*> Nodes;
+		//mat->GetAssetSet()->Validate();
+		//mat->GetAssetSet()->InitReflection();
+		//mat->GetAssetSet()->InitReflection();
+		for (auto itor = mat->GetAssetSet()->BindMap.begin(); itor != mat->GetAssetSet()->BindMap.end(); itor++)
+		{
+			itor->second.InitReflection();
+			if (itor->second.PropType == ShaderPropertyType::Texture)
+			{
+				ClassReflectionNode* node = new ClassReflectionNode(*itor->second.AccessReflection()->Data[2]);
+
+				node->m_DisplayName = itor->first;
+				Nodes.push_back(node);
+			}
+			else if (itor->second.PropType == ShaderPropertyType::Float)
+			{
+				ClassReflectionNode* FloatNode = new ClassReflectionNode(itor->first, MemberValueType::Float, new float());
+				FloatNode->MapPropToFunctions([&](void* value) { /**(float*)value = ((MaterialAsset*)m_target)->GetAssetSet()->GetFloat(itor->first);*/ }, [&](void* value) { /*((MaterialAsset*)m_target)->GetAssetSet()->SetFloat(itor->first, *(float*)value);*/ });
+				Nodes.push_back(FloatNode);
+				//ClassReflectionNode* node = new ClassReflectionNode("", )
+			}
+			//	Nodes.push_back(itor->second.AccessReflection()->Data[i]);
+
+		}
+		group.Nodes = Nodes;
+		Fields.push_back(group);
+
 	}
 }
 

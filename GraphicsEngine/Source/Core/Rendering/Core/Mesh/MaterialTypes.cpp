@@ -41,6 +41,17 @@ void ParmeterBindSet::SetFloat(std::string name, float f)
 	float* ptr = (float*)&data[itor->second.OffsetInBuffer];
 	*ptr = f;
 }
+float ParmeterBindSet::GetFloat(std::string name)
+{
+	auto itor = BindMap.find(name);
+	if (itor == BindMap.end())
+	{
+		Log::LogMessage("Failed to find shader parameter named \"" + name + "\"", Log::Error);
+		return 0.0f;
+	}
+	float* ptr = (float*)&data[itor->second.OffsetInBuffer];
+	return *ptr;
+}
 void ParmeterBindSet::SetTexture(std::string name, TextureAsset* asset)
 {
 	auto itor = BindMap.find(name);
@@ -140,6 +151,7 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 {
 	int MapSize = BindMap.size();
 	ArchiveProp(MapSize);
+#if 0
 	if (A->IsReading())
 	{
 		for (int i = 0; i < MapSize; i++)
@@ -147,7 +159,8 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 			std::string data;
 			ArchiveProp(data);
 			BindMap.emplace(data, MaterialShaderParameter());
-			BindMap.at(data).SeralizeText(A);
+			//BindMap.at(data).InitReflection();
+			//BindMap.at(data).SeralizeText(A);
 		}
 	}
 	else
@@ -161,10 +174,21 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 			itor->second.SeralizeText(A);
 		}
 	}
+#endif
 }
 
 MaterialShaderParameter::MaterialShaderParameter()
 {
+	CALL_CONSTRUCTOR();
+}
+
+MaterialShaderParameter::MaterialShaderParameter(const MaterialShaderParameter& other)
+{
+
+	OffsetInBuffer = other.OffsetInBuffer;
+	PropType = other.PropType;
+	m_TextureAsset = other.m_TextureAsset;
+	Handle = other.Handle;
 	CALL_CONSTRUCTOR();
 }
 

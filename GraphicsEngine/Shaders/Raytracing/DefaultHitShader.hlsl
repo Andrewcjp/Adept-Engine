@@ -1,7 +1,7 @@
 #include "DefaultShaderCommon.hlsl"
 
 [shader("closesthit")]
-void chs(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs: SV_IntersectionAttributes)
+void chsdefault(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs: SV_IntersectionAttributes)
 {
 	uint instanceID = InstanceID();
 	float3 barycentrics = float3(1.0 - attribs.barycentrics.x - attribs.barycentrics.y, attribs.barycentrics.x, attribs.barycentrics.y);

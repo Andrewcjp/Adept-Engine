@@ -105,6 +105,14 @@ void IReflect::SerializeThis(BinaryArchive * A, std::vector<ClassReflectionNode*
 }
 
 
+IReflect::IReflect()
+{}
+
+IReflect::IReflect(const IReflect & a)
+{
+	
+}
+
 void IReflect::Serialize(BinaryArchive* Achive)
 {
 	SerializeThis(Achive, m_RelfectionData.Data);

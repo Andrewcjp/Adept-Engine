@@ -24,6 +24,7 @@
 #include "../Renderers/Terrain/TerrainRenderer.h"
 #include "RHI/RHIBufferGroup.h"
 #include "../RayTracing/Voxel/VoxelScene.h"
+#include "Rendering/RayTracing/RayTracingScene.h"
 
 SceneRenderer* SceneRenderer::Instance = nullptr;
 void SceneRenderer::StartUp()
@@ -68,6 +69,10 @@ SceneRenderer::SceneRenderer()
 	if (RHI::GetRenderSettings()->GetVoxelSet().Enabled)
 	{
 		mVoxelScene = new VoxelScene();
+	}
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		mRTScene = new RayTracingScene();
 	}
 }
 
@@ -118,6 +123,23 @@ void SceneRenderer::PrepareSceneForRender()
 	{
 		mVoxelScene->Update();
 	}
+	if (mRTScene != nullptr)
+	{
+		for (int i = 0; i < TargetScene->ObjectsAddedLastFrame.size(); i++)
+		{
+			mRTScene->OnObjectAddedToScene(TargetScene->ObjectsAddedLastFrame[i]);
+		}
+		mRTScene->Update();
+		if (RayTracingEngine::Get()->Tables.size())
+		{
+			RayTracingEngine::Get()->Tables[0]->UpdateShaders(TargetScene);
+			if (RHI::GetFrameCount() == 10)
+			{
+				RayTracingEngine::Get()->UpdateFromScene(TargetScene);
+			}
+		}
+	}
+
 	SceneChanged = false;
 }
 
@@ -340,6 +362,14 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	if (mVoxelScene != nullptr)
 	{
 		mVoxelScene->Create(NewScene);
+	}
+	if (RHI::GetRenderSettings()->RaytracingEnabled())
+	{
+		mRTScene->Create(NewScene);
+		for (int i = 0; i < TargetScene->GetMeshObjects().size(); i++)
+		{
+			mRTScene->OnObjectAddedToScene(TargetScene->GetMeshObjects()[i]);
+		}
 	}
 }
 

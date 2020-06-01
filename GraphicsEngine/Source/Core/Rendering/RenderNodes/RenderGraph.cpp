@@ -509,9 +509,53 @@ void RenderGraph::CreatePathTracedGraph()
 	PathTraceNode->GetInput(0)->SetStore(MainBuffer);
 
 	OutputToScreenNode* Output = new OutputToScreenNode();
+	Output->GetInput(0)->SetStore(MainBuffer);
 	LinkNode(PathTraceNode, Output);	
 }
 
+void RenderGraph::CreateRaytracingGraph()
+{
+	GraphName = "Ray Traced view";
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	RootNode = new UpdateAccelerationStructuresNode();
+
+	PathTraceSceneNode* PathTraceNode = new PathTraceSceneNode();
+	LinkNode(RootNode, PathTraceNode);
+	PathTraceNode->GetInput(0)->SetStore(MainBuffer);
+
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	Output->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(PathTraceNode, Output);
+}
+
+void RenderGraph::CreateVoxelTracingGraph()
+{
+	GraphName = "Voxel Traced view";
+	FrameBufferStorageNode* MainBuffer = AddStoreNode(new FrameBufferStorageNode());
+	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColourDepth(100, 100);
+	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
+	Desc.AllowUnorderedAccess = true;
+	MainBuffer->SetFrameBufferDesc(Desc);
+
+	MainBuffer->StoreType = EStorageType::Framebuffer;
+	MainBuffer->DataFormat = StorageFormats::DefaultFormat;
+	RootNode = new UpdateAccelerationStructuresNode();
+
+	PathTraceSceneNode* PathTraceNode = new PathTraceSceneNode();
+	LinkNode(RootNode, PathTraceNode);
+	PathTraceNode->GetInput(0)->SetStore(MainBuffer);
+
+	OutputToScreenNode* Output = new OutputToScreenNode();
+	Output->GetInput(0)->SetStore(MainBuffer);
+	LinkNode(PathTraceNode, Output);
+}
 
 std::vector<StorageNode*> RenderGraph::GetNodesOfType(EStorageType::Type type)
 {

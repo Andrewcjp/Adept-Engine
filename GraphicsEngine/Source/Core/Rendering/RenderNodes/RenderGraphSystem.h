@@ -10,6 +10,8 @@ namespace EBuiltinRenderGraphs
 		DeferredRenderer_VX_RT,
 		ForwardRenderer,
 		VRForwardRenderer,
+		RayTracing,//debug modes
+		VoxelTracing,//debug modes
 		Pathtracing,
 		TEST_MGPU,
 		MGPU_SFR,

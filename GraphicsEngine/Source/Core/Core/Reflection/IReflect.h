@@ -7,11 +7,14 @@ class Archive;
 class IReflect
 {
 public:
+	IReflect();
 	virtual ~IReflect() {}
-	const ClassReflectionData* AccessReflection()const
+	const ClassReflectionData* AccessReflection()
 	{
+		Validate();
 		return &m_RelfectionData;
 	};
+	IReflect(const IReflect& a);
 	ClassReflectionData m_RelfectionData;
 	virtual void Serialize(BinaryArchive* Achive);
 	uint64 GetId()const { return ClassIdHash; }

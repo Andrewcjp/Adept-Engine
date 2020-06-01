@@ -24,15 +24,14 @@ D3D12StateObject::D3D12StateObject(DeviceContext* D, RHIStateObjectDesc desc) :R
 
 
 D3D12StateObject::~D3D12StateObject()
-{
-}
+{}
 
 void D3D12StateObject::Build()
 {
-	ShaderTable->Validate();
+	//	Desc.ShaderRecords.Validate();
 	CreateRootSignatures();
 	CreateStateObject();
-	BuildShaderTables();
+	//BuildShaderTables();
 	Log::LogMessage("DXR State Object built");
 }
 
@@ -40,24 +39,25 @@ void D3D12StateObject::Build()
 
 void D3D12StateObject::AddShaders(CD3DX12_STATE_OBJECT_DESC & Pipe)
 {
-	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
+	for (int i = 0; i < Desc.ShaderRecords.HitGroups.size(); i++)
 	{
-		AddShaderLibrary(Pipe, ShaderTable->HitGroups[i]->HitShader);
-		AddShaderLibrary(Pipe, ShaderTable->HitGroups[i]->AnyHitShader);
+		AddShaderLibrary(Pipe, Desc.ShaderRecords.HitGroups[i]->HitShader);
+		AddShaderLibrary(Pipe, Desc.ShaderRecords.HitGroups[i]->AnyHitShader);
+		AddShaderLibrary(Pipe, Desc.ShaderRecords.HitGroups[i]->IntersectionShader);		
 		//DXR:: check this is okay 
-		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->HitShader);
-		CreateLocalRootSigShaders(Pipe, ShaderTable->HitGroups[i]->AnyHitShader);
+		CreateLocalRootSigShaders(Pipe, Desc.ShaderRecords.HitGroups[i]->HitShader, Desc.ShaderRecords.HitGroups[i]);
+		//CreateLocalRootSigShaders(Pipe, Desc.ShaderRecords.HitGroups[i]->AnyHitShader, Desc.ShaderRecords.HitGroups[i]);
 	}
 
-	for (int i = 0; i < ShaderTable->MissShaders.size(); i++)
+	for (int i = 0; i < Desc.ShaderRecords.MissShaders.size(); i++)
 	{
-		AddShaderLibrary(Pipe, ShaderTable->MissShaders[i]);
-		CreateLocalRootSigShaders(Pipe, ShaderTable->MissShaders[i]);
+		AddShaderLibrary(Pipe, Desc.ShaderRecords.MissShaders[i]);
+		CreateLocalRootSigShaders(Pipe, Desc.ShaderRecords.MissShaders[i]);
 	}
-	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
+	for (int i = 0; i < Desc.ShaderRecords.RayGenShaders.size(); i++)
 	{
-		AddShaderLibrary(Pipe, ShaderTable->RayGenShaders[i]);
-		CreateLocalRootSigShaders(Pipe, ShaderTable->RayGenShaders[i]);
+		AddShaderLibrary(Pipe, Desc.ShaderRecords.RayGenShaders[i]);
+		CreateLocalRootSigShaders(Pipe, Desc.ShaderRecords.RayGenShaders[i]);
 	}
 }
 
@@ -82,25 +82,33 @@ void D3D12StateObject::CreateStateObject()
 
 void D3D12StateObject::AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe)
 {
-	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
+	for (int i = 0; i < Desc.ShaderRecords.HitGroups.size(); i++)
 	{
 		auto hitGroup = RTPipe.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
-		std::wstring HitName = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->HitShader->GetExports()[0]);
+		std::wstring HitName = StringUtils::ConvertStringToWide(Desc.ShaderRecords.HitGroups[i]->HitShader->GetExports()[0]);
 		hitGroup->SetClosestHitShaderImport(HitName.c_str());
-		if (ShaderTable->HitGroups[i]->AnyHitShader != nullptr)
+		if (Desc.ShaderRecords.HitGroups[i]->AnyHitShader != nullptr)
 		{
-			std::wstring anyHitName = StringUtils::ConvertStringToWide(ShaderTable->HitGroups[i]->AnyHitShader->GetExports()[0]);
+			std::wstring anyHitName = StringUtils::ConvertStringToWide(Desc.ShaderRecords.HitGroups[i]->AnyHitShader->GetExports()[0]);
 			hitGroup->SetAnyHitShaderImport(anyHitName.c_str());
 		}
-		hitGroup->SetHitGroupExport(ShaderTable->HitGroups[i]->WName.c_str());
-		//DXR: todo GEO type
-		hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+		if (Desc.ShaderRecords.HitGroups[i]->IntersectionShader != nullptr)
+		{
+			std::wstring intersectionexport = StringUtils::ConvertStringToWide(Desc.ShaderRecords.HitGroups[i]->IntersectionShader->GetExports()[0]);
+			hitGroup->SetIntersectionShaderImport(intersectionexport.c_str());
+		}
+		hitGroup->SetHitGroupExport(Desc.ShaderRecords.HitGroups[i]->WName.c_str());
+		hitGroup->SetHitGroupType((D3D12_HIT_GROUP_TYPE)Desc.ShaderRecords.HitGroups[i]->GroupType);
 	}
 }
 
 void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader)
 {
 	if (Shader == nullptr)
+	{
+		return;
+	}
+	if (Exports.find(Shader->GetExports()[0]) != Exports.end())
 	{
 		return;
 	}
@@ -112,6 +120,7 @@ void D3D12StateObject::AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shade
 	{
 		std::wstring Conv = StringUtils::ConvertStringToWide(Shader->GetExports()[i]);
 		lib->DefineExport(Conv.c_str());
+		Exports.emplace(Shader->GetExports()[i]);
 	}
 }
 
@@ -119,10 +128,10 @@ void D3D12StateObject::CreateRootSignatures()
 {
 	RootSignitureCreateInfo Info;
 	Info.IsGlobalSig = true;
-	D3D12Shader::CreateRootSig(&m_raytracingGlobalRootSignature, ShaderTable->GlobalRootSig.Params, Device, true, RHISamplerDesc::GetDefault(), Info);
+	D3D12Shader::CreateRootSig(&m_raytracingGlobalRootSignature, Desc.ShaderRecords.GlobalRS.Params, Device, true, RHISamplerDesc::GetDefault(), Info);
 }
 
-void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader)
+void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader, ShaderHitGroup* Grp)
 {
 	if (shader == nullptr || shader->GetShaderParameters().size() == 0)
 	{
@@ -153,9 +162,16 @@ void D3D12StateObject::CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & ray
 	{
 		auto rootSignatureAssociation = raytracingPipeline.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
 		rootSignatureAssociation->SetSubobjectToAssociate(*localRootSignature);
-
-		std::wstring ExportName = StringUtils::ConvertStringToWide(shader->GetExports()[0]);
-		rootSignatureAssociation->AddExport(ExportName.c_str());
+		if (Grp != nullptr)
+		{
+			std::wstring ExportName = (Grp->WName);
+			rootSignatureAssociation->AddExport(ExportName.c_str());
+		}
+		else
+		{
+			std::wstring ExportName = StringUtils::ConvertStringToWide(shader->GetExports()[0]);
+			rootSignatureAssociation->AddExport(ExportName.c_str());
+		}
 	}
 }
 
@@ -163,11 +179,11 @@ void D3D12StateObject::BuildShaderTables()
 {
 	//DXR: Push default values to table.
 	m_sbtHelper.Reset();
-	for (int i = 0; i < ShaderTable->HitGroups.size(); i++)
+	for (int i = 0; i < ShaderTable->HitGroupInstances.size(); i++)
 	{
 		std::vector<void*> GPUPtrs;
-		WriteBinds(ShaderTable->HitGroups[i]->HitShader, GPUPtrs);
-		m_sbtHelper.AddHitGroup(ShaderTable->HitGroups[i]->WName, GPUPtrs);
+		WriteBinds2(ShaderTable->HitGroupInstances[i]->mClosetHitRS, GPUPtrs);
+		m_sbtHelper.AddHitGroup(ShaderTable->HitGroupInstances[i]->WName, GPUPtrs);
 	}
 
 	for (int i = 0; i < ShaderTable->RayGenShaders.size(); i++)
@@ -199,6 +215,50 @@ void D3D12StateObject::BuildShaderTables()
 	}
 	StateObject->QueryInterface(ID_PASS(&props));
 	m_sbtHelper.Generate(m_sbtStorage, props);
+}
+
+void D3D12StateObject::WriteBinds2(RHIRootSigniture & sig, std::vector<void *> &Pointers)
+{
+	for (int i = 0; i < sig.GetNumBinds(); i++)
+	{
+		const RSBind* bind = sig.GetBind(i);
+		if (bind->BindType == ERSBindType::Texture)
+		{
+			D3D12Texture* DTex = D3D12RHI::DXConv(bind->Texture.Get());
+			if (DTex != nullptr)
+			{
+				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View)->GetGPUAddress().ptr);
+				Pointers.push_back(heapPointer);
+			}
+		}
+		else if (bind->BindType == ERSBindType::BufferSRV)
+		{
+			D3D12Buffer* DTex = D3D12RHI::DXConv(bind->BufferTarget);
+			DXDescriptor* d = DTex->GetDescriptor(bind->View);
+			UINT64 Ptr = d->GetGPUAddress().ptr;
+			Pointers.push_back((void*)Ptr);
+		}
+		else if (bind->BindType == ERSBindType::FrameBuffer)
+		{
+			D3D12FrameBuffer* DTex = D3D12RHI::DXConv(bind->Framebuffer);
+			auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View)->GetGPUAddress().ptr);
+			Pointers.push_back(heapPointer);
+		}
+		else if (bind->BindType == ERSBindType::Texture2)
+		{
+			D3D12RHITexture* DTex = D3D12RHI::DXConv(bind->Texture2);
+			if (DTex != nullptr)
+			{
+				auto heapPointer = reinterpret_cast<uint64_t*>(DTex->GetDescriptor(bind->View, nullptr)->GetGPUAddress().ptr);
+				Pointers.push_back(heapPointer);
+			}
+			else
+			{
+				//null descriptors!
+				Pointers.push_back(0);
+			}
+		}
+	}
 }
 
 void D3D12StateObject::WriteBinds(Shader_RTBase* shader, std::vector<void *> &Pointers)
@@ -253,14 +313,14 @@ void D3D12StateObject::RebuildShaderTable()
 void D3D12StateObject::BindToList(D3D12CommandList * List)
 {
 	List->GetCommandList()->SetComputeRootSignature(m_raytracingGlobalRootSignature);
-	List->GetRootSig()->SetRootSig(ShaderTable->GlobalRootSig.Params);
+	List->GetRootSig()->SetRootSig(Desc.ShaderRecords.GlobalRS.Params);
 }
 
 void D3D12StateObject::Trace(const RHIRayDispatchDesc& DispatchDesc, RHICommandList* T, D3D12FrameBuffer* target)
 {
 	D3D12CommandList* DXList = D3D12RHI::DXConv(T);
 
-	DXList->GetRootSig()->SetRootSig(ShaderTable->GlobalRootSig.Params);
+	DXList->GetRootSig()->SetRootSig(Desc.ShaderRecords.GlobalRS.Params);
 	if (DispatchDesc.PushRayArgs)
 	{
 		DXList->SetRootConstant(8, 2, ((void*)&DispatchDesc.RayArguments), 0);

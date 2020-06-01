@@ -33,6 +33,11 @@ void LowLevelAccelerationStructure::CreateFromEntity(MeshEntity * entity)
 	
 }
 
+void LowLevelAccelerationStructure::CreateFromAABBList(const std::vector<RTAABB>& list)
+{
+	
+}
+
 bool LowLevelAccelerationStructure::IsDirty() const
 {
 	return NeedsBuild;

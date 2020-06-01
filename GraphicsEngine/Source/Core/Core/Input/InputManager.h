@@ -19,9 +19,12 @@ public:
 	InputMouse* GetMouse(int index = 0 , int iinterface = -1);
 	InputInterface* GetActiveVRInterface();
 	static void RegisterInterface(std::function<InputInterface*()> CreateFunc);
+	static InputManager* Get();
 private:
+	std::vector<std::function<InputInterface*()>> InterfaceInitFuncs;
 	std::vector<InputInterface*> Interfaces;
 	InputInterface* VrInterface = nullptr;
+	static InputManager* Instance;
 };
 
 template<class T, class B>

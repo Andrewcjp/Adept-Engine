@@ -14,6 +14,7 @@
 #include "Core/GameObject.h"
 #include "Core/Components/MeshRendererComponent.h"
 #include "RHI/RHIBufferGroup.h"
+
 D3D12LowLevelAccelerationStructure::D3D12LowLevelAccelerationStructure(DeviceContext* Device, const AccelerationStructureDesc & Desc) :LowLevelAccelerationStructure(Device, Desc)
 {}
 
@@ -34,6 +35,43 @@ void D3D12LowLevelAccelerationStructure::Release()
 	SafeRelease(scratchResource);
 }
 
+void D3D12LowLevelAccelerationStructure::CreateFromAABBList(const std::vector<RTAABB>& list)
+{
+	D3D12_RAYTRACING_AABB* AABBs = new D3D12_RAYTRACING_AABB[list.size()];
+	for (int i = 0; i < list.size(); i++)
+	{
+		AABBs[i].MaxX = list[i].Max.x;
+		AABBs[i].MaxY = list[i].Max.y;
+		AABBs[i].MaxZ = list[i].Max.z;
+
+		AABBs[i].MinX = list[i].Min.x;
+		AABBs[i].MinY = list[i].Min.x;
+		AABBs[i].MinZ = list[i].Min.x;
+	}
+	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
+	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+	geometryDesc.AABBs.AABBCount = list.size();
+	AllocDesc D = {};
+	D.InitalState = D3D12_RESOURCE_STATE_GENERIC_READ;
+	D.ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(D3D12_RAYTRACING_AABB)*list.size());
+	D.ResourceDesc.Alignment = D3D12_RAYTRACING_AABB_BYTE_ALIGNMENT;
+	D.Name = "AABBs";
+	GPUResource* GPUAABBbuffer = nullptr;
+	D3D12RHI::DXConv(Context)->GetMemoryManager()->AllocUploadTemporary(D, &GPUAABBbuffer);
+	void *pMappedData;
+	CD3DX12_RANGE readRange(0, 0);
+	GPUAABBbuffer->GetResource()->Map(0, &readRange, &pMappedData);
+	memcpy(pMappedData, &AABBs[0], sizeof(D3D12_RAYTRACING_AABB)*list.size());
+	GPUAABBbuffer->GetResource()->Unmap(0, nullptr);
+
+
+	geometryDesc.AABBs.AABBs.StartAddress = GPUAABBbuffer->GetResource()->GetGPUVirtualAddress();
+	geometryDesc.AABBs.AABBs.StrideInBytes = sizeof(D3D12_RAYTRACING_AABB);
+	geometryDescs.push_back(geometryDesc);
+	//geometryDesc.Flags = 
+	CreateStructure();
+}
+
 void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 {
 	//todo: handle Merge sub meshes
@@ -47,6 +85,7 @@ void D3D12LowLevelAccelerationStructure::CreateFromMesh(Mesh* m)
 
 void D3D12LowLevelAccelerationStructure::CreateStructure()
 {
+	ensure(geometryDescs.size());
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12HighLevelAccelerationStructure::GetBuildFlags(Desc.BuildFlags);
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS &bottomLevelInputs = bottomLevelBuildDesc.Inputs;
@@ -82,7 +121,7 @@ void D3D12LowLevelAccelerationStructure::AddEntity(MeshEntity* Entity)
 	geometryDesc.Triangles.VertexCount = (UINT)D3D12RHI::DXConv(Entity->VertexBuffers->Get(0))->GetVertexCount();
 	ensure(geometryDesc.Triangles.VertexCount > 0);
 	geometryDesc.Triangles.VertexBuffer.StrideInBytes = sizeof(OGLVertex);
-	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+//	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 	geometryDescs.push_back(geometryDesc);
 }
 

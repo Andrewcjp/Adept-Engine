@@ -14,8 +14,8 @@ float3 linearToSrgb(float3 c)
 
 cbuffer CameraData: register(b0)
 {
-	float4x4 viewI;
-	float4x4 projectionI;
+	column_major float4x4  viewI;
+	column_major float4x4  projectionI;
 }
 
 [shader("raygeneration")]

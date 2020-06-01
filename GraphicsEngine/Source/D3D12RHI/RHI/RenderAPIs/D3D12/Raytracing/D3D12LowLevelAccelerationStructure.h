@@ -23,6 +23,9 @@ public:
 
 	virtual void Release() override;
 
+
+	void CreateFromAABBList(const std::vector<RTAABB>& list) override;
+
 private:
 	
 	Transform* Transfrom = nullptr;

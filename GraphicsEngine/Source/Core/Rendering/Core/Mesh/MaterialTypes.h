@@ -66,6 +66,7 @@ struct MaterialShaderParameter : public IReflect
 {
 	CLASS_BODY_Reflect();
 	MaterialShaderParameter();
+	MaterialShaderParameter(const MaterialShaderParameter& other);
 	PROPERTY();
 	ShaderPropertyType::Type PropType = ShaderPropertyType::Float;
 	size_t GetSize() const;
@@ -86,6 +87,7 @@ struct ParmeterBindSet : public IReflect
 	std::map<std::string, MaterialShaderParameter> BindMap;
 	void AddParameter(std::string name, ShaderPropertyType::Type tpye);
 	void SetFloat(std::string name, float f);
+	float GetFloat(std::string name);
 	void SetTexture(std::string name, TextureAsset* asset);
 	size_t GetSize();
 	void AllocateMemeory();

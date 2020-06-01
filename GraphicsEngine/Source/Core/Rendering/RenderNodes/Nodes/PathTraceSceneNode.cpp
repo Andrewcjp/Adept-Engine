@@ -9,6 +9,7 @@
 #include "../../RayTracing/Tables/PathTraceBindingTable.h"
 #include "../../Core/Camera.h"
 #include "RHI/RHICommandList.h"
+#include "Rendering/RayTracing/RayTracingScene.h"
 
 
 PathTraceSceneNode::PathTraceSceneNode()
@@ -24,19 +25,19 @@ PathTraceSceneNode::~PathTraceSceneNode()
 void PathTraceSceneNode::OnExecute()
 {
 	FrameBuffer* Target = GetFrameBufferFromInput(0);
-	StateObject->RebuildShaderTable();
+
 	FLAT_COMPUTE_START(RTList->GetRHIList()->GetDevice());
 	
 	Data.IProj = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetProjection());
 	Data.IView = glm::inverse(SceneRenderer::Get()->GetCurrentCamera()->GetView());
 	Data.CamPos = SceneRenderer::Get()->GetCurrentCamera()->GetPosition();
 	CBV->UpdateConstantBuffer(&Data, 0);
-
 	RTList->ResetList();
 	SetBeginStates(RTList->GetRHIList());
-	RTList->SetStateObject(StateObject);
 
-	RTList->SetHighLevelAccelerationStructure(RayTracingEngine::Get()->GetHighLevelStructure());
+	SceneRenderer::Get()->GetRTScene()->UpdateShaderTable(DefaultTable);
+	RTList->SetStateObject(SceneRenderer::Get()->GetRTScene()->GetSceneStateObject());
+	RTList->SetHighLevelAccelerationStructure(SceneRenderer::Get()->GetRTScene()->GetTopLevel());
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 	RTList->TraceRays(RHIRayDispatchDesc(Target));
 	SetEndStates(RTList->GetRHIList());
@@ -63,7 +64,7 @@ void PathTraceSceneNode::OnSetupNode()
 	Desc.PayloadSize =  sizeof(glm::vec4) * 3;    // float4 pixelColor
 	StateObject = RHI::GetRHIClass()->CreateStateObject(RHI::GetDefaultDevice(),Desc);
 	StateObject->ShaderTable = DefaultTable;
-	StateObject->Build();
+	//StateObject->Build();
 	RayTracingEngine::Get()->AddHitTable(DefaultTable);
 	CBV = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	CBV->CreateConstantBuffer(sizeof(Data), 1);

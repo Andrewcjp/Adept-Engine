@@ -34,7 +34,7 @@ void Input::ReciveMouseAxisData(glm::vec2 data)
 Input::Input()
 {
 	UseHighPrecisionMouseInput = false;
-	IManager = new InputManager();
+	IManager = InputManager::Get();
 	IManager->InitInterfaces();
 	m_pTextHandler = new TextInputHandler();
 }

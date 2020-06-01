@@ -1,6 +1,15 @@
 #pragma once
 #include "RHI/RHITypes.h"
-
+struct RTAABB
+{
+	RTAABB(glm::vec3 min, glm::vec3 max)
+	{
+		Min = min;
+		Max = max;
+	}
+	glm::vec3 Min;
+	glm::vec3 Max;
+};
 class Mesh;
 class RHICommandList;
 class DeviceContext;
@@ -13,6 +22,7 @@ public:
 	RHI_API virtual void Build(RHICommandList* List);
 	RHI_API virtual void UpdateTransfrom(Transform* T);
 	RHI_API virtual void CreateFromEntity(MeshEntity* entity);
+	RHI_API virtual void CreateFromAABBList(const std::vector<RTAABB>& list);
 	uint LayerMask = 0xFF;
 	RHI_API bool IsDirty()const ;
 	RHI_API void MarkDirty();

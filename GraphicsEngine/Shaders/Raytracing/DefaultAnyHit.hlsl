@@ -8,7 +8,7 @@ void anyhit_main(inout RayPayload payload, in BuiltInTriangleIntersectionAttribu
 
 	const float Size = 10;
 	float dist = 20;
-	if (RayTCurrent() < dist+ Size && RayTCurrent() > dist - Size)
+	if (RayTCurrent() < dist + Size && RayTCurrent() > dist - Size)
 	{
 		IgnoreHit();
 	}

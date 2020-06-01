@@ -2,6 +2,7 @@
 #include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #include "../ThirdParty/nv_helpers_dx12/ShaderBindingTableGenerator.h"
 #include "Rendering/RayTracing/RHIStateObject.h"
+#include <set>
 #if WIN10_1809
 class DXDescriptor;
 class Shader;
@@ -20,9 +21,10 @@ public:
 	void AddHitGroups(CD3DX12_STATE_OBJECT_DESC &RTPipe);
 	void AddShaderLibrary(CD3DX12_STATE_OBJECT_DESC &RTPipe, Shader_RTBase* Shader);
 	void CreateRootSignatures();
-	void CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader);
+	void CreateLocalRootSigShaders(CD3DX12_STATE_OBJECT_DESC & raytracingPipeline, Shader_RTBase* shader, ShaderHitGroup* Grp = nullptr);
 	void Trace(const RHIRayDispatchDesc& Desc, RHICommandList * T, D3D12FrameBuffer* target);
 	void BuildShaderTables();
+	void WriteBinds2(RHIRootSigniture & sig, std::vector<void*>& Pointers);
 	void WriteBinds(Shader_RTBase* shader, std::vector<void *> &Data);
 	HighLevelAccelerationStructure* HighLevelStructure = nullptr;
 	virtual void RebuildShaderTable() override;
@@ -43,5 +45,6 @@ private:
 	const int MaxRayDispatchPerFrame = 5;
 	int LastFrame = 0;
 	int CurrnetIndex = 0;
+	std::set<std::string> Exports;
 };
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 #ifndef RHI_SUPPORTS_VR 
-#error "RHITemplates Should be included after RHI.h"
+//#error "RHITemplates Should be included after RHI.h"
 #endif
 
 

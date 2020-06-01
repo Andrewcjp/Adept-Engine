@@ -53,7 +53,7 @@ public:
 		bool FlipUVs = false;
 		void Serialize(Archive* A);
 		std::vector<std::string> IgnoredMeshObjectNames;
-#ifdef BUILD_ASSIMP
+#if 0//def BUILD_ASSIMP
 		AnimationClip AnimSettings;
 #endif
 		bool AllowInstancing = true;//Temp

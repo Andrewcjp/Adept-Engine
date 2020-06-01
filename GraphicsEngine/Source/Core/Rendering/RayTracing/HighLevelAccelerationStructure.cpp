@@ -22,6 +22,26 @@ void HighLevelAccelerationStructure::RemoveEntity(LowLevelAccelerationStructure 
 	VectorUtils::Remove(ContainedEntites, Struct);
 }
 
+void HighLevelAccelerationStructure::ClearEntitys()
+{
+	ContainedEntites.clear();
+}
+
+void HighLevelAccelerationStructure::AddInstance(const AccelerationStructureInstanceDesc & desc)
+{
+	InstanceDescritors.push_back(desc);
+}
+
+void HighLevelAccelerationStructure::RemoveInstance(const AccelerationStructureInstanceDesc & desc)
+{
+	NoImpl();
+}
+
+void HighLevelAccelerationStructure::ClearInstances()
+{
+	InstanceDescritors.clear();
+}
+
 void HighLevelAccelerationStructure::Update(RHICommandList* List)
 {
 
@@ -39,7 +59,8 @@ void HighLevelAccelerationStructure::InitialBuild()
 
 int HighLevelAccelerationStructure::GetValidEntites() const
 {
-	int valid= 0;
+	return InstanceDescritors.size();
+	int valid = 0;
 	for (auto i : ContainedEntites)
 	{
 		if (i->IsValid())

@@ -22,8 +22,7 @@ void ReflectionsBindingTable::InitTable()
 
 	RayGenShaders.push_back(ShaderComplier::GetShader<Shader_ReflectionRaygen>());
 
-	HitGroups.push_back(new ShaderHitGroup("HitGroup0"));
-	HitGroups[0]->HitShader = new Shader_RTMaterialHit(RHI::GetDefaultDevice());
+
 	//HitGroups[0]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
 	//HitGroups[0]->AnyHitShader->AddExport("anyhit_main");
 	//HitGroups[0]->AnyHitShader->InitRS();
@@ -47,18 +46,18 @@ void ReflectionsBindingTable::InitTable()
 	//GlobalRootSig.Params.push_back(ShaderParameter(ShaderParamType::SRV, 11, 10));
 }
 
-void ReflectionsBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, Shader_RTBase* Shader)
+void ReflectionsBindingTable::OnMeshProcessed(Mesh* Mesh, MeshEntity* E, ShaderHitGroupInstance* Shader)
 {
 	Mesh->GetMaterial(0)->ParmbindSet.MakeActive();
 	if (Mesh->GetMaterial(0)->GetTexture(0) == nullptr)
 	{
-		Shader->LocalRootSig.SetTexture2(2, Defaults::GetDefaultTexture2(),RHIViewDesc::DefaultSRV());
+		Shader->mClosetHitRS.SetTexture2(2, Defaults::GetDefaultTexture2(), RHIViewDesc::DefaultSRV());
 		return;
 	}
 	if (Mesh->GetMaterial(0)->GetTexture(0)->GetData(RHI::GetDefaultDevice())->Backing == nullptr)
 	{
-		Shader->LocalRootSig.SetTexture2(2, Defaults::GetDefaultTexture2(), RHIViewDesc::DefaultSRV());
+		Shader->mClosetHitRS.SetTexture2(2, Defaults::GetDefaultTexture2(), RHIViewDesc::DefaultSRV());
 		return;
 	}
-	Shader->LocalRootSig.SetTexture2(2, Mesh->GetMaterial(0)->GetTexture(0)->GetData(RHI::GetDefaultDevice())->Backing, Mesh->GetMaterial(0)->GetTexture(0)->GetCurrentView(0));
+	Shader->mClosetHitRS.SetTexture2(2, Mesh->GetMaterial(0)->GetTexture(0)->GetData(RHI::GetDefaultDevice())->Backing, Mesh->GetMaterial(0)->GetTexture(0)->GetCurrentView(0));
 }

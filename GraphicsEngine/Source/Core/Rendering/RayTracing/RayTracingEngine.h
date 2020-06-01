@@ -27,9 +27,9 @@ public:
 	void UpdateFromScene(Scene* S);
 	void AddHitTable(ShaderBindingTable* Table);
 	HighLevelAccelerationStructure* GetHighLevelStructure();
+	std::vector<ShaderBindingTable*> Tables;
 private:
 
-	std::vector<ShaderBindingTable*> Tables;
 	std::vector<LowLevelAccelerationStructure*> LASToBuild;
 	std::vector<HighLevelAccelerationStructure*> HASToBuild;
 	HighLevelAccelerationStructure* CurrnetHL = nullptr;

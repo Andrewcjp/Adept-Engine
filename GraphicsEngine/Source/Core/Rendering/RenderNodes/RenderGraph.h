@@ -117,6 +117,8 @@ public:
 	void ValidateGraph();
 	void CreateVRFWDGraph();
 	void CreatePathTracedGraph();
+	void CreateRaytracingGraph();
+	void CreateVoxelTracingGraph();
 	void CreateFallbackGraph();
 
 	void CreateMGPU_TESTGRAPH();

@@ -108,6 +108,12 @@ void RenderGraphSystem::InitDefaultGraph(RenderGraph* Graph, EBuiltinRenderGraph
 	case EBuiltinRenderGraphs::Pathtracing:
 		Graph->CreatePathTracedGraph();
 		break;
+	case EBuiltinRenderGraphs::RayTracing:
+		Graph->CreateRaytracingGraph();
+		break;
+	case EBuiltinRenderGraphs::VoxelTracing:
+		Graph->CreateVoxelTracingGraph();
+		break;
 	case EBuiltinRenderGraphs::TEST_MGPU:
 		Graph->CreateMGPU_TESTGRAPH();
 		break;

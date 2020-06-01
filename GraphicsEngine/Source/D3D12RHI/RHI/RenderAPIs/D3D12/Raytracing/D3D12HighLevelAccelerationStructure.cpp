@@ -107,6 +107,7 @@ void D3D12HighLevelAccelerationStructure::SetTransfrom(D3D12_RAYTRACING_INSTANCE
 void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 {
 	std::vector<D3D12_RAYTRACING_INSTANCE_DESC> Descs;
+#if 0
 	for (int i = 0; i < ContainedEntites.size(); i++)
 	{
 		if (!ContainedEntites[i]->IsValid())
@@ -126,6 +127,27 @@ void D3D12HighLevelAccelerationStructure::BuildInstanceBuffer()
 		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
 		Descs.push_back(instanceDesc);
 	}
+#else
+	for (int i = 0; i < InstanceDescritors.size(); i++)
+	{
+		D3D12_RAYTRACING_INSTANCE_DESC instanceDesc = {};
+		glm::mat4 Model = transpose(InstanceDescritors[i].Transform);
+		for (int x = 0; x < 3; x++)
+		{
+			for (int y = 0; y < 4; y++)
+			{
+				instanceDesc.Transform[x][y] = Model[x][y];
+			}
+		}
+		instanceDesc.InstanceContributionToHitGroupIndex = InstanceDescritors[i].HitGroupOffset;
+		instanceDesc.Flags = InstanceDescritors[i].Flags;
+		instanceDesc.InstanceID = InstanceDescritors[i].InstanceID;
+		instanceDesc.InstanceMask = InstanceDescritors[i].Mask;
+		D3D12LowLevelAccelerationStructure* E = D3D12RHI::DXConv(InstanceDescritors[i].Structure);
+		instanceDesc.AccelerationStructure = E->GetASResource()->GetGPUVirtualAddress();
+		Descs.push_back(instanceDesc);
+	}
+#endif
 	if (Descs.size() == 0)
 	{
 		return;

@@ -9,6 +9,7 @@
 class RHIBuffer;
 class FrameBuffer;
 class RHITexture;
+class RHITextureArray;
 //this handles DXR local root signature bindings.
 namespace ERSBindType
 {
