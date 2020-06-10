@@ -233,6 +233,9 @@ D3D12_COMMAND_LIST_TYPE D3D12Helpers::ConvertListType(ECommandListType::Type typ
 	case ECommandListType::Graphics:
 		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT;
 	case ECommandListType::RayTracing:
+#if !RT_FORCE_COMPUTE
+		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT;
+#endif
 	case ECommandListType::Compute:
 		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	case ECommandListType::Copy:

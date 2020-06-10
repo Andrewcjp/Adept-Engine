@@ -197,6 +197,8 @@ public:
 	RHI_API bool IsCopyList() const;
 	RHI_API bool IsComputeList() const;
 	RHI_API bool IsRaytracingList() const;
+	RHI_API bool IsRaytracingList_Compute() const;
+	RHI_API bool IsRaytracingList_Direct() const;
 	RHI_API virtual bool IsOpen()const;
 	RHI_API void InsertGPUStallTimer();
 	RHI_API void HandleStallTimer();

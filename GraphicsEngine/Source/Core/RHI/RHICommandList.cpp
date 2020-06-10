@@ -127,9 +127,28 @@ bool RHICommandList::IsComputeList() const
 {
 	return ListType == ECommandListType::Compute;
 }
+
 bool RHICommandList::IsRaytracingList() const
 {
 	return ListType == ECommandListType::RayTracing;
+}
+
+bool RHICommandList::IsRaytracingList_Compute() const
+{
+#if RT_FORCE_COMPUTE
+	return ListType == ECommandListType::RayTracing;
+#else
+	return false;
+#endif
+}
+
+bool RHICommandList::IsRaytracingList_Direct() const
+{
+#if RT_FORCE_COMPUTE
+	return false;
+#else
+	return ListType == ECommandListType::RayTracing;
+#endif
 }
 
 bool RHICommandList::IsOpen() const

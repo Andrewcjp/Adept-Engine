@@ -393,6 +393,8 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 			Target = DeviceContextQueue::Graphics;
 			break;
 		case ECommandListType::RayTracing:
+			Target = IsRaytracingList_Compute() ? DeviceContextQueue::Compute : DeviceContextQueue::Graphics;
+			break;
 		case ECommandListType::Compute:
 			Target = DeviceContextQueue::Compute;
 			break;
@@ -568,12 +570,12 @@ void D3D12CommandList::CreateCommandList()
 	{
 		PSO = D3D12RHI::DXConv(CurrentPSO)->PSO;
 	}
-	if (ListType == ECommandListType::Graphics)
+	if (ListType == ECommandListType::Graphics || IsRaytracingList_Direct())
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, GetCommandAllocator(), PSO, ID_PASS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
-	else if (ListType == ECommandListType::Compute || IsRaytracingList())
+	else if (ListType == ECommandListType::Compute || IsRaytracingList_Compute())
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, GetCommandAllocator(), PSO, ID_PASS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
@@ -611,12 +613,12 @@ void D3D12CommandList::CreateCommandList()
 	const char* s = "asdasd";
 	GFSDK_Aftermath_SetEventMarker(AMHandle, nullptr, 0);
 #endif
-}
+	}
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
 	PrepareforDraw();
-	ensure(ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
+	ensure(ListType == ECommandListType::Compute || IsRaytracingList_Compute());
 	CurrentCommandList->Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
 }
 

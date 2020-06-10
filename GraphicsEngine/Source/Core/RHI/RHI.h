@@ -17,6 +17,7 @@
 #define FLAT_COMPUTE_START(device)
 #define FLAT_COMPUTE_END(device) 
 #endif
+#define RT_FORCE_COMPUTE 0
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
 class SFRController;
