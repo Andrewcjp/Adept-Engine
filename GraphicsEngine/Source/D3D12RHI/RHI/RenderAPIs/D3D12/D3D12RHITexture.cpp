@@ -106,6 +106,7 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 	}
 	if (UseReservedResouce)
 	{
+		d.AllowPerTileResidency = true;
 		DContext->GetMemoryManager()->CreateReservedResouce(d, &Resource);
 	}
 	else
@@ -235,7 +236,7 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 			D3D12_SUBRESOURCE_DATA textureData = {};
 			textureData.pData = (void*)(offset + (UINT64)UploadDesc.PtrToData);
 			textureData.RowPitch = UploadDesc.MipExtents(mip).x*UploadDesc.BitDepth;
-			textureData.SlicePitch = textureData.RowPitch  * UploadDesc.MipExtents(mip).y;
+			//textureData.SlicePitch = textureData.RowPitch  * UploadDesc.MipExtents(mip).y;
 			SubResourceDesc.push_back(textureData);
 			offset += UploadDesc.Size(mip);
 		}

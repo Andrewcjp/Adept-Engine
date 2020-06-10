@@ -59,3 +59,8 @@ void* NullRHIBuffer::MapReadBack()
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
+
+void NullRHIBuffer::UnMap()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}

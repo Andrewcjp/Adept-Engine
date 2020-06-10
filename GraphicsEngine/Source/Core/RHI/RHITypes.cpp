@@ -343,7 +343,7 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 	case FORMAT_R8G8_SNORM:
 	case FORMAT_R8G8_SINT:
 	case FORMAT_R16_TYPELESS:
-	case FORMAT_R16_FLOAT:
+	case R16_FLOAT:
 	case FORMAT_D16_UNORM:
 	case FORMAT_R16_UNORM:
 	case FORMAT_R16_UINT:
@@ -362,7 +362,7 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 
 	case FORMAT_R8_TYPELESS:
 	case FORMAT_R8_UNORM:
-	case FORMAT_R8_UINT:
+	case R8_UINT:
 	case FORMAT_R8_SNORM:
 	case FORMAT_R8_SINT:
 	case FORMAT_A8_UNORM:
@@ -487,7 +487,7 @@ size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
 	case FORMAT_R8G8_SNORM:
 	case FORMAT_R8G8_SINT:
 	case FORMAT_R16_TYPELESS:
-	case FORMAT_R16_FLOAT:
+	case R16_FLOAT:
 	case FORMAT_D16_UNORM:
 	case FORMAT_R16_UNORM:
 	case FORMAT_R16_UINT:
@@ -507,7 +507,7 @@ size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
 
 	case FORMAT_R8_TYPELESS:
 	case FORMAT_R8_UNORM:
-	case FORMAT_R8_UINT:
+	case R8_UINT:
 	case FORMAT_R8_SNORM:
 	case FORMAT_R8_SINT:
 	case FORMAT_A8_UNORM:

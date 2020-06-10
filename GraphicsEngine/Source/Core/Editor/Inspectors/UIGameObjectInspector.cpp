@@ -6,6 +6,7 @@
 #include "Core/Components/Component.h"
 #include "UI/Core/UITransform.h"
 #include "UI/Core/UIWidget.h"
+#if WITH_EDITOR
 UIGameObjectInspector* UIGameObjectInspector::Instance = nullptr;
 UIGameObjectInspector::UIGameObjectInspector() : UIInspectorBase(0, 0, 0, 0)
 {
@@ -91,3 +92,4 @@ void UIGameObjectInspector::SetSelectedObject(IEdtiorInspectable * newTarget)
 		CreateEditor();
 	}
 }
+#endif

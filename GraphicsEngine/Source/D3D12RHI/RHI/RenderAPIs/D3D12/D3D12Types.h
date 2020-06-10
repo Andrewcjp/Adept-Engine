@@ -41,6 +41,7 @@ struct AllocDesc
 	bool UseCommittedResource = false;
 	bool IsReadBack = false;
 	bool AllowGeneralUse = true;
+	bool AllowPerTileResidency = false;
 };
 namespace EResourcePageState
 {

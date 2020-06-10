@@ -3,6 +3,7 @@
 #include "Core/Assets/ShaderComplier.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Performance/PerfManager.h"
+#include "Packaging/Cooker.h"
 
 StandaloneShaderComplierEntry::StandaloneShaderComplierEntry(int argc, char *argv[])
 {
@@ -63,5 +64,6 @@ StandaloneShaderComplierEntry::~StandaloneShaderComplierEntry()
 int StandaloneShaderComplierEntry::Execute()
 {
 	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	Cooker::BuildAllMaterials();
 	return 0;
 }

@@ -17,7 +17,6 @@ private:
 	void RenderQuad(RHICommandList* list);
 	GameObject*  TMP = nullptr;
 	Mesh* QuadMesh = nullptr;
-	Shader_Pair* TerrainShader = nullptr;
 	BaseTextureRef HeightMap;
 	BaseTextureRef BaseTex;
 	static TerrainRenderer* Instance;

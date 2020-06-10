@@ -8,6 +8,9 @@ class DXGPUTextureStreamer : public GPUTextureStreamer
 public:
 	DXGPUTextureStreamer();
 	~DXGPUTextureStreamer();
+
+	void SetStreamingMode(EGPUSteamMode::Type mode) override;
+
 protected:
 	virtual void Tick(RHICommandList* list) override;
 	virtual void OnInit(DeviceContext* con) override;

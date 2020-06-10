@@ -203,7 +203,7 @@ void Cooker::CreatePackage()
 	}
 
 }
-
+//hacky hack!
 void Cooker::BuildAllMaterials()
 {
 	MaterialShaderComplieData ComplieData;
@@ -228,6 +228,7 @@ void Cooker::BuildAllMaterials()
 	ShaderComplier::Get()->TickMaterialComplie();
 	new Shader_RTMaterialHit(RHI::GetDefaultDevice());
 	new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
+	new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\DefaultRayGenShader", ERTShaderType::RayGen);
 }
 
 void Cooker::BuildAll()

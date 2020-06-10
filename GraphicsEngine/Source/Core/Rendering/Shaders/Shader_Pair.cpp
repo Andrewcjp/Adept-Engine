@@ -39,12 +39,9 @@ void Shader_Pair::Init()
 	for (uint64 i = 0; i < MaxIndex; i++)
 	{
 		m_Shader->AttachAndCompileShaderFromFile(Names[i].c_str(), StageList[i]);
-#ifdef PLATFORM_WINDOWS
-		if (!IsPartOfGlobalShaderLibrary)
-		{
-			LogEnsure(ShaderComplier::Get()->CheckSourceFileRegistered(Names[i]));
-		}
-#endif
 		shadername += Names[i];
 	}
+#ifdef PLATFORM_WINDOWS
+	ensure(IsPartOfGlobalShaderLibrary);	
+#endif
 }

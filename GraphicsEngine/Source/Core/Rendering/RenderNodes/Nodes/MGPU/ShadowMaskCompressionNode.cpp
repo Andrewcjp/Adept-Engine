@@ -33,7 +33,7 @@ void ShadowMaskCompressionNode::OnExecute()
 	}
 	int Height = Target->GetHeight();
 	Width /= 8;
-	eTEXTURE_FORMAT TargetFormat = eTEXTURE_FORMAT::FORMAT_R8_UINT;
+	eTEXTURE_FORMAT TargetFormat = eTEXTURE_FORMAT::R8_UINT;
 	if (Compress)
 	{
 		RHIPipeLineStateDesc Desc = RHIPipeLineStateDesc::CreateDefault(FourCompCompressShader);

@@ -1,6 +1,6 @@
 #pragma once
 #include "Editor/UIInspectorBase.h"
-
+#if WITH_EDITOR
 class BaseAsset;
 class UIAssetInspector : public UIInspectorBase
 {
@@ -15,3 +15,4 @@ protected:
 	BaseAsset* m_target = nullptr;
 };
 
+#endif

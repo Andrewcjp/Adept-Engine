@@ -31,7 +31,7 @@ const std::string AssetPathRef::GetFullPathToAsset() const
 {
 	if (IsDDC)
 	{
-		return AssetManager::GetRootDir() + DDCPath;
+		return AssetManager::GetRootDir() + DDCPath/* + Name + "." + Extention*/;
 	}
 	return AssetManager::GetContentPath() + Name + "." + Extention;
 }

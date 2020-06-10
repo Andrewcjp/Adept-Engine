@@ -1,6 +1,7 @@
 #pragma once
 #include "GPUTextureStreamer.h"
 #include "TextureStreamingCommon.h"
+
 //Manages all texture streaming
 //Launches requests to GPU texture steamers on each GPU.
 class TextureStreamingEngine
@@ -20,13 +21,13 @@ public:
 	{
 		SafeDelete(Instance);
 	}
-	void RegisterGPUStreamer(GPUTextureStreamer* Stream)
-	{
-		Streamers.push_back(Stream);
-	}
+	void RegisterGPUStreamer(GPUTextureStreamer* Stream);
 	static TextureHandle* RequestTexture(std::string File);
 	
+	EGPUSteamMode::Type GetStreamingMode() const { return m_StreamingMode; }
+	void SetStreamingMode(EGPUSteamMode::Type val) { m_StreamingMode = val; }
 private:
+	EGPUSteamMode::Type m_StreamingMode = EGPUSteamMode::TiledTexture;
 	uint64_t TargetMaxMemory = 0;
 	static TextureStreamingEngine* Instance;
 	std::vector<GPUTextureStreamer*> Streamers;

@@ -58,7 +58,7 @@ void RenderGraph::AddVRXSupport()
 	GraphName += "(VRX)";
 	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode("VRX Image"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R8_UINT;
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::R8_UINT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale_TileSize;
 	Desc.SimpleStartingState = EResourceState::UAV;
 	Desc.AllowUnorderedAccess = true;
@@ -67,7 +67,7 @@ void RenderGraph::AddVRXSupport()
 
 	FrameBufferStorageNode* EdgeDetectImage = AddStoreNode(new FrameBufferStorageNode("Edge Image"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16_FLOAT;
+	Desc.RTFormats[0] = eTEXTURE_FORMAT::R16_FLOAT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.SimpleStartingState = EResourceState::RenderTarget;
 	Desc.AllowUnorderedAccess = true;

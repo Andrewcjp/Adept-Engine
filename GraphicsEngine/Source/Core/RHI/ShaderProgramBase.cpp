@@ -7,7 +7,7 @@ ShaderProgramBase::ShaderProgramBase(DeviceContext* context)
 	Context = context;
 	AddDefaultDefines(Defines, context);
 }
-void ShaderProgramBase::AddDefaultDefines(std::vector<ShaderProgramBase::Shader_Define>& Defines,DeviceContext* context)
+void ShaderProgramBase::AddDefaultDefines(std::vector<ShaderProgramBase::Shader_Define>& Defines, DeviceContext* context)
 {
 	if (!RHI::IsVulkan())
 	{
@@ -16,6 +16,7 @@ void ShaderProgramBase::AddDefaultDefines(std::vector<ShaderProgramBase::Shader_
 	}
 	Defines.push_back(Shader_Define("DX12", std::to_string(RHI::IsD3D12() || RHI::IsNullRHIActingDX12())));
 	Defines.push_back(Shader_Define("FULL_UAV_LOAD", std::to_string(context->GetCaps().SupportTypedUAVLoads)));
+	Defines.push_back(Shader_Define("HARDWARE_SUPPORT_SAMPLER_FEEDBACK", std::to_string(context->GetCaps().SamplerFeedbackMode == ESamplerFeedBackSupportMode::FullHardware)));
 }
 ShaderProgramBase::~ShaderProgramBase()
 {

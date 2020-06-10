@@ -153,7 +153,7 @@ bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem
 		}
 		newblob->ByteCode = malloc(header.Size);
 		Arch.LinkData(newblob->ByteCode, header.Size);
-		newblob->Length = header.Size; 
+		newblob->Length = header.Size;
 		Arch.LinkVector(Item->Data->RootConstants);
 		Arch.Close();
 		Item->Blob = newblob;
@@ -184,4 +184,19 @@ void ShaderCache::WriteBlobToFile(ShaderComplieItem* item, EPlatforms::Type plat
 	Arch.LinkData(item->Blob->ByteCode, header.Size);
 	Arch.LinkVector(item->Data->RootConstants);
 	Arch.Close();
+	//WriteDebugFile(item, platform);
+}
+
+void ShaderCache::WriteDebugFile(ShaderComplieItem* item, EPlatforms::Type platform)
+{
+	FileUtils::CreateDirectoriesToFullPath(AssetManager::GetShaderCacheDir(platform) + item->ShaderName + ".");
+	const std::string FullShaderName = GetShaderNamestr(item->ShaderName, GetShaderInstanceHash(item), item->Stage);
+	std::string path = AssetManager::GetShaderCacheDir(platform) + FullShaderName;
+	std::string data = "Shader " + FullShaderName + "\n";
+	data += "Defines:\n";
+	for (int i = 0; i < item->Defines.size(); i++)
+	{
+		data += "Name: '" + item->Defines[i].Name + "' Value:'" + item->Defines[i].Value + "'\n";
+	}
+	FileUtils::WriteToFile(path + "_META.txt", data);
 }

@@ -5,6 +5,7 @@
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/Shaders/Shader_Pair.h"
 #include "RHI/RHIBufferGroup.h"
+#include "Rendering/Shaders/GlobalShaderLibrary.h"
 
 REGISTER_SHADER_VS(Terrain_Vs, "Terrain\\Terrain_Vs");
 REGISTER_SHADER_PS(Terrain_Ps, "Terrain\\Terrain_PS_Def");
@@ -13,12 +14,11 @@ TerrainRenderer* TerrainRenderer::Instance = nullptr;
 TerrainRenderer::TerrainRenderer()
 {
 	TMP = new GameObject();
-	TMP->GetTransform()->SetPos(glm::vec3(20, 10,0));
+	TMP->GetTransform()->SetPos(glm::vec3(20, 10, 0));
 	const int size = 10;
 	TMP->GetTransform()->SetScale(glm::vec3(size, 1, size));
 	QuadMesh = RHI::CreateMesh("models\\TerrainQuad.obj");
 	QuadMesh->PrepareDataForRender(TMP);
-	TerrainShader = new Shader_Pair(RHI::GetDefaultDevice(), { "Terrain\\Terrain_Vs","Terrain\\Terrain_PS_Def" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
 	HeightMap = AssetManager::DirectLoadTextureAsset("Terrain\\Maps\\HeightMap_pack.png");
 	BaseTex = AssetManager::DirectLoadTextureAsset("Terrain\\Maps\\BackedTexture.png");
 }
@@ -34,7 +34,7 @@ void TerrainRenderer::RenderTerrainForDepth(FrameBuffer * Buffer, RHICommandList
 
 void TerrainRenderer::RenderTerrainGBuffer(FrameBuffer * Buffer, RHICommandList* list, FrameBuffer * DepthSource)
 {
-	RHIPipeLineStateDesc State = RHIPipeLineStateDesc::CreateDefault(TerrainShader, Buffer);
+	RHIPipeLineStateDesc State = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::TerrainShader->Get(list), Buffer);
 	State.RenderTargetDesc = Buffer->GetPiplineRenderDesc();
 	if (DepthSource != nullptr)
 	{

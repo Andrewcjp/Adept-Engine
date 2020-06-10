@@ -197,7 +197,7 @@ void FrameBuffer::AutoUpdateSize(RHIFrameBufferDesc& BufferDesc, DeviceContext* 
 		uint TileSize = BufferDesc.LinkToBackBufferScaleFactor;
 		if (Device != nullptr)
 		{
-			TileSize = RHI::GetRenderSettings()->GetVRXSettings().VRRTileSize;
+			TileSize = RHI::GetRenderSettings()->GetVRXSettings().VRSTileSize;
 		}
 		BufferDesc.Height = glm::iround(glm::ceil(Screen::GetScaledHeight() / TileSize));
 		BufferDesc.Width = glm::iround(glm::ceil(Screen::GetScaledWidth() / TileSize));

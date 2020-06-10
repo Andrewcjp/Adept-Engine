@@ -9,15 +9,24 @@
 #include "D3D12Helpers.h"
 #include "GPUResource.h"
 #include "D3D12CommandList.h"
+#include "RHI/Streaming/TextureStreamingEngine.h"
 
 
 DXGPUTextureStreamer::DXGPUTextureStreamer()
-{
-}
+{}
 
 
 DXGPUTextureStreamer::~DXGPUTextureStreamer()
+{}
+
+void DXGPUTextureStreamer::SetStreamingMode(EGPUSteamMode::Type mode)
 {
+	EGPUSteamMode::Type Clamp = mode;
+	if (Device->GetCaps().SamplerFeedbackMode == ESamplerFeedBackSupportMode::None)
+	{
+		Clamp = EGPUSteamMode::None;
+	}
+	m_StreamingMode = Math::Min(mode, Clamp);
 }
 
 void DXGPUTextureStreamer::Tick(RHICommandList* list)
@@ -53,7 +62,15 @@ void DXGPUTextureStreamer::OnInit(DeviceContext* con)
 void DXGPUTextureStreamer::OnRealiseTexture(TextureHandle* handle)
 {
 	//Create reserved resource 
-
+	if (m_StreamingMode == EGPUSteamMode::None)
+	{
+		D3D12RHITexture* Texture = new D3D12RHITexture();
+		Texture->CreateWithUpload(handle->Description, Device);
+		handle->GetData(Device)->Backing = Texture;
+		handle->GetData(Device)->TopMipState = 0;
+		handle->GetData(Device)->TargetMip = 0;
+		return;
+	}
 	D3D12RHITexture* Texture = new D3D12RHITexture();
 	Texture->UseReservedResouce = true;
 	RHITextureDesc2 ImageDesc;
@@ -73,6 +90,10 @@ void DXGPUTextureStreamer::OnRealiseTexture(TextureHandle* handle)
 
 void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list)
 {
+	if (m_StreamingMode == EGPUSteamMode::None)
+	{
+		return;
+	}
 	D3D12RHITexture* Tex = D3D12RHI::DXConv(handle->GetData(Device)->Backing);
 	TextureDescription& D = handle->Description;
 
@@ -88,10 +109,18 @@ void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list
 	}
 	int TargetMip = handle->GetData(Device)->TopMipState - MipUpdatecount;
 
+	//Tex->GetResource()->SetTileMappingState(glm::ivec3(0, 0, 0), 0, true);
+	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(1, 1, 0), 0, true);
+	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.0, 0.0f, 0), 0, true);
+	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.0, 1.0f, 0), 0, true);
+	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(1.0, 0.0f, 0), 0, true);
+	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.5, 0.5f, 0), 1, true);
+	Tex->GetResource()->SetTileMappingStateForSubResource(TargetMip, true);
+	Page->MapResource2(Tex->GetResource());
 	ResourceTileMapping map;
 	map.FirstSubResource = TargetMip;
 	map.NumSubResoruces = D.MipLevels - TargetMip;
-	Page->MapResouce(Tex->GetResource(), map);
+	//Page->MapResouce(Tex->GetResource(), map);
 	if (MipUpdatecount < 0)
 	{
 		handle->GetData(Device)->TopMipState -= MipUpdatecount;

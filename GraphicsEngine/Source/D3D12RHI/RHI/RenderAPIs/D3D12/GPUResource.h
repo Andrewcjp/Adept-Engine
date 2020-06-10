@@ -22,6 +22,16 @@ struct ResourceMipInfo
 	D3D12_TILE_REGION_SIZE regionSize;
 	GPUMemoryPage::AllocationChunk* pChunk = nullptr;
 };
+struct ResourceTileInfo
+{
+	UINT heapIndex = 0;
+	bool packedMip = false;
+	bool mapped = false;
+	bool isCurrentMapped = false;
+	D3D12_TILED_RESOURCE_COORDINATE startCoordinate;
+	D3D12_TILE_REGION_SIZE regionSize;
+	GPUMemoryPage::AllocationChunk* pChunk = nullptr;
+};
 class GPUResource : public IRHIResourse
 {
 public:
@@ -59,8 +69,17 @@ public:
 	bool IsBacked()const { return Backed; };
 	void SetBacked(bool state) { Backed = state; };
 	ResourceMipInfo* GetMipData(int index);
+	glm::ivec3 GetSizeAtMip();
+	void FlushTileMappings();
+	void SetTileMappingState(glm::ivec3 Pos, int SubResource, bool state);
+	void SetTileMappingStateForSubResource(int SubResource, bool state);
+	void SetTileMappingStateUV(glm::vec3 Pos, int SubResource, bool state);
+	void SetupTileMappings(bool SeperateAllTiles = false);
 	void SetupMipMapping();
+	std::vector<ResourceTileInfo> m_Tiles;
+	std::vector<ResourceTileInfo*> m_TilesToUpdate;
 private:
+	D3D12_TILE_SHAPE tileShape;
 	std::vector<ResourceMipInfo> m_mips;
 	bool Backed = true;
 	D3D12_RESOURCE_DESC Desc;

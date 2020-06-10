@@ -19,6 +19,11 @@
 #define WIN10_1903 0 
 #define WIN10_1903_WIN 0
 #endif
+#ifdef NTDDI_WIN10_VB
+#define WIN10_2004 1
+#else
+#define WIN10_2004 0
+#endif
 #include "Stdafx.h"
 #if CHECK_INCLUDE( "../ExtraPlatforms/D3D12RHIDefines.h")
 #include "../ExtraPlatforms/D3D12RHIDefines.h"

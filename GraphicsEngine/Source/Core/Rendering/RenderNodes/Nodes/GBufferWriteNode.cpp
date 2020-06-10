@@ -12,6 +12,7 @@
 #include "../../Shaders/Shader_Pair.h"
 #include "../../Core/Screen.h"
 #include "RHI/RHITexture.h"
+#include "RHI/Streaming/SamplerFeedbackEngine.h"
 REGISTER_SHADER_PS(EdgeDetect, "VRX/VRX_EdgeDetect_PS");
 
 GBufferWriteNode::GBufferWriteNode()
@@ -19,7 +20,7 @@ GBufferWriteNode::GBufferWriteNode()
 	ViewMode = EViewMode::PerView;
 	AddResourceInput(EStorageType::Framebuffer, EResourceState::RenderTarget, StorageFormats::DefaultFormat);
 	NodeLink* link = AddResourceInput(EStorageType::Framebuffer, EResourceState::Non_PixelShader, StorageFormats::DefaultFormat);
-	link->SetOptional();	
+	link->SetOptional();
 }
 
 GBufferWriteNode::~GBufferWriteNode()
@@ -54,10 +55,11 @@ void GBufferWriteNode::OnExecute()
 	Args.ReadDepth = UsePreZPass;
 	SceneRenderer::Get()->MeshController->RenderPass(Args, CommandList);
 	CommandList->EndRenderPass();
-	TerrainRenderer::Get()->RenderTerrainGBuffer(GBuffer, CommandList, GBuffer);
+	SamplerFeedbackEngine::Get()->RenderTest(CommandList, GBuffer);
+	//TerrainRenderer::Get()->RenderTerrainGBuffer(GBuffer, CommandList, GBuffer);
 #if 1
 	if (GetInput(1)->IsValid())
-	{ 
+	{
 		if (Test == nullptr)
 		{
 			Test = new Shader_Pair(RHI::GetDefaultDevice(), { "Deferred_LightingPass_vs","VRX/VRX_EdgeDetect_PS" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
@@ -75,14 +77,14 @@ void GBufferWriteNode::OnExecute()
 		CommandList->SetRootConstant("ResData", 2, &Resoloution);
 		GBuffer->GetDepthStencil()->SetState(CommandList, EResourceState::PixelShader);
 		CommandList->SetTexture2(GBuffer->GetDepthStencil(), "GBuffer_Depth");
-	//	CommandList->SetFrameBufferTexture(GBuffer, "GBuffer_Depth", 2);
+		//	CommandList->SetFrameBufferTexture(GBuffer, "GBuffer_Depth", 2);
 		SceneRenderer::DrawScreenQuad(CommandList);
 		CommandList->EndRenderPass();
 		TargetBuffer->SetResourceState(CommandList, EResourceState::Non_PixelShader);
 		GBuffer->GetDepthStencil()->SetState(CommandList, EResourceState::RenderTarget);
 	}
 #endif
-	SetEndStates(CommandList);	
+	SetEndStates(CommandList);
 	CommandList->Execute();
 
 }

@@ -187,6 +187,7 @@ EAllocateResult::Type DXMemoryManager::CreateReservedResouce(AllocDesc& desc, GP
 	(*ppResource)->SetBacked(false);
 	(*ppResource)->SetDesc(desc.ResourceDesc);
 	(*ppResource)->SetupMipMapping();
+	(*ppResource)->SetupTileMappings(desc.AllowPerTileResidency);
 	return EAllocateResult::OK;
 }
 

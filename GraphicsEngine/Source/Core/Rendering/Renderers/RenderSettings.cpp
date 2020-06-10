@@ -20,12 +20,12 @@ RenderSettings::RenderSettings()
 	EnableGPUParticles = true;
 	VRHMDMode = EVRHMDMode::Disabled; 
 
-	SelectedGraph = EBuiltinRenderGraphs::DeferredRenderer_VX_RT;
+	SelectedGraph = EBuiltinRenderGraphs::RayTracing;
 
 	CurrentDebug = ERenderDebugOutput::Off;
 //	VRXSet.EnableVRX = true;
 	VRXSet.VRXMode = EVRSMode::ForceSoftwareOnly;
-	VRXSet.VRRTileSize = 16;
+	VRXSet.VRSTileSize = 16;
 	AllowMeshInstancing = true;
 	//ShouldRunGPUTests = true;
 	if (GraphSet.GetIntValue() >= 0 && GraphSet.GetIntValue() < EBuiltinRenderGraphs::Limit)

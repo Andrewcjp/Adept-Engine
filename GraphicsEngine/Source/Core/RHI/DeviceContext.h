@@ -55,6 +55,15 @@ struct EMGPUConnectionMode
 	};
 	CORE_API static const char* ToString(EMGPUConnectionMode::Type e);
 };
+struct ESamplerFeedBackSupportMode
+{
+	enum Type
+	{
+		None,
+		Emulated,
+		FullHardware,
+	};
+};
 struct EShaderSupportModel
 {
 	enum Type
@@ -81,6 +90,8 @@ struct CapabilityData
 	bool SupportsConservativeRaster = false;
 
 	bool SupportTypedUAVLoads = false;
+	ESamplerFeedBackSupportMode::Type SamplerFeedbackMode = ESamplerFeedBackSupportMode::None;
+	bool SupportsMeshShaders = false;
 };
 const int COPYLIST_MAX_POOL_SIZE = 4;
 class  DeviceContext

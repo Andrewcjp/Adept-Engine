@@ -96,6 +96,9 @@ struct DXFeatureData
 	D3D12_FEATURE_DATA_D3D12_OPTIONS6  FeatureData6;
 #endif
 	D3D12_FEATURE_DATA_ARCHITECTURE1 ArchData = {};
+#if WIN10_2004
+	D3D12_FEATURE_DATA_D3D12_OPTIONS7 FeatureData7 = {};
+#endif
 };
 struct GPUUploadRequest
 {
@@ -178,13 +181,8 @@ public:
 	void EnqueueUploadRequest(const GPUUploadRequest & request);
 	CommandAllocator* GetAllocator(D3D12CommandList* list);
 	const DXFeatureData& GetFeatureData()const;
-	
-
 	bool IsUMA() const override;
-
-
 	std::string ReportDeviceData() override;
-
 private:
 	DXFeatureData DeviceFeatureData;
 	void FlushUploadQueue();
@@ -217,6 +215,9 @@ private:
 #endif
 #if WIN10_1903
 	ID3D12Device6* m_device6 = nullptr;
+#endif
+#if WIN10_2004
+	ID3D12Device7* m_device7 = nullptr;
 #endif
 	//device info
 	DeviceMemoryData MemoryData;

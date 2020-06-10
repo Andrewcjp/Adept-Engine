@@ -6,6 +6,7 @@
 #include "..\..\Core\Mesh.h"
 #include "..\..\Core\Material.h"
 #include "Rendering\Core\Defaults.h"
+#include "RHI\Streaming\TextureStreamingCommon.h"
 
 
 PathTraceBindingTable::PathTraceBindingTable()

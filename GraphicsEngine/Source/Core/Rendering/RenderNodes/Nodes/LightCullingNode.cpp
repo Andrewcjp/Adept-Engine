@@ -30,7 +30,7 @@ void LightCullingNode::OnExecute()
 	RHICommandList* List = GetListAndReset();
 
 	/*SceneRenderer::Get()->GetLightCullingEngine()->LaunchCullingForScene(List, EEye::Left);*/
-	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::LightCullingShader);
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::LightCullingShader->Get());
 	List->SetPipelineStateDesc(desc);
 	SceneRenderer::Get()->GetLightCullingEngine()->UpdateLightStatsBuffer();
 	List->SetConstantBufferView(SceneRenderer::Get()->GetLightCullingEngine()->LightCullBuffer->Get(List), 0, "LightBuffer");
@@ -102,7 +102,7 @@ void LightCullingNode::AddApplyToGraph(RenderGraph* Graph, StorageNode* gBuffer,
 
 void LightCullingNode::ExecuteApply(ApplyPassData& Data, RHICommandList* list)
 {
-	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::TiledLightingApplyShader));
+	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::TiledLightingApplyShader->Get(list)));
 	FrameBuffer* GBuffer = Data.GBuffer->GetTarget<FrameBufferStorageNode>()->GetFramebuffer();
 	list->SetFrameBufferTexture(GBuffer, "PosTexture");
 	list->SetFrameBufferTexture(GBuffer, "NormalTexture", 1);

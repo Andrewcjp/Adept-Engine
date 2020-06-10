@@ -1,6 +1,6 @@
 #pragma once
 #include "Editor/UIInspectorBase.h"
-
+#if WITH_EDITOR
 class UIButton;
 class UIGameObjectInspector: public UIInspectorBase
 {
@@ -20,3 +20,4 @@ protected:
 	IEdtiorInspectable* target = nullptr;
 };
 
+#endif

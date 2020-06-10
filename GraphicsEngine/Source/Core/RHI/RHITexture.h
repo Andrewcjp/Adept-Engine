@@ -17,6 +17,7 @@ struct RHITextureDesc2
 	bool IsDepthStencil = false;
 	bool AllowUnorderedAccess = false;
 	bool AllowCrossGPU = false;
+	bool CPUVisible = false;
 	eTextureDimension Dimension = eTextureDimension::DIMENSION_TEXTURE2D;
 	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
 	eTEXTURE_FORMAT RenderFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
@@ -44,6 +45,7 @@ public:
 	RHI_API virtual void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List, const RHICopyRect & rect);
 	RHI_API virtual void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* list, const RHICopyRect & rect);
 	RHI_API virtual void SetState(RHICommandList* list, EResourceState::Type State,int SubResource = -1) = 0;
+	RHITexture* PairedTexture = nullptr;
 protected:
 	RHITextureDesc2 Desc;
 	TextureDescription	UploadDesc;

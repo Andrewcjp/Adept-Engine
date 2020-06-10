@@ -29,7 +29,7 @@ void VelocityNode::OnExecute()
 
 	{		
 		RHIPipeLineStateDesc desc; 
-		desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::FixedVelocityShaders, Target);
+		desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::FixedVelocityShaders->Get(Cmdlist), Target);
 		desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS; 
 		desc.DepthStencilState.DepthWrite = true;
 		desc.RenderPassDesc = RHIRenderPassDesc(Target, ERenderPassLoadOp::Clear);

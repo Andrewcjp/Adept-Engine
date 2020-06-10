@@ -1,6 +1,6 @@
 #include "WindowsDx12DeviceInterface.h"
-#include "../../D3D12DeviceContext.h"
-#include "../../D3D12RHI.h"
+#include "RHI/RenderAPIs/D3D12/D3D12DeviceContext.h"
+#include "RHI/RenderAPIs/D3D12/D3D12RHI.h"
 #if SUPPORT_DXGI
 WindowsDx12DeviceInterface* WindowsDx12DeviceInterface::Instance = nullptr;
 static ConsoleVariable ForceGPUIndex("ForceDeviceIndex", -1, ECVarType::LaunchOnly, true);
@@ -8,7 +8,7 @@ static ConsoleVariable ForceSingleGPU("ForceSingleGPU", 0, ECVarType::LaunchOnly
 static ConsoleVariable AllowWarp("AllowWarp", 0, ECVarType::LaunchOnly, false);
 WindowsDx12DeviceInterface::WindowsDx12DeviceInterface()
 {
-
+	//ForceGPUIndex.SetValue(1);
 }
 
 

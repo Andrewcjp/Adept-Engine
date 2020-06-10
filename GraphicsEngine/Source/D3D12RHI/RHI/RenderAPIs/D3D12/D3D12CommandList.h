@@ -111,8 +111,8 @@ public:
 
 	CopyCMDListType* GetCopyList();
 
-	RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) override;
-	RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) override;
+	RHI_VIRTUAL void ClearUAVFloat(RHITexture* buffer, glm::vec4 ClearColour) override;
+	RHI_VIRTUAL void ClearUAVUint(RHITexture* buffer) override;
 
 	RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) override;
 
@@ -126,6 +126,9 @@ public:
 
 
 	RHI_VIRTUAL void UpdateBufferData(RHIBuffer* Buffer, void * data, size_t length) override;
+
+
+	RHI_VIRTUAL void CopyResource(RHITexture* Source, RHIBuffer* Dest) override;
 
 private:
 

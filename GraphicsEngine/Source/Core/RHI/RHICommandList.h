@@ -7,6 +7,7 @@
 class DeviceContext;
 class HighLevelAccelerationStructure;
 class RHIStateObject;
+class RHITexture;
 struct RHIBufferDesc
 {
 	int ElementCount = 0;
@@ -40,6 +41,7 @@ public:
 	RHI_API RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) = 0;
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
 	RHI_API RHI_VIRTUAL void* MapReadBack() = 0;
+	RHI_API RHI_VIRTUAL void UnMap() = 0;
 	RHI_API RHI_VIRTUAL void CopyToStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
 	RHI_API RHI_VIRTUAL void CopyFromStagingResource(RHIInterGPUStagingResource* Res, RHICommandList* List) {};
 	RHI_API RHI_VIRTUAL ~RHIBuffer()
@@ -159,8 +161,8 @@ public:
 	RHI_API RHI_VIRTUAL void UAVBarrier(RHIBuffer* target) = 0;
 	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHIBuffer* buffer) = 0;
 	RHI_API RHI_VIRTUAL void ClearUAVUint(RHIBuffer* buffer) = 0;
-	RHI_API RHI_VIRTUAL void ClearUAVFloat(FrameBuffer* buffer) = 0;
-	RHI_API RHI_VIRTUAL void ClearUAVUint(FrameBuffer* buffer) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVFloat(RHITexture* buffer, glm::vec4 ClearColour = glm::vec4(0, 0, 0, 0)) = 0;
+	RHI_API RHI_VIRTUAL void ClearUAVUint(RHITexture* buffer) = 0;
 
 	RHI_API RHI_VIRTUAL void Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ) = 0;
 	RHI_API void DispatchSized(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ);
@@ -218,6 +220,7 @@ public:
 	RHITexture* GetShadingRateImage() const { return ShadingRateImage; }
 
 	RHI_API RHI_VIRTUAL void CopyResource(RHITexture* Source, RHITexture* Dest) = 0;
+	RHI_API RHI_VIRTUAL void CopyResource(RHITexture* Source, RHIBuffer* Dest) = 0;
 	RHI_API RHI_VIRTUAL void CopyResource(RHIBuffer* Source, RHIBuffer* Dest) = 0;
 	RHI_API RHI_VIRTUAL void PushDebugMarker(std::string text, uint64 PaletteColour = 0) = 0;
 	RHI_API RHI_VIRTUAL void PopDebugMarker() = 0;

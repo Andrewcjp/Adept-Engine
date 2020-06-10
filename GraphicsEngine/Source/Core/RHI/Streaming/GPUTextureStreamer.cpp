@@ -17,6 +17,7 @@ void GPUTextureStreamer::Init(DeviceContext * Con)
 		TextureStreamingEngine::Get()->RegisterGPUStreamer(this);
 	}
 	OnInit(Con);
+	SetStreamingMode(TextureStreamingEngine::Get()->GetStreamingMode());
 }
 
 void GPUTextureStreamer::Update()
@@ -34,6 +35,11 @@ void GPUTextureStreamer::RealiseHandle(TextureHandle* handle)
 void GPUTextureStreamer::SetTargetSize(uint64 size)
 {
 	TargetPoolSize = size;
+}
+
+void GPUTextureStreamer::SetStreamingMode(EGPUSteamMode::Type mode)
+{
+	m_StreamingMode = mode;
 }
 
 void GPUTextureStreamer::Tick(RHICommandList* list)

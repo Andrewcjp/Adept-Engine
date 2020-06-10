@@ -195,7 +195,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 #endif
 	{
 		DECALRE_SCOPEDGPUCOUNTER(list, "VRX Resolve.Varable Write");
-		Desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VRXResolveShader->Get());
+		Desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VRXResolveShader->Get(list->GetDevice()));
 		list->SetPipelineStateDesc(Desc);
 		RHICommandSignitureDescription SigDesc;
 		INDIRECT_ARGUMENT_DESC DispatchDesc;

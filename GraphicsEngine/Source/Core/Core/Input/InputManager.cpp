@@ -77,7 +77,7 @@ InputController* InputManager::GetController(int index, int interfaceindex /*= -
 	int Accum = 0;
 	for (int i = 0; i < Interfaces.size(); i++)
 	{
-		if (Accum + Interfaces[i]->GetNumOfControllers() >= index)
+		if (Accum + Interfaces[i]->GetNumOfControllers() > index)
 		{
 			return Interfaces[i]->GetController(index - Accum);
 		}

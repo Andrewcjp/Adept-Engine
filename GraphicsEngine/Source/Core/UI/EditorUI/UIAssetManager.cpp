@@ -9,7 +9,7 @@
 #include "Core/Assets/Asset types/BaseAsset.h"
 #include "Core/Assets/Asset types/MaterialAsset.h"
 #include "Editor/Inspectors/UIAssetInspector.h"
-
+#if WITH_EDITOR
 UIAssetManager::UIAssetManager() : UITab()
 {
 	//leftpanel = new UIListBox(1, 1, 1, 1);
@@ -46,6 +46,6 @@ void UIAssetManager::SelectedCallback(int i)
 {
 	UIAssetInspector::Get()->SetTarget(Assets[i]);
 }
-
+#endif
 
 

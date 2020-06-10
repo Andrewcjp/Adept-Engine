@@ -32,10 +32,6 @@ D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
-	//ForceGPUIndex.SetValue(1);
-//	ForceSingleGPU.SetValue(true);
-	//ForceNoDebug.SetValue(true); 
-	//AllowWarp.SetValue(true);
 	EnableDred.SetValue(true);
 }
 

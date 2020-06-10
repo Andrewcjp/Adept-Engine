@@ -178,6 +178,65 @@ void GPUMemoryPage::MapResouce(GPUResource* Resource, const ResourceTileMapping&
 #endif
 	Resource->SetBacked(true);
 }
+void GPUMemoryPage::MapResource2(GPUResource* Resource)
+{
+	
+	if (Resource->m_TilesToUpdate.size() == 0)
+	{
+		return;
+	}
+	//Todo: coalesce tile updates into bigger tiles
+	std::vector<D3D12_TILED_RESOURCE_COORDINATE> Tiles;
+	std::vector<D3D12_TILE_REGION_SIZE> Sizes;
+	std::vector<D3D12_TILE_RANGE_FLAGS> rangeFlags;
+	std::vector<UINT> heapRangeStartOffsets;
+	std::vector<UINT> rangeTileCounts;
+	for (int i = 0; i < Resource->m_TilesToUpdate.size(); i++)
+	{
+		ResourceTileInfo* info = Resource->m_TilesToUpdate[i];
+		if (info->isCurrentMapped == info->mapped)
+		{
+			continue;
+		}
+		Tiles.push_back(info->startCoordinate);
+		Sizes.push_back(info->regionSize);
+		rangeTileCounts.push_back(info->regionSize.NumTiles);
+		if (info->isCurrentMapped && !info->mapped)
+		{
+			info->isCurrentMapped = false;
+			rangeFlags.push_back(D3D12_TILE_RANGE_FLAG_NULL);
+			FreeChunk(info->pChunk);
+			info->pChunk = nullptr;
+			heapRangeStartOffsets.push_back(0);
+			continue;
+		}
+		else if(info->mapped)
+		{
+			info->isCurrentMapped = true;
+			rangeFlags.push_back(D3D12_TILE_RANGE_FLAG_NONE);
+		}
+
+		AllocDesc Desc;
+		Desc.ResourceDesc = Resource->GetDesc();
+		CalculateSpaceNeeded(Desc);
+		Desc.TextureAllocData.SizeInBytes = info->regionSize.NumTiles * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;;
+		AllocationChunk* chunk = GetChunk(Desc);
+		heapRangeStartOffsets.push_back(chunk->offset / D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+		info->pChunk = chunk;
+	}
+
+	Device->GetCommandQueue()->UpdateTileMappings(
+		Resource->GetResource(),
+		Tiles.size(), Tiles.data(),
+		Sizes.data(),
+		PageHeap,
+		rangeFlags.size(), rangeFlags.data(),
+		heapRangeStartOffsets.data(),
+		rangeTileCounts.data(),
+		D3D12_TILE_MAPPING_FLAGS::D3D12_TILE_MAPPING_FLAG_NONE);
+	Resource->SetBacked(true);
+	Resource->FlushTileMappings();
+}
 
 GPUMemoryPage::AllocationChunk* GPUMemoryPage::FindFreeChunk(AllocDesc& desc)
 {

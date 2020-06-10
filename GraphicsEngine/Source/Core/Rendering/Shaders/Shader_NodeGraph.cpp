@@ -16,8 +16,8 @@ void Shader_NodeGraph::Init()
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("WITH_INSTANCING", RHI::GetRenderSettings()->AllowMeshInstancing ? "1" : "0"));
 
 	VRXEngine::SetupVRRShader(this, Device);
-	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	m_Shader->ModifyCompileEnviroment(ShaderProgramBase::Shader_Define("TEST", "1"));
+	m_Shader->AttachAndCompileShaderFromFile("Main_vs", EShaderType::SHADER_VERTEX);
 	if (ShaderSource.length() == 0)
 	{
 		m_Shader->AttachAndCompileShaderFromFile(ShaderFilename.c_str(), EShaderType::SHADER_FRAGMENT);

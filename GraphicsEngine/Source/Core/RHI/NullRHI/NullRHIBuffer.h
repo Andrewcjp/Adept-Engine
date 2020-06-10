@@ -21,5 +21,8 @@ public:
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) override;
 	RHI_API RHI_VIRTUAL void* MapReadBack() override;
 
+
+	RHI_API RHI_VIRTUAL void UnMap() override;
+
 };
 

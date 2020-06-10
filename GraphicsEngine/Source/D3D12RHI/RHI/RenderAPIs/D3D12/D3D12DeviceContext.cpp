@@ -117,11 +117,11 @@ void D3D12DeviceContext::CheckFeatures()
 		LogTierData("Resource Heap", DeviceFeatureData.FeatureData.ResourceHeapTier);
 		LogTierData("Cross Node Sharing", DeviceFeatureData.FeatureData.CrossNodeSharingTier);
 		LogTierData("Tiled Resources Tier", DeviceFeatureData.FeatureData.TiledResourcesTier);
-		
+
 		LogTierData("Min Precision Support", options.MinPrecisionSupport);
 		Caps_Data.SupportTypedUAVLoads = DeviceFeatureData.FeatureData.TypedUAVLoadAdditionalFormats;
 	}
-	ensure(DeviceFeatureData.FeatureData.TiledResourcesTier > D3D12_TILED_RESOURCES_TIER_1);
+
 	Caps_Data.SupportsConservativeRaster = DeviceFeatureData.FeatureData.ConservativeRasterizationTier >= D3D12_CONSERVATIVE_RASTERIZATION_TIER_1;
 	ZeroMemory(&DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS1, &DeviceFeatureData.FeatureData1, sizeof(DeviceFeatureData.FeatureData1));
@@ -246,7 +246,7 @@ void D3D12DeviceContext::CheckFeatures()
 #endif
 	{
 		Caps_Data.VRSSupport = EVRSSupportType::None;
-		Caps_Data.VRSTileSize = RHI::GetRenderSettings()->GetVRXSettings().VRRTileSize;
+		Caps_Data.VRSTileSize = RHI::GetRenderSettings()->GetVRXSettings().VRSTileSize;
 	}
 	if (options.CrossNodeSharingTier != D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED)
 	{
@@ -287,9 +287,29 @@ void D3D12DeviceContext::CheckFeatures()
 	Data.Configuration.InterlaceType = D3D12_VIDEO_FRAME_CODED_INTERLACE_TYPE_NONE;
 	VideoDevice->CheckFeatureSupport(D3D12_FEATURE_VIDEO::D3D12_FEATURE_VIDEO_DECODE_SUPPORT, &Data, sizeof(Data));
 	//VideoDevice->CreateVideoProcessor();
-
 #endif
 
+	if (DeviceFeatureData.FeatureData.TiledResourcesTier >= D3D12_TILED_RESOURCES_TIER_2)
+	{
+		Caps_Data.SamplerFeedbackMode = ESamplerFeedBackSupportMode::Emulated;
+	}
+	else
+	{
+		Caps_Data.SamplerFeedbackMode = ESamplerFeedBackSupportMode::None;
+	}
+#if WIN10_2004	
+	if (SUCCEEDED(m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS7, &DeviceFeatureData.FeatureData7, sizeof(DeviceFeatureData))))
+	{
+		if (DeviceFeatureData.FeatureData7.SamplerFeedbackTier > D3D12_SAMPLER_FEEDBACK_TIER_NOT_SUPPORTED)
+		{
+			Caps_Data.SamplerFeedbackMode = ESamplerFeedBackSupportMode::FullHardware;
+		}
+		if (DeviceFeatureData.FeatureData7.MeshShaderTier > D3D12_MESH_SHADER_TIER_NOT_SUPPORTED)
+		{
+			Caps_Data.SupportsMeshShaders = true;
+		}
+	}
+#endif
 }
 
 void D3D12DeviceContext::LogDeviceData(const std::string& data)

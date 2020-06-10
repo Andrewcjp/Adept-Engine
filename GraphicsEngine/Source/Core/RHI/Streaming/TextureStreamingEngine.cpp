@@ -6,6 +6,7 @@ TextureStreamingEngine* TextureStreamingEngine::Instance = nullptr;
 TextureStreamingEngine::TextureStreamingEngine()
 {
 	Instance = this;
+	m_StreamingMode = EGPUSteamMode::TiledTexture;
 }
 
 
@@ -51,6 +52,11 @@ void TextureStreamingEngine::UpdateSceneTextureStreaming()
 			Handles[i]->SetAllTargetMip(0);
 		}
 	}
+}
+
+void TextureStreamingEngine::RegisterGPUStreamer(GPUTextureStreamer* Stream)
+{
+	Streamers.push_back(Stream);
 }
 
 TextureHandle* TextureStreamingEngine::RequestTexture(std::string File)

@@ -19,6 +19,7 @@ public:
 private:
 	bool TryLoadCachedShader(const std::string & Name, ShaderComplieItem * Blob, const std::string & InstanceHash, EShaderType::Type type,EPlatforms::Type platform  = EPlatforms::Limit);
 	void WriteBlobToFile(ShaderComplieItem* item, EPlatforms::Type platform = EPlatforms::Limit);
+	void WriteDebugFile(ShaderComplieItem * item, EPlatforms::Type platform);
 	static ShaderCache* Instance;
 	struct CSOHeader
 	{

@@ -14,7 +14,9 @@
 #include "DescriptorCache.h"
 #include "RHI/RHITexture.h"
 #include "D3D12RHITexture.h"
+#if PIX_ENABLED
 #include "pix3.h"
+#endif
 #if FORCE_RENDER_PASS_USE
 #define CHECKRPASS() ensure(IsInRenderPass);
 #else
@@ -471,8 +473,7 @@ D3D12PipeLineStateObject::D3D12PipeLineStateObject(const RHIPipeLineStateDesc& d
 }
 
 D3D12PipeLineStateObject::~D3D12PipeLineStateObject()
-{
-}
+{}
 
 void D3D12PipeLineStateObject::Complie()
 {
@@ -715,9 +716,18 @@ void D3D12CommandList::ClearUAVFloat(RHIBuffer* buffer)
 	//	CmdList5->ClearUnorderedAccessViewFloat()
 }
 
-void D3D12CommandList::ClearUAVFloat(FrameBuffer* buffer)
+void D3D12CommandList::ClearUAVFloat(RHITexture* buffer, glm::vec4 ClearColour)
 {
-
+	FlushBarriers();
+	D3D12RHITexture* DBuffer = D3D12RHI::DXConv(buffer);
+	RSBind bind;
+	bind.BindType = ERSBindType::UAV;
+	bind.Texture2 = buffer;
+	bind.View = RHIViewDesc::DefaultUAV();
+	DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(&bind);
+	DXDescriptor* CPUDesc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->FindInCacheHeap(&bind);
+	float Values[4] = { ClearColour.x,ClearColour.y,ClearColour.z,ClearColour.w };
+	GetCommandList()->ClearUnorderedAccessViewFloat(desc->GetGPUAddress(), CPUDesc->GetCPUAddress(), DBuffer->GetResource()->GetResource(), Values, 0, nullptr);
 }
 
 void D3D12CommandList::ClearUAVUint(RHIBuffer* buffer)
@@ -732,18 +742,18 @@ void D3D12CommandList::ClearUAVUint(RHIBuffer* buffer)
 	GetCommandList()->ClearUnorderedAccessViewUint(desc->GetGPUAddress(), desc->GetCPUAddress(), DBuffer->GetResource()->GetResource(), Values, 0, nullptr);
 }
 
-void D3D12CommandList::ClearUAVUint(FrameBuffer* buffer)
+void D3D12CommandList::ClearUAVUint(RHITexture* buffer)
 {
 	//#dxtodo: fix this to target all (ish)
-	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
+	D3D12RHITexture* DBuffer = D3D12RHI::DXConv(buffer);
 	RSBind bind;
 	bind.BindType = ERSBindType::UAV;
-	bind.Framebuffer = buffer;
+	bind.Texture2 = buffer;
 	bind.View = RHIViewDesc::DefaultUAV();
 	DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(&bind);
 	DXDescriptor* CPUDesc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->FindInCacheHeap(&bind);
 	uint Values[4] = { 0,0,0,0 };
-	GetCommandList()->ClearUnorderedAccessViewUint(desc->GetGPUAddress(), CPUDesc->GetCPUAddress(), DBuffer->GetResource(0)->GetResource(), Values, 0, nullptr);
+	GetCommandList()->ClearUnorderedAccessViewUint(desc->GetGPUAddress(), CPUDesc->GetCPUAddress(), DBuffer->GetResource()->GetResource(), Values, 0, nullptr);
 }
 
 void D3D12CommandList::CopyResource(RHITexture * Source, RHITexture * Dest)
@@ -779,6 +789,29 @@ void D3D12CommandList::CopyResource(RHIBuffer* Source, RHIBuffer* Dest)
 	DSource->GetResource()->SetResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
 	FlushBarriers();
 	GetCommandList()->CopyBufferRegion(DDest->GetResource()->GetResource(), 0, DSource->GetResource()->GetResource(), 0, DSource->GetSize());
+	DSource->GetResource()->SetResourceState(this, StartState);
+	FlushBarriers();
+}
+
+void D3D12CommandList::CopyResource(RHITexture* Source, RHIBuffer* Dest)
+{
+	D3D12RHITexture* DSource = D3D12RHI::DXConv(Source);
+	D3D12Buffer* DDest = D3D12RHI::DXConv(Dest);
+	D3D12_RESOURCE_STATES StartState = DSource->GetResource()->GetCurrentState();
+
+	DDest->GetResource()->SetResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+	DSource->GetResource()->SetResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	FlushBarriers();
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT renderTargetLayout;
+	for (int i = 0; i < DSource->GetDescription().Depth; i++)
+	{
+		int offset = i;
+		D3D12RHI::DXConv(Device)->GetDevice()->GetCopyableFootprints(&DSource->GetResource()->GetResource()->GetDesc(), 0, 1, 0, &renderTargetLayout, nullptr, nullptr, nullptr);
+		CD3DX12_TEXTURE_COPY_LOCATION dest(DDest->GetResource()->GetResource(), renderTargetLayout);
+		CD3DX12_TEXTURE_COPY_LOCATION src(DSource->GetResource()->GetResource(), i);
+		CD3DX12_BOX box(0, 0, DSource->GetDescription().Width, DSource->GetDescription().Height);
+		GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &src, &box);
+	}
 	DSource->GetResource()->SetResourceState(this, StartState);
 	FlushBarriers();
 }

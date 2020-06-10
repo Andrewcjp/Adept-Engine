@@ -13,7 +13,7 @@ public:
 	void CopyFolderToOutput(std::string Target, std::string PathFromBuild);
 	bool CopyAssetToOutput(std::string RelTarget);
 	void CreatePackage();
-	void BuildAllMaterials();
+	static void BuildAllMaterials();
 	void BuildAll();
 	void SetPlatform(EPlatforms::Type Platform);
 	CORE_API EPlatforms::Type GetTargetPlatform()const;

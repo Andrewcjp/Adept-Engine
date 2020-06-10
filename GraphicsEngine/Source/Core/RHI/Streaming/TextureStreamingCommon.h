@@ -15,6 +15,16 @@ namespace EStreamPriority
 		Low
 	};
 }
+namespace EGPUSteamMode
+{
+	enum Type
+	{
+		None,				//load texture all to memory no tiled resource support
+		TiledTexture,		//load texture using tile streaming to full mips/CPU relevance
+		TopMipUsedBased,	//Stream tiles based on Top mip GPU used
+		SamplerFeedBack,	//Stream tiles based on Sampler feedback of tiles used.
+	};
+}
 static const int StreamAllValue = -1;
 struct TextureStreamRequest
 {

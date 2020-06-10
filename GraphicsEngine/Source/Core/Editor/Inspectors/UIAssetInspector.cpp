@@ -1,7 +1,7 @@
 #include "UIAssetInspector.h"
 #include "Core/Reflection/IReflect.h"
 #include "Core/Assets/Asset types/MaterialAsset.h"
-
+#if WITH_EDITOR
 UIAssetInspector* UIAssetInspector::Instance = nullptr;
 
 UIAssetInspector::UIAssetInspector() :UIInspectorBase(0, 0, 0, 0)
@@ -68,3 +68,4 @@ void UIAssetInspector::OnInspectorFinishCreate(UIWidget* TabArea)
 
 }
 
+#endif

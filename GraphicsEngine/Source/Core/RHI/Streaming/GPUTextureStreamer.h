@@ -1,4 +1,6 @@
 #pragma once
+#include "TextureStreamingEngine.h"
+#include "TextureStreamingCommon.h"
 
 class TextureHandle;
 //Textures need to be registered against this
@@ -11,7 +13,9 @@ public:
 	void Update();
 	void RealiseHandle(TextureHandle* handle);
 	void SetTargetSize(uint64 size);
+	virtual void SetStreamingMode(EGPUSteamMode::Type mode);
 protected:
+	EGPUSteamMode::Type m_StreamingMode = EGPUSteamMode::TiledTexture;
 	uint64 TargetPoolSize = 0;
 	RHI_API virtual void OnRealiseTexture(TextureHandle* handle) {};
 	RHI_API virtual void Tick(RHICommandList* list);

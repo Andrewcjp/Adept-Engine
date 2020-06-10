@@ -47,6 +47,7 @@ public:
 	bool AreChunksNext(AllocationChunk* a, AllocationChunk* b);
 	void FreeChunk(AllocationChunk* R);
 	void  MapResouce(GPUResource* Resource,const ResourceTileMapping & mapping);
+	void MapResource2(GPUResource * Resource);
 private:
 	
 	AllocationChunk* FindFreeChunk(AllocDesc & desc);

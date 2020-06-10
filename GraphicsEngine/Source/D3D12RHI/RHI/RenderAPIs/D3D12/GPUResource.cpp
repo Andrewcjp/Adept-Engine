@@ -6,12 +6,10 @@
 //todo: More Detailed Error checking!
 
 GPUResource::GPUResource()
-{
-}
+{}
 
 GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState) :GPUResource(Target, InitalState, RHI::GetDefaultDevice())
-{
-}
+{}
 
 GPUResource::GPUResource(ID3D12Resource* Target, D3D12_RESOURCE_STATES InitalState, DeviceContext* device)
 {
@@ -93,7 +91,7 @@ void GPUResource::SetResourceState(D3D12CommandList* List, D3D12_RESOURCE_STATES
 		Log::LogMessage("GPU" + std::to_string(Device->GetDeviceIndex()) + ": Transition: Resource \"" + std::string(GetDebugName()) + "\" From " +
 			D3D12Helpers::ResouceStateToString(CurrentResourceState) + " TO " + D3D12Helpers::ResouceStateToString(newstate));
 #endif
-		
+
 		if (Mode == EResourceTransitionMode::Direct)
 		{
 			ensure(!IsTransitioning());
@@ -217,6 +215,115 @@ ResourceMipInfo* GPUResource::GetMipData(int index)
 {
 	return &m_mips[index];
 }
+glm::ivec3 GPUResource::GetSizeAtMip()
+{
+	return glm::ivec3();
+}
+void GPUResource::FlushTileMappings()
+{
+	m_TilesToUpdate.clear();
+}
+void GPUResource::SetTileMappingState(glm::ivec3 Pos, int SubResource, bool state)
+{
+	glm::ivec3 MipSize = glm::ivec3(GetDesc().Width, GetDesc().Height, GetDesc().DepthOrArraySize);
+	glm::vec3 UVPOS = glm::ivec3((float)Pos.x / (float)MipSize.x, (float)Pos.y / (float)MipSize.y, (float)Pos.z / (float)MipSize.z);
+	SetTileMappingStateUV(Pos, SubResource, state);
+}
+
+void GPUResource::SetTileMappingStateForSubResource(int SubResource, bool state)
+{
+	for (int i = 0; i < m_Tiles.size(); i++)
+	{
+		if (m_Tiles[i].startCoordinate.Subresource != SubResource)
+		{
+			if (m_Tiles[i].packedMip && SubResource >= m_Tiles[i].startCoordinate.Subresource)
+			{
+
+			}
+			else
+			{
+				continue;
+			}
+		}
+		if (m_Tiles[i].isCurrentMapped != state && m_Tiles[i].mapped != state)
+		{
+			m_TilesToUpdate.push_back(&m_Tiles[i]);
+			m_Tiles[i].mapped = state;
+		}
+	}
+}
+
+void GPUResource::SetTileMappingStateUV(glm::vec3 Pos, int SubResource, bool state)
+{
+	glm::ivec3 MipSize = glm::ivec3(GetDesc().Width, GetDesc().Height, GetDesc().DepthOrArraySize);
+	if (SubResource > 0)
+	{
+		MipSize /= SubResource * 2;
+	}
+	glm::vec3 TilePos = Pos * (glm::vec3)MipSize;
+	TilePos /= glm::vec3(tileShape.WidthInTexels, tileShape.HeightInTexels, tileShape.DepthInTexels);
+	//todo: better data structure
+	for (int i = 0; i < m_Tiles.size(); i++)
+	{
+		if (m_Tiles[i].startCoordinate.Subresource != SubResource)
+		{
+			continue;
+		}
+		if (TilePos.x == m_Tiles[i].startCoordinate.X && TilePos.y == m_Tiles[i].startCoordinate.Y && TilePos.z == m_Tiles[i].startCoordinate.Z)
+		{
+			if (m_Tiles[i].isCurrentMapped != state && m_Tiles[i].mapped != state)
+			{
+				m_TilesToUpdate.push_back(&m_Tiles[i]);
+				m_Tiles[i].mapped = state;
+				break;
+			}
+		}
+	}
+
+}
+void GPUResource::SetupTileMappings(bool SeperateAllTiles/* = false*/)
+{
+	UINT numTiles = 0;
+	D3D12_PACKED_MIP_INFO m_packedMipInfo;
+
+
+	UINT subresourceCount = GetDesc().MipLevels;
+	std::vector<D3D12_SUBRESOURCE_TILING> tilings(subresourceCount);
+	Device->GetDevice()->GetResourceTiling(GetResource(), &numTiles, &m_packedMipInfo, &tileShape, &subresourceCount, 0, &tilings[0]);
+
+
+	//m_mips.resize(subresourceCount);
+	UINT heapCount = m_packedMipInfo.NumStandardMips + (m_packedMipInfo.NumPackedMips > 0 ? 1 : 0);
+	for (UINT n = 0; n < tilings.size(); n++)
+	{
+		D3D12_SUBRESOURCE_TILING* Tileing = &tilings[n];
+		for (int x = 0; x < Tileing->WidthInTiles; x++)
+		{
+			for (int y = 0; y < Tileing->HeightInTiles; y++)
+			{
+				ResourceTileInfo Tile;
+				Tile.regionSize.NumTiles = 1;
+				Tile.regionSize.Depth = 1;
+				Tile.regionSize.Height = 1;
+				Tile.regionSize.Width = 1;
+				Tile.regionSize.UseBox = true;
+				Tile.startCoordinate = CD3DX12_TILED_RESOURCE_COORDINATE(x, y, 0, n);
+				Tile.packedMip = false;
+				m_Tiles.push_back(Tile);
+			}
+		}
+	}
+	if (m_packedMipInfo.NumPackedMips > 0)
+	{
+		ResourceTileInfo Tile;
+		Tile.startCoordinate = CD3DX12_TILED_RESOURCE_COORDINATE(0, 0, 0, m_packedMipInfo.NumStandardMips);
+		Tile.heapIndex = m_packedMipInfo.StartTileIndexInOverallResource;
+		Tile.packedMip = true;
+		Tile.regionSize.NumTiles = m_packedMipInfo.NumTilesForPackedMips;
+		Tile.regionSize.UseBox = FALSE;    // regionSize.Width/Height/Depth will be ignored.
+		m_Tiles.push_back(Tile);
+	}
+}
 
 void GPUResource::SetupMipMapping()
 {
@@ -280,7 +387,7 @@ void GPUResource::Release()
 	}
 	//if the driver crashes here then (most likely) there is a resource contention issue with gpu 0 and 1 
 	//where GPU will move forward and delete resources before GPU 1 has finished with resource.
-	SafeRelease(resource);	
+	SafeRelease(resource);
 }
 
 

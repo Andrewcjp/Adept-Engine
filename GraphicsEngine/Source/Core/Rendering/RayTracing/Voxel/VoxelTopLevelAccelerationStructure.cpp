@@ -35,7 +35,7 @@ void VoxelTopLevelAccelerationStructure::Init()
 	VoxelBuffer->Create(TextureDesc, Device);
 
 	VoxelAlphaMap = RHI::GetRHIClass()->CreateTexture2();
-	TextureDesc.Format = FORMAT_R16_FLOAT;
+	TextureDesc.Format = R16_FLOAT;
 	TextureDesc.MipCount = 5;
 	VoxelAlphaMap->Create(TextureDesc, Device);
 
@@ -99,7 +99,7 @@ void VoxelTopLevelAccelerationStructure::Build(RHICommandList * list)
 	BuildInstances();
 	VoxelBuffer->SetState(list, EResourceState::UAV);
 	VoxelAlphaMap->SetState(list, EResourceState::UAV);
-	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::BuildTopLevelVXShader);
+	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::BuildTopLevelVXShader->Get(list));
 	list->SetPipelineStateDesc(PSOD);
 	//list->SetBuffer(InstanceBuffer, "Descs");
 //	list->SetConstantBufferView(ControlBuffer, 0, "ControlData");
@@ -136,10 +136,10 @@ void VoxelTopLevelAccelerationStructure::BuildInstance(RHICommandList* list, Vox
 
 void VoxelTopLevelAccelerationStructure::GenerateMipMaps(RHICommandList* list)
 {
-	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VolumeDownSample);
+	RHIPipeLineStateDesc PSOD = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::VolumeDownSample->Get(list));
 	list->SetPipelineStateDesc(PSOD);
-	int SrcSlot = GlobalShaderLibrary::VolumeDownSample->GetSlotForName("SrcTexture");
-	int DstSlot = GlobalShaderLibrary::VolumeDownSample->GetSlotForName("DstTexture");
+	int SrcSlot = GlobalShaderLibrary::VolumeDownSample->Get(list)->GetSlotForName("SrcTexture");
+	int DstSlot = GlobalShaderLibrary::VolumeDownSample->Get(list)->GetSlotForName("DstTexture");
 	for (int i = 0; i < MipCount - 1; i++)
 	{
 		int CurrentMip = i;

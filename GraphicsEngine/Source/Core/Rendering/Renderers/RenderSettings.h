@@ -110,11 +110,16 @@ struct VRXSettings
 	bool VRXActive = true;
 	EVRSMode::Type VRXMode = EVRSMode::HardwareAndSoftware;
 	bool SupportPerDrawRateOnVRR = false;	//not yet supported
-	int VRRTileSize = 16;
+	int VRSTileSize = 16;
 	bool EnableVarableRateSuperSampling = false;
 	bool UseVRX(DeviceContext* con = nullptr)const;
 	bool UseVRR(DeviceContext* con = nullptr)const;
 	bool UseVRS(DeviceContext* con = nullptr)const;
+};
+struct SamplerFeedBackSettings
+{
+	int TileSize = 8;
+
 };
 //Props Are Set in the Constructor 
 UCLASS();
@@ -161,6 +166,10 @@ public:
 	VoxelSettings& GetVoxelSet();
 	SFRSettings& GetCurrnetSFRSettings() { return CurrnetSFRSettings; }
 	bool RequestAllGPUs = false;
+	SamplerFeedBackSettings& GetSFSSettings()
+	{
+		return SFSSet;
+	}
 private:
 	PROPERTY(Name = "Render Scale");
 	float RenderScale = 1;
@@ -172,7 +181,7 @@ private:
 	SFRSettings CurrnetSFRSettings;
 	VRXSettings VRXSet;
 	VoxelSettings VoxelSet;
-
+	SamplerFeedBackSettings SFSSet;
 
 };
 

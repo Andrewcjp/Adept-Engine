@@ -227,7 +227,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 		DstLightList[index] = ListLength;
 	}
 	//sort!
-	SortLights(groupIndex);
+	//SortLights(groupIndex);
 	GroupMemoryBarrierWithGroupSync();
 	for (int i = groupIndex; i < MAX_LIGHTS_PER_TILE - 1; i += LIGHTCULLING_TILE_SIZE * LIGHTCULLING_TILE_SIZE)
 	{
