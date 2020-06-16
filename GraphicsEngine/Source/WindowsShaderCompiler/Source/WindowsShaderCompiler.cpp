@@ -1,20 +1,20 @@
-#include "WindowsShaderComplier.h"
-#include "RHI/ShaderComplierModule.h"
+#include "WindowsShaderCompiler.h"
+#include "RHI/ShaderCompilerModule.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/AssetManager.h"
 
-WindowsShaderComplier::WindowsShaderComplier()
+WindowsShaderCompiler::WindowsShaderCompiler()
 {
 	Init();
 }
 
 
-WindowsShaderComplier::~WindowsShaderComplier()
+WindowsShaderCompiler::~WindowsShaderCompiler()
 {}
 
-void WindowsShaderComplier::Init()
+void WindowsShaderCompiler::Init()
 {
-	DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&Complier));
+	DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&Compiler));
 }
 
 std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
@@ -40,7 +40,7 @@ std::wstring ConvertToLevelString(D3D_SHADER_MODEL SM)
 	}
 	return L"BAD!";
 }
-std::wstring WindowsShaderComplier::GetShaderModelString(D3D_SHADER_MODEL Clamp)
+std::wstring WindowsShaderCompiler::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 {
 	/*D3D12DeviceContext* Con = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	D3D_SHADER_MODEL SM = Con->GetShaderModel();*/
@@ -53,7 +53,7 @@ std::wstring WindowsShaderComplier::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 	return ConvertToLevelString(SM);
 }
 
-std::wstring WindowsShaderComplier::GetComplieTarget(EShaderType::Type t)
+std::wstring WindowsShaderCompiler::GetComplieTarget(EShaderType::Type t)
 {
 #if WIN10_1809 
 	D3D_SHADER_MODEL ClampSm = D3D_SHADER_MODEL_6_3;
@@ -89,7 +89,7 @@ LPCWSTR GetCopyStr(std::string data)
 	return Data;
 }
 
-DxcDefine* WindowsShaderComplier::ParseDefines(ShaderComplieItem * Shader)
+DxcDefine* WindowsShaderCompiler::ParseDefines(ShaderCompileItem * Shader)
 {
 	if (Shader->Defines.size() == 0)
 	{
@@ -107,7 +107,7 @@ DxcDefine* WindowsShaderComplier::ParseDefines(ShaderComplieItem * Shader)
 	return out;
 }
 
-void WindowsShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
+void WindowsShaderCompiler::ComplieShader(ShaderCompileItem * ShaderItem)
 {
 	if (ShaderItem->ShaderModel == EShaderSupportModel::SM5)
 	{
@@ -117,7 +117,7 @@ void WindowsShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 	IDxcBlob* Outputblob = nullptr;
 	IDxcBlobEncoding* pErrorBlob = NULL;
 	std::vector<LPCWSTR> arguments;
-	if (ShaderItem->ComplieShaderDebug)
+	if (ShaderItem->CompileShaderDebug)
 	{
 		//compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
 		arguments.push_back(L"/Zi");
@@ -138,7 +138,7 @@ void WindowsShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 	DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary), (void **)&pLibrary);
 	pLibrary->CreateBlobWithEncodingFromPinned(ShaderItem->Data->Source.c_str(), ShaderItem->Data->Source.size(), CP_UTF8, &pSource);
 
-	HRESULT hr = Complier->Compile(pSource, StringUtils::ConvertStringToWide(ShaderItem->ShaderName).c_str(), StringUtils::ConvertStringToWide(ShaderItem->EntryPoint).c_str(),
+	HRESULT hr = Compiler->Compile(pSource, StringUtils::ConvertStringToWide(ShaderItem->ShaderName).c_str(), StringUtils::ConvertStringToWide(ShaderItem->EntryPoint).c_str(),
 		GetComplieTarget(ShaderItem->Stage).c_str(), arguments.data(), (UINT)arguments.size(), defs, (UINT)ShaderItem->Defines.size(), nullptr, &R);
 	R->GetResult(&Outputblob);
 	R->GetErrorBuffer(&pErrorBlob);

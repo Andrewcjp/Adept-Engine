@@ -14,7 +14,7 @@ InterGPUCopyNode::InterGPUCopyNode(DeviceContext* con)
 {
 	Context = con;
 	NodeEngineType = ECommandListType::Copy;
-	NodeQueueType = DeviceContextQueue::InterCopy;
+	NodeQueueType = EDeviceContextQueue::InterCopy;
 	OnNodeSettingChange();
 }
 
@@ -79,7 +79,7 @@ void InterGPUCopyNode::OnExecute()
 		ExecuteDirectCopy(CopyList, Node, InterRes);
 	}
 	SetEndStates(CopyList);
-	CopyList->Execute(DeviceContextQueue::InterCopy);
+	CopyList->Execute(EDeviceContextQueue::InterCopy);
 }
 
 bool InterGPUCopyNode::IsNodeSupported(const RenderSettings& settings)

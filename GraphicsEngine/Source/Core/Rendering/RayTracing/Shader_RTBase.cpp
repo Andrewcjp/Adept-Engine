@@ -52,7 +52,7 @@ void Shader_RTBase::InitRS()
 	LocalRootSig.SetRootSig(this->GetShaderParameters());
 }
 
-bool Shader_RTBase::IsShaderSupported(const ShaderComplieSettings& args)
+bool Shader_RTBase::IsShaderSupported(const ShaderCompileSettings& args)
 {
 	return args.RTSupported && args.ShaderModel == EShaderSupportModel::SM6;
 }

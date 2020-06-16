@@ -5,7 +5,7 @@
 #include "Core/Platform/Logger.h"
 #include "Core/MinWindows.h"
 #include <VersionHelpers.h>
-
+#include <filesystem>
 #include <comdef.h>
 #include <shellapi.h>
 #include <commdlg.h>
@@ -237,9 +237,8 @@ std::string WindowsApplication::GetExecutablePath()
 #if !BUILD_PACKAGE 
 	PathCombine(buffer, buffer, L"..");
 #endif
-	std::wstring ws(buffer);
-	return std::string(ws.begin(), ws.end());
-
+	std::wstring s = std::filesystem::absolute(buffer);
+	return std::string(s.begin(), s.end());
 }
 
 EPlatforms::Type WindowsApplication::GetPlatform()

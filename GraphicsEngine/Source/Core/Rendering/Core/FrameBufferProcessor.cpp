@@ -1,5 +1,5 @@
 #include "FrameBufferProcessor.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "FrameBuffer.h"
 #include "Rendering/Shaders/Shader_Mipmap.h"
 #include "RHI/RHICommandList.h"
@@ -21,7 +21,7 @@ void FrameBufferProcessor::GenerateBlurChain(FrameBuffer * buffer, RHICommandLis
 		buffer->MakeReadyForComputeUse(list);
 	}
 
-	Shader* s = ShaderComplier::GetShader<Shader_BlurCubemap>();
+	Shader* s = ShaderCompiler::GetShader<Shader_BlurCubemap>();
 	RHIPipeLineStateDesc d = RHIPipeLineStateDesc::CreateDefault(s);
 	list->SetPipelineStateDesc(d);
 #if 0
@@ -62,7 +62,7 @@ void FrameBufferProcessor::CreateMipChain(FrameBuffer * buffer, RHICommandList *
 		buffer->MakeReadyForComputeUse(list);
 	}
 
-	Shader* s = ShaderComplier::GetShader<Shader_Mipmap>();
+	Shader* s = ShaderCompiler::GetShader<Shader_Mipmap>();
 	RHIPipeLineStateDesc d = RHIPipeLineStateDesc::CreateDefault(s);
 	list->SetPipelineStateDesc(d);
 	//list->SetFrameBufferTexture(buffer, "");

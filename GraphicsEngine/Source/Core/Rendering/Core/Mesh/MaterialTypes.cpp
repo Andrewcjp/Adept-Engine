@@ -97,8 +97,6 @@ void * ParmeterBindSet::GetDataPtr()
 	return data;
 }
 
-
-
 void ParmeterBindSet::BindTextures(RHICommandList * list)
 {
 	for (auto itor = BindMap.begin(); itor != BindMap.end(); itor++)
@@ -106,7 +104,7 @@ void ParmeterBindSet::BindTextures(RHICommandList * list)
 		if (itor->second.PropType == ShaderPropertyType::Texture)
 		{
 			if (itor->second.Handle != nullptr)
-			{
+			{				
 				itor->second.Handle->Bind(list, itor->first);
 			}
 			else
@@ -151,7 +149,6 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 {
 	int MapSize = BindMap.size();
 	ArchiveProp(MapSize);
-#if 0
 	if (A->IsReading())
 	{
 		for (int i = 0; i < MapSize; i++)
@@ -159,8 +156,8 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 			std::string data;
 			ArchiveProp(data);
 			BindMap.emplace(data, MaterialShaderParameter());
-			//BindMap.at(data).InitReflection();
-			//BindMap.at(data).SeralizeText(A);
+			BindMap.at(data).InitReflection();
+			BindMap.at(data).SeralizeText(A);
 		}
 	}
 	else
@@ -174,7 +171,6 @@ void ParmeterBindSet::SeralizeText(Archive* A)
 			itor->second.SeralizeText(A);
 		}
 	}
-#endif
 }
 
 MaterialShaderParameter::MaterialShaderParameter()

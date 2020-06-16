@@ -1,0 +1,20 @@
+{
+    "Asset data": {
+        "VersionNumber": 1,
+        "GUID": 1517634319,
+        "m_Shader": "shader.default",
+        "MapSize": 3,
+        "data": "DiffuseMap",
+        "PropType": 6,
+        "OffsetInBuffer": 8,
+        "m_TextureAsset": "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png",
+        "data": "Metallic",
+        "PropType": 0,
+        "OffsetInBuffer": 4,
+        "m_TextureAsset": "",
+        "data": "Roughness",
+        "PropType": 0,
+        "OffsetInBuffer": 0,
+        "m_TextureAsset": ""
+    }
+}

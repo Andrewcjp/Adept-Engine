@@ -347,7 +347,7 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	MeshController->TargetScene = TargetScene;
 	if (NewScene != nullptr)
 	{
-		ShaderComplier::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
+		ShaderCompiler::GetShader<Shader_Skybox>()->SetSkyBox(NewScene->GetLightingData()->SkyBox);
 	}
 	//run update on scene data
 	SceneChanged = true;
@@ -355,7 +355,7 @@ void SceneRenderer::SetScene(Scene * NewScene)
 	{
 		if (NewScene != nullptr)
 		{
-			ShaderComplier::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
+			ShaderCompiler::GetShader<Shader_Skybox_Miss>()->SetSkybox(TargetScene->GetLightingData()->SkyBox);
 		}
 		RayTracingEngine::Get()->UpdateFromScene(TargetScene);
 	}

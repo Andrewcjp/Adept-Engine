@@ -59,7 +59,7 @@ public:
 	RHI_VIRTUAL void TriggerWriteBackResources() override;
 #endif
 
-	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) override;
 	void SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye);
 #if AFTERMATH
 	void RunTheAfterMath();

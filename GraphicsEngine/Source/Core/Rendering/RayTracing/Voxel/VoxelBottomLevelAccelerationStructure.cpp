@@ -33,7 +33,7 @@ void VoxelBottomLevelAccelerationStructure::Init(MeshRendererComponent * object)
 	TextureDesc.clearcolour = glm::vec4(0, 0, 0, 0);
 	TextureDesc.AllowUnorderedAccess = true;
 	TextureDesc.Dimension = DIMENSION_TEXTURE3D;
-	TextureDesc.Format = FORMAT_R32G32B32A32_UINT;
+	TextureDesc.Format = R32G32B32A32_UINT;
 	TextureDesc.InitalState = EResourceState::UAV;
 	GetVoxelBuffer()->Create(TextureDesc, Device);
 
@@ -68,10 +68,11 @@ void VoxelBottomLevelAccelerationStructure::Build(RHICommandList* list)
 	list->SetUAV(GetVoxelBuffer(), "voxelTex");
 	list->SetConstantBufferView(VxControlData, 0, "VoxelDataBuffer");
 	MeshBatch* Batch = TargetMesh->GetMesh()->GetMeshBatch();
-	if (TargetMesh->GetMaterial(0)->TestHandle != nullptr)
-	{
-		TargetMesh->GetMaterial(0)->TestHandle->Bind(list, "BaseTex");
-	}
+	TargetMesh->GetMaterial(0)->ParmbindSet.BindTextures(list);//"BaseTex"?
+	//if (TargetMesh->GetMaterial(0)->TestHandle != nullptr)
+	//{
+	//	TargetMesh->GetMaterial(0)->TestHandle->Bind(list, "BaseTex");
+	//}
 	for (int i = 0; i < Batch->elements.size(); i++)
 	{
 		MeshBatchElement* Element = Batch->elements[i];

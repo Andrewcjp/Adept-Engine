@@ -189,7 +189,7 @@ void RenderGraphProcessor::BuildScheduling_old(RenderGraph * graph)
 			}
 			ResourceTransition T;
 			T.TransitonType = ResourceTransition::QueueWait;
-			T.SignalingQueue = DeviceContextQueue::GetFromCommandListType(Lastframe->Node->GetNodeQueueType());
+			T.SignalingQueue = EDeviceContextQueue::GetFromCommandListType(Lastframe->Node->GetNodeQueueType());
 			//add unique
 			frame->Node->AddBeginTransition(T);
 			count++;

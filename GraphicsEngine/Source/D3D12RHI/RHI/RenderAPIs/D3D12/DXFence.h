@@ -7,8 +7,8 @@ class DXFence : public RHIFence
 public:
 	DXFence(DeviceContext* con, EFenceFlags::Type Flags);
 	~DXFence();
-	void Signal(DeviceContextQueue::Type queue, uint64 value)override;
-	void WaitForValue(DeviceContextQueue::Type queue, uint64 value) override;
+	void Signal(EDeviceContextQueue::Type queue, uint64 value)override;
+	void WaitForValue(EDeviceContextQueue::Type queue, uint64 value) override;
 
 
 	void Release() override;

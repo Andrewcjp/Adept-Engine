@@ -35,10 +35,6 @@ void NullRHIBuffer::UpdateIndexBuffer(void* data, size_t length)
 
 }
 
-void NullRHIBuffer::BindBufferReadOnly(class RHICommandList* list, int RSSlot)
-{
-
-}
 
 void NullRHIBuffer::SetBufferState(class RHICommandList* list, EBufferResourceState::Type State)
 {

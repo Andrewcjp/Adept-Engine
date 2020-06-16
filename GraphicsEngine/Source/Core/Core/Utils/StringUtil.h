@@ -24,4 +24,5 @@ namespace StringUtils
 	}
 	CORE_API bool replace(std::string& str, const std::string& from, const std::string& to);
 	CORE_API std::string PadToLength(std::string in, int length);
+	CORE_API std::string GetFilename(const char * name);
 }

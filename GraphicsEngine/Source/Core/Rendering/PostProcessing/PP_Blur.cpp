@@ -37,8 +37,8 @@ void PP_Blur::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 
 void PP_Blur::PostSetUpData()
 {
-	BlurShader = ShaderComplier::GetShader<Shader_Blur>();
-	VertBlurShader = ShaderComplier::GetShader<Shader_BlurVert>();
+	BlurShader = ShaderCompiler::GetShader<Shader_Blur>();
+	VertBlurShader = ShaderCompiler::GetShader<Shader_BlurVert>();
 }
 
 void PP_Blur::PostInitEffect(FrameBuffer* Target)

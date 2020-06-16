@@ -63,14 +63,21 @@ public:
 	std::string GetFilePath()const { return FilePath; }
 	RHI_API PerGPUData* GetData(RHICommandList* list);
 	RHI_API PerGPUData* GetData(DeviceContext* device);
-	void SetAllTargetMip(uint64 mip)
+	void SetAllTargetMip(int mip)
 	{
+		mip = glm::clamp(mip, 0, Description.MipLevels);
 		for (int i = 0; i < RHI::GetDeviceCount(); i++)
 		{
 			GpuData[i].TargetMip = mip;
 		}
 	}
 	bool IsValid()const { return ValidHandle; }
+	RHIBuffer* m_CpuSamplerFeedBack = nullptr;
+	RHIBuffer* m_CPUStreamingUpdates = nullptr;
+	RHITexture* m_StreamedMipMap = nullptr;
+	void SetupForSFS(DeviceContext* con);
+	void ResolveStreamingMaps(RHICommandList * list);
+	void ExecuteCPUReadbackAndUpdate(RHICommandList * list);
 private:
 	bool ValidHandle = false;
 	PerGPUData GpuData[MAX_GPU_DEVICE_COUNT];

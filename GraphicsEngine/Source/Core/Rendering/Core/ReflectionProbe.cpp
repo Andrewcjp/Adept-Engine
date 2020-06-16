@@ -12,8 +12,8 @@ ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 	RHIFrameBufferDesc CubeDesc;
 	CubeDesc = RHIFrameBufferDesc::CreateColourDepth(Dimentions.x, Dimentions.y);
 	CubeDesc.Dimension = eTextureDimension::DIMENSION_TEXTURECUBE;
-	CubeDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	CubeDesc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	CubeDesc.RTFormats[0] = ETextureFormat::R32G32B32A32_FLOAT;
+	CubeDesc.DepthFormat = ETextureFormat::FORMAT_D32_FLOAT;
 	CubeDesc.TextureDepth = 6;
 	CubeDesc.MipCount = 9;
 	/*CubeDesc.DepthClearValue = 1.0f;*/
@@ -36,7 +36,7 @@ ReflectionProbe::ReflectionProbe(glm::vec3 Pos/* = glm::vec3(0, 0, 0)*/)
 
 	ConvolutionRes = 64;
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(ConvolutionRes, ConvolutionRes);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	Desc.RTFormats[0] = ETextureFormat::R32G32B32A32_FLOAT;
 	ConvolutionBuffer = RHI::CreateFrameBuffer(RHI::GetDefaultDevice(), Desc);
 
 	RelfectionProbeProjections = RHI::CreateRHIBuffer(ERHIBufferType::Constant);

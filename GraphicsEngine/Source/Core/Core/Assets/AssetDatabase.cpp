@@ -39,7 +39,7 @@ AssetDatabase::AssetDatabase()
 		{
 			m->GetAssetSet()->SetTexture("DiffuseMap", t);
 		}
-		//m->SaveAsset();
+		m->SaveAsset();
 		AssetInstances.push_back(m);
 	}
 }

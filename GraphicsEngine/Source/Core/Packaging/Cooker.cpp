@@ -6,7 +6,7 @@
 #include "Core/Platform/Windows/WindowsWindow.h"
 #include "Rendering/Core/Mesh/MaterialTypes.h"
 #include "Rendering/Core/Material.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "../Core/Rendering/Shaders/Raytracing/Shader_RTMaterialHit.h"
 #include "../Core/Core/Game/Game.h"
 static ConsoleVariable CookDebug("CookDebug", 0, ECVarType::LaunchOnly);
@@ -125,7 +125,7 @@ void Cooker::Execute()
 
 void Cooker::CookAllShaders()
 {
-	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	ShaderCompiler::Get()->CompileAllGlobalShaders();
 	BuildAllMaterials();
 	std::vector<std::string> PreLoadTextures = Engine::GetGame()->GetPreLoadAssets();
 	for (int i = 0; i < PreLoadTextures.size(); i++)
@@ -206,26 +206,26 @@ void Cooker::CreatePackage()
 //hacky hack!
 void Cooker::BuildAllMaterials()
 {
-	MaterialShaderComplieData ComplieData;
+	MaterialShaderCompileData ComplieData;
 	ComplieData.Shader = Material::CreateDefaultMaterialInstance()->GetShaderAsset();
 	ComplieData.RenderPassUsage = EMaterialPassType::Deferred;
 	ComplieData.ShaderKeyWords.clear();
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 
 	ComplieData.ShaderKeyWords.clear();
 	ComplieData.RenderPassUsage = EMaterialPassType::Forward;
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.clear();
 	ComplieData.MaterialRenderType = EMaterialRenderType::Transparent;
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 	ComplieData.ShaderKeyWords.push_back(Material::ShadowShaderstring);
-	ShaderComplier::Get()->GetMaterialShader(ComplieData);
+	ShaderCompiler::Get()->GetMaterialShader(ComplieData);
 
-	ShaderComplier::Get()->TickMaterialComplie();
+	ShaderCompiler::Get()->TickMaterialCompile();
 	new Shader_RTMaterialHit(RHI::GetDefaultDevice());
 	new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);
 	new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\DefaultRayGenShader", ERTShaderType::RayGen);

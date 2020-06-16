@@ -9,15 +9,14 @@
 #include "Core\Module\ModuleInterface.h"
 #include "RHI_inc_fwd.h"
 #include "RHIFence.h"
-#define USE_FLAT_COMPUTE 1
+#define USE_FLAT_COMPUTE 0
 #if USE_FLAT_COMPUTE
-#define FLAT_COMPUTE_START(device) device->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
-#define FLAT_COMPUTE_END(device) device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+#define FLAT_COMPUTE_START(device) device->InsertGPUWait(EDeviceContextQueue::Compute, EDeviceContextQueue::Graphics);
+#define FLAT_COMPUTE_END(device) device->InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::Compute);
 #else
 #define FLAT_COMPUTE_START(device)
 #define FLAT_COMPUTE_END(device) 
 #endif
-#define RT_FORCE_COMPUTE 0
 #define NOAPIIMP(func) ensureMsgf(false, #func" Needs API implmentation");
 class RHIGPUSyncEvent;
 class SFRController;
@@ -99,7 +98,7 @@ public:
 	static void ResizeSwapChain(int width, int height);
 	static void DestoryContext();
 	static void BeginFrame();
-	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr, DeviceContext * SignalDevice = nullptr);
+	RHI_API static RHIGPUSyncEvent* CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device = nullptr, DeviceContext * SignalDevice = nullptr);
 	RHI_API static bool BlockCommandlistExec();
 	RHI_API static bool AllowCPUAhead();
 	RHI_API static int GetDeviceCount();
@@ -211,7 +210,7 @@ public:
 	RHI_VIRTUAL void TriggerBackBufferScreenShot() = 0;
 	RHI_VIRTUAL GPUMemoryReport ReportMemory() = 0;
 	RHI_VIRTUAL RHIPipeLineStateObject* CreatePSO(const RHIPipeLineStateDesc& Desc, DeviceContext * Device) = 0;
-	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) = 0;
+	RHI_VIRTUAL RHIGPUSyncEvent* CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice) = 0;
 #if ALLOW_RESOURCE_CAPTURE
 	RHI_VIRTUAL void TriggerWriteBackResources() = 0;
 #endif

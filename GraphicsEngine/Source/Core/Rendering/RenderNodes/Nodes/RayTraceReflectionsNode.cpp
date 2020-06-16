@@ -53,7 +53,7 @@ void RayTraceReflectionsNode::OnExecute()
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 4, 0);
 	RTList->GetRHIList()->SetFrameBufferTexture(Gbuffer, 9, 2);
 	SceneRenderer::Get()->BindLightsBufferB(RTList->GetRHIList(), 5);
-	SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(RTList->GetRHIList())->BindBufferReadOnly(RTList->GetRHIList(), 6);
+	RTList->GetRHIList()->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(RTList->GetRHIList()), 6);
 	RTList->GetRHIList()->SetConstantBufferView(CBV, 0, 2);
 	DynamicQualityEngine::Get()->BindRTBuffer(RTList->GetRHIList(), 10);
 	GetShadowDataFromInput(2)->BindPointArray(RTList->GetRHIList(), 7);

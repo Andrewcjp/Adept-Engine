@@ -1,7 +1,7 @@
 #pragma once
 #include "RHI/ShaderProgramBase.h"
 #include "CrossDeviceShaderPair.h"
-class Shader_Pair;
+#include "Rendering/Shaders/Shader_Pair.h"
 class CrossDeviceShaderPair;
 struct GlobalPermutation
 {
@@ -34,6 +34,7 @@ public:
 	static CrossDeviceShaderPair* FixedVelocityShaders;
 	static GlobalPermutation*	  VRXResolveShader;
 	static CrossDeviceShaderPair* TestSamplerFeedbackShader;
-	static CrossDeviceShaderPair*			 TerrainShader ;
+	static CrossDeviceShaderPair*			 TerrainShader;
+	static CrossDeviceShaderPair* ResolveSamplerFeedBackShader;
 };
 

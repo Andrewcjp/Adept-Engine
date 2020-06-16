@@ -31,9 +31,6 @@ void GPUPerformanceGraph::Render()
 	{
 		RenderGPU(i, ECommandListType::Graphics);
 		RenderGPU(i, ECommandListType::Compute);
-#if SEPERATE_RAYTRACING_TIMERS
-		RenderGPU(i, ECommandListType::RayTracing);
-#endif
 		RenderGPU(i, ECommandListType::Copy);
 	}
 }
@@ -183,14 +180,6 @@ void GPUPerformanceGraph::DrawBaseLine(TimerData * Timer, int GPUindex, glm::vec
 		BarOffsets[ECommandListType::Compute] = LastBarOffset;
 		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " Compute", pos.x - Offset, EndPos.y + 5.0f - LastBarOffset, TextScale, glm::vec3(1));
 	}
-#if SEPERATE_RAYTRACING_TIMERS
-	else if (ListType == ECommandListType::RayTracing)
-	{
-		LastBarOffset += MainBarHeight + BarSpacing;
-		BarOffsets[ECommandListType::RayTracing] = LastBarOffset;
-		TextRenderer::instance->RenderText("GPU_" + std::to_string(GPUindex) + " RayTracing", pos.x - Offset, EndPos.y + 5.0f - LastBarOffset, TextScale, glm::vec3(1));
-	}
-#endif
 	else if (ListType == ECommandListType::Copy)
 	{
 		LastBarOffset += MainBarHeight + BarSpacing;

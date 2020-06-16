@@ -29,9 +29,42 @@ void DXGPUTextureStreamer::SetStreamingMode(EGPUSteamMode::Type mode)
 	m_StreamingMode = Math::Min(mode, Clamp);
 }
 
+void DXGPUTextureStreamer::UpdateMappingsFromFeedback(RHICommandList* list, TextureHandle* handle)
+{
+	if (RHI::GetFrameCount() % 3 != 0)
+	{
+		return;
+	}
+	if (m_StreamingMode != EGPUSteamMode::SamplerFeedBack && m_StreamingMode != EGPUSteamMode::TopMipUsedBased)
+	{
+		return;
+	}
+	RHITexture* Feedback = handle->GetData(list)->Backing->PairedTexture;
+	float* data = (float*)handle->m_CpuSamplerFeedBack->MapReadBack();
+	const int Width = Feedback->GetDescription().Width;
+	int CurrnetMip = handle->GetData(Device)->TopMipState;
+	float MinMip = handle->Description.MipLevels;
+	for (int i = 0; i < handle->m_CPUStreamingUpdates->GetSize(); i++)
+	{
+		MinMip = Math::Min(MinMip, data[i]);
+		if (data[i] == 0)
+		{
+			float t = 0;
+		}
+	}
+	//MinMip = data[0];
+	handle->SetAllTargetMip(MinMip);
+	for (int i = 0; i < handle->m_CPUStreamingUpdates->GetSize(); i++)
+	{
+		data[i] = CurrnetMip;
+	}
+	handle->m_CPUStreamingUpdates->UpdateBufferData(data, handle->m_CPUStreamingUpdates->GetSize(), EBufferResourceState::Non_PixelShader);
+	handle->m_CpuSamplerFeedBack->UnMap();
+}
+
 void DXGPUTextureStreamer::Tick(RHICommandList* list)
 {
-	//Log::LogTextToScreen("Texture Usage " + StringUtils::ByteToMB(Page->GetSizeInUse()) + " Fragmentation: " + StringUtils::ToString(Page->GetFragmentationPC()));
+	Log::LogTextToScreen("Texture Usage " + StringUtils::ByteToMB(Page->GetSizeInUse()) + " Fragmentation: " + StringUtils::ToString(Page->GetFragmentationPC()));
 	//if (RHI::GetFrameCount() % 30 != 0)
 	//{
 	//	return;
@@ -42,6 +75,7 @@ void DXGPUTextureStreamer::Tick(RHICommandList* list)
 	for (int i = 0; i < Handles.size(); i++)
 	{
 		MapHandle(Handles[i], list);
+		UpdateMappingsFromFeedback(list, Handles[i]);
 	}
 	list->Execute();
 
@@ -81,11 +115,18 @@ void DXGPUTextureStreamer::OnRealiseTexture(TextureHandle* handle)
 	ImageDesc.InitalState = EResourceState::CopyDst;
 	ImageDesc.Depth = handle->Description.Faces;
 	ImageDesc.MipCount = handle->Description.MipLevels;
+	ImageDesc.Name = handle->Description.Name;
 	Texture->Create(ImageDesc, Device);
 
 	handle->GetData(Device)->Backing = Texture;
 	handle->GetData(Device)->TopMipState = handle->Description.MipLevels;
 	handle->GetData(Device)->TargetMip = 0;
+	//handle->GetData(Device)->TargetMip = 4;
+	if (m_StreamingMode == EGPUSteamMode::SamplerFeedBack)
+	{
+		handle->GetData(Device)->TargetMip = handle->Description.MipLevels;
+	}
+
 }
 
 void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list)
@@ -108,14 +149,23 @@ void DXGPUTextureStreamer::MapHandle(TextureHandle* handle, RHICommandList* list
 		MipUpdatecount = maxMips;
 	}
 	int TargetMip = handle->GetData(Device)->TopMipState - MipUpdatecount;
-
+	
 	//Tex->GetResource()->SetTileMappingState(glm::ivec3(0, 0, 0), 0, true);
 	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(1, 1, 0), 0, true);
 	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.0, 0.0f, 0), 0, true);
 	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.0, 1.0f, 0), 0, true);
 	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(1.0, 0.0f, 0), 0, true);
 	//Tex->GetResource()->SetTileMappingStateUV(glm::vec3(0.5, 0.5f, 0), 1, true);
-	Tex->GetResource()->SetTileMappingStateForSubResource(TargetMip, true);
+	for (int i = 0; i < handle->Description.MipLevels; i++)
+	{
+		if (Tex->GetResource()->PackedMipsIndex <= i)
+		{
+			Tex->GetResource()->SetTileMappingStateForSubResource(i, true);
+			break;
+		}
+		Tex->GetResource()->SetTileMappingStateForSubResource(i, (TargetMip <= i));
+	}
+	//Tex->GetResource()->SetTileMappingStateForSubResource(TargetMip, true);
 	Page->MapResource2(Tex->GetResource());
 	ResourceTileMapping map;
 	map.FirstSubResource = TargetMip;

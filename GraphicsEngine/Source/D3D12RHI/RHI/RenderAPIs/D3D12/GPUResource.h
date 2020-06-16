@@ -78,6 +78,7 @@ public:
 	void SetupMipMapping();
 	std::vector<ResourceTileInfo> m_Tiles;
 	std::vector<ResourceTileInfo*> m_TilesToUpdate;
+	int PackedMipsIndex = 0;
 private:
 	D3D12_TILE_SHAPE tileShape;
 	std::vector<ResourceMipInfo> m_mips;

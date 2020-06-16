@@ -23,7 +23,7 @@ DebugLineDrawer* DebugLineDrawer::twodinstance = nullptr;
 DebugLineDrawer::DebugLineDrawer(bool DOnly)
 {
 	Is2DOnly = DOnly;
-	LineShader = ShaderComplier::GetShader_Default<Shader_Line, bool>(Is2DOnly);
+	LineShader = ShaderCompiler::GetShader_Default<Shader_Line, bool>(Is2DOnly);
 	ensure(LineShader);
 	DataBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Constant);
 	DataBuffer->CreateConstantBuffer(sizeof(glm::mat4x4), 1);

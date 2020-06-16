@@ -17,7 +17,7 @@ public:
 	void Resize(int width, int height);
 	RHI_API void SFRResize();
 
-	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
+	static void CopyHelper(FrameBuffer* Target, DeviceContext* TargetDevice, EGPUCOPYTIMERS::Type Stat = EGPUCOPYTIMERS::MGPUCopy, EDeviceContextQueue::Type CopyQ = EDeviceContextQueue::Copy);
 	RHI_API virtual void CopyToOtherBuffer(FrameBuffer * OtherBuffer, RHICommandList* List);
 	static void CopyHelper_Async_OneFrame(FrameBuffer * Target, DeviceContext * TargetDevice);
 	static void CopyHelper_Async(FrameBuffer * Target, DeviceContext * TargetDevice);
@@ -28,7 +28,7 @@ public:
 	void ResolveSFR(FrameBuffer* SumBuffer);
 	int GetTransferSize();
 	void ResetTransferStat();
-	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, DeviceContextQueue::Type CopyQ = DeviceContextQueue::Copy);
+	static void CopyHelper_NewSync(FrameBuffer * Target, DeviceContext * TargetDevice, EGPUCOPYTIMERS::Type Stat, EDeviceContextQueue::Type CopyQ = EDeviceContextQueue::Copy);
 
 	RHI_API virtual void Release() override;
 

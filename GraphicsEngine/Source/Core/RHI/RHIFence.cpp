@@ -10,12 +10,12 @@ RHIFence::~RHIFence()
 {
 }
 
-void RHIFence::Signal(DeviceContextQueue::Type queue, uint64 value)
+void RHIFence::Signal(EDeviceContextQueue::Type queue, uint64 value)
 {
 	Value = value;
 }
 
-void RHIFence::WaitForValue(DeviceContextQueue::Type queue, uint64 value)
+void RHIFence::WaitForValue(EDeviceContextQueue::Type queue, uint64 value)
 {
 }
 

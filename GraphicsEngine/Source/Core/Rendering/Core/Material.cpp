@@ -207,7 +207,7 @@ void Material::SetDiffusetexture(BaseTextureRef tex)
 
 void Material::SetTexture(std::string name, TextureHandle* handle)
 {
-	TestHandle = handle;
+	
 }
 
 void Material::SetTextureAsset(std::string name, std::string assetpath)

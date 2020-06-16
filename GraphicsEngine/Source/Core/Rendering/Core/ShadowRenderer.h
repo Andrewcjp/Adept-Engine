@@ -23,15 +23,15 @@ public:
 	ShadowRenderer();
 	~ShadowRenderer();
 
-	static eTEXTURE_FORMAT GetDepthType();
-	static eTEXTURE_FORMAT GetDepthReadType();
+	static ETextureFormat GetDepthType();
+	static ETextureFormat GetDepthReadType();
 	static void RenderPointShadows(RHICommandList * list);
 	static void RenderDirectionalShadows(RHICommandList * list);
 
 	static RHIPipeRenderTargetDesc GetCubeMapDesc();
 	static RHIFrameBufferDesc GetCubeMapFBDesc(int size = 10);
 
-	static eTEXTURE_FORMAT GetPreSampledTextureFormat(int Shadownumber);
+	static ETextureFormat GetPreSampledTextureFormat(int Shadownumber);
 	static void InvalidateAllBakedShadows();
 
 

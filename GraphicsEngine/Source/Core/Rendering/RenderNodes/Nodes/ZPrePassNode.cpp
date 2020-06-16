@@ -1,5 +1,5 @@
 #include "ZPrePassNode.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Rendering/Core/SceneRenderer.h"
 #include "Rendering/RenderNodes/StorageNodeFormats.h"
 #include "Rendering/Shaders/Shader_PreZ.h"
@@ -27,7 +27,7 @@ void ZPrePassNode::OnExecute()
 	SetBeginStates(Cmdlist);
 	Cmdlist->GetDevice()->GetTimeManager()->StartPipelineStatCapture(Cmdlist);
 	RHIPipeLineStateDesc desc;
-	desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), Target);
+	desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_PreZ>(), Target);
 	desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS;
 	desc.DepthStencilState.DepthWrite = true;
 	desc.RenderPassDesc = RHIRenderPassDesc(Target, ERenderPassLoadOp::Clear);

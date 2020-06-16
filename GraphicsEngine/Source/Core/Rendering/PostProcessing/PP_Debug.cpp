@@ -21,7 +21,7 @@ void PP_Debug::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	{ 
 		return;
 	}
-	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_ShowLightDensity>());
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_ShowLightDensity>());
 
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(InputTexture, "SrcTex");

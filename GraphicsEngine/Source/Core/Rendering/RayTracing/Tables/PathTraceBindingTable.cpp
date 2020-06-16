@@ -1,5 +1,5 @@
 #include "PathTraceBindingTable.h"
-#include "Core\Assets\ShaderComplier.h"
+#include "Core\Assets\ShaderCompiler.h"
 #include "..\Shader_RTBase.h"
 #include "..\..\Shaders\Raytracing\Shader_RTMaterialHit.h"
 #include "..\..\Shaders\Raytracing\Shader_Skybox_Miss.h"
@@ -19,7 +19,7 @@ PathTraceBindingTable::~PathTraceBindingTable()
 void PathTraceBindingTable::InitTable()
 {
 	//default debug
-	MissShaders.push_back(ShaderComplier::GetShader<Shader_Skybox_Miss>());
+	MissShaders.push_back(ShaderCompiler::GetShader<Shader_Skybox_Miss>());
 
 	RayGenShaders.push_back(new Shader_RTBase(RHI::GetDefaultDevice(), "Raytracing\\DefaultRayGenShader", ERTShaderType::RayGen));
 	RayGenShaders[0]->AddExport("rayGen");

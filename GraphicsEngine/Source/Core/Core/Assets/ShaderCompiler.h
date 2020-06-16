@@ -7,9 +7,9 @@
 //1) class based complied and handled though their class type
 //2) source based - complied and handled though a hash.
 class Shader_NodeGraph;
-class ShaderGraphComplier;
-class IShaderComplier;
-struct ShaderComplieItem;
+class ShaderGraphCompiler;
+class IShaderCompiler;
+struct ShaderCompileItem;
 struct ShaderInit
 {
 	ShaderInit()
@@ -22,7 +22,7 @@ struct ShaderInit
 	class DeviceContext* Context = nullptr;
 	void* Data = nullptr;
 };
-struct ShaderComplieSettings
+struct ShaderCompileSettings
 {
 	bool RTSupported = false;
 	EShaderSupportModel::Type ShaderModel = EShaderSupportModel::SM5;
@@ -30,18 +30,18 @@ struct ShaderComplieSettings
 struct ShaderType
 {
 	typedef std::function<class Shader*(const ShaderInit &)> InitliserFunc;
-	typedef std::function<bool(const ShaderComplieSettings& args)> ShouldComplieSig;
+	typedef std::function<bool(const ShaderCompileSettings& args)> ShouldComplieSig;
 	ShaderType(std::string name, InitliserFunc constructor, const ShaderInit & init, ShouldComplieSig ShouldComplieFunc);
 	InitliserFunc Constructor;
 	ShaderInit ShaderInitalizer;
-	Shader* CompliedShader = nullptr;
-	ShouldComplieSig ShouldComplieFunc;
+	Shader* CompiledShader = nullptr;
+	ShouldComplieSig ShouldCompileFunc;
 };
-struct SingleShaderComplie
+struct SingleShaderCompile
 {
 	std::string Name;
-	SingleShaderComplie(std::string name, std::string file, ShaderProgramBase::Shader_Define Define, EShaderType::Type stage);
-	SingleShaderComplie(std::string name, std::string file, EShaderType::Type stage);
+	SingleShaderCompile(std::string name, std::string file, ShaderProgramBase::Shader_Define Define, EShaderType::Type stage);
+	SingleShaderCompile(std::string name, std::string file, EShaderType::Type stage);
 	std::string SourceFile;
 	std::vector<ShaderProgramBase::Shader_Define> Defines;
 	EShaderType::Type Stage = EShaderType::SHADER_UNDEFINED;
@@ -50,34 +50,34 @@ struct SingleShaderComplie
 struct MaterialShaderPair
 {
 	Shader_NodeGraph* Placeholder;
-	MaterialShaderComplieData Data;
+	MaterialShaderCompileData Data;
 };
-class ShaderComplier
+class ShaderCompiler
 {
 public:
-	ShaderComplier();
-	~ShaderComplier();
-	RHI_API static ShaderComplier* Get();
+	ShaderCompiler();
+	~ShaderCompiler();
+	RHI_API static ShaderCompiler* Get();
 	RHI_API static void ShutDown();
-	void ComplieAllGlobalShaders();
+	void CompileAllGlobalShaders();
 	void FreeAllGlobalShaders();
 	RHI_API bool ShouldBuildDebugShaders();
-	void ComplieShader(ShaderType & type, DeviceContext* Context);
+	void CompileShader(ShaderType & type, DeviceContext* Context);
 	RHI_API ShaderType * GetShaderFromGlobalMap(std::string name, DeviceContext* context = nullptr);
 	void AddShaderType(std::string Name, ShaderType  type);
-	void TickMaterialComplie();
+	void TickMaterialCompile();
 	template<class T>
 	static T* GetShader()
 	{
 		//default is listed as "0"
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"));
+		ShaderType* CachedShader = ShaderCompiler::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"));
 		if (CachedShader != nullptr)
 		{
-			if (CachedShader->CompliedShader == nullptr)
+			if (CachedShader->CompiledShader == nullptr)
 			{
-				CachedShader->CompliedShader = new T(RHI::GetDefaultDevice());
+				CachedShader->CompiledShader = new T(RHI::GetDefaultDevice());
 			}
-			return (T*)(CachedShader->CompliedShader);
+			return (T*)(CachedShader->CompiledShader);
 		}
 		DebugEnsure(false);
 		return nullptr;
@@ -85,28 +85,28 @@ public:
 	template<class T>
 	static T* GetShader(class DeviceContext* dev)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"), dev);
+		ShaderType* CachedShader = ShaderCompiler::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::string("0"), dev);
 		if (CachedShader != nullptr)
 		{
-			if (CachedShader->CompliedShader == nullptr)
+			if (CachedShader->CompiledShader == nullptr)
 			{
-				CachedShader->CompliedShader = new T(dev);
+				CachedShader->CompiledShader = new T(dev);
 			}
-			return (T*)(CachedShader->CompliedShader);
+			return (T*)(CachedShader->CompiledShader);
 		}
 		return nullptr;
 	}
 	template<class T, class U>
 	static T* GetShader(class DeviceContext* dev, U Data)
 	{
-		ShaderType* CachedShader = ShaderComplier::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data), dev);
+		ShaderType* CachedShader = ShaderCompiler::Get()->GetShaderFromGlobalMap(typeid(T).name() + std::to_string(Data), dev);
 		if (CachedShader != nullptr)
 		{
-			if (CachedShader->CompliedShader == nullptr)
+			if (CachedShader->CompiledShader == nullptr)
 			{
-				CachedShader->CompliedShader = new T(dev, Data);
+				CachedShader->CompiledShader = new T(dev, Data);
 			}
-			return (T*)(CachedShader->CompliedShader);
+			return (T*)(CachedShader->CompiledShader);
 		}
 		return nullptr;
 	}
@@ -115,36 +115,36 @@ public:
 	{
 		return GetShader<T>(RHI::GetDefaultDevice(), Data);
 	}
-	Shader_NodeGraph* GetMaterialShader(MaterialShaderComplieData Data);
-	Shader_NodeGraph* ComplieMateral(MaterialShaderComplieData data);
-	void ComplieMaterialShader(Shader_NodeGraph * shader);
+	Shader_NodeGraph* GetMaterialShader(MaterialShaderCompileData Data);
+	Shader_NodeGraph* CompileMateral(MaterialShaderCompileData data);
+	void CompileMaterialShader(Shader_NodeGraph * shader);
 	//returns a place holder object which will be populated later
-	Shader_NodeGraph* EnqeueueMaterialShadercomplie(MaterialShaderComplieData data);
-	void RegisterShaderComplier(std::string DLLName);;
+	Shader_NodeGraph* EnqeueueMaterialShadercompile(MaterialShaderCompileData data);
+	void RegisterShaderCompiler(std::string DLLName);;
 	void Init();
-	void ComplieShaderNew(ShaderComplieItem * shader, EPlatforms::Type platform = EPlatforms::Windows);
-	void RegisterSingleShader(SingleShaderComplie* Target);
+	void CompileShaderNew(ShaderCompileItem * shader, EPlatforms::Type platform = EPlatforms::Windows);
+	void RegisterSingleShader(SingleShaderCompile* Target);
 	bool CheckSourceFileRegistered(std::string file);
-	struct ShaderComplierConfig
+	struct ShaderCompilerConfig
 	{
 		EPlatforms::Type TargetPlatform = EPlatforms::Windows;
 		bool MirrorToOthers = true;
 		EShaderSupportModel::Type ShaderModelTarget = EShaderSupportModel::SM6;
 	};
-	ShaderComplierConfig m_Config;
+	ShaderCompilerConfig m_Config;
 private:
-	std::vector<std::string> ShaderComplierNames;
-	void FindAndLoadCompliers();
-	std::vector<IShaderComplier*> Shadercompliers;
-	ShaderGraphComplier* MaterialCompiler = nullptr;
-	static ShaderComplier * Instance;
+	std::vector<std::string> ShaderCompilerNames;
+	void FindAndLoadCompilers();
+	std::vector<IShaderCompiler*> ShaderCompilers;
+	ShaderGraphCompiler* MaterialCompiler = nullptr;
+	static ShaderCompiler * Instance;
 	typedef std::map<std::string, ShaderType> ShaderMap;
 	ShaderMap GlobalShaderMapDefinitions;
 	ShaderMap GlobalShaderMap[MAX_GPU_DEVICE_COUNT];
 	ShaderMap* GetShaderMap(DeviceContext* device = nullptr);
 	std::map<std::string, Shader_NodeGraph*> MaterialShaderMap;
-	std::queue<MaterialShaderPair> MaterialShaderComplieQueue;
+	std::queue<MaterialShaderPair> MaterialShaderCompileQueue;
 	bool ComplieShadersOnTheFly = false;
-	std::map<uint64, SingleShaderComplie*> SingleShaderMapDefinitions;
-	std::map<uint64, SingleShaderComplie*> SingleShaderMap[MAX_GPU_DEVICE_COUNT];
+	std::map<uint64, SingleShaderCompile*> SingleShaderMapDefinitions;
+	std::map<uint64, SingleShaderCompile*> SingleShaderMap[MAX_GPU_DEVICE_COUNT];
 };

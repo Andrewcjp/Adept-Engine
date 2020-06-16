@@ -26,7 +26,7 @@ void UpdateAccelerationStructuresNode::OnExecute()
 #endif
 	SetEndStates(list);
 	Context->GetListPool()->Flush();
-	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	RHI::GetDefaultDevice()->InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::Compute);
 }
 
 void UpdateAccelerationStructuresNode::OnNodeSettingChange()

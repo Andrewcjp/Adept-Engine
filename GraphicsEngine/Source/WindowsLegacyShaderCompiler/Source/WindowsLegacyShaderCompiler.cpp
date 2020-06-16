@@ -1,21 +1,21 @@
-#include "WindowsLegacyShaderComplier.h"
-#include "RHI/ShaderComplierModule.h"
+#include "WindowsLegacyShaderCompiler.h"
+#include "RHI/ShaderCompilerModule.h"
 #include "Core/Utils/StringUtil.h"
 #include "Core/Assets/AssetManager.h"
 #include <d3dcompiler.h>
 
-WindowsLegacyShaderComplier::WindowsLegacyShaderComplier()
+WindowsLegacyShaderCompiler::WindowsLegacyShaderCompiler()
 {
 	Init();
 }
 
 
-WindowsLegacyShaderComplier::~WindowsLegacyShaderComplier()
+WindowsLegacyShaderCompiler::~WindowsLegacyShaderCompiler()
 {}
 
-void WindowsLegacyShaderComplier::Init()
+void WindowsLegacyShaderCompiler::Init()
 {
-	//DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&Complier));
+	//DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&Compiler));
 }
 
 std::string ConvertToLevelString(D3D_SHADER_MODEL SM)
@@ -41,7 +41,7 @@ std::string ConvertToLevelString(D3D_SHADER_MODEL SM)
 	}
 	return "BAD!";
 }
-std::string WindowsLegacyShaderComplier::GetShaderModelString(D3D_SHADER_MODEL Clamp)
+std::string WindowsLegacyShaderCompiler::GetShaderModelString(D3D_SHADER_MODEL Clamp)
 {
 	/*D3D12DeviceContext* Con = D3D12RHI::DXConv(RHI::GetDefaultDevice());
 	D3D_SHADER_MODEL SM = Con->GetShaderModel();*/
@@ -54,7 +54,7 @@ std::string WindowsLegacyShaderComplier::GetShaderModelString(D3D_SHADER_MODEL C
 	return "_5_1";// ConvertToLevelString(SM);
 }
 
-std::string WindowsLegacyShaderComplier::GetComplieTarget(EShaderType::Type t)
+std::string WindowsLegacyShaderCompiler::GetComplieTarget(EShaderType::Type t)
 {
 #if WIN10_1809 
 	D3D_SHADER_MODEL ClampSm = D3D_SHADER_MODEL_6_3;
@@ -90,7 +90,7 @@ LPCWSTR GetCopyStr(std::string data)
 	return Data;
 }
 
-D3D_SHADER_MACRO* ParseDefines(ShaderComplieItem * Shader)
+D3D_SHADER_MACRO* ParseDefines(ShaderCompileItem * Shader)
 {
 	if (Shader->Defines.size() == 0)
 	{
@@ -108,7 +108,7 @@ D3D_SHADER_MACRO* ParseDefines(ShaderComplieItem * Shader)
 	return out;
 }
 
-void WindowsLegacyShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
+void WindowsLegacyShaderCompiler::ComplieShader(ShaderCompileItem * ShaderItem)
 {
 	if (ShaderItem->ShaderModel == EShaderSupportModel::SM6)
 	{
@@ -119,7 +119,7 @@ void WindowsLegacyShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 	ID3DBlob* pErrorBlob = NULL;
 	UINT  compileFlags = 0;
 
-	if (ShaderItem->ComplieShaderDebug)
+	if (ShaderItem->CompileShaderDebug)
 	{
 		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ALL_RESOURCES_BOUND;
 	}
@@ -133,7 +133,7 @@ void WindowsLegacyShaderComplier::ComplieShader(ShaderComplieItem * ShaderItem)
 	HRESULT hr = D3DCompile(ShaderItem->Data->Source.c_str(), ShaderItem->Data->Source.size(), ShaderItem->ShaderName.c_str(), defines, nullptr, (ShaderItem->EntryPoint).c_str(), GetComplieTarget(ShaderItem->Stage).c_str(),
 		compileFlags, 0, &Outputblob, &pErrorBlob);
 
-	//HRESULT hr = Complier->Compile(pSource, StringUtils::ConvertStringToWide(ShaderItem->ShaderName).c_str(), StringUtils::ConvertStringToWide(ShaderItem->EntryPoint).c_str(),
+	//HRESULT hr = Compiler->Compile(pSource, StringUtils::ConvertStringToWide(ShaderItem->ShaderName).c_str(), StringUtils::ConvertStringToWide(ShaderItem->EntryPoint).c_str(),
 	//	GetComplieTarget(ShaderItem->Stage).c_str(), arguments.data(), (UINT)arguments.size(), defs, (UINT)ShaderItem->Defines.size(), nullptr, &R);
 
 	if (pErrorBlob)

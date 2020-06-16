@@ -27,8 +27,9 @@ void VoxelPassMeshProcessor::OnSubmitCommands(RHICommandList* List, MeshDrawComm
 	//}
 
 	//List->SetTexture(Command->TargetMaterial->GetTexturebind("DiffuseMap"), "BaseTex");
-	if (Command->TargetMaterial->TestHandle != nullptr)
+	/*if (Command->TargetMaterial->TestHandle != nullptr)
 	{
 		Command->TargetMaterial->TestHandle->Bind(List, "BaseTex");
-	}
+	}*/
+	Command->TargetMaterial->ParmbindSet.BindTextures(List);
 }

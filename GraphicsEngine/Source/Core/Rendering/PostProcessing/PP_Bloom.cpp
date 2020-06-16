@@ -4,7 +4,7 @@
 #include "RHI/RHI_inc.h"
 #include "PP_Blur.h"
 #include "Core/Performance/PerfManager.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "../Core/FrameBuffer.h"
 PP_Bloom::PP_Bloom()
 {}
@@ -31,7 +31,7 @@ void PP_Bloom::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	list->UAVBarrier(InputTexture);
 	BlurEffect->ExecPass(list, BloomBuffer);
 
-	desc.ShaderInUse = ShaderComplier::GetShader<Shader_Bloom_Compost>();
+	desc.ShaderInUse = ShaderCompiler::GetShader<Shader_Bloom_Compost>();
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(InputTexture, 1);
 	list->SetFrameBufferTexture(BloomBuffer, 0);
@@ -44,7 +44,7 @@ void PP_Bloom::PostSetUpData()
 {
 	BlurEffect = new PP_Blur();
 	BlurEffect->SetUpData();
-	BloomShader = ShaderComplier::GetShader<Shader_Bloom>();
+	BloomShader = ShaderCompiler::GetShader<Shader_Bloom>();
 }
 
 void PP_Bloom::PostInitEffect(FrameBuffer * Target)

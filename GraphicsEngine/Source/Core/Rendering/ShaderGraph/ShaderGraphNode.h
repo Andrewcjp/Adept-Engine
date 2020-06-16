@@ -93,8 +93,10 @@ public:
 		TargetProp = Prop;
 		Texname = name;
 		texType = Type;
+		UseSFSFeedBack = true;
 	};
 	TextureType::Type texType;
+	bool UseSFSFeedBack = false;
 	~SGN_Texture()
 	{};
 	PropertyLink* TargetProp = nullptr;

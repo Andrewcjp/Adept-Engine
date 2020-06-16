@@ -27,7 +27,7 @@ public:
 	RHIRootSigniture LocalRootSig;
 	void InitRS();
 
-	static bool IsShaderSupported(const ShaderComplieSettings& args);
+	static bool IsShaderSupported(const ShaderCompileSettings& args);
 
 protected:
 	ERTShaderType::Type ShaderStage = ERTShaderType::Limit;

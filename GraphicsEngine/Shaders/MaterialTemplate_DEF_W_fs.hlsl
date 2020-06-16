@@ -7,6 +7,13 @@ cbuffer GOConstantBuffer : register(b0)
 };
 #include "Core/Common.hlsl"
 //BufferPoint
+#define USE_FEEDBACK
+#ifdef USE_FEEDBACK
+#include "Core/SamplerFeedBack.hlsl"
+FEEDBACKTEXTURE(SFS_TYPE_MINMIP) g_feedback : register(u0);
+FEEDBACK_BIND;
+Texture2D<float> MipClamp:register(t100);
+#endif
 
 struct PSInput
 {
@@ -26,6 +33,7 @@ struct FS_OUTPUT
 	float4 GTangent: SV_Target3;
 };
 //Declares
+[earlydepthstencil]
 FS_OUTPUT main(PSInput input)
 {
 	FS_OUTPUT output = (FS_OUTPUT)0;

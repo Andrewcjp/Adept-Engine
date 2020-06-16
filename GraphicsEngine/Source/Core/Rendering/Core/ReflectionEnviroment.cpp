@@ -83,7 +83,7 @@ void ReflectionEnviroment::RenderCubemap(ReflectionProbe * Map, RHICommandList* 
 		Args.UseDeferredShaders = false;
 		SceneRenderer::Get()->MeshController->RenderPass(Args, commandlist);
 		commandlist->EndRenderPass();
-		//ShaderComplier::GetShader<Shader_Skybox>()->Render(SceneRenderer::Get(), commandlist, Map->CapturedTexture, nullptr, Map, i);
+		//ShaderCompiler::GetShader<Shader_Skybox>()->Render(SceneRenderer::Get(), commandlist, Map->CapturedTexture, nullptr, Map, i);
 	}
 	//Conv->ComputeConvolutionProbe(commandlist, Map->CapturedTexture, Map->ConvolutionBuffer);
 	Map->SetCaptured();
@@ -147,13 +147,13 @@ void ReflectionEnviroment::GenerateStaticEnvData()
 
 void ReflectionEnviroment::ReflectionEnviromentGPUData::init(int index)
 {
-	Conv = ShaderComplier::GetShader<Shader_Convolution>(RHI::GetDeviceContext(index));
-	EnvMap = ShaderComplier::GetShader<Shader_EnvMap>(RHI::GetDeviceContext(index));
+	Conv = ShaderCompiler::GetShader<Shader_Convolution>(RHI::GetDeviceContext(index));
+	EnvMap = ShaderCompiler::GetShader<Shader_EnvMap>(RHI::GetDeviceContext(index));
 	Conv->init();
 	EnvMap->Init();
 
 	const int Size = 1024;
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateCubeColourDepth(Size, Size);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	Desc.RTFormats[0] = ETextureFormat::R32G32B32A32_FLOAT;
 	SkyBoxBuffer = RHI::CreateFrameBuffer(RHI::GetDeviceContext(index), Desc);
 }

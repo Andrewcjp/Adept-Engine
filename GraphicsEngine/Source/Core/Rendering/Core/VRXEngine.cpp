@@ -100,7 +100,7 @@ void VRXEngine::ResolveVRRFramebuffer_PS(RHICommandList* list, FrameBuffer* Targ
 		list->SetTexture2(ShadingImage, "RateImage");
 	}
 	list->SetTexture2(VRXEngine::Get()->TempTexture, "TempBuffer");
-	ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+	ShaderCompiler::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 	glm::ivec2 Resoloution = Screen::GetScaledRes();
 	list->SetRootConstant("ResData", 2, &Resoloution);
 	list->BeginRenderPass(RHIRenderPassDesc(Target));
@@ -209,7 +209,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		{
 			RHIViewDesc D = RHIViewDesc::DefaultUAV();
 			D.UseResourceFormat = false;
-			D.Format = eTEXTURE_FORMAT::FORMAT_R32_UINT;
+			D.Format = ETextureFormat::FORMAT_R32_UINT;
 			list->SetUAV(Get()->TempResolveSpace, list->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("DstTexture"), D);
 		}
 		else
@@ -226,7 +226,7 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 		//Get()->TileData->SetBufferState(list, EBufferResourceState::Non_PixelShader);
 		Get()->VARTileList->SetBufferState(list, EBufferResourceState::Non_PixelShader);
 		list->SetBuffer(Get()->VARTileList, "TileList");
-		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		ShaderCompiler::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 		list->SetUAV(Get()->TileData, "TileData");
 		list->ExecuteIndirect(1, Get()->IndirectCommandBuffer, 0, nullptr, 0);
 		list->UAVBarrier(Target);
@@ -238,10 +238,10 @@ void VRXEngine::ResolveVRRFramebuffer(RHICommandList* list, FrameBuffer* Target,
 void VRXEngine::RenderDebug(RHICommandList* list, FrameBuffer* Target, RHITexture* ShadingImage)
 {
 	//return;
-	if (ShaderComplier::GetShader<Shader_VRRResolve>()->IsDebugActive())
+	if (ShaderCompiler::GetShader<Shader_VRRResolve>()->IsDebugActive())
 	{
 		list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->VRXDebugShader));
-		ShaderComplier::GetShader<Shader_VRRResolve>()->BindBuffer(list);
+		ShaderCompiler::GetShader<Shader_VRRResolve>()->BindBuffer(list);
 		list->SetTexture2(ShadingImage, "RateImage");
 		list->SetUAV(Target, "DstTexture");
 		Get()->DebugDataBuffer->SetBufferState(list, EBufferResourceState::UnorderedAccess);

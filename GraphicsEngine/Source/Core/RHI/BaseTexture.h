@@ -22,13 +22,14 @@ struct TextureDescription
 	int BitDepth = 0;
 	int MipLevels = 1;
 	int Faces = 1;
-	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_B8G8R8A8_UNORM;
+	ETextureFormat Format = ETextureFormat::FORMAT_B8G8R8A8_UNORM;
 	void* PtrToData = nullptr;
 	ETextureType::Type TextureType = ETextureType::Type_2D;
 	int ImageByteSize = 0;
 	std::vector<glm::ivec2> MipLevelExtents;
 	RHI_API uint64_t Size(int mip);
 	RHI_API glm::ivec2 MipExtents(int mip);
+	std::string Name = "";
 };
 
 class BaseTexture :  public IRHIResourse, public IRHISharedDeviceObject<BaseTexture>

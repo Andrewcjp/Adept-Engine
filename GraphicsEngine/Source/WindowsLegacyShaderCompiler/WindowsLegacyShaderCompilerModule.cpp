@@ -1,9 +1,9 @@
-#include "WindowsLegacyShaderComplierModule.h"
+#include "WindowsLegacyShaderCompilerModule.h"
 #include "Core\Module\ModuleManager.h"
-#include "Source\WindowsLegacyShaderComplier.h"
+#include "Source\WindowsLegacyShaderCompiler.h"
 
 
-#ifdef WINDOWSLEGACYSHADERCOMPLIER_EXPORT
+#ifdef WINDOWSLEGACYSHADERCOMPILER_EXPORT
 IMPLEMENT_MODULE_DYNAMIC(WindowsLegacyShaderCompilerModule);
 #endif
 
@@ -13,24 +13,24 @@ WindowsLegacyShaderCompilerModule::WindowsLegacyShaderCompilerModule()
 WindowsLegacyShaderCompilerModule::~WindowsLegacyShaderCompilerModule()
 {}
 
-void WindowsLegacyShaderCompilerModule::ComplieShader(ShaderComplieItem* shader)
+void WindowsLegacyShaderCompilerModule::CompileShader(ShaderCompileItem* shader)
 {
-	Complier->ComplieShader(shader);
+	Compiler->ComplieShader(shader);
 }
 
 bool WindowsLegacyShaderCompilerModule::StartupModule()
 {
-	Complier = new WindowsLegacyShaderComplier();
-	Complier->Init();
+	Compiler = new WindowsLegacyShaderCompiler();
+	Compiler->Init();
 	return true;
 }
 
 void WindowsLegacyShaderCompilerModule::ShutdownModule()
 {
-	SafeDelete(Complier);
+	SafeDelete(Compiler);
 }
 
-bool WindowsLegacyShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item)
+bool WindowsLegacyShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderCompileItem* item)
 {
 	if (SM == EShaderSupportModel::SM6 || item->Stage == EShaderType::SHADER_RT_LIB)
 	{

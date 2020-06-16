@@ -20,6 +20,7 @@ std::wstring StringUtils::ConvertStringToWide(std::string target)
 
 std::string StringUtils::ConvertWideToString(std::wstring target)
 {
+	//std::string(target.begin?
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	return converter.to_bytes(target);
 }
@@ -93,6 +94,18 @@ std::string StringUtils::PadToLength(std::string in, int length)
 		in.append(" ");
 	}
 	return in + ": ";
+}
+
+std::string StringUtils::GetFilename(const char * name)
+{
+	for (const char * Ptr = name; *Ptr != '\0'; ++Ptr)
+	{
+		if (*Ptr == '\\' || *Ptr == '/')
+		{
+			name = Ptr + 1;
+		}
+	}
+	return name;
 }
 
 std::string StringUtils::ToString(float value, int Places /*= 2*/)

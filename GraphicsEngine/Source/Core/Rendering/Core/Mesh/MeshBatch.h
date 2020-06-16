@@ -29,6 +29,7 @@ public:
 	bool ShadowPassCulled = false;
 	WeakObjectPtr<GameObject> Owner = nullptr;
 	void Update();
+	bool NeedRecreate();
 	//Are we instanced?
 	bool IsinstancedBatch = false;
 	//if this is null this is the instance control node.
@@ -36,5 +37,6 @@ public:
 	MeshBatch* InstanceOwner = nullptr;
 
 	MeshInstanceBuffer* InstanceBuffer = nullptr;
+	bool IsValid = true;
 };
 

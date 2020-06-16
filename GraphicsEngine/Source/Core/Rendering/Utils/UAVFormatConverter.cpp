@@ -36,12 +36,13 @@ void UAVFormatConverter::UnPackToTmpResource(RHITexture ** ppRefTarget, RHIComma
 		TmpDesc.Depth = 2;
 		TmpDesc.Width = Target->GetDescription().Width;
 		TmpDesc.Height = Target->GetDescription().Height;
-		ensure(Target->GetDescription().Format == eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT);
-		TmpDesc.Format = eTEXTURE_FORMAT::FORMAT_R32_UINT;
+		ensure(Target->GetDescription().Format == ETextureFormat::FORMAT_R16G16B16A16_FLOAT);
+		TmpDesc.Format = ETextureFormat::FORMAT_R32_UINT;
 		TmpDesc.AllowUnorderedAccess = true;
 		RefTarget->Create(TmpDesc, list->GetDevice());
 	}
-	RefTarget->SetState(list, EResourceState::Non_PixelShader);
+	RefTarget->SetState(list, EResourceState::UAV);
+	Target->SetState(list, EResourceState::Non_PixelShader);
 	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(Get()->UnPackShader));
 	list->SetTexture2(Target, "InTex");
 	list->SetUAV(RefTarget, "DstTexture");

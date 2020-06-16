@@ -29,7 +29,7 @@ void VoxelTopLevelAccelerationStructure::Init()
 	TextureDesc.clearcolour = glm::vec4(0, 0, 0, 0);
 	TextureDesc.AllowUnorderedAccess = true;
 	TextureDesc.Dimension = DIMENSION_TEXTURE3D;
-	TextureDesc.Format = FORMAT_R32G32B32A32_UINT;//FORMAT_R32_FLOAT;
+	TextureDesc.Format = R32G32B32A32_UINT;//FORMAT_R32_FLOAT;
 	TextureDesc.InitalState = EResourceState::UAV;
 	VoxelBuffer = RHI::GetRHIClass()->CreateTexture2();
 	VoxelBuffer->Create(TextureDesc, Device);

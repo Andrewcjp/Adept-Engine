@@ -7,6 +7,7 @@ TextureStreamingEngine::TextureStreamingEngine()
 {
 	Instance = this;
 	m_StreamingMode = EGPUSteamMode::TiledTexture;
+	m_StreamingMode = EGPUSteamMode::SamplerFeedBack;
 }
 
 
@@ -73,5 +74,17 @@ TextureHandle* TextureStreamingEngine::RequestTexture(std::string File)
 	Get()->Handles.push_back(handle);
 	Get()->NewHandles.emplace(handle);
 	return handle;
+}
+
+void TextureStreamingEngine::ResolveTextureStreaming(RHICommandList * list)
+{
+	if (m_StreamingMode != EGPUSteamMode::SamplerFeedBack)
+	{
+		return;
+	}
+	for (int i = 0; i < Get()->Handles.size(); i++)
+	{
+		Get()->Handles[i]->ResolveStreamingMaps(list);
+	}
 }
 

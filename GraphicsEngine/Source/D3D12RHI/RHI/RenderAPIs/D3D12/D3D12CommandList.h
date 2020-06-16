@@ -33,21 +33,24 @@ public:
 	virtual void ResetList() override;
 	ID3D12CommandAllocator * GetCommandAllocator();
 	void SetRenderTarget(FrameBuffer * target, int SubResourceIndex = 0);
+	void PrepareForDraw();
 	virtual void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) override;
 	RHI_VIRTUAL void DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation) override;
 	virtual void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) override;
-	virtual void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) override;
+	virtual void Execute(EDeviceContextQueue::Type Target = EDeviceContextQueue::LIMIT) override;
 	virtual void SetVertexBuffer(RHIBuffer * buffer) override;
 	virtual void SetIndexBuffer(RHIBuffer* buffer) override;
 	virtual void SetPipelineStateObject(RHIPipeLineStateObject* Object) override;
 	void PushState();
 	virtual void SetConstantBufferView(RHIBuffer * buffer, int offset, int Register) override;
-	void PrepareforDraw();
+	void PrepareForDispatch();
+	void PrepareRootSig();
 	virtual void SetTexture(BaseTextureRef texture, int slot, const RHIViewDesc & desc) override;
 	virtual void SetFrameBufferTexture(FrameBuffer * buffer, int slot, const RHIViewDesc & desc) override;
 
 	virtual void ClearFrameBuffer(FrameBuffer * buffer) override;
 	virtual void SetCommandSigniture(RHICommandSignitureDescription desc)override;
+	bool ShouldBindForGraphics();
 	virtual void SetRootConstant(int SignitureSlot, int ValueNum, void* Data, int DataOffset);
 	ID3D12GraphicsCommandList* GetCommandList();
 	void CreateCommandList();
@@ -130,6 +133,12 @@ public:
 
 	RHI_VIRTUAL void CopyResource(RHITexture* Source, RHIBuffer* Dest) override;
 
+
+	RHI_VIRTUAL void SetComputePipelineStateDesc(const RHIPipeLineStateDesc& Desc) override;
+
+
+	RHI_VIRTUAL void SetComputePipelineStateObject(RHIPipeLineStateObject* Object) override;
+
 private:
 
 	void SetScreenBackBufferAsRT();
@@ -171,6 +180,7 @@ private:
 	uint CommandCount = 0;
 	//number of commands that launch CUs
 	uint DrawDispatchCount = 0;
+	bool NextcommandIsCompute = false;
 protected:
 #if WIN10_1903
 	virtual void SetVRSShadingRateNative(VRX_SHADING_RATE::type Rate) override;

@@ -46,11 +46,11 @@ void D3D12TimeManager::Init(DeviceContext* context)
 void D3D12TimeManager::UpdateTimeStampFreq()
 {
 	ThrowIfFailed(Device->GetCommandQueue()->GetTimestampFrequency(&m_directCommandQueueTimestampFrequencies));
-	ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Compute)->GetTimestampFrequency(&m_ComputeQueueFreqency));
+	ThrowIfFailed(Device->GetCommandQueueFromEnum(EDeviceContextQueue::Compute)->GetTimestampFrequency(&m_ComputeQueueFreqency));
 #if GPUTIMERS_FULL
 	if (Device->GetCaps().SupportsCopyTimeStamps)
 	{
-		ThrowIfFailed(Device->GetCommandQueueFromEnum(DeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
+		ThrowIfFailed(Device->GetCommandQueueFromEnum(EDeviceContextQueue::Copy)->GetTimestampFrequency(&m_copyCommandQueueTimestampFrequencies));
 	}
 #endif
 }

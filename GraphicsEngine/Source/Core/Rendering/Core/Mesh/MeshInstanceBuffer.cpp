@@ -37,6 +37,15 @@ void MeshInstanceBuffer::UpdateBuffer()
 	{
 		return;
 	}
+	bool ForceUpdate = false;
+	for (int i = containedBatches.size() - 1; i >= 0; i--)
+	{
+		if (!containedBatches[i]->IsValid)
+		{
+			containedBatches.erase(containedBatches.begin() + i);
+			ForceUpdate = true;
+		}
+	}
 	for (uint i = 0; i < containedBatches.size(); i++)
 	{
 		if (i > GetInstanceCount())
@@ -44,7 +53,7 @@ void MeshInstanceBuffer::UpdateBuffer()
 			LogEnsureMsgf(false, "Array overflow in instancing buffer");
 			break;
 		}
-		if (containedBatches[i]->Owner->GetLastMovedFrame() < RHI::GetFrameCount())
+		if (containedBatches[i]->Owner->GetLastMovedFrame() < RHI::GetFrameCount() && !ForceUpdate)
 		{
 			continue;
 		}
@@ -55,8 +64,6 @@ void MeshInstanceBuffer::UpdateBuffer()
 
 		//Update material data
 		void* ptr = containedBatches[i]->elements[0]->MaterialInUse->GetDataPtr();
-		//glm::vec4 data = glm::vec4(0.2, 1.0f, 1, 1);
-		//ptr = &data;
 		MateralDataBuffer->UpdateConstantBuffer(ptr, i);
 	}
 }

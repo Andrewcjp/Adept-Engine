@@ -36,7 +36,6 @@ public:
 	RHI_API RHI_VIRTUAL void UpdateConstantBuffer(void * data, int offset = 0) = 0;
 	RHI_API RHI_VIRTUAL void UpdateVertexBuffer(void* data, size_t length, int VertexCount = -1) = 0;
 	RHI_API RHI_VIRTUAL void UpdateIndexBuffer(void* data, size_t length) = 0;
-	RHI_API RHI_VIRTUAL void BindBufferReadOnly(class RHICommandList* list, int RSSlot) = 0;
 	RHI_API RHI_VIRTUAL void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State) = 0;
 	RHI_API RHI_VIRTUAL void SetResourceState(RHICommandList* list, EResourceState::Type State) = 0;
 	RHI_API RHI_VIRTUAL void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state) = 0;
@@ -109,13 +108,15 @@ public:
 
 	RHI_API RHI_VIRTUAL void SetViewport(int MinX, int MinY, int MaxX, int MaxY, float MaxZ, float MinZ) = 0;
 	RHI_API RHI_VIRTUAL void SetScissorRect(const RHIScissorRect& rect) = 0;
-	RHI_API RHI_VIRTUAL void Execute(DeviceContextQueue::Type Target = DeviceContextQueue::LIMIT) = 0;
+	RHI_API RHI_VIRTUAL void Execute(EDeviceContextQueue::Type Target = EDeviceContextQueue::LIMIT) = 0;
 	//drawing
 	RHI_API RHI_VIRTUAL void DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation) = 0;
 	RHI_API RHI_VIRTUAL void DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation) = 0;
-	///Not Const Desc as they hash on demand
+
 	RHI_API RHI_VIRTUAL void SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc) = 0;
 	RHI_API RHI_VIRTUAL void SetPipelineStateObject(RHIPipeLineStateObject* Object) = 0;
+	RHI_API RHI_VIRTUAL void SetComputePipelineStateDesc(const RHIPipeLineStateDesc& Desc) = 0;
+	RHI_API RHI_VIRTUAL void SetComputePipelineStateObject(RHIPipeLineStateObject* Object) = 0;
 	//PSO setting functions
 	RHI_API RHI_VIRTUAL void SetStencilRef(uint value) = 0;
 	//setters
@@ -196,9 +197,7 @@ public:
 	RHI_API bool IsGraphicsList()const;
 	RHI_API bool IsCopyList() const;
 	RHI_API bool IsComputeList() const;
-	RHI_API bool IsRaytracingList() const;
-	RHI_API bool IsRaytracingList_Compute() const;
-	RHI_API bool IsRaytracingList_Direct() const;
+
 	RHI_API virtual bool IsOpen()const;
 	RHI_API void InsertGPUStallTimer();
 	RHI_API void HandleStallTimer();

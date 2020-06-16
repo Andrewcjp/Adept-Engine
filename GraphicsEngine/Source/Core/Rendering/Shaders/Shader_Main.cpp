@@ -51,11 +51,11 @@ void Shader_Main::GetMainShaderSig(std::vector<ShaderParameter>& out)
 std::vector<VertexElementDESC> Shader_Main::GetMainVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
-	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "POSITION", 0, R32G32B32_FLOAT, 0, 0, EInputClassification::PER_VERTEX, 0 });
 	out[0].Stride = sizeof(OGLVertex);
-	out.push_back(VertexElementDESC{ "NORMAL", 0, FORMAT_R32G32B32_FLOAT, 0, 12, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	out.push_back(VertexElementDESC{ "TEXCOORD", 0, FORMAT_R32G32_FLOAT, 0, 24,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-	out.push_back(VertexElementDESC{ "TANGENT", 0, FORMAT_R32G32B32_FLOAT, 0, 32,INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "NORMAL", 0, R32G32B32_FLOAT, 0, 12, EInputClassification::PER_VERTEX, 0 });
+	out.push_back(VertexElementDESC{ "TEXCOORD", 0, R32G32_FLOAT, 0, 24,EInputClassification::PER_VERTEX, 0 });
+	out.push_back(VertexElementDESC{ "TANGENT", 0, R32G32B32_FLOAT, 0, 32,EInputClassification::PER_VERTEX, 0 });
 	return out;
 }
 

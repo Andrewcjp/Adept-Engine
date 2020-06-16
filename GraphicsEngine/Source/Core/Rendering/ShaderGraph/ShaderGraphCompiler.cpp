@@ -1,17 +1,17 @@
-#include "ShaderGraphComplier.h"
+#include "ShaderGraphCompiler.h"
 #include "Core/Assets/Asset types/Asset_Shader.h"
 #include "Core/Utils/FileUtils.h"
 #include "MasterNode.h"
 #include "Rendering/Shaders/Shader_NodeGraph.h"
 
-ShaderGraphComplier::ShaderGraphComplier()
+ShaderGraphCompiler::ShaderGraphCompiler()
 {}
 
 
-ShaderGraphComplier::~ShaderGraphComplier()
+ShaderGraphCompiler::~ShaderGraphCompiler()
 {}
 
-Shader_NodeGraph * ShaderGraphComplier::Complie(MaterialShaderComplieData & Data)
+Shader_NodeGraph * ShaderGraphCompiler::Compile(MaterialShaderCompileData & Data)
 {
 	std::string ShaderPath = "";
 	if (!ComplieGraph(Data, ShaderPath))
@@ -32,14 +32,14 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
 	str.replace(start_pos, from.length(), to);
 	return true;
 }
-bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::string &ShaderPath)
+bool ShaderGraphCompiler::ComplieGraph(MaterialShaderCompileData& data, std::string &ShaderPath)
 {
 #if !WITH_EDITOR
 	//Temp For Default Materials
 	ShaderGraph* Graph = data.Shader->GetGraph();
 	if (!Graph->IsComplied)
 	{
-		Graph->Complie();
+		Graph->Compile();
 	}
 	ShaderPath = "Gen\\" + Graph->GetGraphName().ToSString() + "_" + data.ToString();
 	return true;
@@ -47,7 +47,7 @@ bool ShaderGraphComplier::ComplieGraph(MaterialShaderComplieData& data, std::str
 	ShaderGraph* Graph = data.Shader->GetGraph();
 	if (!Graph->IsComplied)
 	{
-		Graph->Complie();
+		Graph->Compile();
 	}
 	std::string MainShader = AssetManager::instance->LoadFileWithInclude(Graph->GraphMasterNode->GetTemplateName(data))->Source;
 	ensure(!MainShader.empty());

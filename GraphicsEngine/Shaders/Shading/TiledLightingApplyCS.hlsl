@@ -17,10 +17,10 @@ cbuffer LightBuffer : register(b1)
 	int LightCount;
 	int2 TileCount;
 };
-
+#include "Utils/UavLoad.hlsl"
 StructuredBuffer<Light> LightList : register(t20);
 StructuredBuffer<int> LightIndexs : register(t21);
-RWTexture2D<float4> OutBuffer: register(u0);
+SAFEUAVLOAD OutBuffer: register(u0);
 cbuffer SceneConstantBuffer : register(b2)
 {
 	row_major matrix View;
@@ -34,6 +34,10 @@ cbuffer SceneConstantBuffer : register(b2)
 void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3 groupID : SV_GroupID, uint  groupIndex : SV_GroupIndex)
 {
 	float2 UV = (float2)DTid.xy / (float2)Resolution;
+	if (DTid.x >= Resolution.x || DTid.y >= Resolution.x)
+	{
+		return;
+	}
 	float4 pos = PosTexture[DTid.xy];
 	float4 Normalt = NormalTexture[DTid.xy];
 	float3 Normal = normalize(Normalt.xyz);
@@ -61,6 +65,11 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 DGid : SV_GroupThreadID, uint3
 		}
 		output += LightColour;
 	}
-	float4 Current = OutBuffer[DTid.xy];
+#if 0
+	float4 Current = LoadUAV(DTid.xy, OutBuffer);
 	OutBuffer[DTid.xy] = float4(Current + output, Current.a);
+#else
+	float4 Current = LoadUAV(DTid.xy, OutBuffer);
+	WriteUAV(float4(Current + output, Current.a), DTid.xy, OutBuffer);
+#endif
 }

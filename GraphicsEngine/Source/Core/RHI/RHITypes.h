@@ -36,7 +36,6 @@ namespace ECommandListType
 	{
 		Graphics,
 		Compute,
-		RayTracing,
 		Copy,
 		VideoEncode,
 		VideoDecode,
@@ -66,17 +65,17 @@ struct  EResourceState
 };
 
 
-enum eTEXTURE_FORMAT
+enum ETextureFormat
 {
 	FORMAT_UNKNOWN = 0,
 	FORMAT_R32G32B32A32_TYPELESS = 1,
-	FORMAT_R32G32B32A32_FLOAT = 2,
-	FORMAT_R32G32B32A32_UINT = 3,
-	FORMAT_R32G32B32A32_SINT = 4,
-	FORMAT_R32G32B32_TYPELESS = 5,
-	FORMAT_R32G32B32_FLOAT = 6,
-	FORMAT_R32G32B32_UINT = 7,
-	FORMAT_R32G32B32_SINT = 8,
+	R32G32B32A32_FLOAT = 2,
+	R32G32B32A32_UINT = 3,
+	R32G32B32A32_SINT = 4,
+	R32G32B32_TYPELESS = 5,
+	R32G32B32_FLOAT = 6,
+	R32G32B32_UINT = 7,
+	R32G32B32_SINT = 8,
 	FORMAT_R16G16B16A16_TYPELESS = 9,
 	FORMAT_R16G16B16A16_FLOAT = 10,
 	FORMAT_R16G16B16A16_UNORM = 11,
@@ -84,7 +83,7 @@ enum eTEXTURE_FORMAT
 	FORMAT_R16G16B16A16_SNORM = 13,
 	FORMAT_R16G16B16A16_SINT = 14,
 	FORMAT_R32G32_TYPELESS = 15,
-	FORMAT_R32G32_FLOAT = 16,
+	R32G32_FLOAT = 16,
 	FORMAT_R32G32_UINT = 17,
 	FORMAT_R32G32_SINT = 18,
 	FORMAT_R32G8X24_TYPELESS = 19,
@@ -109,7 +108,7 @@ enum eTEXTURE_FORMAT
 	FORMAT_R16G16_SINT = 38,
 	FORMAT_R32_TYPELESS = 39,
 	FORMAT_D32_FLOAT = 40,
-	FORMAT_R32_FLOAT = 41,
+	R32_FLOAT = 41,
 	FORMAT_R32_UINT = 42,
 	FORMAT_R32_SINT = 43,
 	FORMAT_R24G8_TYPELESS = 44,
@@ -125,7 +124,7 @@ enum eTEXTURE_FORMAT
 	R16_FLOAT = 54,
 	FORMAT_D16_UNORM = 55,
 	FORMAT_R16_UNORM = 56,
-	FORMAT_R16_UINT = 57,
+	R16_UINT = 57,
 	FORMAT_R16_SNORM = 58,
 	FORMAT_R16_SINT = 59,
 	FORMAT_R8_TYPELESS = 60,
@@ -196,24 +195,28 @@ enum PRIMITIVE_TOPOLOGY_TYPE
 	PRIMITIVE_TOPOLOGY_TYPE_PATCH = 4
 };
 
-typedef
-enum INPUT_CLASSIFICATION
+namespace EInputClassification
 {
-	INPUT_CLASSIFICATION_PER_VERTEX_DATA = 0,
-	INPUT_CLASSIFICATION_PER_INSTANCE_DATA = 1
-} 	INPUT_CLASSIFICATION;
-typedef struct VertexElementDESC
+	enum Type
+	{
+		PER_VERTEX = 0,
+		PER_INSTANCE = 1
+	};
+}
+
+struct VertexElementDESC
 {
 	char* SemanticName;
 	unsigned int SemanticIndex;
-	eTEXTURE_FORMAT Format;
-	unsigned int InputSlot;
-	unsigned int AlignedByteOffset;
-	INPUT_CLASSIFICATION InputSlotClass;
-	unsigned int InstanceDataStepRate;
+	ETextureFormat Format;
+	uint InputSlot;
+	uint AlignedByteOffset;
+	EInputClassification::Type InputSlotClass;
+	uint InstanceDataStepRate;
 	int Stride = 0;
-} 	VertexElementDESC;
-namespace DeviceContextQueue
+};
+
+namespace EDeviceContextQueue
 {
 	enum Type
 	{
@@ -223,7 +226,7 @@ namespace DeviceContextQueue
 		InterCopy,//Used to Transfer Resources From other GPUS Via HOST
 		LIMIT
 	};
-	DeviceContextQueue::Type GetFromCommandListType(ECommandListType::Type listType);
+	EDeviceContextQueue::Type GetFromCommandListType(ECommandListType::Type listType);
 }
 
 //todo: remove this
@@ -312,8 +315,8 @@ struct ERenderPassLoadOp
 
 struct RHI_API RHIPipeRenderTargetDesc
 {
-	eTEXTURE_FORMAT RTVFormats[8] = { eTEXTURE_FORMAT::FORMAT_UNKNOWN };
-	eTEXTURE_FORMAT DSVFormat = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
+	ETextureFormat RTVFormats[8] = { ETextureFormat::FORMAT_UNKNOWN };
+	ETextureFormat DSVFormat = ETextureFormat::FORMAT_UNKNOWN;
 	int NumRenderTargets = 0;
 	bool operator==(const RHIPipeRenderTargetDesc other) const;
 	static RHIPipeRenderTargetDesc GetDefault();
@@ -567,7 +570,7 @@ struct RHIViewDesc
 	EViewType::Type ViewType = EViewType::Limit;
 	eTextureDimension Dimension = DIMENSION_UNKNOWN;
 	bool UseResourceFormat = true;
-	eTEXTURE_FORMAT Format = eTEXTURE_FORMAT::FORMAT_UNKNOWN;
+	ETextureFormat Format = ETextureFormat::FORMAT_UNKNOWN;
 	static RHIViewDesc CreateUAV(int Resource)
 	{
 		RHIViewDesc D;
@@ -616,7 +619,7 @@ public:
 	RHIFrameBufferDesc()
 	{
 	};
-	RHIFrameBufferDesc(int width, int height, eTEXTURE_FORMAT format, eTextureDimension dimension)
+	RHIFrameBufferDesc(int width, int height, ETextureFormat format, eTextureDimension dimension)
 	{
 		RTFormats[0] = format;
 		Width = width;
@@ -625,9 +628,9 @@ public:
 		MaxSize.x = width;
 		MaxSize.y = height;
 	}
-	eTEXTURE_FORMAT RTFormats[MRT_MAX] = {};
-	eTEXTURE_FORMAT DepthFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
-	eTEXTURE_FORMAT DepthReadFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+	ETextureFormat RTFormats[MRT_MAX] = {};
+	ETextureFormat DepthFormat = ETextureFormat::FORMAT_D32_FLOAT;
+	ETextureFormat DepthReadFormat = ETextureFormat::R32_FLOAT;
 	int Width = 0;
 	int Height = 0;
 	int TextureDepth = 1;
@@ -744,9 +747,9 @@ namespace EBufferAccessType
 class RHI_API RHIUtils
 {
 public:
-	static size_t BitsPerPixel(eTEXTURE_FORMAT fmt);
-	static size_t GetPixelSize(eTEXTURE_FORMAT format);
-	static size_t GetComponentCount(eTEXTURE_FORMAT fmt);
+	static size_t BitsPerPixel(ETextureFormat fmt);
+	static size_t GetPixelSize(ETextureFormat format);
+	static size_t GetComponentCount(ETextureFormat fmt);
 };
 
 

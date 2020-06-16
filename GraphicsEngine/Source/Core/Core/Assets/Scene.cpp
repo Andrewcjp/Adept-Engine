@@ -244,16 +244,8 @@ void Scene::LoadExampleScene()
 	go = new GameObject("Terrain");
 	MaterialAsset* masset = (MaterialAsset*)AssetDatabase::Get()->FindAssetByPath("test.mat");
 	MeshLoader::FMeshLoadingSettings set;
-#if 0
-	set.UVScale = glm::vec2(1);
-#else
-
-	//mat = masset->CreateMaterial();
-//	ensure(mat);
-	//mat->SetTexture("Diffuse", TextureStreamingEngine::RequestTexture("\\Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png"));
-//	mat->SetTextureAsset("DiffuseMap", "Terrain\\textures_industrial_floors_floor_paint_lightgray_c.png");
+	mat = masset->CreateMaterial();
 	set.UVScale = glm::vec2(20);
-#endif
 	set.FlipUVs = true;
 	const char* Name = "\\AlwaysCook\\Terrain\\Room1.obj";
 	MeshRendererComponent* r = go->AttachComponent(new MeshRendererComponent(RHI::CreateMesh(Name, set), nullptr));//TerrrainTest

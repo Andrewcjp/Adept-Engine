@@ -1,6 +1,6 @@
 #include "GPUParticleSystem.h"
 #include "Core/Assets/AssetManager.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Core/IRefCount.h"
 #include "ParticleSystemManager.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleCompute.h"
@@ -30,10 +30,10 @@ void ParticleSystem::Tick(float DT)
 
 void ParticleSystem::SetDefaultShaders()
 {
-	SimulateShader = ShaderComplier::GetShader<Shader_ParticleCompute>();
-	EmitShader = ShaderComplier::GetShader<Shader_ParticleEmit>();
+	SimulateShader = ShaderCompiler::GetShader<Shader_ParticleCompute>();
+	EmitShader = ShaderCompiler::GetShader<Shader_ParticleEmit>();
 	SortShader = nullptr;
-	RenderShader = ShaderComplier::GetShader<Shader_ParticleDraw>();
+	RenderShader = ShaderCompiler::GetShader<Shader_ParticleDraw>();
 }
 
 void ParticleSystem::Init()

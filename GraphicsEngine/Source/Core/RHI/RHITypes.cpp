@@ -8,7 +8,7 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateColour(int width, int height)
 	RHIFrameBufferDesc newDesc = {};
 	newDesc.Width = width;
 	newDesc.Height = height;
-	newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT;
+	newDesc.RTFormats[0] = ETextureFormat::FORMAT_R16G16B16A16_FLOAT;
 	return newDesc;
 }
 
@@ -52,12 +52,12 @@ RHIFrameBufferDesc RHIFrameBufferDesc::CreateGBuffer(int width, int height)
 	newDesc.Width = width;
 	newDesc.Height = height;
 	newDesc.RenderTargetCount = 3;
-	newDesc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	newDesc.RTFormats[1] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
-	newDesc.RTFormats[2] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_SNORM;
+	newDesc.RTFormats[0] = ETextureFormat::R32G32B32A32_FLOAT;
+	newDesc.RTFormats[1] = ETextureFormat::R32G32B32A32_FLOAT;
+	newDesc.RTFormats[2] = ETextureFormat::FORMAT_R8G8B8A8_SNORM;
 	//newDesc.RTFormats[3] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
 	newDesc.NeedsDepthStencil = true;
-	newDesc.DepthFormat = eTEXTURE_FORMAT::FORMAT_R32_TYPELESS;
+	newDesc.DepthFormat = ETextureFormat::FORMAT_R32_TYPELESS;
 	return newDesc;
 }
 
@@ -187,7 +187,7 @@ void RHIPipeLineStateDesc::CalulateHash()
 
 bool RHIPipeLineStateDesc::operator==(const RHIPipeLineStateDesc other) const
 {
-	//#RHI:way to get the complier to gen this?
+	//#RHI:way to get the Compiler to gen this?
 	if (ShaderInUse != nullptr && other.ShaderInUse != nullptr)
 	{
 		if (ShaderInUse->GetNameHash() != other.ShaderInUse->GetNameHash())
@@ -253,25 +253,25 @@ RHIPipeRenderTargetDesc RHIPipeRenderTargetDesc::GetDefault()
 {
 	RHIPipeRenderTargetDesc RenderTargetDesc = {};
 	RenderTargetDesc.NumRenderTargets = 1;
-	RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
-	RenderTargetDesc.DSVFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+	RenderTargetDesc.RTVFormats[0] = ETextureFormat::FORMAT_R8G8B8A8_UNORM;
+	RenderTargetDesc.DSVFormat = ETextureFormat::FORMAT_D32_FLOAT;
 	return RenderTargetDesc;
 }
 
-size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
+size_t RHIUtils::BitsPerPixel(ETextureFormat fmt)
 {
 	switch (fmt)
 	{
 	case FORMAT_R32G32B32A32_TYPELESS:
-	case FORMAT_R32G32B32A32_FLOAT:
-	case FORMAT_R32G32B32A32_UINT:
-	case FORMAT_R32G32B32A32_SINT:
+	case R32G32B32A32_FLOAT:
+	case R32G32B32A32_UINT:
+	case R32G32B32A32_SINT:
 		return 128;
 
-	case FORMAT_R32G32B32_TYPELESS:
-	case FORMAT_R32G32B32_FLOAT:
-	case FORMAT_R32G32B32_UINT:
-	case FORMAT_R32G32B32_SINT:
+	case R32G32B32_TYPELESS:
+	case R32G32B32_FLOAT:
+	case R32G32B32_UINT:
+	case R32G32B32_SINT:
 		return 96;
 
 	case FORMAT_R16G16B16A16_TYPELESS:
@@ -281,7 +281,7 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 	case FORMAT_R16G16B16A16_SNORM:
 	case FORMAT_R16G16B16A16_SINT:
 	case FORMAT_R32G32_TYPELESS:
-	case FORMAT_R32G32_FLOAT:
+	case R32G32_FLOAT:
 	case FORMAT_R32G32_UINT:
 	case FORMAT_R32G32_SINT:
 	case FORMAT_R32G8X24_TYPELESS:
@@ -311,7 +311,7 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 	case FORMAT_R16G16_SINT:
 	case FORMAT_R32_TYPELESS:
 	case FORMAT_D32_FLOAT:
-	case FORMAT_R32_FLOAT:
+	case R32_FLOAT:
 	case FORMAT_R32_UINT:
 	case FORMAT_R32_SINT:
 	case FORMAT_R24G8_TYPELESS:
@@ -346,7 +346,7 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 	case R16_FLOAT:
 	case FORMAT_D16_UNORM:
 	case FORMAT_R16_UNORM:
-	case FORMAT_R16_UINT:
+	case R16_UINT:
 	case FORMAT_R16_SNORM:
 	case FORMAT_R16_SINT:
 	case FORMAT_B5G6R5_UNORM:
@@ -404,19 +404,19 @@ size_t RHIUtils::BitsPerPixel(eTEXTURE_FORMAT fmt)
 	}
 }
 
-size_t RHIUtils::GetPixelSize(eTEXTURE_FORMAT format)
+size_t RHIUtils::GetPixelSize(ETextureFormat format)
 {
 	return BitsPerPixel(format) / 8;
 }
 
-size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
+size_t RHIUtils::GetComponentCount(ETextureFormat fmt)
 {
 	switch (fmt)
 	{
 	case FORMAT_R32G32B32A32_TYPELESS:
-	case FORMAT_R32G32B32A32_FLOAT:
-	case FORMAT_R32G32B32A32_UINT:
-	case FORMAT_R32G32B32A32_SINT:
+	case R32G32B32A32_FLOAT:
+	case R32G32B32A32_UINT:
+	case R32G32B32A32_SINT:
 	case FORMAT_R16G16B16A16_TYPELESS:
 	case FORMAT_R16G16B16A16_FLOAT:
 	case FORMAT_R16G16B16A16_UNORM:
@@ -443,15 +443,15 @@ size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
 	case FORMAT_B8G8R8X8_UNORM_SRGB:
 		return 4;
 
-	case FORMAT_R32G32B32_TYPELESS:
-	case FORMAT_R32G32B32_FLOAT:
-	case FORMAT_R32G32B32_UINT:
-	case FORMAT_R32G32B32_SINT:
+	case R32G32B32_TYPELESS:
+	case R32G32B32_FLOAT:
+	case R32G32B32_UINT:
+	case R32G32B32_SINT:
 	case FORMAT_R11G11B10_FLOAT:
 		return 3;
 
 	case FORMAT_R32G32_TYPELESS:
-	case FORMAT_R32G32_FLOAT:
+	case R32G32_FLOAT:
 	case FORMAT_R32G32_UINT:
 	case FORMAT_R32G32_SINT:
 	case FORMAT_R32G8X24_TYPELESS:
@@ -473,7 +473,7 @@ size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
 	
 	case FORMAT_R32_TYPELESS:
 	case FORMAT_D32_FLOAT:
-	case FORMAT_R32_FLOAT:
+	case R32_FLOAT:
 	case FORMAT_R32_UINT:
 	case FORMAT_R32_SINT:
 	case FORMAT_R24G8_TYPELESS:
@@ -490,7 +490,7 @@ size_t RHIUtils::GetComponentCount(eTEXTURE_FORMAT fmt)
 	case R16_FLOAT:
 	case FORMAT_D16_UNORM:
 	case FORMAT_R16_UNORM:
-	case FORMAT_R16_UINT:
+	case R16_UINT:
 	case FORMAT_R16_SNORM:
 	case FORMAT_R16_SINT:
 		return 1;
@@ -670,7 +670,7 @@ bool EResourceState::IsStateValidForList(ECommandListType::Type listtype, EResou
 	{
 		return true;
 	}
-	else if (listtype == ECommandListType::Compute || listtype == ECommandListType::RayTracing)
+	else if (listtype == ECommandListType::Compute)
 	{
 		return ValidCopy || state == ComputeUse || state == Non_PixelShader || state == UAV ;
 	}
@@ -704,14 +704,13 @@ RHIBlendState RHIBlendState::CreateBlendDefault()
 	return BlendState;
 }
 
-DeviceContextQueue::Type DeviceContextQueue::GetFromCommandListType(ECommandListType::Type listType)
+EDeviceContextQueue::Type EDeviceContextQueue::GetFromCommandListType(ECommandListType::Type listType)
 {
 	switch (listType)
 	{
 	case ECommandListType::Graphics:
 		return Graphics;
-	case ECommandListType::Compute:
-	case ECommandListType::RayTracing:
+	case ECommandListType::Compute:	
 		return Compute;
 	case ECommandListType::Copy:
 		return Copy;
@@ -721,7 +720,7 @@ DeviceContextQueue::Type DeviceContextQueue::GetFromCommandListType(ECommandList
 	default:
 		break;
 	}
-	return DeviceContextQueue::LIMIT;
+	return EDeviceContextQueue::LIMIT;
 }
 
 RHIPipeRenderTargetDesc RHIRenderOutputSet::GetRTDesc()

@@ -247,7 +247,7 @@ void D3D12FrameBuffer::CreateRTDescriptor(D3D12RHITexture* Texture, DescriptorHe
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format = D3D12Helpers::ConvertFormat(texDesc.Format);
-		if (texDesc.DepthRenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		if (texDesc.DepthRenderFormat != ETextureFormat::FORMAT_UNKNOWN)
 		{
 			depthStencilDesc.Format = D3D12Helpers::ConvertFormat(texDesc.DepthRenderFormat);
 		}
@@ -333,7 +333,7 @@ void D3D12FrameBuffer::Init()
 		}
 		BufferDesc.RenderTargets[i]->Create(Desc2, CurrentDevice);
 	}
-	if (BufferDesc.DepthFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN && BufferDesc.NeedsDepthStencil)
+	if (BufferDesc.DepthFormat != ETextureFormat::FORMAT_UNKNOWN && BufferDesc.NeedsDepthStencil)
 	{
 		BufferDesc.DepthStencil = new D3D12RHITexture();
 		RHITextureDesc2 Desc2;
@@ -347,17 +347,17 @@ void D3D12FrameBuffer::Init()
 		Desc2.DepthClearValue = BufferDesc.DepthClearValue;
 		if (Desc2.Format == FORMAT_R32_TYPELESS)
 		{
-			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
-			Desc2.DepthRenderFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+			Desc2.RenderFormat = ETextureFormat::R32_FLOAT;
+			Desc2.DepthRenderFormat = ETextureFormat::FORMAT_D32_FLOAT;
 		}
 		else if (Desc2.Format == FORMAT_R24_UNORM_X8_TYPELESS)
 		{
-			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
+			Desc2.RenderFormat = ETextureFormat::FORMAT_D24_UNORM_S8_UINT;
 		}
 		if (Desc2.Format == FORMAT_D32_FLOAT)
 		{
-			Desc2.RenderFormat = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
-			Desc2.DepthRenderFormat = eTEXTURE_FORMAT::FORMAT_D32_FLOAT;
+			Desc2.RenderFormat = ETextureFormat::R32_FLOAT;
+			Desc2.DepthRenderFormat = ETextureFormat::FORMAT_D32_FLOAT;
 		}
 		if (Desc2.Depth > 1)
 		{

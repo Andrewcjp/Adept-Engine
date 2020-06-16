@@ -18,9 +18,9 @@ ReflectionsBindingTable::~ReflectionsBindingTable()
 void ReflectionsBindingTable::InitTable()
 {
 	//default debug
-	MissShaders.push_back(ShaderComplier::GetShader<Shader_Skybox_Miss>());
+	MissShaders.push_back(ShaderCompiler::GetShader<Shader_Skybox_Miss>());
 
-	RayGenShaders.push_back(ShaderComplier::GetShader<Shader_ReflectionRaygen>());
+	RayGenShaders.push_back(ShaderCompiler::GetShader<Shader_ReflectionRaygen>());
 
 
 	//HitGroups[0]->AnyHitShader = new Shader_RTBase(RHI::GetDefaultDevice(), "RayTracing\\DefaultAnyHit", ERTShaderType::AnyHit);

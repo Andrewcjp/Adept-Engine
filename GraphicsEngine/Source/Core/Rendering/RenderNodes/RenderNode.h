@@ -40,7 +40,7 @@ struct ResourceTransition
 	void Execute(RHICommandList* list, RenderNode* eye);
 
 	//queue wait
-	DeviceContextQueue::Type SignalingQueue = DeviceContextQueue::LIMIT;
+	EDeviceContextQueue::Type SignalingQueue = EDeviceContextQueue::LIMIT;
 	int SignalingDevice = -1;
 };
 struct ENodeWorkFocus
@@ -81,7 +81,7 @@ public:
 	//For VR Only
 	EViewMode::Type GetViewMode() const;
 	ECommandListType::Type GetNodeQueueType() const;
-	DeviceContextQueue::Type GetNodeQueue()const;
+	EDeviceContextQueue::Type GetNodeQueue()const;
 	RenderNode* GetNextNode()const;
 	bool IsComputeNode()const;
 	virtual std::string GetName()const;
@@ -146,7 +146,7 @@ protected:
 	virtual void OnSetupNode() {};
 	virtual void OnValidateNode(RenderGraph::ValidateArgs& args);
 
-
+public:
 	NodeLink* AddInput(EStorageType::Type TargetType, const std::string& format, const std::string& InputName = std::string());
 	StorageNode* RequestBuffer(const RHIBufferDesc& desc, std::string Name = "", FrameBufferStorageNode* LinkedNode = nullptr);
 	StorageNode* RequestFrameBuffer(const RHIFrameBufferDesc& desc, std::string Name = "");
@@ -154,6 +154,7 @@ protected:
 
 	NodeLink* AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName = std::string(), BufferStorageNode::BufferResizeFunc Func = nullptr);
 	NodeLink* AddBufferResource(EResourceState::Type State, const RHIBufferDesc& desc, const std::string& InputName = std::string(), FrameBufferStorageNode* LinkedBuffer = nullptr);
+protected:
 	RHICommandList* GetList();
 	RHICommandList* GetListAndReset();
 	void ExecuteList(bool Flush = false);
@@ -161,7 +162,7 @@ protected:
 	RenderNode* Next = nullptr;
 	RenderNode* LastNode = nullptr;
 	ECommandListType::Type NodeEngineType = ECommandListType::Graphics;
-	DeviceContextQueue::Type NodeQueueType = DeviceContextQueue::Graphics;
+	EDeviceContextQueue::Type NodeQueueType = EDeviceContextQueue::Graphics;
 	EViewMode::Type ViewMode = EViewMode::DontCare;
 	bool AllowAsyncCompute = false;
 	std::vector<NodeLink*> Inputs;

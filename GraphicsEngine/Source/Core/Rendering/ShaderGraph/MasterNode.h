@@ -10,7 +10,7 @@ public:
 	PropertyLink * NormalDir = nullptr;
 	std::string Complie(ShaderGraph* g);
 	std::string ComplieDefaultProps(ShaderGraph* g);
-	virtual	std::string GetTemplateName(MaterialShaderComplieData& data);
+	virtual	std::string GetTemplateName(MaterialShaderCompileData& data);
 	PropertyLink* GetProp(std::string name);
 protected:
 	std::vector<PropertyLink*> InputProps;

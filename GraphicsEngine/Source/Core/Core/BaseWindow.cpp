@@ -26,7 +26,7 @@
 #include "Rendering/Core/Screen.h"
 #include "Platform/Windows/WindowsWindow.h"
 #include "CSharpInterOp/CSharpContainer.h"
-#include "Assets/ShaderComplier.h"
+#include "Assets/ShaderCompiler.h"
 #include "Assets/Scene.h"
 #include "Utils/FileUtils.h"
 #include "Input/InputManager.h"
@@ -73,11 +73,6 @@ void BaseWindow::InitilseWindow()
 	Log::LogMessage("Scene initialized");
 	LineDrawer = new DebugLineDrawer();
 	Saver = new SceneSeraliser();
-	std::vector<std::string> PreLoadTextures = Engine::GetGame()->GetPreLoadAssets();
-	for (int i = 0; i < PreLoadTextures.size(); i++)
-	{
-		AssetManager::DirectLoadTextureAsset(PreLoadTextures[i]);
-	}
 	GPUPerfGraph = new GPUPerformanceGraph();
 	GPUPerfGraph->TwoDrawer = UI->Graph->LineBatcher;
 
@@ -109,7 +104,7 @@ void BaseWindow::Render()
 	{
 		RHI::GetHMDManager()->Update();
 	}
-	ShaderComplier::Get()->TickMaterialComplie();
+	ShaderCompiler::Get()->TickMaterialCompile();
 	PreRender();
 	if (PerfManager::Instance != nullptr)
 	{

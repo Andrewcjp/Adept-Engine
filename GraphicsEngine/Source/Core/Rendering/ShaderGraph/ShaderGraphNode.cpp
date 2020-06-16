@@ -9,20 +9,28 @@ std::string SGN_Texture::GetComplieCode(ShaderGraph* context)
 	Stream << TargetProp->GetNameCode(context) << " = ";
 	if (texType == TextureType::Colour)
 	{
-		Stream << Texname << ".Sample(defaultSampler, input.uv).rgb; \n";
+		if (UseSFSFeedBack)
+		{
+			Stream << Texname << ".Sample(defaultSampler, input.uv, uint2(0,0),MipClamp.Sample(defaultSampler,input.uv)).rgb; \n";
+		}
+		else
+		{
+			Stream << Texname << ".Sample(defaultSampler, input.uv).rgb; \n";
+		}
 	}
 	else if (texType == TextureType::Normal)
 	{
-		Stream << "(" << Texname << ".Sample(defaultSampler, input.uv).xyz)*2.0 - 1.0;\n Normal = normalize(mul(Normal, input.TBN)); ";
+		Stream << "(" << Texname << ".Sample(defaultSampler, input.uv).xyz)*2.0 - 1.0;\n Normal = normalize(mul(Normal, input.TBN));\n";
+	}
+	if (UseSFSFeedBack)
+	{
+		Stream << "FEEDBACK_WRITE(g_feedback, " << Texname << ", defaultSampler, input.uv);\n";
 	}
 	return Stream.str();
 }
 
 std::string SGN_CodeSnippet::GetComplieCode(ShaderGraph* context)
 {
-	//Root->AddTexDecleration("Texture2D testexture ", Texname);
-	//std::stringstream Stream;
-	//Stream << TargetProp->GetNameCode() << " = " << "testexture.Sample(g_sampler, input.uv).rgb; \n";
 	return CodeSnip + "\n";
 }
 

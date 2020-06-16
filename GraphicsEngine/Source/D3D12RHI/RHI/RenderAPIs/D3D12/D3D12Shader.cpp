@@ -19,7 +19,7 @@
 #include <fileapi.h>
 #include <atlbase.h>
 #endif
-#include "RHI/ShaderComplierModule.h"
+#include "RHI/ShaderCompilerModule.h"
 #include "Rendering/Core/ShaderCache.h"
 
 
@@ -107,7 +107,7 @@ EShaderError::Type D3D12Shader::AttachAndCompileShaderFromFile(const char * shad
 #if !BUILD_SHIPPING
 	stats.TotalShaderCount++;
 #endif
-	ShaderComplieItem*  item = new ShaderComplieItem();
+	ShaderCompileItem*  item = new ShaderCompileItem();
 	item->ShaderName = shadername;
 	item->Defines = Defines;
 	item->Data = AssetManager::Get()->LoadFileWithInclude(item->ShaderName + ".hlsl");

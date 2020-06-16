@@ -1,6 +1,6 @@
 
 #include "ParticleSystemManager.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleCompute.h"
 #include "Rendering/Shaders/Particle/Shader_ParticleDraw.h"
 #include "RHI/DeviceContext.h"
@@ -69,10 +69,10 @@ void ParticleSystemManager::InitCommon()
 	RHIPipeLineStateDesc pdesc;
 	pdesc.Cull = false;
 	pdesc.RenderTargetDesc = RHIPipeRenderTargetDesc();
-	pdesc.RenderTargetDesc.RTVFormats[0] = eTEXTURE_FORMAT::FORMAT_R32G32B32A32_FLOAT;
+	pdesc.RenderTargetDesc.RTVFormats[0] = ETextureFormat::R32G32B32A32_FLOAT;
 	pdesc.RenderTargetDesc.NumRenderTargets = 1;
 	pdesc.RenderTargetDesc.DSVFormat = FORMAT_D32_FLOAT;
-	pdesc.ShaderInUse = ShaderComplier::GetShader<Shader_ParticleDraw>();
+	pdesc.ShaderInUse = ShaderCompiler::GetShader<Shader_ParticleDraw>();
 	RenderList->SetPipelineStateDesc(pdesc);
 
 #if USE_INDIRECTRENDER
@@ -157,7 +157,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	}
 	SCOPE_CYCLE_COUNTER_GROUP("SimulateSystem", "Particle");
 	System->DispatchCommandBuffer->SetBufferState(CmdList, EBufferResourceState::UnorderedAccess);
-	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_StartSimulation>()));
+	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_StartSimulation>()));
 	CmdList->SetUAV(System->CounterBuffer, 0);
 	CmdList->SetUAV(System->DispatchCommandBuffer, 1);
 	CmdList->SetRootConstant(2, 1, &System->RealEmissionCount, 0);
@@ -182,7 +182,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 	CmdList->SetRootConstant(System->SimulateShader->GetSlotForName("emitData"), 1, &DT, 0);
 	CmdList->SetUAV(System->GPU_ParticleData, "newPosVelo");
 	CmdList->SetUAV(System->CounterBuffer, "CounterBuffer");
-	System->GetPreSimList()->BindBufferReadOnly(CmdList, System->SimulateShader->GetSlotForName("AliveIndexs"));
+	CmdList->SetBuffer(System->GetPreSimList(), "AliveIndexs");
 	CmdList->SetUAV(System->DeadParticleIndexs, "DeadIndexs");
 	CmdList->SetUAV(System->GetPostSimList(), "PostSim_AliveIndex");
 #if USE_INDIRECTCOMPUTE
@@ -192,7 +192,7 @@ void ParticleSystemManager::SimulateSystem(ParticleSystem * System)
 #endif
 	Sync(System);
 	//return;
-	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_EndSimulation>()));
+	CmdList->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_EndSimulation>()));
 	CmdList->SetBuffer(System->GetPostSimList(),0);
 	CmdList->SetUAV(System->RenderCommandBuffer, 1);
 	//CmdList->SetUAV(System->CounterBuffer, "Counter");
@@ -226,7 +226,7 @@ void ParticleSystemManager::SubmitCompute()
 {
 
 	CmdList->Execute();
-	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	CmdList->GetDevice()->InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::Compute);
 }
 
 void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
@@ -235,7 +235,7 @@ void ParticleSystemManager::SubmitRender(FrameBuffer* buffer)
 	//buffer->MakeReadyForComputeUse(RenderList);
 	buffer->MakeReadyForPixel(RenderList);
 	RenderList->Execute();
-	CmdList->GetDevice()->InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+	CmdList->GetDevice()->InsertGPUWait(EDeviceContextQueue::Compute, EDeviceContextQueue::Graphics);
 }
 
 void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * BufferTarget, EEye::Type Eye /*= Eeye::Left*/)
@@ -265,7 +265,7 @@ void ParticleSystemManager::RenderSystem(ParticleSystem* system, FrameBuffer * B
 	RenderList->SetVertexBuffer(VertexBuffer);
 	RenderList->SetConstantBufferView(ParticleRenderConstants, Eye, "ParticleData");
 	system->GPU_ParticleData->SetBufferState(RenderList, EBufferResourceState::Read);
-	system->GPU_ParticleData->BindBufferReadOnly(RenderList, system->RenderShader->GetSlotForName("newPosVelo"));
+	RenderList->SetBuffer(system->GPU_ParticleData, "newPosVelo");
 	system->RenderCommandBuffer->SetBufferState(RenderList, EBufferResourceState::IndirectArgs);
 	RenderList->SetTexture(system->ParticleTexture.Get(), Shader_ParticleDraw::Texture);
 #if USE_INDIRECTRENDER

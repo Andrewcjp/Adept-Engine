@@ -12,8 +12,8 @@ public:
 	MaterialShader(Asset_Shader* Shader);
 	~MaterialShader();
 
-	Shader_NodeGraph* GetOrComplie(MaterialShaderComplieData& data);
-	void SetShader(MaterialShaderComplieData & data);
+	Shader_NodeGraph* GetOrComplie(MaterialShaderCompileData& data);
+	void SetShader(MaterialShaderCompileData & data);
 	Shader_NodeGraph * GetShader(EMaterialPassType::Type type);
 	//
 
@@ -21,7 +21,7 @@ public:
 	int GetParamterSize();
 	
 private:
-	MaterialShaderComplieData CurrentData;
+	MaterialShaderCompileData CurrentData;
 	Shader_NodeGraph* CurrentShader = nullptr;
 	//holds all shaders created for this material with different option e.g. decal on, forward or deferred etc.
 #if USEHASH

@@ -24,8 +24,8 @@ void SSAONode::OnExecute()
 	FLAT_COMPUTE_START(RHI::GetDeviceContext(0));
 	list->ResetList();
 	{		
-		Shader_SSAO* SSaoshader = ShaderComplier::GetShader<Shader_SSAO>();
-		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SSAO>());
+		Shader_SSAO* SSaoshader = ShaderCompiler::GetShader<Shader_SSAO>();
+		RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_SSAO>());
 		list->SetPipelineStateDesc(desc);
 
 
@@ -38,7 +38,7 @@ void SSAONode::OnExecute()
 		list->UAVBarrier(TempSSAOData);
 
 
-		desc.ShaderInUse = ShaderComplier::GetShader<Shader_SSAO_Merge>();
+		desc.ShaderInUse = ShaderCompiler::GetShader<Shader_SSAO_Merge>();
 		list->SetPipelineStateDesc(desc);
 		list->SetUAV(TargetBuffer, 1);
 		TempSSAOData->SetResourceState(list, EResourceState::Non_PixelShader);

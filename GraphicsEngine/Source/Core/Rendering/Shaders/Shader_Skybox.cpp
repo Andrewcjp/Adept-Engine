@@ -137,7 +137,7 @@ void Shader_Skybox::Render(class SceneRenderer * SceneRender, RHICommandList* li
 std::vector<VertexElementDESC> Shader_Skybox::GetVertexFormat()
 {
 	std::vector<VertexElementDESC> out;
-	out.push_back(VertexElementDESC{ "POSITION", 0, FORMAT_R32G32B32_FLOAT, 0, 0, INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+	out.push_back(VertexElementDESC{ "POSITION", 0, R32G32B32_FLOAT, 0, 0, EInputClassification::PER_VERTEX, 0 });
 	out[0].Stride = sizeof(OGLVertex);
 	return out;
 }

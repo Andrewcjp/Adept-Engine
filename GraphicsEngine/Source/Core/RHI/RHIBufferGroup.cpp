@@ -84,9 +84,6 @@ void RHIBufferGroup::UpdateIndexBuffer(void * data, size_t length)
 	}
 }
 
-void RHIBufferGroup::BindBufferReadOnly(RHICommandList * list, int RSSlot)
-{}
-
 void RHIBufferGroup::SetBufferState(RHICommandList * list, EBufferResourceState::Type State)
 {}
 

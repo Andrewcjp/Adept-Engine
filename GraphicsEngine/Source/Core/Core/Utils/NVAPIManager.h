@@ -1,6 +1,6 @@
 #pragma once
 #ifdef PLATFORM_WINDOWS
-//This might not be supported by every complier version
+//This might not be supported by every Compiler version
 //detect if present as NVAPI is not distributable?
 #if __has_include("nvapi.h")
 #define NVAPI_PRESENT 1

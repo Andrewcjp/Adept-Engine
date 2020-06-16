@@ -1,6 +1,6 @@
 #include "WindowsShaderModule.h"
 #include "Core\Module\ModuleManager.h"
-#include "Source\WindowsShaderComplier.h"
+#include "Source\WindowsShaderCompiler.h"
 
 
 #ifdef WINDOWSSHADERCOMPILER_EXPORT
@@ -13,24 +13,24 @@ WindowsShaderCompilerModule::WindowsShaderCompilerModule()
 WindowsShaderCompilerModule::~WindowsShaderCompilerModule()
 {}
 
-void WindowsShaderCompilerModule::ComplieShader(ShaderComplieItem* shader)
+void WindowsShaderCompilerModule::CompileShader(ShaderCompileItem* shader)
 {
-	Complier->ComplieShader(shader);
+	Compiler->ComplieShader(shader);
 }
 
 bool WindowsShaderCompilerModule::StartupModule()
 {
-	Complier = new WindowsShaderComplier();
-	Complier->Init();
+	Compiler = new WindowsShaderCompiler();
+	Compiler->Init();
 	return true;
 }
 
 void WindowsShaderCompilerModule::ShutdownModule()
 {
-	SafeDelete(Complier);
+	SafeDelete(Compiler);
 }
 
-bool WindowsShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item)
+bool WindowsShaderCompilerModule::SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderCompileItem* item)
 {
 	if (SM == EShaderSupportModel::SM5)
 	{

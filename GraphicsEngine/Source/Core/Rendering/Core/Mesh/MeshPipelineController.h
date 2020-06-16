@@ -60,6 +60,7 @@ public:
 	Scene* TargetScene = nullptr;
 private:
 	std::vector<MeshBatch*> Batches;
+	std::vector<MeshBatch*> DeadBatches;
 	MeshBatchProcessor* Processors[ERenderPass::Limit];
 };
 

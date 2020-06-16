@@ -15,10 +15,10 @@ public:
 	void NotifyWorkForCopyEngine() override;
 	void UpdateCopyEngine() override;
 	void ResetCopyEngine() override;
-	void GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
+	void GPUWaitForOtherGPU(DeviceContext* OtherGPU, EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue) override;
 	void CPUWaitForAll() override;
-	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) override;
-	void InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue) override;
+	void InsertGPUWait(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue) override;
+	void InsertCrossGPUWait(EDeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, EDeviceContextQueue::Type SignalQueue) override;
 	class RHITimeManager* GetTimeManager() override;
 	bool IsUMA() const override;
 };

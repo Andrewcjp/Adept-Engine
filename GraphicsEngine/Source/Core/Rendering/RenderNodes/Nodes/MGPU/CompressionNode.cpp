@@ -33,7 +33,7 @@ void CompressionNode::OnExecute()
 	}
 	
 
-	eTEXTURE_FORMAT TargetFormat = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? eTEXTURE_FORMAT::R8_UINT : eTEXTURE_FORMAT::FORMAT_R16_UINT;
+	ETextureFormat TargetFormat = RHI::GetRenderSettings()->GetCurrnetSFRSettings().Use8BitCompression ? ETextureFormat::R8_UINT : ETextureFormat::R16_UINT;
 	if (Compress)
 	{
 		DECALRE_SCOPEDGPUCOUNTER(List, "Compress");

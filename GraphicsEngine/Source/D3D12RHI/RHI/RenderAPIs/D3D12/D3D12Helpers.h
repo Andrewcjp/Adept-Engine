@@ -33,7 +33,7 @@ public:
 	static void NameRHIObject(ID3D12Object* Object, IRHIResourse* resource, std::string OtherData = std::string());
 	static std::string StringFromFeatureLevel(D3D_FEATURE_LEVEL FeatureLevel);
 	static std::string DXErrorCodeToString(HRESULT result);
-	static DXGI_FORMAT ConvertFormat(eTEXTURE_FORMAT format);
+	static DXGI_FORMAT ConvertFormat(ETextureFormat format);
 	static D3D12_SRV_DIMENSION ConvertDimension(eTextureDimension Dim);
 	static D3D12_UAV_DIMENSION ConvertDimensionUAV(eTextureDimension Dim);
 	static D3D12_DSV_DIMENSION ConvertDimensionDSV(eTextureDimension Dim);

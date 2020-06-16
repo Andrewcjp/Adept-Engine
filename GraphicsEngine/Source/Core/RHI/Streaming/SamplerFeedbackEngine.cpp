@@ -14,17 +14,18 @@ SamplerFeedbackEngine* SamplerFeedbackEngine::Instance = nullptr;
 
 void SamplerFeedbackEngine::SetupPairedTexture(RHITexture * Target, RHIBuffer* ReadbackResouce)
 {
+
 	Target->PairedTexture = RHI::GetRHIClass()->CreateTexture2();
 	RHITextureDesc2 desc = Target->GetDescription();
 	desc.AllowUnorderedAccess = true;
 	const int TileSize = RHI::GetRenderSettings()->GetSFSSettings().TileSize;
 	desc.Width = desc.Width / TileSize;
 	desc.Height = desc.Height / TileSize;
-	desc.Format = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+	desc.Format = ETextureFormat::R32_FLOAT;
 	desc.AllowCrossGPU = false;
 	desc.MipCount = 1;
-	Target->PairedTexture->Create(desc);
-	Instance->GetMipChainTexture(Target->GetDescription().Width, Target->GetDescription().MipCount);
+	desc.Name = "Feedback for: " + Target->GetDescription().Name;
+	Target->PairedTexture->Create(desc);	
 	if (ReadbackResouce != nullptr)
 	{
 		desc.CPUVisible = true;
@@ -59,12 +60,10 @@ void SamplerFeedbackEngine::RenderTest(RHICommandList* list, FrameBuffer* Target
 	list->SetUAV(BaseTex->PairedTexture, "g_feedback");
 	BaseTex->PairedTexture->SetState(list, EResourceState::UAV);
 	list->ClearUAVFloat(BaseTex->PairedTexture, glm::vec4(20));
-	RHITexture* MiPChain = GetMipChainTexture(BaseTex->GetDescription().Width, BaseTex->GetDescription().MipCount);
-	list->SetTexture2(MiPChain, "SFS_MipTexture");
-	MiPChain->SetState(list, EResourceState::PixelShader);
+
 	SceneRenderer::Get()->BindMvBuffer(list);
 	RHIRenderPassDesc info(Target, ERenderPassLoadOp::Load);
-	//info.DepthSourceBuffer = DepthSource;
+
 	list->BeginRenderPass(info);
 	RenderQuad(list);
 	list->EndRenderPass();
@@ -134,7 +133,7 @@ void SamplerFeedbackEngine::CreateMipCheckingTexture(RHITexture* Texture, int Si
 	Desc.Width = Size;
 	Desc.Height = Size;
 	Desc.MipLevels = Mipcount;
-	Desc.Format = eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+	Desc.Format = ETextureFormat::R32_FLOAT;
 	Desc.Faces = 1;
 	Desc.BitDepth = sizeof(float);
 	int PixelCount = 0;

@@ -13,7 +13,7 @@ MaterialShader::MaterialShader(Asset_Shader* Shader)
 MaterialShader::~MaterialShader()
 {}
 
-Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderComplieData&  data)
+Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderCompileData&  data)
 {
 #if USEHASH
 	auto itro = ShaderPermutations.find(data.ToHash());
@@ -28,7 +28,7 @@ Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderComplieData&  data)
 		return itro->second;
 	}
 #endif
-	Shader_NodeGraph* s = ShaderComplier::Get()->GetMaterialShader(data);
+	Shader_NodeGraph* s = ShaderCompiler::Get()->GetMaterialShader(data);
 	ensure(s);
 #if USEHASH
 	ShaderPermutations.emplace(data.ToHash(), s);
@@ -38,7 +38,7 @@ Shader_NodeGraph* MaterialShader::GetOrComplie(MaterialShaderComplieData&  data)
 	return s;
 }
 
-void MaterialShader::SetShader(MaterialShaderComplieData& data)
+void MaterialShader::SetShader(MaterialShaderCompileData& data)
 {
 	CurrentData = data;
 	CurrentShader = GetOrComplie(data);
@@ -61,18 +61,18 @@ int MaterialShader::GetParamterSize()
 	return GetParamBinds().GetSize();
 }
 
-bool MaterialShaderComplieData::operator==(const MaterialShaderComplieData other) const
+bool MaterialShaderCompileData::operator==(const MaterialShaderCompileData other) const
 {
 	//#Materals shader keyword
 	return RenderPassUsage == other.RenderPassUsage && MaterialRenderType == other.MaterialRenderType;
 }
 
-bool MaterialShaderComplieData::operator<(const MaterialShaderComplieData & o) const
+bool MaterialShaderCompileData::operator<(const MaterialShaderCompileData & o) const
 {
 	return false;
 }
 
-std::string MaterialShaderComplieData::ToString()
+std::string MaterialShaderCompileData::ToString()
 {
 	std::string KeyWords = "";
 	for (int i = 0; i < ShaderKeyWords.size(); i++)
@@ -82,7 +82,7 @@ std::string MaterialShaderComplieData::ToString()
 	return Shader->GetName() + std::to_string(RenderPassUsage) + std::to_string(MaterialRenderType) + KeyWords;
 }
 
-int MaterialShaderComplieData::ToHash()
+int MaterialShaderCompileData::ToHash()
 {
 	return std::hash<std::string>{} (ToString());
 }

@@ -39,13 +39,13 @@ EAllocateResult::Type GPUMemoryPage::Allocate(AllocDesc& desc, GPUResource** Res
 	{
 		CreateResource(UsedChunk, desc, &DxResource);
 	}
+	*Resource = new GPUResource(DxResource, desc.InitalState, Device);
+	(*Resource)->SetDebugName(desc.Name);
 	if (desc.Name.length() > 0)
 	{
 		std::wstring Conv = StringUtils::ConvertStringToWide(desc.Name);
 		DxResource->SetName(Conv.c_str());
 	}
-	*Resource = new GPUResource(DxResource, desc.InitalState, Device);
-	(*Resource)->SetDebugName(desc.Name);
 	ContainedResources.push_back(*Resource);
 	(*Resource)->SetGPUPage(this);
 	(*Resource)->Chunk = UsedChunk;

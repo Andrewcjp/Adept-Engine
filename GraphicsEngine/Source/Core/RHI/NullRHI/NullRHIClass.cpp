@@ -100,7 +100,7 @@ RHIPipeLineStateObject* NullRHIClass::CreatePSO(const RHIPipeLineStateDesc& Desc
 	return nullptr;
 }
 
-RHIGPUSyncEvent* NullRHIClass::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
+RHIGPUSyncEvent* NullRHIClass::CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	return nullptr;
 }

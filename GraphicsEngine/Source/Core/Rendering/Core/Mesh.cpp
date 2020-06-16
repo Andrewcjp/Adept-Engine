@@ -93,9 +93,9 @@ void Mesh::Render(RHICommandList * list, bool SetMaterial)
 		//if (pSkeletalEntity != nullptr && SetMaterial)
 		//{
 		//	//todo: integrate into material system
-		//	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SkeletalMesh>()));
+		//	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_SkeletalMesh>()));
 		//	list->SetTexture(Materials[0]->GetTexturebind(Material::DefuseBindName), 9);
-		//	ShaderComplier::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
+		//	ShaderCompiler::GetShader<Shader_SkeletalMesh>()->PushBones(pSkeletalEntity->FinalBoneTransforms, list);
 		//	for (int i = 0; i < pSkeletalEntity->MeshEntities.size(); i++)
 		//	{
 		//		list->SetVertexBuffer(pSkeletalEntity->MeshEntities[i]->VertexBuffers[list->GetDeviceIndex()].Get());
@@ -216,6 +216,7 @@ glm::vec3 Mesh::GetPosOfBone(std::string Name)
 
 MeshBatch * Mesh::GetMeshBatch()
 {
+	ReCreate = false;
 	//if (RHI::GetFrameCount() <= FrameCreated + 1)
 	//{
 	//	return nullptr;

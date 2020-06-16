@@ -16,13 +16,13 @@ DXFence::DXFence(DeviceContext* con, EFenceFlags::Type flags)
 DXFence::~DXFence()
 {}
 
-void DXFence::Signal(DeviceContextQueue::Type queue, uint64 value)
+void DXFence::Signal(EDeviceContextQueue::Type queue, uint64 value)
 {
 	Context->GetCommandQueueFromEnum(queue)->Signal(m_Fence, value);
 	Value = value;
 }
 
-void DXFence::WaitForValue(DeviceContextQueue::Type queue, uint64 value)
+void DXFence::WaitForValue(EDeviceContextQueue::Type queue, uint64 value)
 {
 	Context->GetCommandQueueFromEnum(queue)->Wait(m_Fence, value);
 }

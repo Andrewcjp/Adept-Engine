@@ -1,7 +1,7 @@
 #include "Asset_Shader.h"
 #include "Rendering/Core/Material.h"
 #include "Rendering/ShaderGraph/ShaderGraph.h"
-#include "../ShaderComplier.h"
+#include "../ShaderCompiler.h"
 #include "Rendering/Core/ShaderAssetInstance.h"
 
 Asset_Shader::Asset_Shader(bool GenDefault)
@@ -17,21 +17,21 @@ void Asset_Shader::CreateGenDefault()
 {
 	Graph = new ShaderGraph("");
 	Graph->CreateDefault();
-	Graph->Complie();
+	Graph->Compile();
 }
 
 void Asset_Shader::SetupSingleColour()
 {
 	Graph = new ShaderGraph("Test2");
 	Graph->SolidColour();
-	Graph->Complie();
+	Graph->Compile();
 }
 
 void Asset_Shader::SetupTestMat()
 {
 	Graph = new ShaderGraph("Colour");
 	Graph->test();
-	Graph->Complie();
+	Graph->Compile();
 }
 
 Asset_Shader::~Asset_Shader()

@@ -1,8 +1,8 @@
 #pragma once
-class IShaderComplier;
+class IShaderCompiler;
 class BasePlatformInterface
 {
 public:
 	static void Init() {};
-	static void RegisterShaderCompliers(std::vector<IShaderComplier*>& Shadercompliers) {};
+	static void RegisterShaderCompilers(std::vector<IShaderCompiler*>& ShaderCompilers) {};
 };

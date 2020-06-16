@@ -156,12 +156,12 @@ public:
 	void ExecuteInterGPUCopyCommandList(ID3D12GraphicsCommandList * list, bool forceblock = false);
 	void ExecuteCommandList(ID3D12GraphicsCommandList* list);
 	class RHITimeManager* GetTimeManager()override;
-	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
-	void InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue);
+	void GPUWaitForOtherGPU(DeviceContext * OtherGPU, EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue);
+	void InsertCrossGPUWait(EDeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, EDeviceContextQueue::Type SignalQueue);
 	bool SupportsCommandList4();
 	void CPUWaitForAll();
-	ID3D12CommandQueue * GetCommandQueueFromEnum(DeviceContextQueue::Type value);
-	void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue);
+	ID3D12CommandQueue * GetCommandQueueFromEnum(EDeviceContextQueue::Type value);
+	void InsertGPUWait(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue);
 	RHICommandList* GetInterGPUCopyList();
 	DescriptorHeapManager* GetHeapManager();
 	DescriptorCache * GetDescriptorCache();
@@ -242,7 +242,7 @@ private:
 	GPUSyncPoint CrossAdaptorSync[RHI::CPUFrameCount];
 	D3D12TimeManager* TimeManager = nullptr;
 	bool SupportsCmdsList4 = false;
-	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][DeviceContextQueue::LIMIT];
+	GPUSyncPoint GPUWaitPoints[RHI::CPUFrameCount][EDeviceContextQueue::LIMIT];
 	DescriptorHeapManager* HeapManager = nullptr;
 	DescriptorCache* DescriptorCacheManager = nullptr;
 	std::vector<GPUUploadRequest> Requests;
@@ -252,7 +252,7 @@ private:
 class D3D12GPUSyncEvent : public RHIGPUSyncEvent
 {
 public:
-	D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * device, DeviceContext* OtherDevice);
+	D3D12GPUSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * device, DeviceContext* OtherDevice);
 	~D3D12GPUSyncEvent();
 	void SignalWait();
 	virtual void Signal() override;

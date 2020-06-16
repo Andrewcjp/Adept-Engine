@@ -1,3 +1,4 @@
+
 #include "MeshRendererComponent.h"
 
 #include "Core/Assets/Archive.h"
@@ -57,6 +58,7 @@ void MeshRendererComponent::SetMaterial(Material * mat, int index)
 	if (m_mesh != nullptr)
 	{
 		m_mesh->SetMaterial(mat, index);
+		m_mesh->InvalidateBatch();
 	}
 }
 
@@ -165,7 +167,13 @@ void MeshRendererComponent::Serialize(BinaryArchive* Achive)
 
 void MeshRendererComponent::OnPropertyUpdate(ClassReflectionNode* Node)
 {
-
+	if (Node->m_MemberName == "m_pMaterialAsset")
+	{
+		if (m_pMaterialAsset.IsValid())
+		{
+			SetMaterial(m_pMaterialAsset.GetAsset()->CreateMaterial(), 0);
+		}
+	}
 }
 
 void MeshRendererComponent::BeginPlay()

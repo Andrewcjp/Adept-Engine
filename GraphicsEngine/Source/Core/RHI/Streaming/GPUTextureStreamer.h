@@ -14,6 +14,7 @@ public:
 	void RealiseHandle(TextureHandle* handle);
 	void SetTargetSize(uint64 size);
 	virtual void SetStreamingMode(EGPUSteamMode::Type mode);
+	virtual void UpdateMappingsFromFeedback(RHICommandList* list, TextureHandle* handle);
 protected:
 	EGPUSteamMode::Type m_StreamingMode = EGPUSteamMode::TiledTexture;
 	uint64 TargetPoolSize = 0;
@@ -22,5 +23,6 @@ protected:
 	RHI_API virtual void OnInit(DeviceContext* con);
 	std::vector<TextureHandle*> Handles;
 	RHICommandList* CmdList = nullptr;
+	DeviceContext* Context = nullptr;
 };
 

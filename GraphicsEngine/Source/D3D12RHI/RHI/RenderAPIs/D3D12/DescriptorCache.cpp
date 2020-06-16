@@ -18,7 +18,7 @@
 DescriptorCache::DescriptorCache(D3D12DeviceContext* con)
 {
 	Device = con;
-	CacheHeap = new DescriptorHeap(con, 2048, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+	CacheHeap = new DescriptorHeap(con, 512, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 	PerfManager::Get()->AddTimer(TimerName, "RHI");
 	PerfManager::Get()->AddTimer(ReuseTimer, "RHI");
 	PerfManager::Get()->AddTimer(MissTimer, "RHI");
@@ -85,6 +85,13 @@ uint64 DescriptorCache::GetHash(const RSBind* bind)
 	{
 		HashUtils::hash_combine(hash, D3D12RHI::DXConv(bind->TextureArray)->GetHash());
 	}
+	else if (bind->BindType == ERSBindType::UAV)
+	{
+		if (bind->Texture2)
+		{
+			HashUtils::hash_combine(hash, DXDescriptor::GetItemDescHash(D3D12RHI::DXConv(bind->Texture2)->GetItemDesc(bind->View)));
+		}
+	}
 	return hash;
 }
 
@@ -143,7 +150,7 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 		{
 			return D3D12RHI::DXConv(bind->Framebuffer)->GetDescriptor(bind->View, heap);
 		}
-		else if(bind->BufferTarget != nullptr)
+		else if (bind->BufferTarget != nullptr)
 		{
 			return D3D12RHI::DXConv(bind->BufferTarget)->GetDescriptor(bind->View, heap);
 		}
@@ -166,10 +173,10 @@ DXDescriptor* DescriptorCache::Create(const RSBind* bind, DescriptorHeap* heap)
 	}
 	return nullptr;
 }
-DXDescriptor* DescriptorCache::FindInCacheHeap(const RSBind* bind)
+DXDescriptor* DescriptorCache::FindInCacheHeap(const RSBind* bind, bool ForceCache)
 {
 	DXDescriptor* Desc = nullptr;
-	if (!ShouldCache(bind))
+	if (!ShouldCache(bind) && !ForceCache)
 	{
 		return Create(bind, CacheHeap);
 	}
@@ -185,6 +192,30 @@ DXDescriptor* DescriptorCache::FindInCacheHeap(const RSBind* bind)
 	DescriptorMap[bind->BindType].emplace(hash, ref);
 	ensure(Desc->IsValid());
 	return Desc;
+}
+
+DXDescriptor* DescriptorCache::GetOrCreateNull(const RSBind* bind)
+{
+	DescriptorItemDesc Desc;
+	D3D12_UNORDERED_ACCESS_VIEW_DESC destTextureUAVDesc = {};
+	destTextureUAVDesc.ViewDimension = D3D12Helpers::ConvertDimensionUAV(bind->View.Dimension);
+	
+	destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(bind->View.Format);
+	if (destTextureUAVDesc.ViewDimension == D3D12_UAV_DIMENSION_UNKNOWN)
+	{
+		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	}
+	destTextureUAVDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+	if (!bind->View.UseResourceFormat)
+	{
+		destTextureUAVDesc.Format = D3D12Helpers::ConvertFormat(bind->View.Format);
+	}
+	destTextureUAVDesc.Texture2D.MipSlice = bind->View.Mip;
+	Desc.CreateUnorderedAccessView(nullptr, nullptr, &destTextureUAVDesc);
+	DXDescriptor* Descriptor = Device->GetHeapManager()->GetMainHeap()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+	Descriptor->SetItemDesc(Desc);
+	Descriptor->Recreate();
+	return Descriptor;
 }
 
 DXDescriptor* DescriptorCache::GetOrCreate(const RSBind* bind)

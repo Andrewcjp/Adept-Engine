@@ -11,6 +11,9 @@ public:
 
 	void SetStreamingMode(EGPUSteamMode::Type mode) override;
 
+
+	void UpdateMappingsFromFeedback(RHICommandList* list, TextureHandle* handle) override;
+
 protected:
 	virtual void Tick(RHICommandList* list) override;
 	virtual void OnInit(DeviceContext* con) override;

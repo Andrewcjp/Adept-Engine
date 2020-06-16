@@ -12,7 +12,7 @@ RayTracingCommandList::RayTracingCommandList(DeviceContext * device, ERayTracing
 	CurrentMode = Mode;
 	if (UseAPI())
 	{
-		List = RHI::CreateCommandList(ECommandListType::RayTracing, Device);
+		List = RHI::CreateCommandList(ECommandListType::Graphics, Device);
 	}
 	else
 	{

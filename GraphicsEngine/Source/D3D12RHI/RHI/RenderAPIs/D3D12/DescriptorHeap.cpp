@@ -141,10 +141,7 @@ DXDescriptor* DescriptorHeap::CopyToHeap(DXDescriptor * desc)
 
 DXDescriptor* DescriptorHeap::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type, int size)
 {
-	if (GetNextFreeIndex() + size >= GetMaxSize())
-	{
-		ensure(false);
-	}
+	ensure(GetNextFreeIndex() + size < GetMaxSize());	
 	DXDescriptor* D = new DXDescriptor();
 	D->Init(type, this, size);
 	AddDescriptor(D, false);

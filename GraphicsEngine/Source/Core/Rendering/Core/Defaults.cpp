@@ -3,7 +3,7 @@
 #include "Core\Platform\PlatformCore.h"
 #include "Core\IRefCount.h"
 #include "Core\Assets\Asset types/Asset_Shader.h"
-#include "Core\Assets\ShaderComplier.h"
+#include "Core\Assets\ShaderCompiler.h"
 #include "RHI\RHICommandList.h"
 
 Defaults* Defaults::Instance = nullptr;
@@ -31,7 +31,7 @@ Defaults::Defaults()
 	VertexBuffer = RHI::CreateRHIBuffer(ERHIBufferType::Vertex);
 	VertexBuffer->CreateVertexBuffer(sizeof(float) * 4, sizeof(float) * 6 * 4, EBufferAccessType::Dynamic);
 	VertexBuffer->UpdateVertexBuffer(&g_quad_vertex_buffer_data, sizeof(float) * 6 * 4);
-	ShaderComplier::Get()->TickMaterialComplie();
+	ShaderCompiler::Get()->TickMaterialCompile();
 }
 
 Defaults::~Defaults()

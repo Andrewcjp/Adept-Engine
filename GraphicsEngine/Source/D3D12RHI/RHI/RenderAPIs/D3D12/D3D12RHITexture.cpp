@@ -81,7 +81,7 @@ void D3D12RHITexture::Create(const RHITextureDesc2& inputDesc, DeviceContext* in
 	ClearValue.Format = D3D12Helpers::ConvertFormat(Desc.GetRenderformat());
 	if (Desc.IsDepthStencil)
 	{
-		if (Desc.DepthRenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		if (Desc.DepthRenderFormat != ETextureFormat::FORMAT_UNKNOWN)
 		{
 			ClearValue.Format = D3D12Helpers::ConvertFormat(Desc.DepthRenderFormat);
 		}
@@ -216,6 +216,7 @@ void D3D12RHITexture::CreateWithUpload(const TextureDescription & idesc, DeviceC
 	ImageDesc.InitalState = EResourceState::CopyDst;
 	ImageDesc.Depth = idesc.Faces;
 	ImageDesc.MipCount = idesc.MipLevels;
+	ImageDesc.Name = idesc.Name;
 	//ImageDesc.AllowUnorderedAccess = true;
 	Create(ImageDesc, iContext);
 

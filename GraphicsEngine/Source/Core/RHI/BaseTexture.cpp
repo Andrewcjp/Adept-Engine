@@ -105,7 +105,7 @@ TextureDescription TextureDescription::DefaultTextTexture(int width, int height)
 	TextureDescription Tex = DefaultTexture(width, height);
 	Tex.MipLevels = 1;
 	Tex.BitDepth = 1;
-	Tex.Format = eTEXTURE_FORMAT::FORMAT_R8_UNORM;
+	Tex.Format = ETextureFormat::FORMAT_R8_UNORM;
 	return Tex;
 }
 

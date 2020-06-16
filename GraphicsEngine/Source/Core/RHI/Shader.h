@@ -4,11 +4,11 @@
 
 #include "Rendering/Core/Light.h"
 #include "ShaderProgramBase.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 //this is a basis for a shader 
 //shaders will derive from this class so that the correct uniforms can be updated
 
-//Static Object adds a Function ptr for the constructor to the shader complier
+//Static Object adds a Function ptr for the constructor to the shader Compiler
 //Declare Permutation 
 #define DECLARE_GLOBAL_SHADER(Type)\
 static Shader* ConstructCompiledInstance_##Type(const ShaderInit & Data)\
@@ -28,9 +28,9 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,nullptr)
 
 #define CreateFunc(Type) Type::ConstructCompiledInstance_##Type
 
-#define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue,ShouldComplieFunc)\
+#define DECLARE_GLOBAL_SHADER_PERMIUTATION(Name,Type,Datatype,DataValue,ShouldCompileFunc)\
 Datatype  _Type_##Name = DataValue; \
-/*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue),&CreateFunc(Type) , ShaderInit(&_Type_##Name, sizeof(Datatype)),ShouldComplieFunc); \
+/*static*/ ShaderType Type_##Name = ShaderType(std::string(#Type) + std::to_string(DataValue),&CreateFunc(Type) , ShaderInit(&_Type_##Name, sizeof(Datatype)),ShouldCompileFunc); \
 
 #define NAME_SHADER(Type) const std::string GetName() override{return #Type;}
 //Helper Defines:
@@ -46,7 +46,7 @@ DECLARE_GLOBAL_SHADER_PERMIUTATION(Type,Type,void*,0,&Shader_RTBase::IsShaderSup
 #define CACHED_SHADER_PARM(var,name)
 
 #define REGISTER_SHADER(name,file,stage) \
-static SingleShaderComplie SHADER_##name = SingleShaderComplie(#name,file,stage);
+static SingleShaderCompile SHADER_##name = SingleShaderCompile(#name,file,stage);
 
 #define REGISTER_SHADER_CS(name,file) REGISTER_SHADER(name,file,EShaderType::SHADER_COMPUTE);
 #define REGISTER_SHADER_PS(name,file) REGISTER_SHADER(name,file,EShaderType::SHADER_FRAGMENT);
@@ -54,7 +54,7 @@ static SingleShaderComplie SHADER_##name = SingleShaderComplie(#name,file,stage)
 
 
 #define REGISTER_SHADER_ONEARG(name,file,define,stage) \
-static SingleShaderComplie SHADER_##name = SingleShaderComplie(#name,file,define,stage);
+static SingleShaderCompile SHADER_##name = SingleShaderCompile(#name,file,define,stage);
 
 #define REGISTER_SHADER_CS_ONEARG(name,file,define) REGISTER_SHADER_ONEARG(name,file,define,EShaderType::SHADER_COMPUTE);
 #define REGISTER_SHADER_PS_ONEARG(name,file,define) REGISTER_SHADER_ONEARG(name,file,define,EShaderType::SHADER_FRAGMENT);
@@ -77,7 +77,7 @@ public:
 	bool ChangeParamType(const std::string & name, ShaderParamType::Type type);
 	RHI_API int GetSlotForName(const std::string & name);
 	uint64 GetNameHash();
-	static bool IsShaderSupported_SM6(const ShaderComplieSettings& args);
+	static bool IsShaderSupported_SM6(const ShaderCompileSettings& args);
 	
 protected:
 	virtual void CacheParms();

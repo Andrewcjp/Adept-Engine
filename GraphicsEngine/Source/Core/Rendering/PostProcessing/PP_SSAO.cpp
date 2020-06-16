@@ -14,8 +14,8 @@ PP_SSAO::~PP_SSAO()
 
 void PP_SSAO::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 {/*
-	Shader_SSAO* s = ShaderComplier::GetShader<Shader_SSAO>();
-	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_SSAO>());
+	Shader_SSAO* s = ShaderCompiler::GetShader<Shader_SSAO>();
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_SSAO>());
 	list->SetPipelineStateDesc(desc);
 
 	FrameBuffer* GBuffer = PostProcessing::Get()->Gbuffer;
@@ -28,7 +28,7 @@ void PP_SSAO::ExecPass(RHICommandList * list, FrameBuffer * InputTexture)
 	list->UAVBarrier(SSAOOutput);
 
 
-	desc.ShaderInUse = ShaderComplier::GetShader<Shader_SSAO_Merge>();
+	desc.ShaderInUse = ShaderCompiler::GetShader<Shader_SSAO_Merge>();
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(InputTexture, 1);
 	list->SetFrameBufferTexture(SSAOOutput, 0);

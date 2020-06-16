@@ -54,7 +54,7 @@ void NullRHIDeviceContext::ResetCopyEngine()
 
 }
 
-void NullRHIDeviceContext::GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void NullRHIDeviceContext::GPUWaitForOtherGPU(DeviceContext* OtherGPU, EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue)
 {
 
 }
@@ -64,12 +64,12 @@ void NullRHIDeviceContext::CPUWaitForAll()
 
 }
 
-void NullRHIDeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void NullRHIDeviceContext::InsertGPUWait(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue)
 {
 
 }
 
-void NullRHIDeviceContext::InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue)
+void NullRHIDeviceContext::InsertCrossGPUWait(EDeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, EDeviceContextQueue::Type SignalQueue)
 {
 
 }

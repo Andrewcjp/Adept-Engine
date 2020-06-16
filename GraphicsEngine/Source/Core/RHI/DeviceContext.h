@@ -112,11 +112,11 @@ public:
 
 	RHI_API int GetDeviceIndex() const;
 	RHI_API int GetCpuFrameIndex() const;
-	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual void GPUWaitForOtherGPU(DeviceContext* OtherGPU, EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue) = 0;
 
 	RHI_API virtual void CPUWaitForAll() = 0;
-	RHI_API virtual void InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue) = 0;
-	RHI_API virtual void InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual void InsertGPUWait(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue) = 0;
+	RHI_API virtual void InsertCrossGPUWait(EDeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, EDeviceContextQueue::Type SignalQueue) = 0;
 	RHI_API const CapabilityData& GetCaps();
 	RHI_API RHICommandList* GetInterGPUCopyList();
 	RHI_API virtual class RHITimeManager* GetTimeManager() = 0;
@@ -154,8 +154,8 @@ public:
 	bool SupportsIndirectExecute()const;
 	CommandListPool* GetListPool() { return &Pool; }
 	RHI_API virtual bool IsUMA()const = 0;
-	RHI_API int SignalCommandQueue(DeviceContextQueue::Type queue, uint64 value = -1);
-	RHI_API int InsertWaitForValue(DeviceContextQueue::Type queue, DeviceContextQueue::Type WaitingQueue, uint64 value = -1);
+	RHI_API int SignalCommandQueue(EDeviceContextQueue::Type queue, uint64 value = -1);
+	RHI_API int InsertWaitForValue(EDeviceContextQueue::Type queue, EDeviceContextQueue::Type WaitingQueue, uint64 value = -1);
 	virtual std::string ReportDeviceData();
 protected:
 	int CurrentFrameIndex = 0;
@@ -187,13 +187,13 @@ protected:
 	int DeviceFrameNumber = 0;
 	std::vector<IRHIResourse*> DeferredDeleteQueue;
 	CommandListPool Pool;
-	RHIFence* QueueFences[DeviceContextQueue::LIMIT] = { nullptr };
+	RHIFence* QueueFences[EDeviceContextQueue::LIMIT] = { nullptr };
 };
 
 class RHIGPUSyncEvent : public IRHIResourse
 {
 public:
-	RHI_API RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext* Device);
+	RHI_API RHIGPUSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext* Device);
 	RHI_API virtual ~RHIGPUSyncEvent();
 	RHI_API virtual void Signal() = 0;
 	RHI_API virtual void Wait() = 0;

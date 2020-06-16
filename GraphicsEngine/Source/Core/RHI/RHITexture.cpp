@@ -43,18 +43,18 @@ void RHITexture::CopyFromStagingResource(RHIInterGPUStagingResource * Res, RHICo
 
 }
 
-eTEXTURE_FORMAT RHITextureDesc2::GetRenderformat() const
+ETextureFormat RHITextureDesc2::GetRenderformat() const
 {
-	if (RenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	if (RenderFormat != ETextureFormat::FORMAT_UNKNOWN)
 	{
 		return RenderFormat;
 	}
 	return Format;
 }
 
-eTEXTURE_FORMAT RHITextureDesc2::GetDepthRenderformat() const
+ETextureFormat RHITextureDesc2::GetDepthRenderformat() const
 {
-	if (DepthRenderFormat != eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+	if (DepthRenderFormat != ETextureFormat::FORMAT_UNKNOWN)
 	{
 		return DepthRenderFormat;
 	}

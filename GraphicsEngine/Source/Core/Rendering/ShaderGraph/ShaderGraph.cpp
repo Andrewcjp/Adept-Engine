@@ -93,7 +93,7 @@ void ShaderGraph::AddDefine(std::string name)
 	DefinedVars.push_back(name);
 }
 
-void ShaderGraph::Complie()
+void ShaderGraph::Compile()
 {
 	BuildConstantBuffer();
 	for (int i = 0; i < Nodes.size(); i++)
@@ -114,7 +114,7 @@ void ShaderGraph::BuildConstantBuffer()
 		data += BufferProps[i]->GetForBuffer() + "\n";
 		DataSize += 4;//todo: other props
 	}
-	//each variable is padded by the hlsl complier to be 16 bytes long
+	//each variable is padded by the hlsl Compiler to be 16 bytes long
 	data += "float Pad[" + std::to_string((TargetSize - DataSize) / (4*4)) + "];\n";
 	data += "};\n";
 

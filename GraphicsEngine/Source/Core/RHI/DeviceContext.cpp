@@ -251,7 +251,7 @@ bool DeviceContext::SupportsIndirectExecute() const
 	return Caps_Data.SupportExecuteIndirect;
 }
 
-int DeviceContext::SignalCommandQueue(DeviceContextQueue::Type queue, uint64 value)
+int DeviceContext::SignalCommandQueue(EDeviceContextQueue::Type queue, uint64 value)
 {
 	if (value == -1)
 	{
@@ -261,7 +261,7 @@ int DeviceContext::SignalCommandQueue(DeviceContextQueue::Type queue, uint64 val
 	return value;
 }
 
-int DeviceContext::InsertWaitForValue(DeviceContextQueue::Type queue, DeviceContextQueue::Type WaitingQueue, uint64 value)
+int DeviceContext::InsertWaitForValue(EDeviceContextQueue::Type queue, EDeviceContextQueue::Type WaitingQueue, uint64 value)
 {
 	if (value == -1)
 	{
@@ -280,9 +280,9 @@ std::string DeviceContext::ReportDeviceData()
 void DeviceContext::PostInit()
 {
 	PerfManager::Get()->AddTimer(("TransferBytes" + std::to_string(GetDeviceIndex())).c_str(), "GPU Data");
-	for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+	for (int i = 0; i < EDeviceContextQueue::LIMIT; i++)
 	{
-		QueueFences[i] = RHI::GetRHIClass()->CreateFence(this, (i == DeviceContextQueue::InterCopy) ? EFenceFlags::CrossAdaptor : EFenceFlags::None);
+		QueueFences[i] = RHI::GetRHIClass()->CreateFence(this, (i == EDeviceContextQueue::InterCopy) ? EFenceFlags::CrossAdaptor : EFenceFlags::None);
 	}
 }
 
@@ -294,7 +294,7 @@ void DeviceContext::InitCopyListPool()
 	}
 }
 
-RHIGPUSyncEvent::RHIGPUSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext* device)
+RHIGPUSyncEvent::RHIGPUSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext* device)
 {
 	Device = device;
 }

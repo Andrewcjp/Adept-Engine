@@ -1,11 +1,11 @@
 using EngineBuildTool;
 
-class StandaloneShaderComplierModule : ModuleDef
+class StandaloneShaderCompilerModule : ModuleDef
 {
-    public StandaloneShaderComplierModule(TargetRules Rules) : base(Rules)
+    public StandaloneShaderCompilerModule(TargetRules Rules) : base(Rules)
     {
-        ModuleName = "StandaloneShaderComplier";
-        SourceFileSearchDir = "StandaloneShaderComplier";
+        ModuleName = "StandaloneShaderCompiler";
+        SourceFileSearchDir = "StandaloneShaderCompiler";
         ModuleOutputType = ModuleDef.ModuleType.EXE;
         SolutionFolderPath = "Tools";
         PCH = "";

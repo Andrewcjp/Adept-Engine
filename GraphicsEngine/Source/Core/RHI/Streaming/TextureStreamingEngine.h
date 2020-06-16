@@ -26,6 +26,7 @@ public:
 	
 	EGPUSteamMode::Type GetStreamingMode() const { return m_StreamingMode; }
 	void SetStreamingMode(EGPUSteamMode::Type val) { m_StreamingMode = val; }
+	void ResolveTextureStreaming(RHICommandList* list);
 private:
 	EGPUSteamMode::Type m_StreamingMode = EGPUSteamMode::TiledTexture;
 	uint64_t TargetMaxMemory = 0;

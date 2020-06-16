@@ -4,8 +4,8 @@
 #include "Core/Assets/AssetManager.h"
 #include "Core/Performance/PerfManager.h"
 #include "RHI/ShaderPreProcessor.h"
-#include "Core/Assets/ShaderComplier.h"
-#include "RHI/ShaderComplierModule.h"
+#include "Core/Assets/ShaderCompiler.h"
+#include "RHI/ShaderCompilerModule.h"
 #include <ios>
 #include<iostream>
 #include<fstream>
@@ -15,7 +15,7 @@ static ConsoleVariable NoShaderCache("NoShaderCache", 0, ECVarType::LaunchOnly);
 static ConsoleVariable MirrorShaders("MirrorShaders", 0, ECVarType::LaunchOnly);
 ShaderCache* ShaderCache::Instance = nullptr;
 
-const std::string ShaderCache::GetShaderInstanceHash(ShaderComplieItem* shader)
+const std::string ShaderCache::GetShaderInstanceHash(ShaderCompileItem* shader)
 {
 	if (shader->Defines.size() == 0)
 	{
@@ -51,16 +51,16 @@ ShaderCache::ShaderCache()
 ShaderCache::~ShaderCache()
 {}
 
-ShaderByteCodeBlob* ShaderCache::GetShader(ShaderComplieItem* item)
+ShaderByteCodeBlob* ShaderCache::GetShader(ShaderCompileItem* item)
 {
 	return Get()->IN_GetShader(item);
 }
 
 
-ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
+ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderCompileItem* item)
 {
 #if defined(PLATFORM_WINDOWS) && WITH_EDITOR
-	if (MirrorShaders.GetBoolValue() && ShaderComplier::Get()->m_Config.MirrorToOthers)
+	if (MirrorShaders.GetBoolValue() && ShaderCompiler::Get()->m_Config.MirrorToOthers)
 	{
 		for (int i = EPlatforms::Android + 1; i < EPlatforms::Limit; i++)
 		{
@@ -69,17 +69,17 @@ ShaderByteCodeBlob* ShaderCache::IN_GetShader(ShaderComplieItem* item)
 		}
 	}
 #endif
-	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage, ShaderComplier::Get()->m_Config.TargetPlatform))
+	if (TryLoadCachedShader(item->ShaderName, item, GetShaderInstanceHash(item), item->Stage, ShaderCompiler::Get()->m_Config.TargetPlatform))
 	{
 		item->CacheHit = true;
 		return item->Blob;
 	}
-	ShaderComplier::Get()->ComplieShaderNew(item, ShaderComplier::Get()->m_Config.TargetPlatform);
-	WriteBlobToFile(item, ShaderComplier::Get()->m_Config.TargetPlatform);
+	ShaderCompiler::Get()->CompileShaderNew(item, ShaderCompiler::Get()->m_Config.TargetPlatform);
+	WriteBlobToFile(item, ShaderCompiler::Get()->m_Config.TargetPlatform);
 	return item->Blob;
 }
 
-void ShaderCache::MirrorShaderToBuiltPlat(ShaderComplieItem* item, EPlatforms::Type platform)
+void ShaderCache::MirrorShaderToBuiltPlat(ShaderCompileItem* item, EPlatforms::Type platform)
 {
 	if (item->Stage == EShaderType::SHADER_RT_LIB && (platform != EPlatforms::Windows || platform != 5))
 	{
@@ -90,7 +90,7 @@ void ShaderCache::MirrorShaderToBuiltPlat(ShaderComplieItem* item, EPlatforms::T
 		return;
 	}
 	item->TargetPlatfrom = platform;
-	ShaderComplier::Get()->ComplieShaderNew(item, platform);
+	ShaderCompiler::Get()->CompileShaderNew(item, platform);
 	if (item->Result == EShaderError::SHADER_ERROR_UNSUPPORTED)
 	{
 		return;
@@ -111,7 +111,7 @@ const std::string ShaderCache::GetShaderNamestr(const std::string & Shadername, 
 	std::string OutputName = Shadername;
 	OutputName += "_" + std::to_string((int)type);
 	OutputName += "_" + InstanceHash;
-	if (ShaderComplier::Get()->ShouldBuildDebugShaders())
+	if (ShaderCompiler::Get()->ShouldBuildDebugShaders())
 	{
 		OutputName += "_D";
 	}
@@ -126,7 +126,7 @@ void ShaderCache::PrintShaderStats()
 	Log::LogMessage(ss.str());
 }
 
-bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem* Item, const std::string & InstanceHash, EShaderType::Type type, EPlatforms::Type platform)
+bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderCompileItem* Item, const std::string & InstanceHash, EShaderType::Type type, EPlatforms::Type platform)
 {
 	SCOPE_STARTUP_COUNTER("Shader Read");
 	stats.TotalShaderCount++;
@@ -165,7 +165,7 @@ bool ShaderCache::TryLoadCachedShader(const std::string& Name, ShaderComplieItem
 	return false;
 
 }
-void ShaderCache::WriteBlobToFile(ShaderComplieItem* item, EPlatforms::Type platform)
+void ShaderCache::WriteBlobToFile(ShaderCompileItem* item, EPlatforms::Type platform)
 {
 	if (item->Result != EShaderError::SHADER_ERROR_NONE)
 	{
@@ -187,7 +187,7 @@ void ShaderCache::WriteBlobToFile(ShaderComplieItem* item, EPlatforms::Type plat
 	//WriteDebugFile(item, platform);
 }
 
-void ShaderCache::WriteDebugFile(ShaderComplieItem* item, EPlatforms::Type platform)
+void ShaderCache::WriteDebugFile(ShaderCompileItem* item, EPlatforms::Type platform)
 {
 	FileUtils::CreateDirectoriesToFullPath(AssetManager::GetShaderCacheDir(platform) + item->ShaderName + ".");
 	const std::string FullShaderName = GetShaderNamestr(item->ShaderName, GetShaderInstanceHash(item), item->Stage);

@@ -11,6 +11,8 @@ CrossDeviceShaderPair* GlobalShaderLibrary::TestSamplerFeedbackShader = nullptr;
 
 CrossDeviceShaderPair* GlobalShaderLibrary::TerrainShader = nullptr;
 
+CrossDeviceShaderPair* GlobalShaderLibrary::ResolveSamplerFeedBackShader = nullptr;
+
 GlobalPermutation* GlobalShaderLibrary::VRXResolveShader = nullptr;
 
 
@@ -33,7 +35,7 @@ void GlobalShaderLibrary::Init()
 
 	TestSamplerFeedbackShader = new CrossDeviceShaderPair( { "Main_vs", "Tests\\SFSText_FS" }, { EShaderType::SHADER_VERTEX, EShaderType::SHADER_FRAGMENT });
 	TerrainShader = new CrossDeviceShaderPair({ "Terrain\\Terrain_Vs","Terrain\\Terrain_PS_Def" }, { EShaderType::SHADER_VERTEX,EShaderType::SHADER_FRAGMENT });
-
+	ResolveSamplerFeedBackShader = new CrossDeviceShaderPair({ "SamplerFeedback\\SFS_ResolveMipMaps_CS" }, { EShaderType::SHADER_COMPUTE });
 
 	Shader_Pair::IsPartOfGlobalShaderLibrary = false;
 }

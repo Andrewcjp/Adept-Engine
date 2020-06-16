@@ -5,7 +5,13 @@ SamplerState g_Clampsampler : register(s1);
 #include "Shadow.hlsl"
 #include "VRX\VRRCommon.hlsl"
 //tODO:sub struct for mat data?
-
+#define USE_FEEDBACK
+#ifdef USE_FEEDBACK
+#include "Core/SamplerFeedBack.hlsl"
+FEEDBACKTEXTURE(SFS_TYPE_MINMIP) g_feedback : register(u0);
+FEEDBACK_BIND;
+Texture2D<float> MipClamp:register(t100);
+#endif
 #if WITH_INSTANCING
 cbuffer GOConstantBuffer : register(b0)
 {

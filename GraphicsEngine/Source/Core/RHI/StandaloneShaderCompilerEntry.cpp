@@ -1,14 +1,14 @@
 
-#include "StandaloneShaderComplierEntry.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "StandaloneShaderCompilerEntry.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Performance/PerfManager.h"
 #include "Packaging/Cooker.h"
 
-StandaloneShaderComplierEntry::StandaloneShaderComplierEntry(int argc, char *argv[])
+StandaloneShaderCompilerEntry::StandaloneShaderCompilerEntry(int argc, char *argv[])
 {
 
-	PerfManager::Get()->StartSingleActionTimer("Shader Complier Run");
+	PerfManager::Get()->StartSingleActionTimer("Shader Compiler Run");
 	std::string CMDLine;
 	std::vector<std::string> Args;
 	for (int i = 0; i < argc; i++)
@@ -42,28 +42,28 @@ StandaloneShaderComplierEntry::StandaloneShaderComplierEntry(int argc, char *arg
 
 	AssetManager::StartAssetManager();
 
-	ShaderComplier::Get();
+	ShaderCompiler::Get();
 	RHI::InitRHI(ERenderSystemType::RenderSystemNull);
 	//RHI::InitialiseContext();
 	RHI::GetRHIClass()->InitRHI(false);
-	ShaderComplier::Get()->Init();
-	ShaderComplier::Get()->m_Config.MirrorToOthers = false;
-	ShaderComplier::Get()->m_Config.ShaderModelTarget = TargetSM;
-	ShaderComplier::Get()->m_Config.TargetPlatform = TargetPlatform;
+	ShaderCompiler::Get()->Init();
+	ShaderCompiler::Get()->m_Config.MirrorToOthers = false;
+	ShaderCompiler::Get()->m_Config.ShaderModelTarget = TargetSM;
+	ShaderCompiler::Get()->m_Config.TargetPlatform = TargetPlatform;
 	Log::StartLogger();
-	Log::LogMessage("Started shader complier with cmd line '" + CMDLine + "'");
+	Log::LogMessage("Started shader Compiler with cmd line '" + CMDLine + "'");
 }
 
-StandaloneShaderComplierEntry::~StandaloneShaderComplierEntry()
+StandaloneShaderCompilerEntry::~StandaloneShaderCompilerEntry()
 {
-	PerfManager::Get()->EndAndLogTimer("Shader Complier Run");
-	ShaderComplier::ShutDown();
+	PerfManager::Get()->EndAndLogTimer("Shader Compiler Run");
+	ShaderCompiler::ShutDown();
 	Log::ShutDownLogger();
 }
 
-int StandaloneShaderComplierEntry::Execute()
+int StandaloneShaderCompilerEntry::Execute()
 {
-	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	ShaderCompiler::Get()->CompileAllGlobalShaders();
 	Cooker::BuildAllMaterials();
 	return 0;
 }

@@ -18,7 +18,6 @@ public:
 	void UpdateConstantBuffer(void * data, int offset = 0);
 	void UpdateVertexBuffer(void* data, size_t length, int VertexCount = -1);
 	void UpdateIndexBuffer(void* data, size_t length);
-	void BindBufferReadOnly(class RHICommandList* list, int RSSlot);
 	void SetBufferState(class RHICommandList* list, EBufferResourceState::Type State);
 	void UpdateBufferData(void * data, size_t length, EBufferResourceState::Type state);
 	

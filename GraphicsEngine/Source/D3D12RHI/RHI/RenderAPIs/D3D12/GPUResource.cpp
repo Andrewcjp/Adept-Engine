@@ -72,13 +72,9 @@ bool GPUResource::IsValidStateForList(D3D12CommandList* List)
 	{
 		return true;
 	}
-	if (List->IsComputeList() || List->IsRaytracingList())
+	if (List->IsComputeList())
 	{
 		return CurrentResourceState | ~D3D12_RESOURCE_STATE_DEPTH_WRITE || CurrentResourceState | ~D3D12_RESOURCE_STATE_RENDER_TARGET;
-	}
-	if (List->IsCopyList())
-	{
-
 	}
 	return false;
 }
@@ -315,6 +311,7 @@ void GPUResource::SetupTileMappings(bool SeperateAllTiles/* = false*/)
 	}
 	if (m_packedMipInfo.NumPackedMips > 0)
 	{
+		PackedMipsIndex = m_packedMipInfo.NumStandardMips;
 		ResourceTileInfo Tile;
 		Tile.startCoordinate = CD3DX12_TILED_RESOURCE_COORDINATE(0, 0, 0, m_packedMipInfo.NumStandardMips);
 		Tile.heapIndex = m_packedMipInfo.StartTileIndexInOverallResource;
@@ -329,7 +326,6 @@ void GPUResource::SetupMipMapping()
 {
 	UINT numTiles = 0;
 	D3D12_PACKED_MIP_INFO m_packedMipInfo;
-	D3D12_TILE_SHAPE tileShape;
 	UINT subresourceCount = GetDesc().MipLevels;
 	std::vector<D3D12_SUBRESOURCE_TILING> tilings(subresourceCount);
 	Device->GetDevice()->GetResourceTiling(GetResource(), &numTiles, &m_packedMipInfo, &tileShape, &subresourceCount, 0, &tilings[0]);

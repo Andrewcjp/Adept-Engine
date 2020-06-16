@@ -14,7 +14,7 @@ public:
 	InputData(LightCullInput,
 		NodeLink* CulledLightList = nullptr;
 	NodeLink* DepthBuffer = nullptr; );
-	void AddApplyToGraph(RenderGraph* Graph,  StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer);
+	void AddApplyToGraph(RenderGraph* Graph, StorageNode* gBuffer, StorageNode* ShadowMask, StorageNode* MainBuffer);
 	struct ApplyPassData
 	{
 		NodeLink* TileList;
@@ -28,5 +28,6 @@ protected:
 	virtual void OnNodeSettingChange() override;
 	virtual void OnSetupNode() override;
 	ApplyPassData Data;
+	RHITexture*TempResolveSpace = nullptr;
 };
 

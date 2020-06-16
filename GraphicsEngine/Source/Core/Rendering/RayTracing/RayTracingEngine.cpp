@@ -1,6 +1,6 @@
 #include "RayTracingEngine.h"
 #include "Core/Assets/Scene.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Core/BaseWindow.h"
 #include "HighLevelAccelerationStructure.h"
 #include "LowLevelAccelerationStructure.h"
@@ -102,7 +102,7 @@ void RayTracingEngine::BuildStructures(RHICommandList* AsyncbuildList)
 
 	BuildForFrame(AsyncbuildList);
 //	AsyncbuildList->Execute();
-	RHI::GetDefaultDevice()->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
+	RHI::GetDefaultDevice()->InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::Compute);
 }
 
 RayTracingCommandList * RayTracingEngine::CreateRTList(DeviceContext * Device)

@@ -52,12 +52,11 @@ void LightCullingEngine::Init(CullingManager * m)
 void LightCullingEngine::LaunchCullingForScene(RHICommandList* list, EEye::Type Eye)
 {
 
-	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_LightCull>());
+	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_LightCull>());
 	list->SetPipelineStateDesc(desc);
 	list->SetUAV(LightCullingBuffer, "DstTexture");
 	SceneRenderer::Get()->BindLightsBuffer(list, "LightBuffer");
 	SceneRenderer::Get()->BindMvBuffer(list, "CameraData");
-	//LightDataBuffer->BindBufferReadOnly(list, desc.ShaderInUse->GetSlotForName("LightList"));
 	list->SetBuffer(LightDataBuffer->Get(list), "LightList");
 	list->Dispatch(GetLightGridDim().x, GetLightGridDim().y, 1);
 }
@@ -68,6 +67,7 @@ glm::ivec2 LightCullingEngine::GetLightGridDim()
 	int tileWidth = glm::iround(glm::ceil(Screen::GetScaledWidth() / TileSize));
 	int tileHeight = glm::iround(glm::ceil(Screen::GetScaledHeight() / TileSize));
 	tileHeight += 1;
+	tileWidth += 1;
 	return glm::ivec2(tileWidth, tileHeight);
 }
 
@@ -78,14 +78,10 @@ void LightCullingEngine::BindLightBuffer(RHICommandList* list, bool deferred /*=
 {
 	if (deferred)
 	{
-		///LightCullingBuffer->SetBufferState(list, EBufferResourceState::Read);
-		//LightCullingBuffer->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightBuffer);
-		LightDataBuffer->Get(list)->BindBufferReadOnly(list, DeferredLightingShaderRSBinds::LightDataBuffer);
-		//list->SetBuffer(LightDataBuffer->Get(list), DeferredLightingShaderRSBinds::LightDataBuffer);
+		list->SetBuffer(LightDataBuffer->Get(list), DeferredLightingShaderRSBinds::LightDataBuffer);
 	}
 	else
 	{
-		//LightDataBuffer->BindBufferReadOnly(list, "");
 		list->SetBuffer(LightDataBuffer->Get(list), "lights");
 	}
 }

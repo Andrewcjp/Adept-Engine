@@ -13,6 +13,8 @@
 #include "Rendering/RenderNodes/StoreNodes/FrameBufferStorageNode.h"
 #include "RHI/RHITypes.h"
 #include "Rendering/Shaders/Shader_Pair.h"
+#include "Rendering/Utils/UAVFormatConverter.h"
+#include "RHI/RHITimeManager.h"
 
 LightCullingNode::LightCullingNode()
 {
@@ -29,7 +31,6 @@ void LightCullingNode::OnExecute()
 {
 	RHICommandList* List = GetListAndReset();
 
-	/*SceneRenderer::Get()->GetLightCullingEngine()->LaunchCullingForScene(List, EEye::Left);*/
 	RHIPipeLineStateDesc desc = RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::LightCullingShader->Get());
 	List->SetPipelineStateDesc(desc);
 	SceneRenderer::Get()->GetLightCullingEngine()->UpdateLightStatsBuffer();
@@ -102,18 +103,35 @@ void LightCullingNode::AddApplyToGraph(RenderGraph* Graph, StorageNode* gBuffer,
 
 void LightCullingNode::ExecuteApply(ApplyPassData& Data, RHICommandList* list)
 {
-	list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::TiledLightingApplyShader->Get(list)));
 	FrameBuffer* GBuffer = Data.GBuffer->GetTarget<FrameBufferStorageNode>()->GetFramebuffer();
-	list->SetFrameBufferTexture(GBuffer, "PosTexture");
-	list->SetFrameBufferTexture(GBuffer, "NormalTexture", 1);
-	list->SetFrameBufferTexture(GBuffer, "AlbedoTexture", 2);
-	list->SetFrameBufferTexture(Data.ShadowMask->GetTarget<FrameBufferStorageNode>()->GetFramebuffer(), "PerSampledShadow");
 	FrameBuffer* HDROut = Data.MainBuffer->GetTarget<FrameBufferStorageNode>()->GetFramebuffer();
-	list->SetUAV(HDROut, "OutBuffer");
-	list->SetConstantBufferView(SceneRenderer::Get()->GetLightCullingEngine()->LightCullBuffer->Get(list), 0, "LightBuffer");
-	list->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(list), "LightList");
-	list->SetBuffer(Data.TileList->GetTarget<BufferStorageNode>()->GetBuffer(), "LightIndexs");
-	SceneRenderer::Get()->BindMvBuffer(list, "SceneConstantBuffer");
-	list->DispatchSized(HDROut->GetWidth(), HDROut->GetHeight(), 1);
-	list->UAVBarrier(HDROut);
+
+	UAVFormatConverter::UnPackToTmpResource(&TempResolveSpace, list, HDROut->GetRenderTexture());
+	{
+		DECALRE_SCOPEDGPUCOUNTER(list, "LightApply");
+		list->SetPipelineStateDesc(RHIPipeLineStateDesc::CreateDefault(GlobalShaderLibrary::TiledLightingApplyShader->Get(list)));
+		list->SetFrameBufferTexture(GBuffer, "PosTexture");
+		list->SetFrameBufferTexture(GBuffer, "NormalTexture", 1);
+		list->SetFrameBufferTexture(GBuffer, "AlbedoTexture", 2);
+		list->SetFrameBufferTexture(Data.ShadowMask->GetTarget<FrameBufferStorageNode>()->GetFramebuffer(), "PerSampledShadow");
+
+		if (!list->GetDevice()->GetCaps().SupportTypedUAVLoads)
+		{
+			RHIViewDesc D = RHIViewDesc::DefaultUAV();
+			D.UseResourceFormat = false;
+			D.Format = ETextureFormat::FORMAT_R32_UINT;
+			list->SetUAV(TempResolveSpace, list->GetCurrnetPSO()->GetDesc().ShaderInUse->GetSlotForName("OutBuffer"), D);
+		}
+		else
+		{
+			list->SetUAV(HDROut, "OutBuffer");
+		}
+		list->SetConstantBufferView(SceneRenderer::Get()->GetLightCullingEngine()->LightCullBuffer->Get(list), 0, "LightBuffer");
+		list->SetBuffer(SceneRenderer::Get()->GetLightCullingEngine()->GetLightDataBuffer()->Get(list), "LightList");
+		list->SetBuffer(Data.TileList->GetTarget<BufferStorageNode>()->GetBuffer(), "LightIndexs");
+		SceneRenderer::Get()->BindMvBuffer(list, "SceneConstantBuffer");
+		list->DispatchSized(HDROut->GetWidth(), HDROut->GetHeight(), 1);
+		list->UAVBarrier(HDROut);
+	}
+	UAVFormatConverter::PackBacktoResource(TempResolveSpace, list, HDROut->GetRenderTexture());
 }

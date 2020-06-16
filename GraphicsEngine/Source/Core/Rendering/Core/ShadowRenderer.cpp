@@ -33,21 +33,21 @@ ShadowRenderer::~ShadowRenderer()
 {}
 
 #define USE32BITDepth 1
-eTEXTURE_FORMAT ShadowRenderer::GetDepthType()
+ETextureFormat ShadowRenderer::GetDepthType()
 {
 #if USE32BITDepth
-	return eTEXTURE_FORMAT::FORMAT_R32_TYPELESS;
+	return ETextureFormat::FORMAT_R32_TYPELESS;
 #else
-	return eTEXTURE_FORMAT::FORMAT_D16_UNORM;
+	return ETextureFormat::FORMAT_D16_UNORM;
 #endif
 }
 
-eTEXTURE_FORMAT ShadowRenderer::GetDepthReadType()
+ETextureFormat ShadowRenderer::GetDepthReadType()
 {
 #if USE32BITDepth
-	return eTEXTURE_FORMAT::FORMAT_R32_FLOAT;
+	return ETextureFormat::R32_FLOAT;
 #else
-	return eTEXTURE_FORMAT::FORMAT_R16_UNORM;
+	return ETextureFormat::FORMAT_R16_UNORM;
 #endif
 }
 
@@ -106,7 +106,7 @@ void ShadowRenderer::RenderShadowMap_GPU(Light* LightPtr, RHICommandList* list, 
 
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
 	SetPointRS(list, TargetBuffer);
-	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
+	Shader_Depth* TargetShader = ShaderCompiler::GetShader<Shader_Depth>(list->GetDevice(), true);
 	RHIRenderPassDesc D = RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear);
 	D.FinalState = EResourceState::PixelShader;
 	if (RHI::GetFrameCount() != 0)
@@ -153,7 +153,7 @@ void ShadowRenderer::RenderShadowMap_CPU(Light* LightPtr, RHICommandList* list, 
 {
 	SceneRenderer::Get()->GetCullingManager()->UpdateCullingForShadowLight(LightPtr, SceneRenderer::Get()->GetScene());
 	FrameBuffer* TargetBuffer = LightPtr->GPUResidenceMask[list->GetDeviceIndex()].AtlasHandle->DynamicMapPtr;
-	Shader_Depth* TargetShader = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice());
+	Shader_Depth* TargetShader = ShaderCompiler::GetShader<Shader_Depth>(list->GetDevice());
 
 	list->BeginRenderPass(RHIRenderPassDesc(TargetBuffer, ERenderPassLoadOp::Clear));
 	TargetShader->UpdateGeometryShaderParams(LightPtr->GetPosition(), LightPtr->Projection, IndexOnGPU);
@@ -210,7 +210,7 @@ void ShadowRenderer::SetPointRS(RHICommandList* list, FrameBuffer* buffer)
 	RHIPipeLineStateDesc desc;
 	desc.InitOLD(true, false, false);
 	desc.RenderTargetDesc = buffer->GetPiplineRenderDesc();
-	desc.ShaderInUse = ShaderComplier::GetShader<Shader_Depth>(list->GetDevice(), true);
+	desc.ShaderInUse = ShaderCompiler::GetShader<Shader_Depth>(list->GetDevice(), true);
 	if (RHI::GetRenderSettings()->GetShadowSettings().UseViewInstancingForShadows)
 	{
 		desc.ViewInstancing.Active = true;
@@ -241,18 +241,18 @@ void ShadowRenderer::SetPointRS(RHICommandList* list, FrameBuffer* buffer)
 //	RHI::AddLinkedFrameBuffer(DSOs[dev->GetDeviceIndex()].PreSampledBuffer);
 //}
 
-eTEXTURE_FORMAT ShadowRenderer::GetPreSampledTextureFormat(int Shadownumber)
+ETextureFormat ShadowRenderer::GetPreSampledTextureFormat(int Shadownumber)
 {
 	if (Shadownumber == 1)
 	{
-		return eTEXTURE_FORMAT::FORMAT_R8_UNORM;
+		return ETextureFormat::FORMAT_R8_UNORM;
 	}
 	else if (Shadownumber == 2)
 	{   
-		return eTEXTURE_FORMAT::FORMAT_R8G8_UNORM;
+		return ETextureFormat::FORMAT_R8G8_UNORM;
 	}
 	//todo: don't copy alpha channel of 3 lights !
-	return eTEXTURE_FORMAT::FORMAT_R8G8B8A8_UNORM;
+	return ETextureFormat::FORMAT_R8G8B8A8_UNORM;
 }
 
 void ShadowRenderer::InvalidateAllBakedShadows()

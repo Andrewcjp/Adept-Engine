@@ -214,7 +214,7 @@ void D3D12DeviceContext::CheckFeatures()
 		break;
 	}
 #else
-	Log::LogMessage("Compiling Without DXIL complier, shader model is limited to SM5");
+	Log::LogMessage("Compiling Without DXIL Compiler, shader model is limited to SM5");
 	Caps_Data.HighestModel = EShaderSupportModel::SM5;
 #endif
 	if (LogDeviceDebug)
@@ -371,15 +371,15 @@ void D3D12DeviceContext::InitDevice(int index)
 	InterGPUCopyList = new D3D12CommandList(this, ECommandListType::Copy);
 	D3D12RHI::DXConv(GPUCopyList)->CreateCommandList();
 	GPUCopyList->ResetList();
-	GraphicsSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Graphics), GetDevice());
-	CopySync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Copy), GetDevice());
+	GraphicsSync.Init(GetCommandQueueFromEnum(EDeviceContextQueue::Graphics), GetDevice());
+	CopySync.Init(GetCommandQueueFromEnum(EDeviceContextQueue::Copy), GetDevice());
 #if SUPPORT_DXGI
-	InterGPUSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::InterCopy), GetDevice());
+	InterGPUSync.Init(GetCommandQueueFromEnum(EDeviceContextQueue::InterCopy), GetDevice());
 #endif
-	ComputeSync.Init(GetCommandQueueFromEnum(DeviceContextQueue::Compute), GetDevice());
+	ComputeSync.Init(GetCommandQueueFromEnum(EDeviceContextQueue::Compute), GetDevice());
 	for (int x = 0; x < RHI::CPUFrameCount; x++)
 	{
-		for (int i = 0; i < DeviceContextQueue::LIMIT; i++)
+		for (int i = 0; i < EDeviceContextQueue::LIMIT; i++)
 		{
 			GPUWaitPoints[x][i].InitGPUOnly(GetDevice());
 		}
@@ -568,7 +568,7 @@ ID3D12Device6* D3D12DeviceContext::GetDevice6()
 #endif
 ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueue()
 {
-	return GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
+	return GetCommandQueueFromEnum(EDeviceContextQueue::Graphics);
 }
 
 void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
@@ -576,13 +576,13 @@ void D3D12DeviceContext::MoveNextFrame(int SyncIndex)
 	//force Queue sync at the end of frame
 	if (!AllowCrossFrameAsyncCompute)
 	{
-		InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::Compute);
-		InsertGPUWait(DeviceContextQueue::Compute, DeviceContextQueue::Graphics);
+		InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::Compute);
+		InsertGPUWait(EDeviceContextQueue::Compute, EDeviceContextQueue::Graphics);
 	}
 #if 1
 	if (GetDeviceIndex() != 0)
 	{
-		InsertCrossGPUWait(DeviceContextQueue::Graphics, RHI::GetDeviceContext(0), DeviceContextQueue::Graphics);
+		InsertCrossGPUWait(EDeviceContextQueue::Graphics, RHI::GetDeviceContext(0), EDeviceContextQueue::Graphics);
 	}
 #endif
 	GraphicsSync.MoveNextFrame(SyncIndex);
@@ -763,12 +763,12 @@ RHITimeManager* D3D12DeviceContext::GetTimeManager()
 	return TimeManager;
 }
 
-void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext* OtherGPU, DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void D3D12DeviceContext::GPUWaitForOtherGPU(DeviceContext* OtherGPU, EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue)
 {
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint(GetCommandQueueFromEnum(SignalQueue), D3D12RHI::DXConv(OtherGPU)->GetCommandQueueFromEnum(WaitingQueue));
 }
 
-void D3D12DeviceContext::InsertCrossGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, DeviceContextQueue::Type SignalQueue)
+void D3D12DeviceContext::InsertCrossGPUWait(EDeviceContextQueue::Type WaitingQueue, DeviceContext* SignalingGPU, EDeviceContextQueue::Type SignalQueue)
 {
 	CrossAdaptorSync[GetCpuFrameIndex()].CrossGPUCreateSyncPoint_NonLocalSignal(D3D12RHI::DXConv(SignalingGPU)->GetCommandQueueFromEnum(SignalQueue), GetCommandQueueFromEnum(WaitingQueue));
 }
@@ -788,27 +788,27 @@ void D3D12DeviceContext::CPUWaitForAll()
 	ComputeQueueSync.CreateSyncPoint(m_ComputeCommandQueue);
 }
 
-ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(DeviceContextQueue::Type value)
+ID3D12CommandQueue* D3D12DeviceContext::GetCommandQueueFromEnum(EDeviceContextQueue::Type value)
 {
 	switch (value)
 	{
-	case DeviceContextQueue::Graphics:
+	case EDeviceContextQueue::Graphics:
 		return m_MainCommandQueue;
 		break;
-	case DeviceContextQueue::Compute:
+	case EDeviceContextQueue::Compute:
 		return m_ComputeCommandQueue;
 		break;
-	case DeviceContextQueue::Copy:
+	case EDeviceContextQueue::Copy:
 		return m_CopyCommandQueue;
 		break;
-	case DeviceContextQueue::InterCopy:
+	case EDeviceContextQueue::InterCopy:
 		return m_SharedCopyCommandQueue;
 		break;
 	}
 	return nullptr;
 }
 
-void D3D12DeviceContext::InsertGPUWait(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue)
+void D3D12DeviceContext::InsertGPUWait(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("InsertGPUWait", "RHI");
 #if 0
@@ -1025,7 +1025,7 @@ void GPUFenceSync::MoveNextFrame(int SyncIndex)
 	m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 }
 
-D3D12GPUSyncEvent::D3D12GPUSyncEvent(DeviceContextQueue::Type WaitingQueueEnum, DeviceContextQueue::Type SignalQueueEnum, DeviceContext* device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
+D3D12GPUSyncEvent::D3D12GPUSyncEvent(EDeviceContextQueue::Type WaitingQueueEnum, EDeviceContextQueue::Type SignalQueueEnum, DeviceContext* device, DeviceContext* OtherDevice) :RHIGPUSyncEvent(WaitingQueueEnum, SignalQueueEnum, device)
 {
 
 	D3D12DeviceContext* d3dc = D3D12RHI::DXConv(Device);

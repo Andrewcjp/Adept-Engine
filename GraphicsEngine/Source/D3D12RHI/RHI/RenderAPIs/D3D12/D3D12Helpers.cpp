@@ -142,9 +142,9 @@ std::string D3D12Helpers::DXErrorCodeToString(HRESULT result)
 	}
 }
 //for now these are the same!
-DXGI_FORMAT D3D12Helpers::ConvertFormat(eTEXTURE_FORMAT format)
+DXGI_FORMAT D3D12Helpers::ConvertFormat(ETextureFormat format)
 {
-	static_assert(DXGI_FORMAT::DXGI_FORMAT_YUY2 == eTEXTURE_FORMAT::FORMAT_YUY2, "");
+	static_assert(DXGI_FORMAT::DXGI_FORMAT_YUY2 == ETextureFormat::FORMAT_YUY2, "");
 	return (DXGI_FORMAT)format;
 }
 
@@ -232,10 +232,6 @@ D3D12_COMMAND_LIST_TYPE D3D12Helpers::ConvertListType(ECommandListType::Type typ
 	{
 	case ECommandListType::Graphics:
 		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT;
-	case ECommandListType::RayTracing:
-#if !RT_FORCE_COMPUTE
-		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT;
-#endif
 	case ECommandListType::Compute:
 		return D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	case ECommandListType::Copy:
@@ -359,9 +355,9 @@ void D3D12ReadBackCopyHelper::WriteBackRenderTarget()
 	Target->SetResourceState(Cmdlist, InitalState);
 	if (UseCopy)
 	{
-		Device->InsertGPUWait(DeviceContextQueue::InterCopy, DeviceContextQueue::Graphics);
-		Cmdlist->Execute(DeviceContextQueue::InterCopy);
-		Device->InsertGPUWait(DeviceContextQueue::Graphics, DeviceContextQueue::InterCopy);
+		Device->InsertGPUWait(EDeviceContextQueue::InterCopy, EDeviceContextQueue::Graphics);
+		Cmdlist->Execute(EDeviceContextQueue::InterCopy);
+		Device->InsertGPUWait(EDeviceContextQueue::Graphics, EDeviceContextQueue::InterCopy);
 	}
 	else
 	{

@@ -14,7 +14,7 @@ public:
 	std::vector<ShaderParameter> GetShaderParameters() override;
 	const std::string GetName() override;
 
-	//this might be a placeholder for the shader complier
+	//this might be a placeholder for the shader Compiler
 	bool IsValid() const;
 	void SetDefines(std::vector<std::string> &Define);
 	std::string ShaderSource = "";

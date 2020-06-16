@@ -54,6 +54,16 @@ void MeshPipelineController::GatherBatches()
 	}
 	for (int i = 0; i < Batches.size(); i++)
 	{
+		if (Batches[i]->NeedRecreate())
+		{
+			MeshBatch* newBatch = Batches[i]->Owner->GetMesh()->GetMeshBatch();
+			Batches[i]->IsValid = false;
+			DeadBatches.push_back(newBatch);
+			Batches[i] = newBatch;
+		}
+	}
+	for (int i = 0; i < Batches.size(); i++)
+	{
 		Batches[i]->Update();
 	}
 	if (TargetScene->ObjectsAddedLastFrame.size() == 0)
@@ -91,6 +101,7 @@ void MeshPipelineController::GatherBatches()
 	{
 		BuildStaticInstancing();
 	}
+	MemoryUtils::DeleteVector(DeadBatches);
 }
 void MeshPipelineController::RemoveBatches(GameObject* owner)
 {

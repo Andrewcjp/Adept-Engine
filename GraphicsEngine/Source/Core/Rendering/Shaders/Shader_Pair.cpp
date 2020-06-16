@@ -42,6 +42,6 @@ void Shader_Pair::Init()
 		shadername += Names[i];
 	}
 #ifdef PLATFORM_WINDOWS
-	ensure(IsPartOfGlobalShaderLibrary);	
+	//ensure(IsPartOfGlobalShaderLibrary);	
 #endif
 }

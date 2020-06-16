@@ -11,7 +11,7 @@ void ShaderProgramBase::AddDefaultDefines(std::vector<ShaderProgramBase::Shader_
 {
 	if (!RHI::IsVulkan())
 	{
-		//the vulkan to HLSL complier defines this for us
+		//the vulkan to HLSL Compiler defines this for us
 		//Defines.push_back(Shader_Define("VULKAN", std::to_string(RHI::IsVulkan())));
 	}
 	Defines.push_back(Shader_Define("DX12", std::to_string(RHI::IsD3D12() || RHI::IsNullRHIActingDX12())));

@@ -89,6 +89,7 @@ namespace EVRHMDMode
 	enum Type
 	{
 		Disabled,
+		OpenXR,
 		SteamVR,
 		Debug,
 		Limit

@@ -190,7 +190,7 @@ const std::string AssetManager::GetShaderCacheDir(EPlatforms::Type Platform)
 #ifdef PLATFORM_WINDOWS
 		if (Platform == EPlatforms::Windows)
 		{		//Shader model is set once per machine
-			if (ShaderComplier::Get()->m_Config.ShaderModelTarget == EShaderSupportModel::SM5)
+			if (ShaderCompiler::Get()->m_Config.ShaderModelTarget == EShaderSupportModel::SM5)
 			{
 				platfromstring += "\\SM5";
 			}
@@ -292,8 +292,7 @@ AssetManager* AssetManager::Get()
 }
 
 AssetManager::~AssetManager()
-{
-}
+{}
 
 ShaderSourceFile* AssetManager::LoadFileWithInclude(std::string name)
 {
@@ -335,7 +334,7 @@ bool AssetManager::ProcessTexture(TextureHandle* Handle)
 	{
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
 		return false;
-	}
+}
 #else
 	Fileref.IsDDC = true;
 #endif
@@ -386,7 +385,7 @@ bool AssetManager::ProcessTexture(TextureHandle* Handle)
 		else
 		{
 			Log::OutS << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
-		}
+	}
 #endif
 	}
 	return false;
@@ -400,7 +399,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 	{
 		Log::OutS << "File '" << Fileref.Name << "' Does not exist" << Log::OutS;
 		return nullptr;
-	}
+}
 #else
 	Fileref.IsDDC = true;
 #endif
@@ -467,7 +466,7 @@ BaseTextureRef AssetManager::DirectLoadTextureAsset(std::string name, TextureImp
 		else
 		{
 			Log::OutS << "File '" << Fileref.Name << "' Failed To Generate!" << Log::OutS;
-		}
+	}
 #endif
 	}
 	return ImageIO::GetDefaultTexture();

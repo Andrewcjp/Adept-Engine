@@ -58,7 +58,7 @@ void RenderGraph::AddVRXSupport()
 	GraphName += "(VRX)";
 	FrameBufferStorageNode* VRXShadingRateImage = AddStoreNode(new FrameBufferStorageNode("VRX Image"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::R8_UINT;
+	Desc.RTFormats[0] = ETextureFormat::R8_UINT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale_TileSize;
 	Desc.SimpleStartingState = EResourceState::UAV;
 	Desc.AllowUnorderedAccess = true;
@@ -67,7 +67,7 @@ void RenderGraph::AddVRXSupport()
 
 	FrameBufferStorageNode* EdgeDetectImage = AddStoreNode(new FrameBufferStorageNode("Edge Image"));
 	Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::R16_FLOAT;
+	Desc.RTFormats[0] = ETextureFormat::R16_FLOAT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.SimpleStartingState = EResourceState::RenderTarget;
 	Desc.AllowUnorderedAccess = true;
@@ -147,7 +147,7 @@ void RenderGraph::CreateDefGraphWithRT_VOXEL()
 	FrameBufferStorageNode* LastFrameBuffer = CreateRTXBuffer();
 	FrameBufferStorageNode* SPPList = AddStoreNode(new FrameBufferStorageNode("SSP Buffer"));
 	RHIFrameBufferDesc Desc = RHIFrameBufferDesc::CreateColour(100, 100);
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16_UINT;
+	Desc.RTFormats[0] = ETextureFormat::R16_UINT;
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.LinkToBackBufferScaleFactor = 1.0f;
 	Desc.AllowUnorderedAccess = true;
@@ -228,10 +228,10 @@ void RenderGraph::CreateDefTestgraph()
 	//if (RHI::GetRenderSettings()->GetVRXSettings().UseVRR())
 	{
 		Desc.NeedsDepthStencil = true;
-		Desc.DepthFormat = eTEXTURE_FORMAT::FORMAT_D24_UNORM_S8_UINT;
+		Desc.DepthFormat = ETextureFormat::FORMAT_D24_UNORM_S8_UINT;
 	}
 #if 1
-	Desc.RTFormats[0] = eTEXTURE_FORMAT::FORMAT_R16G16B16A16_FLOAT;
+	Desc.RTFormats[0] = ETextureFormat::FORMAT_R16G16B16A16_FLOAT;
 #endif
 	Desc.SizeMode = EFrameBufferSizeMode::LinkedToRenderScale;
 	Desc.AllowUnorderedAccess = true;

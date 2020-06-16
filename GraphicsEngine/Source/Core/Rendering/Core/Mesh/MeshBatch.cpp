@@ -26,3 +26,8 @@ void MeshBatch::Update()
 		InstanceBuffer->UpdateBuffer();
 	}
 }
+
+bool MeshBatch::NeedRecreate()
+{
+	return Owner->GetMesh()->ReCreate;
+}

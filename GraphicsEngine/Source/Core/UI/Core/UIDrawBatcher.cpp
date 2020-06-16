@@ -10,7 +10,7 @@
 
 UIDrawBatcher::UIDrawBatcher()
 {
-	Shader = ShaderComplier::GetShader_Default<Shader_UIBatch>(0);
+	Shader = ShaderCompiler::GetShader_Default<Shader_UIBatch>(0);
 	Init();
 	Current_Max_Verts = UIMin;
 	PerfManager::Get()->AddTimer("UI Batches", "UI");
@@ -30,7 +30,7 @@ void UIDrawBatcher::SetState(RHICommandList * list, UIRenderBatch* batch)
 	{
 		RHIPipeLineStateDesc desc;
 		desc.InitOLD(false, false, false);
-		desc.ShaderInUse = ShaderComplier::GetShader_Default<Shader_UIBatch>(1);
+		desc.ShaderInUse = ShaderCompiler::GetShader_Default<Shader_UIBatch>(1);
 		desc.RenderTargetDesc = RHIPipeRenderTargetDesc::GetDefault();
 		list->SetPipelineStateDesc(desc);
 		if (batch->RenderTarget != nullptr)

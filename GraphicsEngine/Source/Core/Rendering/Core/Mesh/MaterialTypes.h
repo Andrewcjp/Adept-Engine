@@ -40,15 +40,15 @@ struct EMaterialRenderType
 	};
 };
 //this data is used by a material to ask for the correct shader from the MaterialShader is owns.
-struct MaterialShaderComplieData
+struct MaterialShaderCompileData
 {
 	EMaterialPassType::Type RenderPassUsage = EMaterialPassType::Forward;
 	EMaterialRenderType::Type MaterialRenderType = EMaterialRenderType::Opaque;
 	Asset_Shader* Shader = nullptr;
 	//used to further customize shaders
 	std::vector<std::string> ShaderKeyWords;
-	bool operator==(const MaterialShaderComplieData other)const;
-	bool operator<(const MaterialShaderComplieData &o)  const;
+	bool operator==(const MaterialShaderCompileData other)const;
+	bool operator<(const MaterialShaderCompileData &o)  const;
 	std::string ToString();
 	int ToHash();
 };
@@ -68,14 +68,14 @@ struct MaterialShaderParameter : public IReflect
 	MaterialShaderParameter();
 	MaterialShaderParameter(const MaterialShaderParameter& other);
 	PROPERTY();
-	ShaderPropertyType::Type PropType = ShaderPropertyType::Float;
-	size_t GetSize() const;
+	int PropType = 0;
 	PROPERTY();
 	size_t OffsetInBuffer = 0;
 	PROPERTY();
 	AssetPtr<TextureAsset> m_TextureAsset;
 
 	TextureHandle* Handle = nullptr;
+	size_t GetSize() const;
 };
 
 UCLASS()

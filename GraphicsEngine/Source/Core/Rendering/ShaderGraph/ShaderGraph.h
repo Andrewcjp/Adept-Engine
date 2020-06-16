@@ -30,7 +30,7 @@ public:
 	void AddTexDecleration(std::string data, std::string name);
 	bool IsPropertyDefined(std::string name);
 	void AddDefine(std::string name);//type:
-	void Complie();
+	void Compile();
 	void BuildConstantBuffer();
 	std::string GetMaterialConstantBufferCode();
 //private:

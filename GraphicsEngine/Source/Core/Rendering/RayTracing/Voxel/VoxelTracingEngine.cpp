@@ -77,7 +77,7 @@ VoxelTracingEngine::VoxelTracingEngine()
 	Desc.clearcolour = glm::vec4(0, 0, 0, 0);
 	Desc.AllowUnorderedAccess = true;
 	Desc.Dimension = DIMENSION_TEXTURE3D;
-	Desc.Format = FORMAT_R32G32B32A32_UINT;
+	Desc.Format = R32G32B32A32_UINT;
 	Desc.InitalState = EResourceState::UAV;
 	Desc.Name = "Voxel Struct";
 	VoxelMap->Create(Desc);

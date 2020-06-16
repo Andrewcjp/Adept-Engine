@@ -5,8 +5,8 @@ class RHIFence :public IRHIResourse
 public:
 	RHI_API RHIFence();
 	RHI_API virtual ~RHIFence();
-	virtual void Signal(DeviceContextQueue::Type queue, uint64 value);
-	virtual void WaitForValue(DeviceContextQueue::Type queue, uint64 value);
+	virtual void Signal(EDeviceContextQueue::Type queue, uint64 value);
+	virtual void WaitForValue(EDeviceContextQueue::Type queue, uint64 value);
 	RHI_API uint64 GetValue() const;
 	RHI_API void SetValue(uint64 value);
 protected:

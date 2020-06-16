@@ -88,13 +88,13 @@ ECommandListType::Type RenderNode::GetNodeQueueType() const
 	return NodeEngineType;
 }
 
-DeviceContextQueue::Type RenderNode::GetNodeQueue() const
+EDeviceContextQueue::Type RenderNode::GetNodeQueue() const
 {
-	if (NodeQueueType == DeviceContextQueue::Graphics)
+	if (NodeQueueType == EDeviceContextQueue::Graphics)
 	{
-		if (NodeEngineType == ECommandListType::Compute || NodeEngineType == ECommandListType::RayTracing)
+		if (NodeEngineType == ECommandListType::Compute)
 		{
-			return DeviceContextQueue::Compute;
+			return EDeviceContextQueue::Compute;
 		}
 	}
 	return NodeQueueType;

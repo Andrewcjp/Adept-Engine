@@ -13,6 +13,7 @@
 #include "../../Core/Screen.h"
 #include "RHI/RHITexture.h"
 #include "RHI/Streaming/SamplerFeedbackEngine.h"
+#include "RHI/Streaming/TextureStreamingEngine.h"
 REGISTER_SHADER_PS(EdgeDetect, "VRX/VRX_EdgeDetect_PS");
 
 GBufferWriteNode::GBufferWriteNode()
@@ -84,6 +85,7 @@ void GBufferWriteNode::OnExecute()
 		GBuffer->GetDepthStencil()->SetState(CommandList, EResourceState::RenderTarget);
 	}
 #endif
+	TextureStreamingEngine::Get()->ResolveTextureStreaming(CommandList);
 	SetEndStates(CommandList);
 	CommandList->Execute();
 

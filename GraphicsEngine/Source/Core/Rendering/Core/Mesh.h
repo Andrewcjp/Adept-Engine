@@ -60,7 +60,9 @@ public:
 	/**
 	*\brief MeshEntity holds all the information to render a mesh section there might be multiple per mesh object
 	*/
+	bool ReCreate = false;
 	std::vector<MeshEntity*> SubMeshes;
+	void InvalidateBatch() { ReCreate = true; }
 private:
 	CullingAABB MeshBounds;
 	int FrameCreated = 0;

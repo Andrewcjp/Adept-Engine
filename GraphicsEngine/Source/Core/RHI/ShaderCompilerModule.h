@@ -16,7 +16,7 @@ struct ShaderByteCodeBlob
 	}
 };
 
-struct ShaderComplieItem
+struct ShaderCompileItem
 {
 	ShaderSourceFile* Data = nullptr;
 	EShaderError::Type Result = EShaderError::SHADER_ERROR_MAXCOUNT;
@@ -38,16 +38,16 @@ struct ShaderComplieItem
 		Result = EShaderError::SHADER_ERROR_MAXCOUNT;
 	}
 	//compile options:
-	bool ComplieShaderDebug = false;
+	bool CompileShaderDebug = false;
 };
 
-class IShaderComplier : public IModuleInterface
+class IShaderCompiler : public IModuleInterface
 {
 public:
-	virtual ~IShaderComplier()
+	virtual ~IShaderCompiler()
 	{}
 
-	virtual void ComplieShader(ShaderComplieItem* shader) { shader->Result = EShaderError::SHADER_ERROR_CREATE; };
+	virtual void CompileShader(ShaderCompileItem* shader) { shader->Result = EShaderError::SHADER_ERROR_CREATE; };
 	virtual void InitWithData(void* Data) {};
-	virtual bool SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderComplieItem* item) { return false; }
+	virtual bool SupportsPlatform(EPlatforms::Type Platform, EShaderSupportModel::Type SM, ShaderCompileItem* item) { return false; }
 };

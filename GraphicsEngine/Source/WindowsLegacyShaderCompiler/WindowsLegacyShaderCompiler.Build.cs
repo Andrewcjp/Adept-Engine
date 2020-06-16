@@ -1,13 +1,13 @@
 using EngineBuildTool;
 
-class WindowsLegacyShaderComplierModule : ModuleDef
+class WindowsLegacyShaderCompilerModule : ModuleDef
 {
-    public WindowsLegacyShaderComplierModule(TargetRules Rules) : base(Rules)
+    public WindowsLegacyShaderCompilerModule(TargetRules Rules) : base(Rules)
     {
         SolutionFolderPath = "Engine/ShaderCompilers/Windows";
-        ModuleName = "WindowsLegacyShaderComplier";
-        SourceFileSearchDir = "WindowsLegacyShaderComplier";
-        PCH = "WindowsLegacyShaderComplierPCH";
+        ModuleName = "WindowsLegacyShaderCompiler";
+        SourceFileSearchDir = "WindowsLegacyShaderCompiler";
+        PCH = "WindowsLegacyShaderCompilerPCH";
         ModuleOutputType = ModuleDef.ModuleType.DLL;
         UseCorePCH = false;
         UseUnity = true;

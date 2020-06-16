@@ -3,23 +3,23 @@
 #define CSO_VERSION 3
 class ShaderProgramBase;
 struct ShaderByteCodeBlob;
-struct ShaderComplieItem;
+struct ShaderCompileItem;
 class ShaderCache
 {
 public:
 	ShaderCache();
 	~ShaderCache();
-	RHI_API static ShaderByteCodeBlob * GetShader(ShaderComplieItem * item);
-	ShaderByteCodeBlob * IN_GetShader(ShaderComplieItem * item);
-	void MirrorShaderToBuiltPlat(ShaderComplieItem * item, EPlatforms::Type platform);
+	RHI_API static ShaderByteCodeBlob * GetShader(ShaderCompileItem * item);
+	ShaderByteCodeBlob * IN_GetShader(ShaderCompileItem * item);
+	void MirrorShaderToBuiltPlat(ShaderCompileItem * item, EPlatforms::Type platform);
 	RHI_API static ShaderCache* Get();
-	RHI_API static const std::string GetShaderInstanceHash(ShaderComplieItem* shader);
+	RHI_API static const std::string GetShaderInstanceHash(ShaderCompileItem* shader);
 	RHI_API static const std::string GetShaderNamestr(const std::string & Shadername, const std::string & InstanceHash, EShaderType::Type type);
 	void PrintShaderStats();
 private:
-	bool TryLoadCachedShader(const std::string & Name, ShaderComplieItem * Blob, const std::string & InstanceHash, EShaderType::Type type,EPlatforms::Type platform  = EPlatforms::Limit);
-	void WriteBlobToFile(ShaderComplieItem* item, EPlatforms::Type platform = EPlatforms::Limit);
-	void WriteDebugFile(ShaderComplieItem * item, EPlatforms::Type platform);
+	bool TryLoadCachedShader(const std::string & Name, ShaderCompileItem * Blob, const std::string & InstanceHash, EShaderType::Type type,EPlatforms::Type platform  = EPlatforms::Limit);
+	void WriteBlobToFile(ShaderCompileItem* item, EPlatforms::Type platform = EPlatforms::Limit);
+	void WriteDebugFile(ShaderCompileItem * item, EPlatforms::Type platform);
 	static ShaderCache* Instance;
 	struct CSOHeader
 	{

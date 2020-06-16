@@ -33,7 +33,7 @@ std::string MasterNode::ComplieDefaultProps(ShaderGraph * g)
 	return output;
 }
 
-std::string MasterNode::GetTemplateName(MaterialShaderComplieData & data)
+std::string MasterNode::GetTemplateName(MaterialShaderCompileData & data)
 {
 	if (data.RenderPassUsage == EMaterialPassType::Deferred)
 	{

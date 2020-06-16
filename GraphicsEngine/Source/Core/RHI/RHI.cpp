@@ -3,7 +3,7 @@
 #include "Core/Assets/Asset types/Asset_Shader.h"
 #include "Core/Assets/AssetManager.h"
 #include "Core/Assets/ImageIO.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Core/Input/Input.h"
 #include "Core/Module/ModuleManager.h"
 #include "Core/Performance/PerfManager.h"
@@ -173,7 +173,7 @@ RHICommandList * RHI::CreateCommandList(ECommandListType::Type Type, DeviceConte
 	return GetRHIClass()->CreateCommandList(Type, Device);
 }
 
-RHIGPUSyncEvent * RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
+RHIGPUSyncEvent * RHI::CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	if (Device == nullptr)
 	{
@@ -494,7 +494,7 @@ RHIQuery * RHI::CreateQuery(EGPUQueryType::Type type, DeviceContext * con)
 
 void RHI::InitialiseContext()
 {
-	ShaderComplier::Get();//create the Complier
+	ShaderCompiler::Get();//create the Compiler
 	instance->RenderPassCache = new RHIRenderPassCache();
 	new TextureStreamingEngine();
 	GetRHIClass()->InitRHI(instance->Rendersettings.RequestAllGPUs);
@@ -513,8 +513,8 @@ void RHI::InitialiseContext()
 		}
 	}
 #endif
-	ShaderComplier::Get()->Init();
-	ShaderComplier::Get()->ComplieAllGlobalShaders();
+	ShaderCompiler::Get()->Init();
+	ShaderCompiler::Get()->CompileAllGlobalShaders();
 	PlatformWindow::TickSplashWindow(10, "Loading Render Graph");
 	if (!Engine::GetIsCooking())
 	{
@@ -580,7 +580,7 @@ void RHI::RHIRunFirstFrame()
 		return;
 	}
 	GetRHIClass()->RHIRunFirstFrame();
-	ShaderComplier::Get()->TickMaterialComplie();
+	ShaderCompiler::Get()->TickMaterialCompile();
 	GetRHIClass()->SetFullScreenState(StartFullscreen.GetBoolValue());
 	WaitForGPU();
 }
@@ -667,7 +667,7 @@ void RHI::DestoryContext()
 		ParticleSystemManager::ShutDown();
 	}
 	TextureStreamingEngine::ShutDown();
-	ShaderComplier::Get()->FreeAllGlobalShaders();
+	ShaderCompiler::Get()->FreeAllGlobalShaders();
 	if (Get())
 	{
 		Get()->TickDeferredDeleteQueue(true);

@@ -109,7 +109,7 @@ DXDescriptor* D3D12Buffer::GetDescriptor(const RHIViewDesc& desc, DescriptorHeap
 		srvDesc.Buffer.NumElements = ElementCount;
 		srvDesc.Buffer.StructureByteStride = ElementSize;
 		srvDesc.Buffer.FirstElement = desc.FirstElement;
-		if (desc.Format == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		if (desc.Format == ETextureFormat::FORMAT_UNKNOWN)
 		{
 			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 			srvDesc.Buffer.StructureByteStride = ElementSize;
@@ -133,7 +133,7 @@ DXDescriptor* D3D12Buffer::GetDescriptor(const RHIViewDesc& desc, DescriptorHeap
 		destTextureUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		destTextureUAVDesc.Buffer.FirstElement = desc.FirstElement;
 		destTextureUAVDesc.Buffer.NumElements = ElementCount;
-		if (desc.Format == eTEXTURE_FORMAT::FORMAT_UNKNOWN)
+		if (desc.Format == ETextureFormat::FORMAT_UNKNOWN)
 		{
 			destTextureUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
 			destTextureUAVDesc.Buffer.StructureByteStride = ElementSize;
@@ -187,19 +187,6 @@ void D3D12Buffer::UpdateVertexBuffer(void* data, size_t length, int InVertexCoun
 	{
 		PostUploadState = D3D12_RESOURCE_STATE_GENERIC_READ;
 	}
-}
-
-void D3D12Buffer::BindBufferReadOnly(RHICommandList* list, int RSSlot)
-{
-	D3D12CommandList* d3dlist = D3D12RHI::DXConv(list);
-	//UpdateBufferDataGPU(d3dlist);
-	if (BufferAccesstype != EBufferAccessType::GPUOnly && BufferAccesstype != EBufferAccessType::Dynamic)//gpu buffer states are explicitly managed by render code
-	{
-		m_DataBuffer->SetResourceState(d3dlist, PostUploadState);
-	}
-	RHIViewDesc d = RHIViewDesc::DefaultSRV();
-	d.Dimension = DIMENSION_BUFFER;
-	list->SetBuffer(this, RSSlot, d);
 }
 
 void D3D12Buffer::SetBufferState(RHICommandList* list, EBufferResourceState::Type State)

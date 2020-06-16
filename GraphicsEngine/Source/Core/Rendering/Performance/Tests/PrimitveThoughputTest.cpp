@@ -1,5 +1,5 @@
 #include "PrimitveThoughputTest.h"
-#include "Core/Assets/ShaderComplier.h"
+#include "Core/Assets/ShaderCompiler.h"
 #include "Core/Transform.h"
 #include "Rendering/Core/Mesh.h"
 #include "Rendering/Core/Mesh/MeshBatch.h"
@@ -30,7 +30,7 @@ void PrimitveThoughputTest::RunTest()
 	{
 		DECALRE_SCOPEDGPUCOUNTER(List, PrimitveThoughputTest_Name);
 		RHIPipeLineStateDesc desc;
-		desc = RHIPipeLineStateDesc::CreateDefault(ShaderComplier::GetShader<Shader_PreZ>(), TestBuffer);
+		desc = RHIPipeLineStateDesc::CreateDefault(ShaderCompiler::GetShader<Shader_PreZ>(), TestBuffer);
 		desc.DepthStencilState.DepthCompareFunction = COMPARISON_FUNC_LESS_EQUAL;
 		desc.DepthStencilState.DepthWrite = true;
 		desc.DepthStencilState.DepthEnable = true;

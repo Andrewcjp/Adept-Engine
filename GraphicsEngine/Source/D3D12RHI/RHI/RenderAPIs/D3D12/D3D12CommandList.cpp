@@ -51,13 +51,12 @@ bool D3D12CommandList::IsOpen()const
 void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 {
 	//	ensure(IsOpen());
-	if (ListType != ECommandListType::RayTracing)
+
+	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
 	{
-		if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
-		{
-			return;
-		}
+		return;
 	}
+
 	RHIPipeLineStateDesc TDesc = Desc;
 	if (CurrentRenderTarget != nullptr)
 	{
@@ -65,6 +64,38 @@ void D3D12CommandList::SetPipelineStateDesc(const RHIPipeLineStateDesc& Desc)
 		TDesc.RenderTargetDesc = CurrentRenderTarget->GetPiplineRenderDesc();
 	}
 	SetPipelineStateObject(Device->GetPSOCache()->GetFromCache(TDesc));
+}
+void D3D12CommandList::SetComputePipelineStateDesc(const RHIPipeLineStateDesc& Desc)
+{
+	if (CurrentPSO != nullptr && CurrentPSO->GetDesc() == Desc)
+	{
+		return;
+	}
+
+	RHIPipeLineStateDesc TDesc = Desc;
+	if (CurrentRenderTarget != nullptr)
+	{
+		//todo: this might cause issues need to check this behavior
+		TDesc.RenderTargetDesc = CurrentRenderTarget->GetPiplineRenderDesc();
+	}
+	SetComputePipelineStateObject(Device->GetPSOCache()->GetFromCache(TDesc));
+}
+
+void D3D12CommandList::SetComputePipelineStateObject(RHIPipeLineStateObject* Object)
+{
+	ensure(Object);
+	ensure(Object->GetDevice() == Device);
+	Device->UpdatePSOTracker(Object);
+	CurrentPSO = Object;
+	if (CurrentCommandList == nullptr)
+	{
+		CreateCommandList();
+	}
+	NextcommandIsCompute = true;
+	PushState();
+	RootSigniture.SetRootSig(Object->GetDesc().ShaderInUse->GetShaderParameters());
+	RootSigniture.Reset();
+	CommandCount++;
 }
 
 void D3D12CommandList::BeginRenderPass(const RHIRenderPassDesc& info)
@@ -224,7 +255,7 @@ ID3D12CommandAllocator* D3D12CommandList::GetCommandAllocator()
 
 void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceIndex)
 {
-	ensure(ListType == ECommandListType::Graphics || IsRaytracingList());
+	ensure(ListType == ECommandListType::Graphics);
 	if (target == nullptr)
 	{
 		if (CurrentRenderTarget != nullptr)
@@ -241,13 +272,22 @@ void D3D12CommandList::SetRenderTarget(FrameBuffer * target, int SubResourceInde
 		CurrentRenderTarget->BindBufferAsRenderTarget(this, SubResourceIndex);
 	}
 }
-
-void D3D12CommandList::PrepareforDraw()
+void D3D12CommandList::PrepareForDraw()
 {
 	SCOPE_CYCLE_COUNTER_GROUP("PrepareforDraw", "RHI");
+	PushPrimitiveTopology();
+	PrepareRootSig();
+}
+void D3D12CommandList::PrepareForDispatch()
+{
+	SCOPE_CYCLE_COUNTER_GROUP("PrepareforDraw", "RHI");
+	PrepareRootSig();
+}
+void D3D12CommandList::PrepareRootSig()
+{
+	bool PrepareForGraphics = ShouldBindForGraphics();
 	FlushBarriers();
 	mDeviceContext->GetHeapManager()->CheckAndRealloc(RootSigniture.GetMaxDescriptorsNeeded(), this);
-	PushPrimitiveTopology();
 	PushHeaps();
 	for (int i = 0; i < RootSigniture.GetNumBinds(); i++)
 	{
@@ -258,7 +298,7 @@ void D3D12CommandList::PrepareforDraw()
 		if (bind->BindType == ERSBindType::Texture && bind->IsBound())
 		{
 			desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
-			if (IsGraphicsList())
+			if (PrepareForGraphics)
 			{
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
@@ -270,7 +310,7 @@ void D3D12CommandList::PrepareforDraw()
 		else if (bind->BindType == ERSBindType::FrameBuffer && bind->IsBound())
 		{
 			desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
-			if (IsGraphicsList())
+			if (PrepareForGraphics)
 			{
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
@@ -290,7 +330,7 @@ void D3D12CommandList::PrepareforDraw()
 					D3D12RHI::DXConv(bind->BufferTarget)->PushDataUpLoad(this);
 				}
 			}
-			if (IsGraphicsList())
+			if (PrepareForGraphics)
 			{
 				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
@@ -305,7 +345,7 @@ void D3D12CommandList::PrepareforDraw()
 			if (bind->IsBound())
 			{
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
-				if (IsGraphicsList())
+				if (PrepareForGraphics)
 				{
 					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 				}
@@ -321,14 +361,18 @@ void D3D12CommandList::PrepareforDraw()
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
-				if (IsGraphicsList())
-				{
-					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-				}
-				else
-				{
-					GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-				}
+			}
+			else
+			{
+				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreateNull(bind);
+			}
+			if (PrepareForGraphics)
+			{
+				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+			}
+			else
+			{
+				GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
 			}
 		}
 		else if (bind->BindType == ERSBindType::Texture2)
@@ -337,15 +381,16 @@ void D3D12CommandList::PrepareforDraw()
 			{
 				ensure(bind->View.ViewType != EViewType::Limit);
 				desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(bind);
-				if (IsGraphicsList())
-				{
-					GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-				}
-				else
-				{
-					GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
-				}
 			}
+			if (PrepareForGraphics)
+			{
+				GetCommandList()->SetGraphicsRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+			}
+			else
+			{
+				GetCommandList()->SetComputeRootDescriptorTable(bind->BindParm->SignitureSlot, desc->GetGPUAddress());
+			}
+
 		}
 	}
 	//if a resize occurred we need to set the heap to the cmd list again
@@ -356,7 +401,7 @@ void D3D12CommandList::PrepareforDraw()
 
 void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCount, int StartVertexLocation, int StartInstanceLocation)
 {
-	PrepareforDraw();
+	PrepareForDraw();
 	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
@@ -365,7 +410,7 @@ void D3D12CommandList::DrawPrimitive(int VertexCountPerInstance, int InstanceCou
 
 void D3D12CommandList::DrawIndexedPrimitive(uint IndexCountPerInstance, uint InstanceCount, uint StartIndexLocation, uint BaseVertexLocation, uint StartInstanceLocation)
 {
-	PrepareforDraw();
+	PrepareForDraw();
 	CHECKRPASS();
 	ensure(m_IsOpen);
 	ensure(ListType == ECommandListType::Graphics);
@@ -381,25 +426,22 @@ void D3D12CommandList::SetViewport(int MinX, int MinY, int MaxX, int MaxY, float
 	CurrentCommandList->RSSetScissorRects(1, &ScissorR);
 }
 
-void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
+void D3D12CommandList::Execute(EDeviceContextQueue::Type Target)
 {
 	SCOPE_CYCLE_COUNTER_GROUP("Execute", "RHI");
 	FlushBarriers();
-	if (Target == DeviceContextQueue::LIMIT)
+	if (Target == EDeviceContextQueue::LIMIT)
 	{
 		switch (ListType)
 		{
 		case ECommandListType::Graphics:
-			Target = DeviceContextQueue::Graphics;
-			break;
-		case ECommandListType::RayTracing:
-			Target = IsRaytracingList_Compute() ? DeviceContextQueue::Compute : DeviceContextQueue::Graphics;
+			Target = EDeviceContextQueue::Graphics;
 			break;
 		case ECommandListType::Compute:
-			Target = DeviceContextQueue::Compute;
+			Target = EDeviceContextQueue::Compute;
 			break;
 		case ECommandListType::Copy:
-			Target = DeviceContextQueue::Copy;
+			Target = EDeviceContextQueue::Copy;
 			break;
 		}
 	}
@@ -414,19 +456,19 @@ void D3D12CommandList::Execute(DeviceContextQueue::Type Target)
 			ThrowIfFailed(CurrentCommandList->Close());
 		}
 	}
-	if (Target == DeviceContextQueue::Graphics)
+	if (Target == EDeviceContextQueue::Graphics)
 	{
 		mDeviceContext->ExecuteCommandList(CurrentCommandList);
 	}
-	else if (Target == DeviceContextQueue::Compute)
+	else if (Target == EDeviceContextQueue::Compute)
 	{
 		mDeviceContext->ExecuteComputeCommandList(CurrentCommandList);
 	}
-	else if (Target == DeviceContextQueue::Copy)
+	else if (Target == EDeviceContextQueue::Copy)
 	{
 		mDeviceContext->ExecuteCopyCommandList(GetCopyList());
 	}
-	else if (Target == DeviceContextQueue::InterCopy)
+	else if (Target == EDeviceContextQueue::InterCopy)
 	{
 		mDeviceContext->ExecuteInterGPUCopyCommandList(CurrentCommandList);
 	}
@@ -528,6 +570,7 @@ void D3D12CommandList::SetPipelineStateObject(RHIPipeLineStateObject* Object)
 	{
 		CreateCommandList();
 	}
+	NextcommandIsCompute = false;
 	PushState();
 	RootSigniture.SetRootSig(Object->GetDesc().ShaderInUse->GetShaderParameters());
 	RootSigniture.Reset();
@@ -543,7 +586,7 @@ void D3D12CommandList::PushState()
 		if (DPSO != nullptr)
 		{
 			CurrentCommandList->SetPipelineState(DPSO->PSO);
-			if (IsGraphicsList())
+			if (ShouldBindForGraphics())
 			{
 				CurrentCommandList->SetGraphicsRootSignature(DPSO->RootSig);
 			}
@@ -570,12 +613,12 @@ void D3D12CommandList::CreateCommandList()
 	{
 		PSO = D3D12RHI::DXConv(CurrentPSO)->PSO;
 	}
-	if (ListType == ECommandListType::Graphics || IsRaytracingList_Direct())
+	if (ListType == ECommandListType::Graphics)
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_DIRECT, GetCommandAllocator(), PSO, ID_PASS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
 	}
-	else if (ListType == ECommandListType::Compute || IsRaytracingList_Compute())
+	else if (ListType == ECommandListType::Compute)
 	{
 		ThrowIfFailed(mDeviceContext->GetDevice()->CreateCommandList(Device->GetNodeMask(), D3D12_COMMAND_LIST_TYPE_COMPUTE, GetCommandAllocator(), PSO, ID_PASS(&CurrentCommandList)));
 		ThrowIfFailed(CurrentCommandList->Close());
@@ -613,12 +656,12 @@ void D3D12CommandList::CreateCommandList()
 	const char* s = "asdasd";
 	GFSDK_Aftermath_SetEventMarker(AMHandle, nullptr, 0);
 #endif
-	}
+}
 
 void D3D12CommandList::Dispatch(int ThreadGroupCountX, int ThreadGroupCountY, int ThreadGroupCountZ)
 {
-	PrepareforDraw();
-	ensure(ListType == ECommandListType::Compute || IsRaytracingList_Compute());
+	PrepareForDispatch();
+	//	ensure(ListType == ECommandListType::Compute);
 	CurrentCommandList->Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
 }
 
@@ -721,13 +764,14 @@ void D3D12CommandList::ClearUAVFloat(RHIBuffer* buffer)
 void D3D12CommandList::ClearUAVFloat(RHITexture* buffer, glm::vec4 ClearColour)
 {
 	FlushBarriers();
+	mDeviceContext->GetHeapManager()->CheckAndRealloc(2, this);
 	D3D12RHITexture* DBuffer = D3D12RHI::DXConv(buffer);
 	RSBind bind;
 	bind.BindType = ERSBindType::UAV;
 	bind.Texture2 = buffer;
 	bind.View = RHIViewDesc::DefaultUAV();
 	DXDescriptor* desc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->GetOrCreate(&bind);
-	DXDescriptor* CPUDesc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->FindInCacheHeap(&bind);
+	DXDescriptor* CPUDesc = D3D12RHI::DXConv(Device)->GetDescriptorCache()->FindInCacheHeap(&bind, true);
 	float Values[4] = { ClearColour.x,ClearColour.y,ClearColour.z,ClearColour.w };
 	GetCommandList()->ClearUnorderedAccessViewFloat(desc->GetGPUAddress(), CPUDesc->GetCPUAddress(), DBuffer->GetResource()->GetResource(), Values, 0, nullptr);
 }
@@ -735,6 +779,7 @@ void D3D12CommandList::ClearUAVFloat(RHITexture* buffer, glm::vec4 ClearColour)
 void D3D12CommandList::ClearUAVUint(RHIBuffer* buffer)
 {
 	D3D12Buffer* DBuffer = D3D12RHI::DXConv(buffer);
+	mDeviceContext->GetHeapManager()->CheckAndRealloc(2, this);
 	RSBind bind;
 	bind.BindType = ERSBindType::UAV;
 	bind.BufferTarget = buffer;
@@ -818,6 +863,7 @@ void D3D12CommandList::CopyResource(RHITexture* Source, RHIBuffer* Dest)
 	FlushBarriers();
 }
 
+
 void D3D12CommandList::SetScissorRect(const RHIScissorRect& rect)
 {
 	CD3DX12_RECT ScissorR = CD3DX12_RECT(rect.Left, rect.Top, rect.Right, rect.Bottom);
@@ -853,7 +899,7 @@ void D3D12CommandList::UpdateBufferData(RHIBuffer* Buffer, void * data, size_t l
 
 void D3D12CommandList::ExecuteIndirect(int MaxCommandCount, RHIBuffer * ArgumentBuffer, int ArgOffset, RHIBuffer * CountBuffer, int CountBufferOffset)
 {
-	PrepareforDraw();
+	PrepareForDraw();
 	ensure(CommandSig != nullptr);
 	ensure(ArgumentBuffer);
 	ensureMsgf(ArgumentBuffer->GetDesc().UseForExecuteIndirect, "Buffer needs UseForExecuteIndirect flag set");
@@ -879,14 +925,17 @@ void D3D12CommandList::SetCommandSigniture(RHICommandSignitureDescription desc)
 	CommandSig->Build();
 	CommandCount++;
 }
-
+bool D3D12CommandList::ShouldBindForGraphics()
+{
+	return IsGraphicsList() && !NextcommandIsCompute;
+}
 void D3D12CommandList::SetRootConstant(int SignitureSlot, int ValueNum, void * Data, int DataOffset)
 {
 	if (SignitureSlot == -1)
 	{
 		return;
 	}
-	if (IsGraphicsList())
+	if (ShouldBindForGraphics())
 	{
 		CurrentCommandList->SetGraphicsRoot32BitConstants(SignitureSlot, ValueNum, Data, DataOffset);
 	}
@@ -928,15 +977,15 @@ void D3D12CommandList::SetFrameBufferTexture(FrameBuffer * buffer, int slot, con
 {
 	FlushBarriers();
 	ensure(!buffer->IsPendingKill());
-	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute || ListType == ECommandListType::RayTracing);
+	ensure(ListType == ECommandListType::Graphics || ListType == ECommandListType::Compute);
 	D3D12FrameBuffer* DBuffer = D3D12RHI::DXConv(buffer);
-	if (IsComputeList() || IsRaytracingList())
+	if (IsComputeList())
 	{
 		ensure(DBuffer->IsReadyForCompute());
 	}
 	else
 	{
-		StateAssert(DBuffer, EResourceState::PixelShader);
+		//StateAssert(DBuffer, EResourceState::PixelShader);
 	}
 	if (Device->GetStateCache()->RenderTargetCheckAndUpdate(buffer))
 	{
@@ -970,12 +1019,13 @@ void D3D12CommandList::SetDepthBounds(float Min, float Max)
 #if WIN10_1809
 void D3D12CommandList::TraceRays(const RHIRayDispatchDesc& desc)
 {
-	PrepareforDraw();
+	PrepareRootSig();
 	ensure(CurrentRTState);
 	//#DXR: todo
 	CurrentRTState->Trace(desc, this, D3D12RHI::DXConv(desc.Target));
 	UAVBarrier(desc.Target);
 	CommandCount++;
+	NextcommandIsCompute = false;
 }
 
 void D3D12CommandList::SetHighLevelAccelerationStructure(HighLevelAccelerationStructure* Struct)
@@ -988,6 +1038,7 @@ void D3D12CommandList::SetStateObject(RHIStateObject* Object)
 {
 	CurrentRTState = D3D12RHI::DXConv(Object);
 	CurrentRTState->BindToList(this);
+	NextcommandIsCompute = true;
 	CommandCount++;
 }
 #endif
@@ -1026,7 +1077,7 @@ void D3D12CommandList::SetConstantBufferView(RHIBuffer * buffer, int offset, int
 	ensure(!buffer->IsPendingKill());
 	D3D12Buffer* d3Buffer = D3D12RHI::DXConv(buffer);
 	ensure(d3Buffer->CheckDevice(Device->GetDeviceIndex()));
-	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute || IsRaytracingList(), Device->GetDeviceIndex());
+	d3Buffer->SetConstantBufferView(offset, CurrentCommandList, Slot, ListType == ECommandListType::Compute || NextcommandIsCompute, Device->GetDeviceIndex());
 	CommandCount++;
 }
 

@@ -26,13 +26,14 @@
 
 
 static ConsoleVariable ForceNoDebug("ForceNoDebug", 0, ECVarType::LaunchOnly, false);
-
+static ConsoleVariable EnableFullGPUVaildation("FullValidation", 0, ECVarType::LaunchOnly, false);
 static ConsoleVariable EnableDred("EnableDred", 0, ECVarType::LaunchOnly, false);
 D3D12RHI* D3D12RHI::Instance = nullptr;
 D3D12RHI::D3D12RHI()
 {
 	Instance = this;
 	EnableDred.SetValue(true);
+	//EnableFullGPUVaildation.SetValue(true);
 }
 
 D3D12RHI::~D3D12RHI()
@@ -331,7 +332,11 @@ void D3D12RHI::LoadPipeLine()
 		ForceNoDebug.SetValue(true);
 	}
 	if (!ForceNoDebug.GetBoolValue() && !DetectGPUDebugger())
-	{	//EnableShaderBasedValidation();
+	{	
+		if (EnableFullGPUVaildation.GetBoolValue())
+		{
+			EnableShaderBasedValidation();
+		}
 
 // Enable the debug layer (requires the Graphics Tools "optional feature").
 // NOTE: Enabling the debug layer after device creation will invalidate the active device.
@@ -418,7 +423,7 @@ void D3D12RHI::TriggerWriteBackResources()
 }
 
 #endif
-RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(DeviceContextQueue::Type WaitingQueue, DeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
+RHIGPUSyncEvent* D3D12RHI::CreateSyncEvent(EDeviceContextQueue::Type WaitingQueue, EDeviceContextQueue::Type SignalQueue, DeviceContext * Device, DeviceContext * SignalDevice)
 {
 	return new D3D12GPUSyncEvent(WaitingQueue, SignalQueue, Device, SignalDevice);
 }
@@ -435,7 +440,7 @@ void D3D12RHI::SubmitToVRComposter(FrameBuffer * fb, EEye::Type eye)
 
 	vr::D3D12TextureData_t texture = {};
 	texture.m_pResource = DXConv(fb)->GetResource(0)->GetResource();
-	texture.m_pCommandQueue = DeviceContexts[0]->GetCommandQueueFromEnum(DeviceContextQueue::Graphics);
+	texture.m_pCommandQueue = DeviceContexts[0]->GetCommandQueueFromEnum(EDeviceContextQueue::Graphics);
 	vr::Texture_t EyeTexture = { (void *)&texture, vr::TextureType_DirectX12, vr::ColorSpace_Gamma };
 	vr::VRCompositor()->Submit((vr::Hmd_Eye)eye, &EyeTexture, &bounds, vr::Submit_Default);
 #endif
